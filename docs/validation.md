@@ -2,6 +2,19 @@
 
 ## 0.3.0 development checkpoint
 
+The complete source suite at `5034100` passed **185 tests in 792.81 seconds, zero
+skips**, on Windows/Python 3.12.10 with PostgreSQL 16.15 through WSL, the configured
+OPA binary, and real MAF/A2A/MCP paths. The command was `uv run pytest
+--cov=collective_intelligence_overlay --cov-report=term-missing`, with
+`CIO_TEST_DATABASE_URL`, `CIO_OPA` and `CIO_PG_TOOL_PREFIX` configured. This includes
+three-process applications, invocation/lineage failures, migration/restore and
+the existing 1,000/10,000 mixed-history profiles. Each of five qualifications in
+each profile retained four signature checks, nine DB statements and nine returned
+SELECT rows. These profiles do not yet measure growing Opportunity/Proposal
+history. Full source success is not distribution installation, release CI, security
+audit, the explicit staged-upgrade audit or publication success; those remaining
+0.3.0 gates are tracked separately.
+
 Capability observation-age and policy-scoped reuse metrics passed 18 record and
 inspection tests in 14.54 seconds, zero skips. Tests preserve original receipt
 times on delivery replay, remove withdrawn UNKNOWN evidence/obligations from active
