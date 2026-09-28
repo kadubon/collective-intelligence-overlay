@@ -1,5 +1,20 @@
 # SDK integration
 
+`examples/reference_registration.py` exposes `register_reference(registry, checker)`
+for the installed CSV aggregation and report rendering functions. It returns three
+`(Binding, Capability)` pairs, including actual MAF composition whose children call
+`Registry.execute` with their own arguments and assessment. The host publishes the
+new v2 candidates and obtains independent checks before ordinary reuse. Explicit
+read-only checker probes are permitted before PASS; their success is not evidence.
+Old v1 evidence is not reinterpreted as binding verification. The compatibility
+`peer --reference` demo conversion remains pending.
+
+Run the real-service example test with the PostgreSQL/OPA test environment:
+`uv run pytest tests/integration/test_reference_registration.py -q`. It covers
+pre-PASS denial, checker probes, independently checked results, held-out CSV and
+dependency withdrawal. For durable invocation results and receipts, invoke these
+registered bindings through `Executor`, as in the external document application.
+
 The tested combinations are in [compatibility](compatibility.md). Install the `agents`
 extra for MAF/A2A/MCP, and additionally `model` for the optional provider example.
 Core imports do not load these SDKs.

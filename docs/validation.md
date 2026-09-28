@@ -14,8 +14,10 @@ fixture correction removed serializer warnings and passed the 1,000 profile agai
 the full three-profile run took 672.68 seconds. The fixture's source observations
 were established before setup and exceed the unchanged 300-second freshness limit
 at that scale. The harness now establishes direct local-fixture observations after
-setup and prints full decision reasons on failure; a fresh three-profile run is
-active. No successful 100,000 result is claimed. See [scale methodology](scale.md).
+setup and prints full decision reasons on failure. The revised three-profile run
+passed all three tests in 673.69 seconds, including 100,000 records. Each of the
+15 target qualifications verified four signatures, executed nine DB statements and
+returned nine SELECT rows. Raw observations and limits are in [scale methodology](scale.md).
 Migration and restore tests subsequently passed five checks (6.77 seconds, zero
 skips), including actual PostgreSQL custom dump/restore through the WSL client
 tools, original signed 0.1.0 data, post-restore cursor/freshness invalidation and the

@@ -56,3 +56,11 @@ in the validation status when the corresponding run completes.
 
 OPA subprocess cost remains part of the measured path. This harness does not justify
 introducing another service or a second implementation of the policy rules.
+
+The revised run passed all three profiles in 673.69 seconds with migration 0008
+installed. Raw observations, including all five repetitions and query plans:
+[1,000](measurements/scale-1000.json), [10,000](measurements/scale-10000.json),
+[100,000](measurements/scale-100000.json). The host was shared with development and
+other test processes; latency is an observation under those conditions, not a
+dedicated-machine benchmark. Every profile verified four signatures, executed nine
+DB statements and returned nine SELECT rows for each target qualification.

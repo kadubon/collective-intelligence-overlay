@@ -244,6 +244,13 @@ limits remain intact. Six real HTTP/service/document-E2E tests passed in 50.25
 seconds with no skips; Ruff/format and strict mypy pass. The revised stress run is
 still active. Previously listed reference/documentation/release work remains pending.
 
+Fifteenth checkpoint: existing CSV functions now have an application-side public
+binding registration example, including actual MAF composition with individually
+checked child calls. Its real-service test passed in 3.65 seconds. Compatibility
+demo conversion remains pending. The revised scale run passed all three profiles
+(1,000/10,000/100,000 records) in 673.69 seconds; full measurements are linked from
+the scale document. A full-suite run remains active.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 
