@@ -256,8 +256,10 @@ was added after that run's collection. No test processes from these runs remain.
 Sixteenth checkpoint: package verification now separates core, agents and optional
 model installation, asserts installed version/site-packages origin, checks migration
 0008 and all record schemas, rebuilds/installs the sdist wheel, and reports exact
-artifact hashes. Local build/twine checks passed; clean installed service tests are
-running. License metadata checks and CycloneDX generation passed; pip-audit found
+artifact hashes. Local build/twine checks passed; clean installed agents tests passed
+96 checks (251.90 seconds), and the separately installed model extra passed one
+adapter test (6.98 seconds). The sdist rebuilt/reinstalled and CLI check passed.
+License metadata checks and CycloneDX generation passed; pip-audit found
 no known dependency vulnerabilities, with the unpublished project explicitly
 unavailable to the index audit. No 0.2.0 tag/push/publication has been performed.
 

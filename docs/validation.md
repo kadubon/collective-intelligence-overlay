@@ -1,12 +1,22 @@
 # Validation status
 
 Local 0.2.0 distribution preparation: wheel/sdist build and strict twine checks
-passed. Fresh core/agents/model installation checks are in progress. The installed
+passed. A fresh environment outside the checkout passed the core import/version/path
+checks, **96 agents tests (251.90 seconds, zero skips)** and **one model adapter test
+(6.98 seconds)** after installing that extra separately. The sdist rebuilt and its
+wheel reinstalled successfully; CLI reported 0.2.0. The installed
 development environment's pip-audit check found no known vulnerabilities among
 auditable dependencies; the unpublished project 0.2.0 was explicitly skipped by
 the index lookup. License metadata checks passed for 129 distributions, and
 CycloneDX 1.6 generation produced 133 components. These are point-in-time tool
 observations, not an external audit or a completed CI/release gate.
+
+Tested local checkpoint artifact hashes (not published release artifacts):
+
+```text
+e0ffdbd07915615730614f7c093e631763d5313301d1ac08bcd12a0035dd651a  collective_intelligence_overlay-0.2.0-py3-none-any.whl
+a340a95e407925fd851d52e2915b41e521082d45f376ccb0522d32983a7f542e  collective_intelligence_overlay-0.2.0.tar.gz
+```
 
 Latest full-service checkpoint: **96 passed, zero skipped, 244.02 seconds**, with
 PostgreSQL/OPA, real dump/restore, migrations through 0008 and A2A response limits.
