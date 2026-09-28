@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import asyncio
 import time
+from collections.abc import Awaitable, Callable
 from decimal import Decimal
 from typing import Any
 
@@ -49,6 +50,15 @@ class StepResult(BaseModel):
     invocation: dict[str, Any] | None = None
 
 
+class RunResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    reason: str
+    rounds: int
+    steps: tuple[StepResult, ...]
+    discovered: int
+    deduplicated: int
+
+
 class Steps:
     """Host API for one bounded choice. This is not a workflow or retry engine."""
 
@@ -62,6 +72,80 @@ class Steps:
         self.opportunities, self.executor = opportunities, executor
         self.context = context.model_copy(deep=True)
         self.store = executor.registry.overlay.store
+
+    async def run(
+        self,
+        proposals: Callable[[Opportunity], Awaitable[tuple[tuple[str, dict[str, Any]], ...]]],
+        *,
+        max_steps: int = 16,
+        max_candidates: int = 8,
+        seconds: int = 120,
+    ) -> RunResult:
+        """Finite host loop over discovery and the same durable single-step API.
+
+        The callback can collect authenticated A2A replies or run an installed
+        proposer. It receives observations, not mutable goals or execution grants.
+        Completed/UNKNOWN/running invocations are never assigned fresh attempts.
+        """
+        if not 1 <= max_steps <= 64 or not 1 <= max_candidates <= 32 or not 1 <= seconds <= 300:
+            raise ValueError("invalid finite loop bounds")
+        results: list[StepResult] = []
+        seen: set[str] = set()
+        start = rounds = discovered = deduplicated = 0
+        reason = "step_limit"
+        cycle_observed = False
+        try:
+            async with asyncio.timeout(seconds):
+                for _ in range(max_steps):
+                    rounds += 1
+                    page = await self.opportunities.discover(
+                        max_candidates=max_candidates, start=start
+                    )
+                    discovered += page.discovered
+                    deduplicated += page.deduplicated
+                    start = page.next_goal or 0
+                    pending = [item for item in page.opportunities if item.id not in seen]
+                    if not pending:
+                        if page.next_goal is None:
+                            if cycle_observed:
+                                cycle_observed = False
+                                continue
+                            reason = "no_progress"
+                            break
+                        continue
+                    cycle_observed = page.next_goal is not None
+                    opportunity = pending[0]
+                    seen.add(opportunity.id)
+                    choice = await asyncio.to_thread(self._choice, opportunity.id)
+                    old = (
+                        None
+                        if choice is None
+                        else await asyncio.to_thread(
+                            self.executor.store.get, self.context.caller, choice.invocation_id
+                        )
+                    )
+                    if old is not None:
+                        results.append(
+                            StepResult(
+                                reason="existing_invocation", selection=choice, invocation=old
+                            )
+                        )
+                        continue
+                    replies = await proposals(opportunity.model_copy(deep=True))
+                    result = await self.step(opportunity.id, replies)
+                    results.append(result)
+                    if result.reason == "insufficient_allowance":
+                        reason = "insufficient_allowance"
+                        break
+        except TimeoutError:
+            reason = "deadline"
+        return RunResult(
+            reason=reason,
+            rounds=rounds,
+            steps=tuple(results),
+            discovered=discovered,
+            deduplicated=deduplicated,
+        )
 
     def _choice(self, opportunity_id: str, proposed: Selection | None = None) -> Selection | None:
         with self.store.engine.begin() as conn:

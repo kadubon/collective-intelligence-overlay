@@ -55,6 +55,12 @@ over existing A2A authentication and HTTP limits. Two real HTTP endpoints produc
 different retained alternatives; disabling one endpoint's proposal authority leaves
 the other reply and records the disabled peer as unavailable. This transport test
 runs services in one process and is not the required three-process adaptive E2E.
+The finite host loop now connects bounded discovery and a registered proposal
+callback to durable steps. It stops on no progress, deadline, allowance shortage
+or round limit and avoids reproposing saved work after restart. Discovery emits
+measured qualification overhead without affecting opportunity novelty. Target
+ordering remains static; adaptive allocation and per-owner cross-worker capacity
+enforcement are not yet complete.
 
 ## 0.2.0 implementation and validation
 

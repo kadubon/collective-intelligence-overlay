@@ -7,7 +7,9 @@ allowlists; qualification remains with Overlay and actuation with Registry/Execu
 from __future__ import annotations
 
 import asyncio
+import time
 from datetime import timedelta
+from decimal import Decimal
 from typing import Any, Self
 
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
@@ -17,6 +19,7 @@ from .models import (
     BindingRef,
     Cost,
     Decision,
+    Event,
     Identifier,
     Opportunity,
     Outcome,
@@ -25,6 +28,7 @@ from .models import (
     UseRequest,
     WorkKind,
     now,
+    uid,
 )
 from .queries import RecordQuery
 from .security import Identity, verify
@@ -176,7 +180,30 @@ class Opportunities:
         end = min(start + max_candidates, len(self._goals))
         for goal_id in tuple(self._goals)[start:end]:
             goal = self.goal(goal_id)
-            decision = await self.registry.overlay.qualify(goal.request)
+            started = time.perf_counter()
+            try:
+                decision = await self.registry.overlay.qualify(goal.request)
+            finally:
+                event = Event(
+                    issuer=self.identity.name,
+                    subject=goal.request.subject,
+                    action="recommendation",
+                    task_id=goal.id,
+                    attempt_id=uid(),
+                    correlation_id=goal.id,
+                    costs=(
+                        Cost(
+                            category="overhead",
+                            status="measured",
+                            unit="wall_seconds",
+                            quantity=Decimal(str(round(time.perf_counter() - started, 9))),
+                        ),
+                        Cost(category="overhead", status="unavailable", unit="USD", quantity=None),
+                    ),
+                )
+                await asyncio.shield(
+                    asyncio.to_thread(self.registry.overlay.store.put, self.identity.sign(event))
+                )
             if decision.outcome == Outcome.ACCEPT:
                 satisfied += 1
                 continue

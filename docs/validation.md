@@ -2,6 +2,11 @@
 
 ## 0.3.0 development checkpoint
 
+The finite-loop increment passed 12 opportunity/step and real A2A proposal tests
+in 22.94 seconds, zero skips. Added cases cover no-progress termination, restart
+without reproposal, zero allowance and a one-second deadline. This does not prove
+adaptive allocation or concurrent capacity control across different opportunities.
+
 The A2A proposal increment passed 15 proposal exchange, authentication, HTTP limit
 and opportunity/step tests in 17.61 seconds, zero skips. Two real HTTP endpoints
 returned different signed alternatives and stable replay IDs. Disabling one

@@ -58,6 +58,20 @@ Migration `0010` adds only the local choice table and preserves all existing sig
 records, reservations and invocation states. The full adaptive bounded loop and
 the 0.3.0 release contract remain in development.
 
+`await steps.run(proposal_callback, max_steps=16, max_candidates=8, seconds=120)`
+connects discovery to the same durable step, one operation at a time within this
+call. The installed async callback receives an immutable-copy opportunity and
+returns the authenticated reply tuples accepted by `step`; it can call A2A
+`collect` or an installed reference proposer. Bounds allow at most 64 observation
+rounds, 32 targets per page and 300 seconds. The result reports rounds, discovered
+and deduplicated opportunities, observed invocation results and a stop reason:
+`no_progress`, `insufficient_allowance`, `deadline` or `step_limit`. No progress
+does not mean every goal succeeded. Running, completed and UNKNOWN work is read
+from existing invocation state without another proposal request or fresh attempt.
+Qualification observations have their own measured overhead events. This current
+loop uses registered target order; adaptive bottleneck allocation and a cross-worker
+concurrency limit for different opportunities remain in development.
+
 `bindings.ArtifactSpec` stores an installed builder ID/version/source digest,
 bounded parameters, environment, component bindings and content-addressed data
 references. `spec.persist(Artifacts(owner_directory))` returns the manifest digest.

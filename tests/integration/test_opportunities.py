@@ -372,3 +372,40 @@ async def test_step_unknown_is_not_reexecuted(overlay, identities, records, monk
     restarted = Steps(steps.opportunities, steps.executor, steps.context)
     again = await restarted.step(opportunity.id)
     assert again.invocation == result.invocation and len(calls) == 1
+
+
+async def test_finite_loop_stops_without_reproposing_completed_work(overlay, identities, records):
+    steps, opportunity, envelopes = await configured_steps(overlay, identities, records)
+    calls = []
+
+    async def alternatives(observation):
+        calls.append(observation.id)
+        return envelopes
+
+    result = await steps.run(alternatives, max_steps=8)
+    assert result.reason == "no_progress" and result.rounds == 2
+    assert len(result.steps) == 1 and result.steps[0].invocation["state"] == "completed"
+    assert calls == [opportunity.id]
+    resumed = await Steps(steps.opportunities, steps.executor, steps.context).run(alternatives)
+    assert resumed.reason == "no_progress"
+    assert resumed.steps[0].reason == "existing_invocation"
+    assert calls == [opportunity.id]
+
+
+async def test_finite_loop_deadline_and_allowance_stop(overlay, identities, records):
+    steps, _, envelopes = await configured_steps(overlay, identities, records, amount=0)
+
+    async def alternatives(observation):
+        return envelopes
+
+    result = await steps.run(alternatives)
+    assert result.reason == "insufficient_allowance" and result.rounds == 1
+
+    async def unavailable(observation):
+        await asyncio.sleep(30)
+        return envelopes
+
+    expired = await steps.run(unavailable, seconds=1)
+    assert expired.reason == "deadline" and not expired.steps
+    with pytest.raises(ValueError, match="bounds"):
+        await steps.run(alternatives, max_steps=0)
