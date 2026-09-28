@@ -1,7 +1,9 @@
 # Release procedure and current state
 
-Requested destination: `kadubon/collective-intelligence-overlay`, initial version
-`0.1.0`, PyPI distribution `collective-intelligence-overlay`.
+Requested destination: `kadubon/collective-intelligence-overlay`, next version
+`0.2.0`, PyPI distribution `collective-intelligence-overlay`. Version 0.2.0 is still
+local development: no tag, CI publication or PyPI success is claimed. The completed
+publication below describes 0.1.0 only.
 
 Published and verified on 2026-09-28:
 
@@ -49,10 +51,19 @@ GitHub's API. The publish job downloads the checked wheel/sdist artifact and per
 no source checkout or rebuild. Do not use skip-existing to hide conflicting releases.
 
 Release steps: run frozen checks, build, twine check, clean wheel/sdist installation,
-license/vulnerability/SBOM checks; commit/push; verify CI; create `v0.1.0`; verify tag
+license/vulnerability/SBOM checks; commit/push; verify CI; create `v0.2.0`; verify tag
 workflow and PyPI; install from the actual index in a fresh environment; then create
 GitHub Release notes describing scope, compatibility and unverified boundaries, and
 attach the exact published distributions and supply-chain reports.
+
+For local checks alongside historical artifacts, build into a separate directory
+with `uv build --out-dir .local/dist-0.2.0` and run
+`uv run python scripts/check_package.py --dist-dir .local/dist-0.2.0`.
+The checker verifies packaged schemas/migrations/licenses, installs core outside the
+checkout, verifies the installed version and path, then runs tests with `agents`
+before adding `model` for its mocked provider test. It rebuilds and installs the
+sdist wheel, and prints hashes of the original tested release artifacts. CI uses
+the default `dist` directory and publishes only those original distributions.
 
 If name ownership conflicts, OIDC is rejected or environment approval is required,
 stop that operation and record the exact error here. Never rename the project,

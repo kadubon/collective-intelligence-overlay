@@ -1,5 +1,13 @@
 # Validation status
 
+Local 0.2.0 distribution preparation: wheel/sdist build and strict twine checks
+passed. Fresh core/agents/model installation checks are in progress. The installed
+development environment's pip-audit check found no known vulnerabilities among
+auditable dependencies; the unpublished project 0.2.0 was explicitly skipped by
+the index lookup. License metadata checks passed for 129 distributions, and
+CycloneDX 1.6 generation produced 133 components. These are point-in-time tool
+observations, not an external audit or a completed CI/release gate.
+
 Latest full-service checkpoint: **96 passed, zero skipped, 244.02 seconds**, with
 PostgreSQL/OPA, real dump/restore, migrations through 0008 and A2A response limits.
 The CSV registration example added after collection passed separately (**1 passed,

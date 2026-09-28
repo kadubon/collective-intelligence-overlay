@@ -253,6 +253,14 @@ the scale document. The full-service run finished with **96 passed, zero skipped
 244.02 seconds**; the new registration-example test passed separately because it
 was added after that run's collection. No test processes from these runs remain.
 
+Sixteenth checkpoint: package verification now separates core, agents and optional
+model installation, asserts installed version/site-packages origin, checks migration
+0008 and all record schemas, rebuilds/installs the sdist wheel, and reports exact
+artifact hashes. Local build/twine checks passed; clean installed service tests are
+running. License metadata checks and CycloneDX generation passed; pip-audit found
+no known dependency vulnerabilities, with the unpublished project explicitly
+unavailable to the index audit. No 0.2.0 tag/push/publication has been performed.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 
