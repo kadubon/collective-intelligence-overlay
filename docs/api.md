@@ -431,6 +431,14 @@ For current capability assessment, supply 1–32 explicit `UseRequest` values to
 `metrics --requests-file PATH`. This reports historical independent PASS records
 separately from current local decisions, their scope/policy/evaluation times,
 declared unresolved obligations, and first local verification/reuse receipt lags.
+Reuse receipt lags are restricted to the current report's `historical_reuse_policy_digest`;
+another policy's successful execution does not become this policy's first reuse.
+Each candidate, active obligation and active UNKNOWN evidence report includes its
+original local receipt time and observed age. Re-delivery does not reset that age.
+Expired or withdrawn evidence does not contribute active obligations/UNKNOWN reports.
+These ages describe local observations, not the onset or uninterrupted duration of
+a verification gap. UNKNOWN evidence counts are observations per requested target,
+not distinct unresolved tasks or a claim that all UNKNOWN decisions have evidence.
 The verification backlog counts decisions explicitly requiring independent
 evidence; other UNKNOWN/REJECT reasons remain available for separate work planning.
 Missing or out-of-order observation times are null, not zero. Each target is

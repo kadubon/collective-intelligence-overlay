@@ -2,6 +2,11 @@
 
 ## 0.3.0 (unreleased)
 
+Capability metrics now expose original local receipt times and ages for candidates,
+active obligations and UNKNOWN evidence. Replays retain those times, withdrawn
+evidence leaves active counts, and first-reuse latency is restricted to the report's
+policy digest instead of accepting a receipt from another policy.
+
 An isolated document comparison command records predeclared assignments, fresh
 owner stores, setup/run timings, signed observations, allowance and negative/censored
 outcomes. Initial pilots show equal checked outcome counts and no allowance saving;

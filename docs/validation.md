@@ -2,6 +2,13 @@
 
 ## 0.3.0 development checkpoint
 
+Capability observation-age and policy-scoped reuse metrics passed 18 record and
+inspection tests in 14.54 seconds, zero skips. Tests preserve original receipt
+times on delivery replay, remove withdrawn UNKNOWN evidence/obligations from active
+counts and exclude another policy's completed reuse from first-reuse latency.
+Reported ages are local observation ages, not inferred verification-gap onset.
+Lint, formatting, typing and generated docs/schema checks passed.
+
 The input-contract connection increment passed 11 document-application and experiment
 tests in 369.44 seconds, zero skips, using real PostgreSQL, OPA, MAF and three-process
 A2A. Both fixed and adaptive paths reject the initial mismatched report contract,

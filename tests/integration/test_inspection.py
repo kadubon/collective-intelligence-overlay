@@ -14,6 +14,7 @@ from collective_intelligence_overlay.models import (
     ExecutionReceipt,
     Revocation,
     UseRequest,
+    Verdict,
     now,
 )
 from collective_intelligence_overlay.queries import RecordQuery
@@ -157,6 +158,11 @@ async def test_historical_check_is_not_current_acceptance_and_receipt_latency(
     assert before["verification_backlog"] == 1
     assert before["targets"][0]["first_verification_seconds"] is None
     overlay.store.put(identities["verifier"].sign(evidence))
+    foreign_policy_use = execution(cap, 9, digest(b"different-policy"))
+    overlay.store.put(identities["receiver"].sign(foreign_policy_use))
+    other_policy = await capability_metrics(overlay, (request,))
+    assert other_policy["targets"][0]["first_reuse_seconds"] is None
+    assert other_policy["historical_reuse_policy_digest"] == overlay.policy.digest
     reuse = execution(cap, 10, overlay.policy.digest)
     overlay.store.put(identities["receiver"].sign(reuse))
     checked = await capability_metrics(overlay, (request,))
@@ -180,6 +186,60 @@ async def test_historical_check_is_not_current_acceptance_and_receipt_latency(
     assert revoked["targets"][0]["decision"]["outcome"] == "REJECT"
     with pytest.raises(ValueError, match="duplicate"):
         await capability_metrics(overlay, (request, request))
+
+
+async def test_obligation_and_unknown_ages_use_original_local_receipts(
+    overlay, identities, records, monkeypatch
+):
+    import collective_intelligence_overlay.accounting as accounting
+
+    cap, evidence = records
+    subject = cap.subject.model_copy(update={"id": "aged-observations"})
+    cap = cap.model_copy(update={"subject": subject, "obligations": ("review source conditions",)})
+    evidence = evidence.model_copy(
+        update={
+            "id": "aged-unknown",
+            "subject": subject,
+            "verdict": Verdict.UNKNOWN,
+            "obligations": ("collect another observation",),
+        }
+    )
+    overlay.store.put(identities[cap.issuer].sign(cap))
+    signed = identities[evidence.issuer].sign(evidence)
+    overlay.store.put(signed)
+    request = UseRequest(
+        receiver="receiver", subject=cap.subject, scope=cap.scope, semantic_fit="confirmed"
+    )
+    observation_time = now() + timedelta(minutes=2)
+    monkeypatch.setattr(accounting, "now", lambda: observation_time)
+    first = await capability_metrics(overlay, (request,))
+    target = first["targets"][0]
+    assert first["unresolved_obligations"] == 2
+    assert first["unknown_evidence_observations"] == 1
+    assert target["candidate_observed_age_seconds"] >= 120
+    assert all(item["observed_age_seconds"] >= 120 for item in target["unresolved_obligations"])
+    original = target["unknown_evidence"][0]
+    overlay.store.put(signed)  # delivery replay must not reset local observation age
+    observation_time += timedelta(seconds=30)
+    replay = await capability_metrics(overlay, (request,))
+    repeated = replay["targets"][0]["unknown_evidence"][0]
+    assert repeated["observed_at"] == original["observed_at"]
+    assert repeated["observed_age_seconds"] == pytest.approx(
+        original["observed_age_seconds"] + 30, abs=1e-9
+    )
+    overlay.store.put(
+        identities[evidence.issuer].sign(
+            Revocation(
+                issuer=evidence.issuer,
+                subject=cap.subject,
+                evidence_id=evidence.id,
+                reason="observation withdrawn",
+            )
+        )
+    )
+    withdrawn = await capability_metrics(overlay, (request,))
+    assert withdrawn["unknown_evidence_observations"] == 0
+    assert withdrawn["unresolved_obligations"] == 1
 
 
 async def test_local_decision_inspection_uses_stable_pages_without_affecting_revisions(

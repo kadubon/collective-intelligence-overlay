@@ -191,6 +191,9 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
                 "first_verification_seconds": None,
                 "first_reuse_seconds": None,
                 "capability_identity": None,
+                "candidate_observed_at": None,
+                "candidate_observed_age_seconds": None,
+                "unknown_evidence": [],
             }
             if len(caps) == 1:
                 cap = caps[0]
@@ -215,14 +218,31 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
                 withdrawn = {
                     (r.issuer, r.evidence_id) for r in snapshot.revocations if r.evidence_id
                 }
+                active = [
+                    e
+                    for e in applicable
+                    if e.created_at <= started < e.expires_at and (e.issuer, e.id) not in withdrawn
+                ]
+                observed = await asyncio.to_thread(
+                    _record_observations, overlay.store, cap, applicable, started
+                )
                 obligations = [
-                    {"issuer": cap.issuer, "record": cap.subject.key, "obligation": item}
+                    {
+                        "issuer": cap.issuer,
+                        "record": cap.subject.key,
+                        "obligation": item,
+                        **observed[cap.issuer, cap.subject.key],
+                    }
                     for item in cap.obligations
                 ]
                 obligations.extend(
-                    {"issuer": e.issuer, "record": e.id, "obligation": item}
-                    for e in applicable
-                    if e.created_at <= started < e.expires_at and (e.issuer, e.id) not in withdrawn
+                    {
+                        "issuer": e.issuer,
+                        "record": e.id,
+                        "obligation": item,
+                        **observed[e.issuer, e.id],
+                    }
+                    for e in active
                     for item in e.obligations
                 )
                 detail.update(
@@ -234,8 +254,19 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
                         "classification": cap.classification,
                         "functional_novelty": "unknown",
                         "unresolved_obligations": obligations,
+                        "candidate_observed_at": observed[cap.issuer, cap.subject.key][
+                            "observed_at"
+                        ],
+                        "candidate_observed_age_seconds": observed[cap.issuer, cap.subject.key][
+                            "observed_age_seconds"
+                        ],
+                        "unknown_evidence": [
+                            {"issuer": e.issuer, "record": e.id, **observed[e.issuer, e.id]}
+                            for e in active
+                            if e.verdict == "UNKNOWN"
+                        ],
                         **await asyncio.to_thread(
-                            _first_observations, overlay.store, cap, passed, request
+                            _first_observations, overlay.store, cap, passed, request, policy
                         ),
                     }
                 )
@@ -255,6 +286,8 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
         "completed_at": now().isoformat(),
         "evaluation": "per_target_current_decisions; not an atomic historical replay",
         "latency_basis": "first locally received record minus local candidate receipt",
+        "age_basis": "local record receipt; not onset of a continuous verification gap",
+        "historical_reuse_policy_digest": policy,
         "targets": items,
         "historically_checked_targets": sum(
             item["historical_independent_pass"] is True for item in items
@@ -282,12 +315,46 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
             "independent_evidence_required" in item["decision"]["reasons"] for item in items
         ),
         "unresolved_obligations": sum(len(item["unresolved_obligations"]) for item in items),
+        "unknown_evidence_observations": sum(len(item["unknown_evidence"]) for item in items),
         "inconsistent_targets": sum(not item["consistent"] for item in items),
     }
 
 
+def _record_observations(
+    store: Store, cap: Capability, evidence: list[Evidence], observed_at: datetime
+) -> dict[tuple[str, str], dict[str, Any]]:
+    """Exact signed-record receipt lookups, bounded by the admission snapshot."""
+    keys = [("capability", cap.issuer, cap.subject.key)] + [
+        ("evidence", e.issuer, e.id) for e in evidence
+    ]
+    with store.engine.connect() as conn:
+        rows = conn.execute(
+            select(records.c.issuer, records.c.record_id, records.c.received_at).where(
+                or_(
+                    *[
+                        and_(
+                            records.c.kind == kind,
+                            records.c.issuer == issuer,
+                            records.c.record_id == identifier,
+                        )
+                        for kind, issuer, identifier in keys
+                    ]
+                )
+            )
+        ).all()
+    return {
+        (row.issuer, row.record_id): {
+            "observed_at": row.received_at.isoformat(),
+            "observed_age_seconds": (observed_at - row.received_at).total_seconds()
+            if observed_at >= row.received_at
+            else None,
+        }
+        for row in rows
+    }
+
+
 def _first_observations(
-    store: Store, cap: Capability, passed: list[Evidence], request: UseRequest
+    store: Store, cap: Capability, passed: list[Evidence], request: UseRequest, policy_digest: str
 ) -> dict[str, float | None]:
     with store.engine.connect() as conn:
         created: datetime = conn.execute(
@@ -315,6 +382,7 @@ def _first_observations(
             select(func.min(records.c.received_at)).where(
                 (records.c.kind == "event")
                 & (records.c.issuer == store.owner)
+                & (records.c.policy_digest == policy_digest)
                 & (records.c.subject_key == subject_key(cap.subject))
                 & (
                     records.c.scope_digest
