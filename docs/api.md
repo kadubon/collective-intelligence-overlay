@@ -69,8 +69,24 @@ and deduplicated opportunities, observed invocation results and a stop reason:
 does not mean every goal succeeded. Running, completed and UNKNOWN work is read
 from existing invocation state without another proposal request or fresh attempt.
 Qualification observations have their own measured overhead events. This current
-loop uses registered target order; adaptive bottleneck allocation and a cross-worker
-concurrency limit for different opportunities remain in development.
+loop accepts `allocation_policy=AllocationPolicy(mode="static")` for registered
+target order. Its default adaptive rules inspect the bounded observation page:
+repair takes priority for known failures; a verification backlog gets priority
+only with a currently qualified local checker; connection and observation deficits
+can change priority. The operator sets minimum sample count, backlog thresholds
+and an unverified-page limit. At the latter limit, formation is deferred. Missing
+checker grants, invalid fixed checker inputs, missing evidence and withdrawal do
+not count as checker availability. `Goal.checker_arguments` fixes the host input
+used for this readiness assessment; actual invocation still rechecks its own input.
+Remote checker capacity is not inferred from a peer declaration.
+
+Every returned `AllocationObservation` identifies the receiver, rule/policy
+digests, observation window, exact signed sources, checker decisions, page counts,
+ordering and deferrals. The selected observation is retained in the immutable
+local selection, and the allocation's elapsed cost is measured separately.
+Counts describe that page, not a global backlog or independent statistical samples.
+Persistent cooldown, reserved allowance/capacity across workers and a complete
+cross-page backlog limit remain in development.
 
 `bindings.ArtifactSpec` stores an installed builder ID/version/source digest,
 bounded parameters, environment, component bindings and content-addressed data

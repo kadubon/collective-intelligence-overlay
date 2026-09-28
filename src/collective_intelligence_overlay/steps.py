@@ -16,6 +16,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from sqlalchemy import JSON, Column, DateTime, String, Table, select
 from sqlalchemy.dialects.postgresql import insert
 
+from .allocation import AllocationObservation, AllocationPolicy, allocate
 from .bindings import ExecutionContext, fingerprint
 from .invocations import Executor
 from .models import Cost, Event, Identifier, Opportunity, Proposal, RecordRef, now, uid
@@ -41,6 +42,7 @@ class Selection(BaseModel):
     reasons: tuple[Identifier, ...]
     skipped: tuple[Identifier, ...] = Field(max_length=128)
     estimates: tuple[Cost, ...] = Field(max_length=8)
+    allocation: AllocationObservation | None = None
 
 
 class StepResult(BaseModel):
@@ -57,6 +59,7 @@ class RunResult(BaseModel):
     steps: tuple[StepResult, ...]
     discovered: int
     deduplicated: int
+    allocations: tuple[AllocationObservation, ...] = ()
 
 
 class Steps:
@@ -80,6 +83,7 @@ class Steps:
         max_steps: int = 16,
         max_candidates: int = 8,
         seconds: int = 120,
+        allocation_policy: AllocationPolicy | None = None,
     ) -> RunResult:
         """Finite host loop over discovery and the same durable single-step API.
 
@@ -90,6 +94,7 @@ class Steps:
         if not 1 <= max_steps <= 64 or not 1 <= max_candidates <= 32 or not 1 <= seconds <= 300:
             raise ValueError("invalid finite loop bounds")
         results: list[StepResult] = []
+        allocations: list[AllocationObservation] = []
         seen: set[str] = set()
         start = rounds = discovered = deduplicated = 0
         reason = "step_limit"
@@ -104,7 +109,21 @@ class Steps:
                     discovered += page.discovered
                     deduplicated += page.deduplicated
                     start = page.next_goal or 0
-                    pending = [item for item in page.opportunities if item.id not in seen]
+                    allocation = None
+                    if page.opportunities:
+                        allocation = await allocate(
+                            self.opportunities,
+                            self.context,
+                            page.opportunities,
+                            allocation_policy or AllocationPolicy(),
+                        )
+                        allocations.append(allocation)
+                    by_id = {item.id: item for item in page.opportunities}
+                    pending = (
+                        [by_id[key] for key in allocation.ordered if key not in seen]
+                        if allocation
+                        else []
+                    )
                     if not pending:
                         if page.next_goal is None:
                             if cycle_observed:
@@ -132,7 +151,7 @@ class Steps:
                         )
                         continue
                     replies = await proposals(opportunity.model_copy(deep=True))
-                    result = await self.step(opportunity.id, replies)
+                    result = await self.step(opportunity.id, replies, allocation=allocation)
                     results.append(result)
                     if result.reason == "insufficient_allowance":
                         reason = "insufficient_allowance"
@@ -145,6 +164,7 @@ class Steps:
             steps=tuple(results),
             discovered=discovered,
             deduplicated=deduplicated,
+            allocations=tuple(allocations),
         )
 
     def _choice(self, opportunity_id: str, proposed: Selection | None = None) -> Selection | None:
@@ -176,7 +196,11 @@ class Steps:
         return remaining is not None and remaining >= self.executor.allowance.quantity
 
     async def step(
-        self, opportunity_id: str, envelopes: tuple[tuple[str, dict[str, Any]], ...] = ()
+        self,
+        opportunity_id: str,
+        envelopes: tuple[tuple[str, dict[str, Any]], ...] = (),
+        *,
+        allocation: AllocationObservation | None = None,
     ) -> StepResult:
         """Select from a complete bounded reply batch, independent of reply order.
 
@@ -200,7 +224,7 @@ class Steps:
             raise ValueError("expected a local opportunity")
         started = time.perf_counter()
         try:
-            result = await self._step(opportunity, reference, choice, envelopes)
+            result = await self._step(opportunity, reference, choice, envelopes, allocation)
         finally:
             # Measured inspection survives rejection. No receipt or refund is invented.
             event = Event(
@@ -233,6 +257,7 @@ class Steps:
         reference: RecordRef,
         choice: Selection | None,
         envelopes: tuple[tuple[str, dict[str, Any]], ...],
+        allocation: AllocationObservation | None,
     ) -> StepResult:
         goal = self.opportunities.goal(opportunity.goal_id)
         if opportunity.expires_at <= now() or opportunity.goal_digest != goal.digest:
@@ -270,6 +295,7 @@ class Steps:
                     reasons=("operator_builder_order", "stable_alternative_order"),
                     skipped=tuple(p.id for p in ranked[1:]),
                     estimates=selected.estimates,
+                    allocation=allocation,
                 ),
             )
             assert choice is not None

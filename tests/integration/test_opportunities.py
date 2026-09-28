@@ -6,6 +6,7 @@ from decimal import Decimal
 import pytest
 from sqlalchemy import select
 
+from collective_intelligence_overlay.allocation import AllocationPolicy, allocate
 from collective_intelligence_overlay.bindings import (
     Binding,
     ExecutionContext,
@@ -409,3 +410,57 @@ async def test_finite_loop_deadline_and_allowance_stop(overlay, identities, reco
     assert expired.reason == "deadline" and not expired.steps
     with pytest.raises(ValueError, match="bounds"):
         await steps.run(alternatives, max_steps=0)
+
+
+async def test_allocation_reacts_to_backlog_but_does_not_trust_unqualified_checker(
+    overlay, identities, records
+):
+    steps, _, _ = await configured_steps(overlay, identities, records)
+    formation = steps.opportunities.goal("transformation")
+    binding = steps.executor.registry.inspect("installed")
+    verification_target = binding.subject.model_copy(update={"id": "unchecked-candidate"})
+    checking = formation.model_copy(
+        update={
+            "id": "check-goal",
+            "checker_arguments": {"value": 3},
+            "request": formation.request.model_copy(update={"subject": verification_target}),
+        }
+    )
+    candidate = Capability.model_validate(
+        {
+            **records[0].model_dump(),
+            "schema_version": "2",
+            "issuer": "receiver",
+            "subject": verification_target,
+            "binding_digest": binding.digest,
+        }
+    )
+    overlay.store.put(identities["receiver"].sign(candidate))
+    host = Opportunities(steps.executor.registry, identities["receiver"], (formation, checking))
+    page = await host.discover()
+    assert [o.work_kind for o in page.opportunities] == ["formation", "verification"]
+    static = await allocate(
+        host, steps.context, page.opportunities, AllocationPolicy(mode="static")
+    )
+    assert static.ordered[0] == page.opportunities[0].id
+    adaptive = await allocate(
+        host,
+        steps.context,
+        page.opportunities,
+        AllocationPolicy(verification_threshold=1, unverified_limit=1),
+    )
+    assert adaptive.ordered == (page.opportunities[1].id,)
+    assert adaptive.qualified_checkers == (checking.checker,)
+    assert adaptive.deferred[page.opportunities[0].id] == "unverified_queue_limit"
+    assert adaptive.sample_count == 2 and adaptive.checker_decisions
+    # A checker withdrawal is not overridden by the existence of a backlog.
+    withdrawal = Revocation(issuer="receiver", subject=binding.subject, reason="checker withdrawn")
+    overlay.store.put(identities["receiver"].sign(withdrawal))
+    unavailable = await allocate(
+        host,
+        steps.context,
+        page.opportunities,
+        AllocationPolicy(verification_threshold=1, unverified_limit=1),
+    )
+    assert not unavailable.qualified_checkers and not unavailable.ordered
+    assert unavailable.deferred[page.opportunities[1].id] == "checker_unavailable"

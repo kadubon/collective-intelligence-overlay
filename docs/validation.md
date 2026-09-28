@@ -2,6 +2,13 @@
 
 ## 0.3.0 development checkpoint
 
+The allocation increment passed 13 opportunity/allocation/step and real A2A tests
+in 27.61 seconds, zero skips. Actual Registry/OPA checks cause verification work
+to precede formation when a checker qualifies; withdrawal removes that priority
+and cannot bypass the unverified-page limit. Static ordering remains available.
+Lint, formatting and strict typing (46 source files) passed. Cooldown, reserved
+capacity and cross-page backlog enforcement are not covered as completed features.
+
 The finite-loop increment passed 12 opportunity/step and real A2A proposal tests
 in 22.94 seconds, zero skips. Added cases cover no-progress termination, restart
 without reproposal, zero allowance and a one-second deadline. This does not prove

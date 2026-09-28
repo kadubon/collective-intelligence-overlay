@@ -43,6 +43,7 @@ class Goal(BaseModel):
     revision: Identifier
     request: UseRequest
     checker: BindingRef
+    checker_arguments: dict[str, JsonValue] = Field(default_factory=dict, max_length=32)
     builders: tuple[BindingRef, ...] = Field(min_length=1, max_length=32)
     peers: tuple[Identifier, ...] = Field(default=(), max_length=16)
     lifetime_seconds: int = Field(default=900, ge=1, le=86400)

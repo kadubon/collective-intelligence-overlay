@@ -61,6 +61,12 @@ or round limit and avoids reproposing saved work after restart. Discovery emits
 measured qualification overhead without affecting opportunity novelty. Target
 ordering remains static; adaptive allocation and per-owner cross-worker capacity
 enforcement are not yet complete.
+The loop now applies small configurable adaptive rules and retains allocation
+observations with its local choices. Real Registry/OPA readiness checks gate
+verification priority; checker withdrawal removes that readiness. An unverified
+page limit suppresses formation, and a static mode preserves the comparison rule.
+These are bounded page observations. Persistent cooldown, reserved allowance,
+cross-worker capacity and a complete cross-page backlog bound still need work.
 
 ## 0.2.0 implementation and validation
 
