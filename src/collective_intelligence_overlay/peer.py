@@ -4,12 +4,17 @@ import asyncio
 import contextlib
 import json
 import time
+from collections.abc import Callable
 from decimal import Decimal
 from typing import Any, Literal
 
+from jsonschema import ValidationError as SchemaError  # type: ignore[import-untyped]
+
 from .accounting import metrics
 from .artifacts import Artifacts
+from .bindings import ExecutionContext, Registry
 from .config import Config
+from .invocations import Executor, Reservation
 from .models import Capability, Cost, Event, Revocation, Subject, UseRequest, Verdict, uid
 from .reference import capability, check, compose_report, csv_sum, render_report
 from .security import verify
@@ -18,9 +23,15 @@ from .synchronization import Feed, FeedFilter, ResnapshotRequired
 
 
 class PeerService:
-    def __init__(self, config: Config) -> None:
+    def __init__(self, config: Config, configure: Callable[[Registry], None] | None = None) -> None:
         self.config = config
         self.identity, self.overlay = config.runtime()
+        self.registry = Registry(self.overlay)
+        if configure is not None:
+            configure(self.registry)
+        self.executor = Executor(
+            self.registry, self.identity, Reservation(seconds=min(config.max_seconds, 30))
+        )
         self.artifacts = Artifacts(config.artifact_directory)
         self.reference_cache: dict[str, Any] = {}
 
@@ -51,6 +62,33 @@ class PeerService:
             if record.issuer != caller:
                 raise ValueError("issuer must match authenticated submitting peer")
             return {"inserted": self.overlay.store.put(data["envelope"])}
+        if operation == "invoke":
+            context = ExecutionContext(
+                caller=caller,
+                environment=self.config.execution_environment,
+                permissions=frozenset(self.config.policy.permissions),
+            )
+            try:
+                return await self.executor.invoke(
+                    str(data["invocation_id"]),
+                    str(data["binding_id"]),
+                    str(data["binding_digest"]),
+                    data["arguments"],
+                    context,
+                )
+            except Conflict:
+                return {"state": "conflict", "error": "INVOCATION_OR_ALLOWANCE_CONFLICT"}
+            except (ValueError, SchemaError):
+                return {"state": "rejected", "error": "INVALID_OR_UNAUTHORIZED_BINDING"}
+        if operation in {"invocation", "cancel_invocation"}:
+            lookup = (
+                self.executor.store.cancel
+                if operation == "cancel_invocation"
+                else self.executor.store.get
+            )
+            return {
+                "invocation": await asyncio.to_thread(lookup, caller, str(data["invocation_id"]))
+            }
         if caller != self.config.owner:
             raise ValueError("owner operation; delegation is not configured")
         if operation == "sync":

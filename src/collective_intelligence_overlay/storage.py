@@ -286,7 +286,7 @@ class Store:
                 .where(leases.c.task_id == task_id)
                 .values(
                     state="cancelled" if cancelled else "complete",
-                    actual=None if cancelled else row["reservation"],
+                    actual=None,  # reservation is not measured consumption
                 )
             )
 
@@ -453,44 +453,53 @@ class Store:
     def acquire(
         self, task_id: str, worker: str, unit: str, reservation: Decimal, seconds: int = 60
     ) -> int:
+        with self.engine.begin() as conn:
+            return self._acquire(conn, task_id, worker, unit, reservation, seconds)
+
+    def _acquire(
+        self,
+        conn: Connection,
+        task_id: str,
+        worker: str,
+        unit: str,
+        reservation: Decimal,
+        seconds: int,
+    ) -> int:
         if not reservation.is_finite() or reservation < 0 or not 1 <= seconds <= 3600:
             raise ValueError("invalid lease bounds")
-        # Lock budget first for consistent lock ordering across acquire/settle.
-        with self.engine.begin() as conn:
-            available: Decimal = conn.execute(
-                select(budgets.c.remaining).where(budgets.c.unit == unit).with_for_update()
-            ).scalar_one()
-            old = (
-                conn.execute(select(leases).where(leases.c.task_id == task_id).with_for_update())
-                .mappings()
-                .one_or_none()
-            )
-            if old and (old["state"] != "active" or old["expires_at"] > now()):
-                raise Conflict("task already owned or terminal")
-            if old and old["unit"] != unit:
-                raise Conflict("lease unit cannot change")
-            # Expired reservations remain charged: the external effect may have occurred.
-            if available < reservation:
-                raise Conflict("budget exhausted")
-            fence = old["fence"] + 1 if old else 1
-            values = dict(
-                worker=worker,
-                fence=fence,
-                expires_at=now() + timedelta(seconds=seconds),
-                state="active",
-                reservation=reservation,
-                unit=unit,
-            )
-            if old:
-                conn.execute(update(leases).where(leases.c.task_id == task_id).values(**values))
-            else:
-                conn.execute(insert(leases).values(task_id=task_id, **values))
-            conn.execute(
-                update(budgets)
-                .where(budgets.c.unit == unit)
-                .values(remaining=available - reservation)
-            )
-            return int(fence)
+        # Shared transaction helper; budget precedes lease in every reservation.
+        available: Decimal = conn.execute(
+            select(budgets.c.remaining).where(budgets.c.unit == unit).with_for_update()
+        ).scalar_one()
+        old = (
+            conn.execute(select(leases).where(leases.c.task_id == task_id).with_for_update())
+            .mappings()
+            .one_or_none()
+        )
+        if old and (old["state"] != "active" or old["expires_at"] > now()):
+            raise Conflict("task already owned or terminal")
+        if old and old["unit"] != unit:
+            raise Conflict("lease unit cannot change")
+        # Expired reservations remain charged: the external effect may have occurred.
+        if available < reservation:
+            raise Conflict("budget exhausted")
+        fence = old["fence"] + 1 if old else 1
+        values = dict(
+            worker=worker,
+            fence=fence,
+            expires_at=now() + timedelta(seconds=seconds),
+            state="active",
+            reservation=reservation,
+            unit=unit,
+        )
+        if old:
+            conn.execute(update(leases).where(leases.c.task_id == task_id).values(**values))
+        else:
+            conn.execute(insert(leases).values(task_id=task_id, **values))
+        conn.execute(
+            update(budgets).where(budgets.c.unit == unit).values(remaining=available - reservation)
+        )
+        return int(fence)
 
     def finish(self, task_id: str, worker: str, fence: int, *, cancelled: bool = False) -> None:
         with self.engine.begin() as conn:

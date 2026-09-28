@@ -1,5 +1,34 @@
 # Python API and CLI
 
+For 0.2.0 registered execution, an operator creates a `Registry(overlay)`, then
+uses `register_local`, `register_mcp` or `register_a2a` with an explicit `Binding`
+and an input applicability checker. `Executor(registry, identity, Reservation())`
+adds persistent invocation identity and owner-local work reservations:
+
+```python
+result = await executor.invoke(invocation_id, binding.id, binding.digest, arguments, context)
+saved = executor.store.get(authenticated_caller, invocation_id)
+cancelled = executor.store.cancel(authenticated_caller, invocation_id)
+```
+
+`context` is an operator-constructed `ExecutionContext`, never caller-supplied
+permissions. For peers, `PeerService(config, configure=register_application)`
+creates the registry and calls the application registration function. The provider
+uses `config.execution_environment` and its own policy permissions. Its A2A
+business operations are `invoke`, `invocation`, and `cancel_invocation`; the
+authenticated caller is always the result/cancellation owner. These use immediate
+A2A Messages and do not expose protocol Tasks or promise automatic worker resume.
+
+`completed` means execution/result persistence, not verified correctness. Exact
+retries return the existing result or running state; another request with the same
+caller/ID conflicts. A lost/expired worker or a cancellation after dispatch becomes
+`unknown` and is not automatically rerun. Reservations remain reserved/charged;
+they are not measured resource consumption. This version does not implement
+automatic settlement/refunds. Existing v0.1 historical `actual` values are retained
+by migration; new work does not infer actual consumption from reservation quantity.
+The low-level `Overlay.execute(request, operation)` remains a trusted-host API;
+registered execution binds the exact actuator and actual arguments instead.
+
 0.2.0 development adds receiver-persisted paged synchronization:
 
 ```sh

@@ -44,6 +44,7 @@ class Config(Model):
     max_children: int = Field(default=4, ge=0, le=32)
     max_rechecks: int = Field(default=2, ge=0, le=10)
     max_seconds: int = Field(default=120, ge=1, le=3600)
+    execution_environment: dict[Identifier, Identifier] = Field(default_factory=dict, max_length=64)
 
     def runtime(self) -> tuple[Identity, Overlay]:
         allowed_url(self.url, frozenset({self.url}), local=self.local_development)

@@ -10,15 +10,21 @@ import copy
 import inspect
 import json
 from collections.abc import Awaitable, Callable
+from contextvars import ContextVar
 from dataclasses import dataclass
-from typing import Any, Literal
+from typing import TYPE_CHECKING, Any, Literal
 
 from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .models import Digest, Identifier, Scope, Subject, UseRequest
+from .models import Digest, Identifier, Scope, Subject, UseRequest, uid
 from .overlay import Overlay
-from .security import allowed_url, digest
+from .security import Identity, allowed_url, digest
+
+if TYPE_CHECKING:
+    from .config import Config
+
+active_invocation: ContextVar[str | None] = ContextVar("active_overlay_invocation", default=None)
 
 
 def fingerprint(value: Any) -> str:
@@ -242,15 +248,16 @@ class Registry:
         expected_digest: str,
         arguments: dict[str, Any],
         context: ExecutionContext,
+        *,
+        before_call: Callable[[], Awaitable[None]] | None = None,
     ) -> Any:
         prepared = self.prepare(binding_id, expected_digest, arguments, context)
         entry = self._entry(binding_id)
 
-        async def operation() -> Any:
+        async def actuator() -> Any:
             current = self._entry(binding_id)
             if current is not entry or current.digest != prepared.binding_digest:
                 raise ValueError("binding changed before execution")
-            # Recheck actual mutable context/arguments immediately before actuation.
             checked = self.prepare(binding_id, expected_digest, prepared.arguments, context)
             if (
                 checked.arguments_digest != prepared.arguments_digest
@@ -262,6 +269,14 @@ class Registry:
                 raise ValueError("result exceeds execution bound")
             Draft202012Validator(entry.binding.output_schema).validate(result)
             return result
+
+        async def operation() -> Any:
+            if before_call is not None:
+                await before_call()
+                # Durable dispatch can yield to another task: recheck admission
+                # and the exact registration after that await, before the actuator.
+                return await self.overlay.execute(prepared.request, actuator)
+            return await actuator()
 
         return await self.overlay.execute(prepared.request, operation)
 
@@ -279,5 +294,54 @@ class Registry:
             return await invoke_registered(
                 endpoint, target.name, target.interface_digest, arguments
             )
+
+        self._register(binding, operation, assess)
+
+    def register_a2a(
+        self, binding: Binding, assess: Assessment, config: Config, identity: Identity
+    ) -> None:
+        """Invoke an explicitly registered provider binding through official A2A.
+
+        interface_digest identifies the provider's binding manifest, not remote code.
+        The provider applies its own authority/admission/allowance and returns a
+        durable business result inside an immediate protocol Message.
+        """
+        target = binding.target.model_copy(deep=True)
+        if target.kind != "a2a" or target.peer is None or target.endpoint is None:
+            raise ValueError("A2A registration requires an exact peer destination")
+        peer = next((peer for peer in config.peers if peer.identity == target.peer), None)
+        if peer is None or peer.url != target.endpoint or identity.name != self.overlay.store.owner:
+            raise ValueError("A2A binding does not match operator-owned peer configuration")
+        peer_name = target.peer
+        local_binding_id, local_binding_digest = binding.id, binding.digest
+
+        async def operation(arguments: dict[str, Any]) -> Any:
+            from .adapters.a2a import send
+
+            invocation = fingerprint(
+                [
+                    active_invocation.get() or uid(),
+                    local_binding_id,
+                    local_binding_digest,
+                    arguments,
+                ]
+            )
+            response = await send(
+                config,
+                identity,
+                peer_name,
+                {
+                    "operation": "invoke",
+                    "invocation_id": invocation,
+                    "binding_id": target.name,
+                    "binding_digest": target.interface_digest,
+                    "arguments": arguments,
+                },
+            )
+            if response.get("state") != "completed":
+                raise ValueError(
+                    "remote invocation is incomplete or unknown; reconcile by invocation ID"
+                )
+            return response["result"]
 
         self._register(binding, operation, assess)

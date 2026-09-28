@@ -93,6 +93,25 @@ Durable invocation/provider bindings, generic reference registration, C3/C4
 formation/lineage, scoped metrics, additional adversarial sync/recovery/scale
 profiles, full documentation and release validation remain incomplete.
 
+Fifth checkpoint: migration 0005 and `Executor`/`InvocationStore` connect stable
+caller/invocation/request identity to the existing budget and fenced lease in one
+transaction. Results survive reconnect/retry; conflicting ID reuse is rejected;
+cancel/expiry preserves uncertain effects and reservations. The old reservation
+helper is shared, not reimplemented. New completions no longer copy reservation
+quantity into measured actual consumption. A real subprocess test terminates
+after an external file effect and before result commit, then verifies UNKNOWN,
+no automatic replay and retained budget. Dispatch-time withdrawal blocks actuation.
+
+`Registry.register_a2a` and provider invoke/result/cancel operations now use real
+A2A HTTP with caller-bound authorization and separate consumer/provider
+qualification, state and allowance. Tests use separate owner databases and check
+exact retry, result privacy and wrong-binding/caller rejection. They do not yet
+establish the required three-process C1-through-C4 formation scenario. Fresh full
+run: **70 passed, zero skipped, 77.84 seconds**; Ruff/format, strict mypy and docs
+checks pass. Generic reference extraction/registration, standard non-overlay A2A
+service binding, signed formation receipts/lineage/scoped metrics, expanded
+recovery/scale checks, all remaining documentation and 0.2.0 publication are pending.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 
