@@ -2,6 +2,18 @@
 
 ## 0.3.0 development checkpoint
 
+The external observation-driven document application passed both three-process
+E2E cases in 97.17 seconds, zero skips, with actual PostgreSQL, OPA, A2A HTTP and
+MAF composition. Separate calibration inputs produced thresholds 2 and 4. Each
+case retained two peer alternatives, rejected ordinary use of unverified C3,
+restarted before checking C3, continued through independent checking and C4
+formation with real receipts, replayed the saved business result after another
+restart, and stopped after dependency withdrawal. The existing document E2E also
+passed in the preceding combined three-test run (133.33 seconds); its implementation
+was unchanged. Lint, formatting, package typing and generated documentation checks
+passed. This is a deterministic application with a fixed domain priority, not a
+completed adaptive allocation experiment or a 0.3.0 release gate.
+
 The public proposal-contract increment passed 21 record, opportunity/step and real
 A2A HTTP tests in 27.42 seconds, zero skips. The transport test exports only public
 contract configuration, observes actual outgoing requests, and confirms private

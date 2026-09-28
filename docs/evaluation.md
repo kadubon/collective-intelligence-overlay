@@ -1,5 +1,17 @@
 # Evaluation and metrics
 
+The unreleased `examples/adaptive_documents.py` application now has a three-process
+integration path where the harness supplies checked initial primitives, then the
+receiver discovers deficits and selects authenticated alternatives itself. It
+materializes a report workflow from observed component use, checks it independently,
+and uses that workflow to derive and form a parameterized document classifier.
+Two calibration inputs are tested in separate databases and processes, producing
+different thresholds. These are integration cases, not independent statistical
+evidence of an adaptive benefit. The application currently uses a fixed domain
+priority and has no matched adaptive-versus-static results. Initial setup and full
+experiment cost reporting remain work in progress; do not infer cost savings from
+the test duration or the number of candidates.
+
 The [mixed-history scale harness](scale.md) measures indexed qualification at
 1,000/10,000 records and offers a selectable 100,000-record stress profile.
 

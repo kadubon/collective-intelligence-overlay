@@ -33,8 +33,16 @@ candidate against the installed binding, invalidates old proposals and rediscove
 the checking deficit. Applications must persist the returned configuration. Foreign
 proposers can explicitly opt into candidate versions within an approved public
 contract; neither collection nor that exported configuration contains private
-checker inputs. This does not yet connect the adaptive three-process document
-application end to end.
+checker inputs.
+
+The external document application now connects actual observations to two peer
+alternatives, stable Steps invocations, FormationSession publication, independent
+checking and subsequent C3-to-C4 use in three processes. It persists target goals
+and reconstructs callables from existing manifests. Its current candidate/checking
+priority is a fixed domain rule, not the core adaptive allocator; checking still
+uses the existing verifier lease path outside Steps. Adaptive integration, failure
+coverage, relation-role semantics, full metrics and matched experiments remain
+required, along with all final distribution and publication gates.
 
 The first 0.3.0 working-tree increment adds versioned Opportunity/Proposal models,
 generated schemas, bounded exact record inspection and original-payload reference

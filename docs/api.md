@@ -2,6 +2,32 @@
 
 ## 0.3.0 development APIs (unreleased)
 
+The external [document application](../examples/adaptive_documents.py) connects
+discovery, A2A alternatives, durable selection and actual formation. Its
+`configure_application(configs, training_text)` installs application templates and
+writes owner goals plus public proposer contracts. Serve each existing owner with
+`uv run python examples/adaptive_documents.py --config PATH`. The owner-only A2A
+operation `adaptive-run` accepts `max_steps` from 1 to 16 (also bounded by config).
+It returns a reason and observed history; it creates at most the two registered
+application candidates, with at most eight child calls per formation (or the lower
+configured `max_children`) and a 120-second run deadline. Owner concurrency also
+respects configuration; `max_rechecks=0` disables new checks. Concurrent requests
+to the same service return `already_running`.
+The independent checker retains its own allowance and read-only invocation grants.
+Its reference pins a registered Binding, including the installed checker source;
+the explicit application route checks caller, binding and actual argument shape.
+
+The reproducible three-process setup, initial primitive checks, later autonomous
+choices and cleanup are exercised by
+`uv run pytest tests/e2e/test_adaptive_documents.py -q` with the documented PostgreSQL
+and OPA environment. A selected count/report is an input to an installed application
+factory; only observed completed uses enter its FormationSession. Candidate
+registration remains UNKNOWN until independent checks and local admission succeed.
+The current application checks candidates before additional formation using a fixed
+domain rule. It does **not** yet exercise the core adaptive allocator or complete the
+matched experiment requirement. Verification requests use the existing checker
+lease path; they are not yet selected through `Steps`.
+
 `opportunities.Goal` is operator configuration: a versioned goal, exact ordinary-use
 `UseRequest`, fixed checker binding, bounded installed-builder allowlist and explicit
 proposal peers. `Opportunities(registry, identity, goals)` owns isolated copies.
