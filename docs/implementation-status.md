@@ -50,6 +50,11 @@ environment and components to the subject digest. A separate Python process
 restores the saved manifest and executes after actual PostgreSQL/OPA admission.
 Changed calibration values with identical callable source get different identities
 and cannot reuse old evidence. The existing v1 binding digest is retained.
+Explicitly registered foreign-goal contracts now support signed proposal replies
+over existing A2A authentication and HTTP limits. Two real HTTP endpoints produce
+different retained alternatives; disabling one endpoint's proposal authority leaves
+the other reply and records the disabled peer as unavailable. This transport test
+runs services in one process and is not the required three-process adaptive E2E.
 
 ## 0.2.0 implementation and validation
 

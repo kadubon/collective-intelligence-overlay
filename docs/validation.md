@@ -2,6 +2,14 @@
 
 ## 0.3.0 development checkpoint
 
+The A2A proposal increment passed 15 proposal exchange, authentication, HTTP limit
+and opportunity/step tests in 17.61 seconds, zero skips. Two real HTTP endpoints
+returned different signed alternatives and stable replay IDs. Disabling one
+peer's proposal authority preserved the other response and marked the disabled
+peer unavailable. Foreign-goal substitutions and authenticated-issuer mismatch
+were refused. These endpoints ran in one test process; this is transport evidence,
+not the future three-process adaptive formation demonstration.
+
 The persisted-binding increment passed 20 focused binding, reconstruction and
 opportunity/step tests in 26.74 seconds, zero skips. Reconstruction includes a
 separate interpreter loading the saved manifest, verifying stored evidence in

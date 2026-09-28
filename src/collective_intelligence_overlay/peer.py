@@ -12,6 +12,7 @@ from .bindings import ExecutionContext, Registry
 from .config import Config
 from .invocations import Executor, Reservation
 from .models import Event, Revocation, Subject, UseRequest, uid
+from .proposal_exchange import ProposalExchange
 from .queries import RecordCursor, RecordQuery
 from .security import verify
 from .storage import Conflict
@@ -23,6 +24,7 @@ class PeerService:
         self.config = config
         self.identity, self.overlay = config.runtime()
         self.registry = Registry(self.overlay)
+        self.proposal_exchange: ProposalExchange | None = None
         if configure is not None:
             configure(self.registry)
         self.executor = Executor(
@@ -32,6 +34,12 @@ class PeerService:
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
         operation = data.get("operation")
         started = time.perf_counter()
+        if operation == "propose":
+            if self.proposal_exchange is None or caller not in {
+                p.identity for p in self.config.peers
+            }:
+                raise ValueError("peer not authorized for proposal exchange")
+            return await self.proposal_exchange.respond(caller, data["envelope"])
         if operation == "discover":
             # Explicitly configured peers may read this peer's shared record set.
             if not self.config.share_records or caller not in {

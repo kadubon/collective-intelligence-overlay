@@ -29,6 +29,21 @@ JSON/schema output gets bounded repair, transport uncertainty gets no retry, and
 returned costs separate measured elapsed time from unavailable tokens/prices.
 Returned drafts still require the same host validation.
 
+For configured A2A peers, the host assigns `service.proposal_exchange =
+ProposalExchange(service.overlay.store, service.identity, approved_foreign_goals,
+installed_async_proposer)`. Foreign goals pin the owner, target, scope, checker
+and builder allowlist; the local proposer must be explicitly named in `goal.peers`.
+The `propose` operation is denied by default even when evidence sharing is enabled.
+The installed callback returns `ProposalDrafts`; it cannot change the contract.
+`await proposal_exchange.collect(config, store, identity, goal, opportunity_id)`
+uses existing authenticated A2A destinations to obtain each peer's signed reply.
+It returns `replies` for `Steps.step` and a separate `unavailable` peer list. A peer
+failure does not erase another peer's alternatives or count as verification FAIL.
+Each reply has at most eight proposals; request concurrency follows configuration,
+the complete collection has at most 60 seconds (or the lower configured limit),
+and failed requests are not retried. Signed payload references and each origin are
+checked before returning. Host goal/builder/permission checks still run in the step.
+
 `steps.Steps(opportunities, executor, owner_context).step(opportunity_id, replies)`
 accepts at most 128 `(authenticated_caller, signed_proposal)` replies. It retains
 the alternatives and atomically stores one immutable owner-local choice. The

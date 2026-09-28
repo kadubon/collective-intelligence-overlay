@@ -379,6 +379,27 @@ class Store:
                 ).hexdigest()
         return reference.model_copy(update={"payload_digest": value})
 
+    def signed_record(self, reference: RecordRef) -> dict[str, Any]:
+        """Return original authenticated bytes for an exact, already-authorized export."""
+        if reference.kind == "decision":
+            raise ValueError("local decisions cannot be exported as signed records")
+        with self.engine.connect() as conn:
+            envelope = conn.execute(
+                select(records.c.envelope).where(
+                    (records.c.kind == reference.kind)
+                    & (records.c.issuer == reference.issuer)
+                    & (records.c.record_id == reference.id)
+                )
+            ).scalar_one_or_none()
+        if (
+            envelope is None
+            or hashlib.sha256(base64.b64decode(envelope["payload"], validate=True)).hexdigest()
+            != reference.payload_digest
+        ):
+            raise ValueError("missing or mismatched signed record")
+        verify(envelope, self.principals)
+        return dict(envelope)
+
     def reset_sync_after_restore(self) -> str:
         """Offline operator recovery: rotate feed generation and discard freshness.
 
