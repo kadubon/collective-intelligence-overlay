@@ -112,6 +112,24 @@ checks pass. Generic reference extraction/registration, standard non-overlay A2A
 service binding, signed formation receipts/lineage/scoped metrics, expanded
 recovery/scale checks, all remaining documentation and 0.2.0 publication are pending.
 
+Sixth checkpoint: the generic peer no longer dispatches CSV/reference work;
+`ReferencePeerService` is selected explicitly by `peer --reference`. Registered
+composition pins component manifests, and child execution checks actual child
+arguments independently. Migration 0006 links durable invocations to signed v2
+execution receipts. `FormationSession` validates observed receipt references
+against completed local invocations before publishing a candidate and formation
+record. Original v1 payload bytes remain preserved. Nested wall-time observations
+are not added as resource consumption.
+
+The new real PostgreSQL/OPA/MAF integration scenario composes document primitives
+into C3, uses C3's output to construct C4, independently checks outputs, executes
+held-out work and rejects both descendants after C1 withdrawal. This is an
+in-process construction test, not the still-pending three-process scenario.
+Fresh full run: **72 passed, zero skipped, 84.03 seconds**; Ruff, strict mypy and
+generated schema checks pass. Standard non-overlay A2A, external application
+registration examples, new three-process lifecycle, scoped paged metrics,
+scale/recovery profiles, complete docs and release gates remain pending.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

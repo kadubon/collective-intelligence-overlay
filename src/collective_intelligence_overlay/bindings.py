@@ -17,7 +17,7 @@ from typing import TYPE_CHECKING, Any, Literal
 from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-from .models import Digest, Identifier, Scope, Subject, UseRequest, uid
+from .models import Digest, Identifier, ReceiptRef, Scope, Subject, UseRequest, uid
 from .overlay import Overlay
 from .security import Identity, allowed_url, digest
 
@@ -25,6 +25,10 @@ if TYPE_CHECKING:
     from .config import Config
 
 active_invocation: ContextVar[str | None] = ContextVar("active_overlay_invocation", default=None)
+formation_receipts: ContextVar[list[ReceiptRef] | None] = ContextVar(
+    "observed_formation_receipts", default=None
+)
+formation_steps: ContextVar[list[int] | None] = ContextVar("bounded_formation_steps", default=None)
 
 
 def fingerprint(value: Any) -> str:
@@ -79,6 +83,7 @@ class Binding(BaseModel):
     # JSON pointers to security-relevant argument values and exact allowed values.
     # Paths/URLs/tenants that change authority must be declared by the operator.
     resources: dict[str, tuple[str, ...]] = Field(default_factory=dict, max_length=64)
+    components: tuple[Digest, ...] = Field(default=(), max_length=64)
 
     @model_validator(mode="after")
     def schemas(self) -> Binding:
@@ -120,6 +125,9 @@ class ExecutionContext(BaseModel):
     caller: Identifier
     environment: dict[str, str]
     permissions: frozenset[str] = frozenset()
+
+
+active_binding: ContextVar[Binding | None] = ContextVar("active_execution_binding", default=None)
 
 
 Operation = Callable[[dict[str, Any]], Awaitable[Any]]
@@ -169,6 +177,7 @@ class Registry:
     def __init__(self, overlay: Overlay) -> None:
         self.overlay = overlay
         self._entries: dict[str, _Registration] = {}
+        self._digests: dict[str, _Registration] = {}
 
     def register_local(self, binding: Binding, operation: Operation, assess: Assessment) -> None:
         if binding.target.kind != "local":
@@ -188,7 +197,28 @@ class Registry:
         # Pydantic frozen models can contain mutable dicts: own an isolated copy and
         # compare its original fingerprint again at the actuator boundary.
         owned = binding.model_copy(deep=True)
-        self._entries[binding.id] = _Registration(owned, owned.digest, operation, assess)
+        entry = _Registration(owned, owned.digest, operation, assess)
+        if previous is not None:
+            self._digests.pop(previous.digest, None)
+        self._entries[binding.id] = entry
+        self._digests[entry.digest] = entry
+
+    def _check_components(
+        self, binding: Binding, path: frozenset[str] = frozenset(), checked: set[str] | None = None
+    ) -> None:
+        checked = set() if checked is None else checked
+        if binding.digest in path or len(path) >= 64:
+            raise ValueError("cyclic or excessive registered composition")
+        if binding.digest in checked:
+            return
+        if len(checked) >= self.overlay.max_graph_nodes:
+            raise ValueError("composition exceeds local dependency bound")
+        for component_digest in binding.components:
+            component = self._digests.get(component_digest)
+            if component is None or component.binding.digest != component_digest:
+                raise ValueError("component binding changed; requalification required")
+            self._check_components(component.binding, path | {binding.digest}, checked)
+        checked.add(binding.digest)
 
     def inspect(self, binding_id: str) -> Binding:
         return self._entry(binding_id).binding.model_copy(deep=True)
@@ -210,6 +240,10 @@ class Registry:
     ) -> PreparedCall:
         entry = self._entry(binding_id)
         binding = entry.binding
+        self._check_components(binding)
+        parent = active_binding.get()
+        if parent is not None and entry.digest not in parent.components:
+            raise ValueError("child binding is not an authorized component")
         if entry.digest != expected_digest:
             raise ValueError("binding changed; requalification required")
         if context.caller not in binding.callers:
@@ -264,7 +298,11 @@ class Registry:
                 or checked.request != prepared.request
             ):
                 raise ValueError("invocation changed before execution")
-            result = await entry.operation(copy.deepcopy(prepared.arguments))
+            token = active_binding.set(entry.binding)
+            try:
+                result = await entry.operation(copy.deepcopy(prepared.arguments))
+            finally:
+                active_binding.reset(token)
             if len(json.dumps(result, allow_nan=False).encode()) > 65536:
                 raise ValueError("result exceeds execution bound")
             Draft202012Validator(entry.binding.output_schema).validate(result)

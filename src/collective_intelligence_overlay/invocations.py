@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import copy
 import time
 from decimal import Decimal
 from typing import Any
@@ -11,8 +12,15 @@ from typing import Any
 from pydantic import Field, TypeAdapter
 from sqlalchemy import JSON, Column, DateTime, Integer, String, Table, insert, select, update
 
-from .bindings import ExecutionContext, Registry, active_invocation, fingerprint
-from .models import Cost, Event, Identifier, Model, Verdict, now, uid
+from .bindings import (
+    ExecutionContext,
+    Registry,
+    active_invocation,
+    fingerprint,
+    formation_receipts,
+    formation_steps,
+)
+from .models import Cost, Event, ExecutionReceipt, Identifier, Model, ReceiptRef, Verdict, now, uid
 from .overlay import AdmissionDenied
 from .security import Identity
 from .storage import Conflict, Store, budgets, leases, metadata
@@ -35,6 +43,7 @@ invocations = Table(
     Column("result", JSON),
     Column("result_digest", String(64)),
     Column("reason", String(160)),
+    Column("receipt_id", String(160)),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
@@ -71,6 +80,7 @@ def _public(row: Any) -> dict[str, Any]:
             "reason",
             "created_at",
             "updated_at",
+            "receipt_id",
         )
     }
     for key in ("created_at", "updated_at"):
@@ -166,6 +176,7 @@ class InvocationStore:
                 result=None,
                 result_digest=None,
                 reason=None,
+                receipt_id=None,
                 created_at=now(),
                 updated_at=now(),
             )
@@ -230,6 +241,7 @@ class InvocationStore:
                     result=result,
                     result_digest=fingerprint(result) if reason is None else None,
                     reason=reason,
+                    receipt_id=event.id,
                     updated_at=now(),
                 )
             )
@@ -288,6 +300,13 @@ class Executor:
         arguments: dict[str, Any],
         context: ExecutionContext,
     ) -> dict[str, Any]:
+        arguments = copy.deepcopy(arguments)
+        context = context.model_copy(deep=True)
+        steps = formation_steps.get()
+        if steps is not None:
+            if steps[0] >= steps[1]:
+                raise ValueError("formation invocation step budget exhausted")
+            steps[0] += 1
         request = {
             "owner": self.identity.name,
             "caller": context.caller,
@@ -301,6 +320,7 @@ class Executor:
         if old:
             if old["fingerprint"] != fingerprint(request):
                 raise Conflict("invocation ID reused with different request")
+            self._observe(old)
             return old
         prepared = self.registry.prepare(binding_id, binding_digest, arguments, context)
         claim, fresh = await asyncio.to_thread(
@@ -313,14 +333,19 @@ class Executor:
             self.allowance,
         )
         if not fresh:
-            return _public(claim)
+            existing = _public(claim)
+            self._observe(existing)
+            return existing
         started = time.perf_counter()
+        parent_invocation = active_invocation.get()
         invocation_token = active_invocation.set(
             fingerprint([self.identity.name, context.caller, invocation_id])
         )
 
-        def event(failed: bool) -> Event:
+        def event(failed: bool, output: Any = None) -> Event:
             return Event(
+                schema_version="2",
+                id=claim["lease_id"],
                 issuer=self.identity.name,
                 subject=prepared.binding.subject,
                 action="failure" if failed else "reuse",
@@ -333,9 +358,23 @@ class Executor:
                         category="failure" if failed else "use",
                         status="measured",
                         quantity=Decimal(str(round(time.perf_counter() - started, 9))),
-                        unit="seconds",
+                        unit="wall_seconds",
                     ),
                     Cost(category="use", status="unavailable", quantity=None, unit="USD"),
+                ),
+                execution=ExecutionReceipt(
+                    invocation_id=invocation_id,
+                    caller=context.caller,
+                    resource_owner=self.identity.name,
+                    capability_issuer=prepared.binding.issuer,
+                    binding_digest=binding_digest,
+                    arguments_digest=prepared.arguments_digest,
+                    result_digest=None if failed else fingerprint(output),
+                    scope=prepared.request.scope,
+                    policy_digest=self.registry.overlay.policy.digest,
+                    state="unknown" if failed else "completed",
+                    transport=prepared.binding.target.kind,
+                    parent_invocation=parent_invocation,
                 ),
             )
 
@@ -347,8 +386,9 @@ class Executor:
                 result = await self.registry.execute(
                     binding_id, binding_digest, arguments, context, before_call=boundary
                 )
+                completed_event = event(False, result)
                 await asyncio.to_thread(
-                    self.store.finish, claim, result, self.identity, event(False)
+                    self.store.finish, claim, result, self.identity, completed_event
                 )
         except BaseException as exc:
             reason = "admission_denied" if isinstance(exc, AdmissionDenied) else "execution_unknown"
@@ -364,4 +404,14 @@ class Executor:
             active_invocation.reset(invocation_token)
         result_record = await asyncio.to_thread(self.store.get, context.caller, invocation_id)
         assert result_record is not None
+        self._observe(result_record)
         return result_record
+
+    def _observe(self, result: dict[str, Any]) -> None:
+        sink = formation_receipts.get()
+        if sink is not None and result["state"] == "completed" and result.get("receipt_id"):
+            ref = ReceiptRef(issuer=result["owner"], id=result["receipt_id"])
+            if ref not in sink:
+                if len(sink) >= 64:
+                    raise ValueError("formation receipt budget exceeded")
+                sink.append(ref)

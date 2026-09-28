@@ -137,6 +137,7 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
                         "-m",
                         "collective_intelligence_overlay.cli",
                         "peer",
+                        "--reference",
                         "--config",
                         str((directory / name / "config.json").resolve()),
                     ],

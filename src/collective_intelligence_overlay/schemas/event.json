@@ -68,6 +68,185 @@
       "title": "Cost",
       "type": "object"
     },
+    "ExecutionReceipt": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "invocation_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Invocation Id",
+          "type": "string"
+        },
+        "caller": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Caller",
+          "type": "string"
+        },
+        "resource_owner": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Resource Owner",
+          "type": "string"
+        },
+        "capability_issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Capability Issuer",
+          "type": "string"
+        },
+        "binding_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Binding Digest",
+          "type": "string"
+        },
+        "arguments_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Arguments Digest",
+          "type": "string"
+        },
+        "result_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Result Digest"
+        },
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "policy_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Policy Digest",
+          "type": "string"
+        },
+        "state": {
+          "enum": [
+            "completed",
+            "unknown",
+            "cancelled"
+          ],
+          "title": "State",
+          "type": "string"
+        },
+        "transport": {
+          "enum": [
+            "local",
+            "mcp",
+            "a2a"
+          ],
+          "title": "Transport",
+          "type": "string"
+        },
+        "parent_invocation": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Invocation"
+        }
+      },
+      "required": [
+        "invocation_id",
+        "caller",
+        "resource_owner",
+        "capability_issuer",
+        "binding_digest",
+        "arguments_digest",
+        "scope",
+        "policy_digest",
+        "state",
+        "transport"
+      ],
+      "title": "ExecutionReceipt",
+      "type": "object"
+    },
+    "FormationReceipt": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "receipts": {
+          "items": {
+            "$ref": "#/$defs/ReceiptRef"
+          },
+          "maxItems": 64,
+          "minItems": 1,
+          "title": "Receipts",
+          "type": "array"
+        },
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "binding_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Binding Digest",
+          "type": "string"
+        },
+        "policy_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Policy Digest",
+          "type": "string"
+        },
+        "relationship": {
+          "enum": [
+            "observed-use",
+            "declared"
+          ],
+          "title": "Relationship",
+          "type": "string"
+        },
+        "functional_novelty": {
+          "const": "unknown",
+          "default": "unknown",
+          "title": "Functional Novelty",
+          "type": "string"
+        },
+        "verification": {
+          "const": "candidate",
+          "default": "candidate",
+          "title": "Verification",
+          "type": "string"
+        }
+      },
+      "required": [
+        "receipts",
+        "scope",
+        "binding_digest",
+        "policy_digest",
+        "relationship"
+      ],
+      "title": "FormationReceipt",
+      "type": "object"
+    },
     "Outcome": {
       "enum": [
         "ACCEPT",
@@ -77,6 +256,107 @@
       ],
       "title": "Outcome",
       "type": "string"
+    },
+    "ReceiptRef": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "issuer",
+        "id"
+      ],
+      "title": "ReceiptRef",
+      "type": "object"
+    },
+    "Scope": {
+      "additionalProperties": false,
+      "description": "Exact operational applicability; schema equality does not prove semantic fit.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Task",
+          "type": "string"
+        },
+        "input_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Input Contract",
+          "type": "string"
+        },
+        "output_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Output Contract",
+          "type": "string"
+        },
+        "environment": {
+          "maxProperties": 64,
+          "patternProperties": {
+            "^[a-zA-Z0-9_.:/-]+$": {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 160,
+            "minLength": 1
+          },
+          "title": "Environment",
+          "type": "object"
+        },
+        "permissions": {
+          "default": [],
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.:/-]+$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "title": "Permissions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task",
+        "input_contract",
+        "output_contract",
+        "environment"
+      ],
+      "title": "Scope",
+      "type": "object"
     },
     "Subject": {
       "additionalProperties": false,
@@ -128,10 +408,35 @@
   "additionalProperties": false,
   "properties": {
     "schema_version": {
-      "const": "1",
       "default": "1",
+      "enum": [
+        "1",
+        "2"
+      ],
       "title": "Schema Version",
       "type": "string"
+    },
+    "execution": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ExecutionReceipt"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "formation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/FormationReceipt"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
     },
     "kind": {
       "const": "event",

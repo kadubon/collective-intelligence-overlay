@@ -10,7 +10,10 @@ reject contains "in_scope_counterexample" if { some e in input.evidence; e.appli
 reject contains "authority_denied" if { some p in input.capability.scope.permissions; not p in input.settings.permissions }
 reject contains "license_not_allowed" if { input.capability.license != null; not input.capability.license in input.settings.licenses }
 
-unknown contains "semantic_fit_unknown" if input.request.semantic_fit != "confirmed"
+unknown contains "semantic_fit_unknown" if {
+    input.request.semantic_fit != "confirmed"
+    not object.get(input, "dependency_integrity_only", false)
+}
 unknown contains "license_unknown" if input.capability.license == null
 unknown contains "unresolved_obligations" if count(input.capability.obligations) > 0
 unknown contains "dependency_unknown" if input.dependency_state == "UNKNOWN"
@@ -37,4 +40,5 @@ requalify contains "independent_evidence_required" if not valid_pass
 decision := {"outcome": "REJECT", "reasons": sort(reject)} if count(reject) > 0
 else := {"outcome": "UNKNOWN", "reasons": sort(unknown)} if count(unknown) > 0
 else := {"outcome": "REQUALIFY", "reasons": sort(requalify)} if count(requalify) > 0
+else := {"outcome": "ACCEPT", "reasons": ["dependency_integrity_not_execution_permission"]} if object.get(input, "dependency_integrity_only", false)
 else := {"outcome": "ACCEPT", "reasons": ["qualified_for_receiver_and_scope"]}

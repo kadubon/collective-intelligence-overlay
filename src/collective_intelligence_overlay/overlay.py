@@ -152,7 +152,9 @@ class Overlay:
                         return False
                 return True
 
-            async def evaluate(req: UseRequest, path: frozenset[str]) -> Decision:
+            async def evaluate(
+                req: UseRequest, path: frozenset[str], *, integrity_only: bool = False
+            ) -> Decision:
                 nonlocal evaluations, valid_until
                 evaluations += 1
                 subject = req.subject
@@ -174,8 +176,9 @@ class Overlay:
                     return self._decision(req, Outcome.REQUALIFY, ("binding_evidence_required",))
                 valid_until = min(valid_until, cap.expires_at)
                 child_outcomes = []
-                for dependency in cap.dependencies:
-                    candidates = matching(dependency)
+                for index, dependency in enumerate(cap.dependencies):
+                    dep_issuer = cap.dependency_issuers[index] if cap.dependency_issuers else None
+                    candidates = matching(dependency, dep_issuer)
                     if len(candidates) != 1:
                         child_outcomes.append(Outcome.UNKNOWN)
                     else:
@@ -183,9 +186,13 @@ class Overlay:
                             receiver=req.receiver,
                             subject=dependency,
                             scope=candidates[0].scope,
-                            semantic_fit=req.semantic_fit,
+                            semantic_fit="unknown",
+                            capability_issuer=dep_issuer,
+                            binding_digest=candidates[0].binding_digest,
                         )
-                        child_outcomes.append((await evaluate(child_req, path | {key})).outcome)
+                        child_outcomes.append(
+                            (await evaluate(child_req, path | {key}, integrity_only=True)).outcome
+                        )
                 order = [Outcome.REJECT, Outcome.UNKNOWN, Outcome.REQUALIFY, Outcome.ACCEPT]
                 dependency_state = next((s for s in order if s in child_outcomes), Outcome.ACCEPT)
                 applicable_evidence = []
@@ -242,6 +249,7 @@ class Overlay:
                             + timedelta(seconds=self.policy.settings.max_source_age_seconds),
                         )
                 facts = {
+                    "dependency_integrity_only": integrity_only,
                     "capability": cap.model_dump(mode="json"),
                     "request": req.model_dump(mode="json"),
                     "subject_valid": True,

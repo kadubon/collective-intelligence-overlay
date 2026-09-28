@@ -44,7 +44,7 @@ the generated config or key files. A new run requires a new directory because pr
 records and revocations must not be overwritten. To restart a peer:
 
 ```sh
-uv run collective-intelligence-overlay peer --config .local/demo/receiver/config.json
+uv run collective-intelligence-overlay peer --reference --config .local/demo/receiver/config.json
 ```
 
 Restarting does not clear revocations. Remote source freshness must be re-established

@@ -71,6 +71,7 @@ class Capability(RecordModel):
     entrypoint: Identifier
     claim: Identifier
     dependencies: tuple[Subject, ...] = Field(default=(), max_length=64)
+    dependency_issuers: tuple[Identifier, ...] = Field(default=(), max_length=64)
     evidence: tuple[Identifier, ...] = Field(default=(), max_length=64)
     license: str | None = None
     provenance: str
@@ -83,6 +84,12 @@ class Capability(RecordModel):
     def valid_lifetime(self) -> Self:
         if (self.schema_version == "2") != (self.binding_digest is not None):
             raise ValueError("v2 capability requires binding identity; v1 cannot invent it")
+        if (
+            self.schema_version == "2" and len(self.dependency_issuers) != len(self.dependencies)
+        ) or (self.schema_version == "1" and self.dependency_issuers):
+            raise ValueError(
+                "v2 dependencies require exact issuer identities; v1 leaves them unknown"
+            )
         if self.expires_at <= self.created_at:
             raise ValueError("expiry must follow creation")
         if self.subject in self.dependencies:
@@ -156,7 +163,46 @@ class Cost(Model):
         return self
 
 
-class Event(Model):
+class ReceiptRef(Model):
+    issuer: Identifier
+    id: Identifier
+
+
+class ExecutionReceipt(Model):
+    invocation_id: Identifier
+    caller: Identifier
+    resource_owner: Identifier
+    capability_issuer: Identifier
+    binding_digest: Digest
+    arguments_digest: Digest
+    result_digest: Digest | None = None
+    scope: Scope
+    policy_digest: Digest
+    state: Literal["completed", "unknown", "cancelled"]
+    transport: Literal["local", "mcp", "a2a"]
+    parent_invocation: Identifier | None = None
+
+    @model_validator(mode="after")
+    def result_state(self) -> Self:
+        if (self.state == "completed") != (self.result_digest is not None):
+            raise ValueError("only completed executions have a committed result digest")
+        return self
+
+
+class FormationReceipt(Model):
+    receipts: tuple[ReceiptRef, ...] = Field(min_length=1, max_length=64)
+    scope: Scope
+    binding_digest: Digest
+    policy_digest: Digest
+    relationship: Literal["observed-use", "declared"]
+    functional_novelty: Literal["unknown"] = "unknown"
+    verification: Literal["candidate"] = "candidate"
+
+
+class Event(RecordModel):
+    schema_version: Literal["1", "2"] = "1"
+    execution: ExecutionReceipt | None = None
+    formation: FormationReceipt | None = None
     kind: Literal["event"] = "event"
     id: Identifier = Field(default_factory=uid)
     issuer: Identifier
@@ -182,6 +228,17 @@ class Event(Model):
     costs: tuple[Cost, ...] = Field(default=(), max_length=64)
     outcome: Outcome | Verdict | None = None
     duration_seconds: float | None = Field(default=None, ge=0, allow_inf_nan=False)
+
+    @model_validator(mode="after")
+    def receipt_version(self) -> Self:
+        count = int(self.execution is not None) + int(self.formation is not None)
+        if (self.schema_version == "1" and count) or (self.schema_version == "2" and count != 1):
+            raise ValueError("v2 events require one scoped execution or formation receipt")
+        if self.execution and self.execution.resource_owner != self.issuer:
+            raise ValueError("execution receipt must be signed by its resource owner")
+        if self.formation and self.action not in {"formation", "composition"}:
+            raise ValueError("formation receipt requires a formation action")
+        return self
 
 
 class UseRequest(Model):

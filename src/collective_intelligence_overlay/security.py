@@ -11,7 +11,7 @@ from pydantic import TypeAdapter
 from securesystemslib.dsse import Envelope
 from securesystemslib.signer import CryptoSigner, Key  # type: ignore[attr-defined]
 
-from .models import Capability, Evidence, Record
+from .models import Capability, Event, Evidence, Record
 
 PAYLOAD_TYPE = "application/vnd.collective-intelligence-overlay.record.v1+json"
 PAYLOAD_TYPE_V2 = "application/vnd.collective-intelligence-overlay.record.v2+json"
@@ -43,6 +43,10 @@ class Identity:
             if isinstance(record, Capability | Evidence) and record.schema_version == "1"
             else set()
         )
+        if isinstance(record, Event) and record.schema_version == "1":
+            exclude = {"execution", "formation"}
+        if isinstance(record, Capability) and record.schema_version == "1":
+            exclude.add("dependency_issuers")
         payload_type = PAYLOAD_TYPE if record.schema_version == "1" else PAYLOAD_TYPE_V2
         envelope = Envelope(record.model_dump_json(exclude=exclude).encode(), payload_type, {})
         envelope.sign(self.signer)

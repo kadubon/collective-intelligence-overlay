@@ -29,6 +29,31 @@ by migration; new work does not infer actual consumption from reservation quanti
 The low-level `Overlay.execute(request, operation)` remains a trusted-host API;
 registered execution binds the exact actuator and actual arguments instead.
 
+`lineage.FormationSession(registry, identity, max_steps=16, max_seconds=120)`
+records completed `Executor` calls observed during bounded operator construction.
+Within its async context, install the resulting local binding, then call
+`await session.publish(binding.id, candidate)`. The candidate's v2 dependencies
+include exact subjects and corresponding `dependency_issuers`. Publication checks
+signed execution receipts against durable invocation rows and atomically saves
+the candidate and formation event under a fenced work reservation. Missing,
+incomplete or cyclic receipt references cannot become observed formation.
+The host supplies installed code; this API does not generate or execute received code.
+
+A formation receipt means observed use while constructing a candidate. It leaves
+functional novelty unknown and does not prove causal improvement or correctness.
+Independent evidence and receiver-local qualification are still required. Each
+execution receipt binds the actual argument/result digests, binding, capability
+issuer, scope, policy, caller and resource owner. Migration 0006 adds a durable
+receipt reference without manufacturing receipts for old invocations. Historical
+v1 signed event payloads remain unchanged.
+
+Bindings list exact child binding digests in `components`. Replacing a component
+invalidates the installed composition until re-registration. Dependency integrity
+checks do not grant child execution permission: each child call reassesses its
+actual arguments and environment. Parent semantic applicability is not inherited.
+Nested execution `wall_seconds` observations are reported separately rather than
+summed as resource costs because their intervals may overlap.
+
 0.2.0 development adds receiver-persisted paged synchronization:
 
 ```sh
@@ -85,7 +110,7 @@ CLI commands all use the SDK:
 | `--version` | Distribution version |
 | `check-config --config PATH` | Configuration and pinned-key check |
 | `migrate --config PATH` | Apply packaged Alembic revisions |
-| `peer --config PATH` | Run one A2A reference peer |
+| `peer --config PATH [--reference]` | Run an A2A peer; explicitly enable the compatibility reference app |
 | `demo --directory PATH [--database-url URL] [--opa PATH]` | Three-process deterministic loop |
 | `inspect --config PATH KIND` | capability/evidence/revocation/event/decision JSON |
 | `metrics --config PATH` | Typed cost and event aggregates |

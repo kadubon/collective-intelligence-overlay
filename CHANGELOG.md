@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.0 (unreleased)
+
+Typed local/MCP/overlay-A2A execution bindings, durable owner-scoped invocations,
+indexed admission queries and resumable signed paged synchronization. New execution
+and formation receipts preserve observed use without asserting verification or
+functional novelty. Exact component bindings and separate child applicability
+checks protect composed execution. The generic peer is separated from the bundled
+compatibility reference application (`peer --reference`).
+
+Record v2 and migrations 0002–0006 preserve historical v1 signed payloads.
+The `/extensions/v2` A2A boundary requires coordinated peer upgrades. These changes
+remain under development; see `docs/implementation-status.md` for completed checks
+and outstanding release requirements. No 0.2.0 publication is claimed.
+
 ## 0.1.0
 
 Initial implementation: typed signed records, receiver-local OPA qualification,

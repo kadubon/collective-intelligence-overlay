@@ -26,6 +26,12 @@ def main() -> int:
     for name in ("check-config", "migrate", "peer", "inspect", "metrics", "doctor", "sync"):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
+        if name == "peer":
+            cmd.add_argument(
+                "--reference",
+                action="store_true",
+                help="enable the bundled compatibility reference application",
+            )
         if name == "inspect":
             cmd.add_argument(
                 "kind", choices=["capability", "evidence", "revocation", "event", "decision"]
@@ -84,6 +90,11 @@ def main() -> int:
                 from .peer import PeerService
 
                 service = PeerService(config)
+                if args.reference:
+                    from .reference_peer import ReferencePeerService
+
+                    service.overlay.store.close()
+                    service = ReferencePeerService(config)
                 url = urlsplit(config.url)
                 try:
                     # Production TLS terminates at the operator's authenticated reverse proxy.
