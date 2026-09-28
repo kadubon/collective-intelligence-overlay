@@ -6,6 +6,7 @@ import os
 import secrets
 import socket
 import sys
+import time
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -154,6 +155,7 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
                     await asyncio.sleep(0.1)
             else:
                 raise RuntimeError("peer startup timeout")
+        setup_started = time.perf_counter_ns()
         source = (directory / "formation.csv").read_text(encoding="utf-8")
         candidates = []
         for name, data in (("csv-sum", source), ("render-report", '{"rows":3,"total":"17.75"}')):
@@ -210,6 +212,10 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
         )
         changed = {**req, "scope": {**req["scope"], "environment": {"reference": "2"}}}
         requalification = await call("receiver", operation="qualify", request=changed)
+        from .evaluation import compare_network
+
+        setup_seconds = (time.perf_counter_ns() - setup_started) / 1e9
+        comparison = await compare_network(call, candidates[0])
         await call(
             "producer",
             operation="revoke",
@@ -220,6 +226,8 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
         rejected = await call("receiver", operation="qualify", request=req)
         result = {
             "processes": 3,
+            "comparison": comparison,
+            "shared_formation_transfer_seconds": setup_seconds,
             "admission": admitted["decision"]["outcome"],
             "held_out_result": reused["result"],
             "changed_environment": requalification["decision"]["outcome"],

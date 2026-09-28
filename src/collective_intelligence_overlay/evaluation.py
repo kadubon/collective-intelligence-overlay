@@ -62,3 +62,72 @@ async def compare(overlay: Overlay, request: UseRequest) -> dict[str, Any]:
         "resource_condition": "same installed code, checker, held-out inputs; concurrency=1",
         "interpretation": "mechanism overhead; no savings or intelligence-growth inference",
     }
+
+
+async def compare_network(
+    call: Callable[..., Awaitable[dict[str, Any]]], candidate: dict[str, Any]
+) -> list[dict[str, Any]]:
+    """Same three running peers, checker, inputs and fixed work budget in every arm."""
+    from .models import uid
+
+    rows = []
+    for mode in ("single-agent", "multi-agent-no-persistence", "shared-memory", "overlay"):
+        started = time.perf_counter_ns()
+        memory: dict[str, dict[str, Any]] = {}
+        correct = 0
+        for source in EVALUATION_INPUTS:
+            if mode == "overlay":
+                request = {
+                    "receiver": "receiver",
+                    "subject": candidate["subject"],
+                    "scope": candidate["scope"],
+                    "semantic_fit": "confirmed",
+                }
+                output = await call(
+                    "receiver",
+                    operation="work",
+                    mode="reuse",
+                    attempt=uid(),
+                    request=request,
+                    source=source,
+                )
+                cap = candidate
+            elif mode == "shared-memory" and source in memory:
+                output = memory[source]
+                cap = output["capability"]
+            else:
+                output = await call(
+                    "producer",
+                    operation="work",
+                    attempt=uid(),
+                    source=source,
+                    mode="scratch_checked" if mode == "single-agent" else "scratch",
+                )
+                cap = output["capability"]
+                memory[source] = output
+            if mode == "single-agent":
+                valid = output.get("quality_checked") is True
+            else:
+                checked = await call(
+                    "verifier",
+                    operation="work",
+                    mode="verify",
+                    attempt=uid(),
+                    capability=cap,
+                    source=source,
+                    result=output["result"],
+                    receiver="receiver",
+                )
+                valid = checked["evidence"]["verdict"] == "PASS"
+            correct += int(valid)
+        rows.append(
+            {
+                "mode": mode,
+                "tasks": len(EVALUATION_INPUTS),
+                "correct": correct,
+                "elapsed_seconds": (time.perf_counter_ns() - started) / 1e9,
+                "currency_cost": None,
+                "cost_scope": "network, execution, checking and overlay overhead",
+            }
+        )
+    return rows

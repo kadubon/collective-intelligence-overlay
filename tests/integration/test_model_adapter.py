@@ -1,3 +1,5 @@
+import json
+
 import httpx
 from agent_framework import Agent
 from agent_framework.openai import OpenAIChatClient
@@ -9,6 +11,7 @@ async def test_real_provider_adapter_with_mock_http():
 
     def response(request):
         seen.append(request.url.path)
+        assert json.loads(request.content)["max_output_tokens"] == 300
         return httpx.Response(
             200,
             json={
@@ -40,6 +43,6 @@ async def test_real_provider_adapter_with_mock_http():
             api_key="fixture-not-a-secret", base_url="https://model.invalid/v1", http_client=http
         ) as sdk:
             agent = Agent(client=OpenAIChatClient(model="configured-test-model", async_client=sdk))
-            output = await agent.run("test")
+            output = await agent.run("test", options={"max_tokens": 300})
     assert output.text == "generated, not verified"
     assert seen == ["/v1/responses"]

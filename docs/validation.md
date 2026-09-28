@@ -18,7 +18,7 @@ These are checkpoint results. The release workflow reruns checks on the release
 commit and publishes the same tested distributions. Refer to [releasing](releasing.md)
 for actual CI/publication state; presence of a workflow is not a successful run.
 
-Not established: paid model quality, a fully resource-matched distributed baseline,
+Not established: paid model quality, resource-matched real-model comparisons,
 multi-organization operation, external security audit, long-duration availability,
 general semantic correctness, instantaneous remote revocation, arbitrary external
 effect exactly-once behavior, physical memory erasure or intelligence-growth theorems.

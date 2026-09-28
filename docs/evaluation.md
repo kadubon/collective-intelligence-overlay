@@ -6,7 +6,20 @@ checks validate row count and decimal aggregate consistency; composite output is
 checked again. These tests do not prove universal algorithm correctness or semantic
 transfer beyond the declared reference domain.
 
-`scripts/evaluate_reference.py` uses the public API for a deterministic mechanism
+The demo also runs four network arms against the same three live peer processes:
+- single agent: producer transforms and checks locally, with its own bounded cache;
+- multiple agents without persistent capability sharing: producer computes and the
+  verifier checks each result, without receiver-side evidence reuse;
+- shared memory: a plain result cache, followed by the same independent checker;
+- overlay: the receiver qualifies and executes the capability, followed by the same
+  output checker.
+
+All arms use the same held-out CSVs, preinstalled function and serial work bound.
+Network, verification and overlay overhead are timed. Initial formation/transfer time
+is reported separately, and no counterfactual saving is inferred. Real model budgets,
+long-term maintenance and organization effects remain unmeasured.
+
+`scripts/evaluate_reference.py` additionally uses the public API for a deterministic mechanism
 microbenchmark. Four arms use the same installed transformation, checker and three
 held-out inputs: single-agent local cache, separate roles without persistent sharing,
 shared memory, and overlay admission. Baselines retain competent caching and the

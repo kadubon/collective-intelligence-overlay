@@ -22,6 +22,7 @@ class PeerService:
         self.config = config
         self.identity, self.overlay = config.runtime()
         self.artifacts = Artifacts(config.artifact_directory)
+        self.reference_cache: dict[str, Any] = {}
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
         operation = data.get("operation")
@@ -119,6 +120,26 @@ class PeerService:
                     "envelope": artifact,
                 }
                 action = "formation"
+            elif mode in {"scratch", "scratch_checked"}:
+                # Explicit benchmark baseline: no overlay admission or shared evidence.
+                from .reference import verify_csv
+
+                cap = capability(self.config.owner, "csv-sum")
+                if mode == "scratch_checked" and source in self.reference_cache:
+                    result = self.reference_cache[source]
+                else:
+                    result = csv_sum(source)
+                if mode == "scratch_checked":
+                    if not verify_csv(source, result):
+                        raise ValueError("baseline quality check failed")
+                    if len(self.reference_cache) < 64:
+                        self.reference_cache[source] = result
+                response = {
+                    "result": result,
+                    "capability": cap.model_dump(mode="json"),
+                    "quality_checked": mode == "scratch_checked",
+                }
+                action = "reuse"
             elif mode == "verify":
                 cap = Capability.model_validate(data["capability"])
                 self.artifacts.put(json.dumps(data["result"]).encode())

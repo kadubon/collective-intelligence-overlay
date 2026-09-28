@@ -27,6 +27,8 @@ async def test_three_process_lifecycle(tmp_path, policy, monkeypatch):
     configs = initialize(directory, url, policy.binary)
     result = await run_demo(directory, configs)
     assert result["processes"] == 3
+    assert len(result["comparison"]) == 4
+    assert all(r["correct"] == r["tasks"] == 3 for r in result["comparison"])
     assert result["admission"] == "ACCEPT"
     assert result["held_out_result"] == "<p>Rows: 3; total: 117.00</p>"
     assert result["changed_environment"] == "REQUALIFY"
