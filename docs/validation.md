@@ -6,6 +6,12 @@ document application. Subsequent numeric/formation-cost checks passed 5 focused
 tests, and the final MAF proposal-tool version of that E2E passed in 39.19 seconds.
 The subsequent exact-issuer dependency-query and cycle-identity fixes passed 17
 indexed-storage/negative-path tests with real PostgreSQL/OPA (19.82 seconds, no skips).
+The new mixed signed-history harness passed its 1,000/10,000 profiles (2 tests,
+65.82 seconds). Both returned nine SELECT rows, executed nine DB statements and
+verified four signatures per qualification over five repetitions. An enum-only
+fixture correction removed serializer warnings and passed the 1,000 profile again
+(8.73 seconds). The 100,000 profile has been started but its result is not yet
+claimed. See [scale methodology](scale.md) for measurement boundaries.
 Ruff/format, strict mypy and documentation checks pass. Detailed scope and unfinished
 0.2.0 release gates are tracked in [implementation status](implementation-status.md).
 The release and package observations below concern 0.1.0 unless explicitly stated.

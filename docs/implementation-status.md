@@ -207,6 +207,16 @@ storage and negative-path suites passed **17 tests, zero skips, 19.82 seconds**;
 Ruff/format and strict mypy pass. Mixed-record scale measurements and the previously
 listed release requirements remain pending.
 
+Eleventh checkpoint: a single mixed signed-history harness now supports exact
+1,000/10,000/100,000-record profiles. The default two passed with constant returned
+rows, query counts and verified signatures for the fixed two-capability target.
+Reports include five latency/allocation measurements, actual OPA call times,
+envelope bytes, record/verdict counts and PostgreSQL EXPLAIN ANALYZE plans. CI now
+runs the default profiles and saves observations; CI execution itself is still
+pending. A 100,000-profile local process is running and is not yet reported as a
+success. Backup/restore, reverse dependency APIs, compatibility reference cleanup
+and the other release gates remain incomplete.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

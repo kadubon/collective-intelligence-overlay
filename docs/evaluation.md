@@ -1,5 +1,8 @@
 # Evaluation and metrics
 
+The [mixed-history scale harness](scale.md) measures indexed qualification at
+1,000/10,000 records and offers a selectable 100,000-record stress profile.
+
 0.2.0 adds bounded history pages and current assessment of an explicit target set;
 the [API reference](api.md) defines filters, cursors and aggregation rules. Historical
 independent PASS reports are counted separately from current ACCEPT decisions.
