@@ -28,10 +28,25 @@ choices and cleanup are exercised by
 and OPA environment. A selected count/report is an input to an installed application
 factory; only observed completed uses enter its FormationSession. Candidate
 registration remains UNKNOWN until independent checks and local admission succeed.
-The current application checks candidates before additional formation using a fixed
-domain rule. It does **not** yet exercise the core adaptive allocator or complete the
-matched experiment requirement. Verification requests use the existing checker
-lease path; they are not yet selected through `Steps`.
+Initial setup tests the installed checker and its receiver-side A2A binding from
+the producer identity, using a known count and an explicitly mismatched target.
+Normal checker invocation is denied before this evidence exists. A completed,
+explicit target rejection is distinguished from an unavailable/UNKNOWN probe;
+the latter cannot establish checker PASS. The fixed tests establish only their
+declared contract cases, not exhaustive correctness or remote code attestation.
+An exact calibration replay returns its original certificate without contacting
+the target. Reused probe results cannot extend the certificate expiry; incomplete
+calibration retains UNKNOWN and its original timestamps on identical replay.
+`demo.initialize(..., work_allowance=Decimal(50))` permits an explicit nonnegative
+initial allowance for fresh application owners; it does not top up existing stores.
+
+Both formation and verification then use authenticated peer proposals and `Steps`.
+The core allocator qualifies the checker binding, includes its dependency evidence,
+and persists the allocation with the selected work. The application uses explicit
+thresholds of one for its two-goal demonstration; operator `allocation` settings in
+`application.json` can change them. A checking operation still retains the existing
+inner verifier lease for atomic evidence publication. Parent/child wall times must
+not be added as separate resource consumption. Matched experiments remain incomplete.
 
 `opportunities.Goal` is operator configuration: a versioned goal, exact ordinary-use
 `UseRequest`, fixed checker binding, bounded installed-builder allowlist and explicit
@@ -130,13 +145,17 @@ Qualification observations have their own measured overhead events. This current
 loop accepts `allocation_policy=AllocationPolicy(mode="static")` for registered
 target order. Its default adaptive rules inspect the bounded observation page:
 repair takes priority for known failures; a verification backlog gets priority
-only with a currently qualified local checker; connection and observation deficits
+only with a currently qualified registered checker; connection and observation deficits
 can change priority. The operator sets minimum sample count, backlog thresholds
 and an unverified-page limit. At the latter limit, formation is deferred. Missing
 checker grants, invalid fixed checker inputs, missing evidence and withdrawal do
 not count as checker availability. `Goal.checker_arguments` fixes the host input
 used for this readiness assessment; actual invocation still rechecks its own input.
-Remote checker capacity is not inferred from a peer declaration.
+Local and registered remote checkers use the same actual argument, binding and
+evidence checks. An authenticated Agent Card alone cannot qualify a remote checker.
+Qualification is a scoped readiness observation, not a guarantee of future network
+availability or a reservation of remote capacity. The resource owner still checks
+its own admission, budget and concurrency at invocation.
 
 Every returned `AllocationObservation` identifies the receiver, rule/policy
 digests, observation window, exact signed sources, checker decisions, page counts,
@@ -146,9 +165,11 @@ Direct `allocate` counts describe its supplied page, not independent statistical
 samples or an all-network backlog. `Steps.run` completes all pages of the registered
 goal set (at most 32 goals) before allocation, so a later page cannot hide a local
 verification queue from generation. The operator's `reserve_operations` retains
-that many normal invocation allowances for a qualified local checker; it is not
+that many normal invocation allowances for qualified checking work; it is not
 a price estimate or a claim about remote slots. Formation's claim atomically checks
 the protected remainder in the existing budget unit. No conversion is performed.
+External finite host loops can call `Steps.last_allocation()` to restore the latest
+persisted owner choice when passing a previous observation to `allocate`.
 
 `Reservation(minimum_remaining=..., max_concurrent=...)` controls these claim checks.
 `Steps(..., max_concurrent=4)` sets a bounded allowance on its supplied executor,

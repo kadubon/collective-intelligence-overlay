@@ -2,15 +2,25 @@
 
 ## 0.3.0 development checkpoint
 
+The checker-calibration and allocation integration passed 18 opportunity and
+three-process document tests in 238.63 seconds, zero skips. After replay/expiry
+hardening, all three adaptive application cases passed again in 151.91 seconds,
+zero skips. The low-budget case leaves the checker UNKNOWN when only one contract
+probe completes; replay preserves the original evidence and exhausted balance.
+Successful calibration is replayable with the target offline and retains original
+timestamps. Formation and checking now both use proposals, Steps and the core
+allocator. These are deterministic functional checks, not matched performance
+experiments. Protection of the reserved checking allowance across nested formation
+calls and formation-session overhead still requires implementation and testing.
+
 The checker-replay increment passed 34 lease-concurrency, invocation and three-process
 document E2E tests in 178.23 seconds, zero skips. After the verifier restarts with the
 target process stopped, replay returns the original evidence and probe result without
 another reservation. Changed target digests conflict. Concurrent retries of an
 expired uncertain check keep its original worker, fence and allowance. The existing
 0.2.1 invocation regressions and original document E2E passed in the same run. Lint,
-formatting, package typing and documentation checks passed. Checking still uses the
-existing verifier lease path; integrating it with Steps and adaptive allocation
-remains required.
+formatting, package typing and documentation checks passed. The newer increment
+above wraps the existing verifier lease path with Steps and adaptive allocation.
 
 The external observation-driven document application passed both three-process
 E2E cases in 97.17 seconds, zero skips, with actual PostgreSQL, OPA, A2A HTTP and

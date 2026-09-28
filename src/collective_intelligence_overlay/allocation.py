@@ -124,7 +124,7 @@ async def _allocate(
             deferred[observation.id] = "checker_unavailable"
             try:
                 binding = host.registry.inspect(goal.checker.id)
-                if binding.issuer != goal.checker.issuer or binding.target.kind != "local":
+                if binding.issuer != goal.checker.issuer:
                     continue
                 prepared = host.registry.prepare(
                     binding.id, goal.checker.digest, goal.checker_arguments, context

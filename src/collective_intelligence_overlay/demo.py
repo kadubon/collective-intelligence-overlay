@@ -32,8 +32,12 @@ def free_port() -> int:
         return int(sock.getsockname()[1])
 
 
-def initialize(directory: Path, admin_url: str, opa: str) -> dict[str, Config]:
+def initialize(
+    directory: Path, admin_url: str, opa: str, *, work_allowance: Decimal = Decimal(50)
+) -> dict[str, Config]:
     """Create new roles/databases only; never reuse or overwrite existing configuration."""
+    if not work_allowance.is_finite() or work_allowance < 0:
+        raise ValueError("invalid initial work allowance")
     directory.mkdir(parents=True, exist_ok=False, mode=0o700)
     directory = directory.resolve()
     names = ("producer", "verifier", "receiver")
@@ -86,7 +90,7 @@ def initialize(directory: Path, admin_url: str, opa: str) -> dict[str, Config]:
             _, overlay = config.runtime()
             try:
                 migrate(overlay.store.engine)
-                overlay.store.set_budget("work", Decimal(50))
+                overlay.store.set_budget("work", work_allowance)
             finally:
                 overlay.store.close()
             configs[name] = config

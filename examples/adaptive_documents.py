@@ -12,14 +12,16 @@ import argparse
 import asyncio
 import json
 import os
+from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
 from urllib.parse import urlsplit
 
 import uvicorn
-from document_application import ENVIRONMENT, DocumentService
+from document_application import ENVIRONMENT, CandidateChanged, DocumentService
 
 from collective_intelligence_overlay.adapters.a2a import application, send, synchronize
+from collective_intelligence_overlay.allocation import AllocationPolicy, allocate
 from collective_intelligence_overlay.bindings import (
     Binding,
     ExecutionContext,
@@ -31,11 +33,13 @@ from collective_intelligence_overlay.config import Config, load_config
 from collective_intelligence_overlay.lineage import FormationSession
 from collective_intelligence_overlay.models import (
     BindingRef,
+    Evidence,
     Opportunity,
     Proposal,
     Scope,
     Subject,
     UseRequest,
+    now,
 )
 from collective_intelligence_overlay.opportunities import (
     Goal,
@@ -69,14 +73,25 @@ class AdaptiveDocuments(DocumentService):
         self.home = config.private_key.parent
         data = json.loads((self.home / "application.json").read_text(encoding="utf-8"))
         self.training_text = data["training_text"]
+        self.allocation_policy = AllocationPolicy.model_validate(
+            data.get(
+                "allocation",
+                {
+                    "minimum_samples": 1,
+                    "verification_threshold": 1,
+                    "connection_threshold": 1,
+                },
+            )
+        )
         self.contracts = tuple(ProposalContract.model_validate(item) for item in data["contracts"])
         if config.owner == "verifier":
             self.checker_binding = checker_binding()
             self.registry.register_local(
                 self.checker_binding,
                 self.check_requested_candidate,
-                lambda args: args["name"] in {"report", "triage"},
+                lambda args: args["name"] in {"report", "triage", "remote-words"},
             )
+            self.publish(self.checker_binding)
         if config.owner in {"producer", "verifier"}:
             self.proposal_exchange = ProposalExchange(
                 self.overlay.store,
@@ -87,6 +102,11 @@ class AdaptiveDocuments(DocumentService):
             )
         if config.owner == "receiver":
             self._run_lock = asyncio.Lock()
+            self.checker_binding = remote_checker_binding(config)
+            self.registry.register_a2a(
+                self.checker_binding, lambda args: True, config, self.identity
+            )
+            self.publish(self.checker_binding, (checker_binding(),), imported=True)
             if "report" not in self.installed:
                 # An installed factory is not yet a published/verified candidate.
                 self.install_report()
@@ -126,6 +146,32 @@ class AdaptiveDocuments(DocumentService):
 
     async def propose(self, opportunity: Opportunity) -> ProposalDrafts:
         contract = next(item for item in self.contracts if item.id == opportunity.goal_id)
+        if opportunity.work_kind == "verification":
+            described = await send(
+                self.config,
+                self.identity,
+                "receiver",
+                {
+                    "operation": "describe",
+                    "name": opportunity.goal_id,
+                },
+            )
+            binding = Binding.model_validate(described["binding"])
+            if binding.subject != opportunity.subject:
+                return ProposalDrafts(alternatives=())
+            return ProposalDrafts(
+                alternatives=(
+                    ProposalDraft(
+                        builder=contract.checker,
+                        alternative=self.config.owner + "-check",
+                        arguments={
+                            "name": opportunity.goal_id,
+                            "attempt": "check-" + opportunity.id,
+                            "binding_digest": binding.digest,
+                        },
+                    ),
+                )
+            )
         if opportunity.work_kind != "formation":
             return ProposalDrafts(alternatives=())
         # Distinct, operator-supplied calibration hypotheses. Neither peer sees
@@ -144,6 +190,15 @@ class AdaptiveDocuments(DocumentService):
         )
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
+        if data.get("operation") == "describe-checker":
+            if self.config.owner not in {"receiver", "verifier"}:
+                raise ValueError("no installed checker")
+            return {"binding": self.checker_binding.model_dump(mode="json")}
+        if data.get("operation") == "certify-checker":
+            if caller != "producer" or self.config.owner != "producer":
+                raise ValueError("checker tests belong to the producer operator")
+            async with asyncio.timeout(min(self.config.max_seconds, 90)):
+                return await self.certify_checker(str(data["target"]))
         if data.get("operation") == "request-document-check":
             if self.config.owner != "verifier" or caller != "receiver":
                 raise ValueError("document checking requires the configured receiver")
@@ -170,20 +225,162 @@ class AdaptiveDocuments(DocumentService):
 
     async def check_requested_candidate(self, data: dict[str, Any]) -> dict[str, Any]:
         name = str(data["name"])
-        if name not in {"report", "triage"}:
+        if name not in {"report", "triage", "remote-words"}:
             raise ValueError("checker contract does not cover this target")
-        result = await self.check(
-            {
-                "provider": "receiver",
-                "name": name,
-                "attempt": str(data["attempt"]),
-                "binding_digest": data["binding_digest"],
-                "arguments": {"text": "independent\tvalidation 文書\nwith separate contents"},
-            }
-        )
+        try:
+            result = await self.check(
+                {
+                    "provider": "receiver",
+                    "name": name,
+                    "attempt": str(data["attempt"]),
+                    "binding_digest": data["binding_digest"],
+                    "arguments": {"text": "independent\tvalidation 文書\nwith separate contents"},
+                }
+            )
+        except CandidateChanged:
+            return {"state": "rejected", "reason": "target_changed"}
         if result["evidence"]["binding_digest"] != data["binding_digest"]:
             raise ValueError("checked candidate changed during the request")
         return result
+
+    async def certify_checker(self, target: str) -> dict[str, Any]:
+        """Independent, finite black-box calibration before ordinary checker use."""
+        if target not in {"verifier", "receiver"}:
+            raise ValueError("unconfigured checker owner")
+        expected = (
+            checker_binding() if target == "verifier" else remote_checker_binding(self.config)
+        )
+        final_id = "checker-certified-" + expected.digest
+
+        async def saved(identifier: str) -> dict[str, Any] | None:
+            page = await asyncio.to_thread(
+                self.overlay.store.record_page,
+                RecordQuery(
+                    kinds=("evidence",),
+                    issuer=self.config.owner,
+                    record_id=identifier,
+                ),
+                limit=1,
+            )
+            if not page.items:
+                return None
+            evidence = page.items[0]
+            if not isinstance(evidence, Evidence):
+                raise ValueError("stored calibration is not evidence")
+            artifact = json.loads(self.artifacts.get(evidence.artifact_digest))
+            return {"evidence": evidence.model_dump(mode="json"), "checks": artifact["checks"]}
+
+        previous = await saved(final_id)
+        if previous is not None:
+            return previous
+        started = now()
+        await synchronize(self.config, self.identity, self.overlay.store, target, page_size=4)
+        description = await send(
+            self.config, self.identity, target, {"operation": "describe-checker"}
+        )
+        binding = Binding.model_validate(description["binding"])
+        if binding != expected:
+            raise ValueError("checker differs from installed operator contract")
+        cap = self.overlay.store.record_page(
+            RecordQuery(kinds=("capability",), issuer=target, subject=binding.subject), limit=1
+        ).items[0]
+        source = await send(
+            self.config,
+            self.identity,
+            "receiver",
+            {"operation": "describe", "name": "remote-words"},
+        )
+        source_binding = Binding.model_validate(source["binding"])
+        transcript = []
+        for name, pin in (("positive", source_binding.digest), ("changed-target", "0" * 64)):
+            attempt = "checker-test-" + fingerprint([binding.digest, name])
+            response = await send(
+                self.config,
+                self.identity,
+                target,
+                {
+                    "operation": "invoke",
+                    "purpose": "verification",
+                    "invocation_id": attempt,
+                    "binding_id": binding.id,
+                    "binding_digest": binding.digest,
+                    "arguments": {
+                        "name": "remote-words",
+                        "attempt": attempt,
+                        "binding_digest": pin,
+                    },
+                },
+            )
+            transcript.append(response)
+        positive, negative = transcript
+        passed = (
+            positive.get("state") == "completed"
+            and positive["result"]["observed"].get("state") == "completed"
+            and positive["result"]["observed"].get("binding_digest") == source_binding.digest
+            and positive["result"]["observed"].get("result") == {"words": 6}
+            and positive["result"]["evidence"]["verdict"] == "PASS"
+            and positive["result"]["evidence"]["binding_digest"] == source_binding.digest
+            and positive["result"]["evidence"]["subject"]
+            == source_binding.subject.model_dump(mode="json")
+            and positive["result"]["evidence"]["scope"]
+            == source_binding.scope.model_dump(mode="json")
+            and negative.get("state") == "completed"
+            and negative.get("result") == {"state": "rejected", "reason": "target_changed"}
+        )
+        verdict = (
+            "UNKNOWN"
+            if any(item.get("state") != "completed" for item in transcript)
+            else ("PASS" if passed else "FAIL")
+        )
+        evidence_id = (
+            final_id
+            if verdict != "UNKNOWN"
+            else "checker-observation-" + fingerprint([binding.digest, transcript])
+        )
+        previous = await saved(evidence_id)
+        if previous is not None:
+            return previous
+        observed_at = min(
+            [
+                started,
+                *(
+                    datetime.fromisoformat(item["updated_at"])
+                    for item in transcript
+                    if "updated_at" in item
+                ),
+            ]
+        )
+        expires_at = observed_at + timedelta(hours=1)
+        if expires_at <= now():
+            return {"state": "unknown", "reason": "expired_calibration"}
+        artifact = self.artifacts.put(
+            json.dumps(
+                {"binding": binding.model_dump(mode="json"), "checks": transcript}, sort_keys=True
+            ).encode()
+        )
+        evidence = Evidence(
+            schema_version="2",
+            id=evidence_id,
+            issuer=self.config.owner,
+            subject=binding.subject,
+            binding_digest=binding.digest,
+            scope=binding.scope,
+            claim=cap.claim,
+            receivers=("receiver", "verifier"),
+            verdict=verdict,
+            method="reference-check",
+            verifier_version="checker-contract-tests.v1",
+            artifact_digest=artifact,
+            expires_at=expires_at,
+        )
+        try:
+            self.overlay.store.put(self.identity.sign(evidence))
+        except Conflict:
+            previous = await saved(evidence_id)
+            if previous is None:
+                raise
+            return previous
+        return {"evidence": evidence.model_dump(mode="json"), "checks": transcript}
 
     async def run(self, max_steps: int) -> dict[str, Any]:
         if not 1 <= max_steps <= min(self.config.max_steps, 16):
@@ -203,37 +400,69 @@ class AdaptiveDocuments(DocumentService):
                 if discovery.satisfied == 2:
                     reason = "goals_satisfied"
                     break
-                pending = [item for item in discovery.opportunities if item.id not in seen]
-                # Fixed domain rule: check an existing candidate before forming
-                # another. This is separate from the core adaptive allocator.
-                pending.sort(key=lambda item: item.work_kind != "verification")
+                allocation = await allocate(
+                    self.opportunities,
+                    self.context,
+                    discovery.opportunities,
+                    self.allocation_policy,
+                    await asyncio.to_thread(self.steps.last_allocation),
+                )
+                by_id = {item.id: item for item in discovery.opportunities}
+                pending = [by_id[key] for key in allocation.ordered if key not in seen]
                 if not pending:
                     reason = "no_progress"
                     break
                 observation = pending[0]
                 seen.add(observation.id)
                 goal = self.opportunities.goal(observation.goal_id)
+                replies = (
+                    await collect(
+                        self.config, self.overlay.store, self.identity, goal, observation.id
+                    )
+                    if observation.work_kind in {"formation", "verification"}
+                    else None
+                )
+                if replies is not None and not replies.replies:
+                    reason = "proposers_unavailable"
+                    break
                 if observation.work_kind == "verification":
                     if self.config.max_rechecks == 0:
                         reason = "checking_disabled"
                         break
-                    checked = await send(
-                        self.config,
-                        self.identity,
-                        "verifier",
-                        {
-                            "operation": "request-document-check",
+                    assert replies is not None
+                    for caller, envelope in replies.replies:
+                        proposal = self.opportunities.validate_proposal(
+                            envelope, caller, self.context
+                        )
+                        if proposal.builder != goal.checker or proposal.arguments != {
                             "name": goal.id,
                             "attempt": "check-" + observation.id,
-                            "checker_digest": goal.checker.digest,
                             "binding_digest": goal.request.binding_digest,
-                        },
+                        }:
+                            raise ValueError("checker proposal changes the registered target")
+                    checked_step = await self.steps.step(
+                        observation.id, replies.replies, allocation=allocation
                     )
+                    if (
+                        checked_step.invocation is None
+                        or checked_step.invocation["state"] != "completed"
+                    ):
+                        history.append(
+                            {
+                                "opportunity": observation.id,
+                                "kind": "verification",
+                                "step": checked_step.model_dump(mode="json"),
+                            }
+                        )
+                        reason = "check_not_completed"
+                        break
+                    checked = checked_step.invocation["result"]
                     if "evidence" not in checked:
                         history.append(
                             {
                                 "opportunity": observation.id,
                                 "kind": "verification",
+                                "step": checked_step.model_dump(mode="json"),
                                 "unresolved": checked,
                             }
                         )
@@ -244,18 +473,15 @@ class AdaptiveDocuments(DocumentService):
                             "opportunity": observation.id,
                             "kind": "verification",
                             "evidence": checked["evidence"],
+                            "step": checked_step.model_dump(mode="json"),
+                            "allocation": allocation.model_dump(mode="json"),
                         }
                     )
                     continue
                 if observation.work_kind != "formation":
                     reason = "requires_" + observation.work_kind
                     break
-                replies = await collect(
-                    self.config, self.overlay.store, self.identity, goal, observation.id
-                )
-                if not replies.replies:
-                    reason = "proposers_unavailable"
-                    break
+                assert replies is not None
                 if self.config.max_children == 0:
                     reason = "child_limit"
                     break
@@ -265,7 +491,9 @@ class AdaptiveDocuments(DocumentService):
                     max_steps=min(8, self.config.max_children),
                     max_seconds=min(30, self.config.max_seconds),
                 ) as formation:
-                    result = await self.steps.step(observation.id, replies.replies)
+                    result = await self.steps.step(
+                        observation.id, replies.replies, allocation=allocation
+                    )
                     if result.invocation is None or result.invocation["state"] != "completed":
                         history.append(
                             {"kind": "formation", "step": result.model_dump(mode="json")}
@@ -358,14 +586,57 @@ def checker_binding() -> Binding:
             "type": "object",
             "required": ["name", "attempt", "binding_digest"],
             "properties": {
-                "name": {"enum": ["report", "triage"]},
+                "name": {"enum": ["report", "triage", "remote-words"]},
                 "attempt": {"type": "string", "minLength": 1, "maxLength": 160},
                 "binding_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
             },
         },
-        output_schema={"type": "object", "required": ["evidence", "observed"]},
-        callers=("receiver", "verifier"),
+        output_schema={
+            "type": "object",
+            "oneOf": [
+                {"required": ["evidence", "observed"]},
+                {
+                    "required": ["state", "reason"],
+                    "properties": {
+                        "state": {"const": "rejected"},
+                        "reason": {"const": "target_changed"},
+                    },
+                },
+            ],
+        },
+        callers=("receiver", "verifier", "producer"),
+        verification_callers=("producer",),
         effects="read-only",
+    )
+
+
+def remote_checker_binding(config: Config) -> Binding:
+    provider = checker_binding()
+    endpoint = next(peer.url for peer in config.peers if peer.identity == "verifier")
+    return provider.model_copy(
+        update={
+            "id": "remote-checker",
+            "issuer": "receiver",
+            "registrar": "receiver",
+            "subject": Subject(
+                id="documents.remote-checker",
+                version="1",
+                digest=fingerprint(
+                    {
+                        "provider": provider.model_dump(mode="json"),
+                        "endpoint": endpoint,
+                    }
+                ),
+            ),
+            "target": Target(
+                kind="a2a",
+                name=provider.id,
+                peer="verifier",
+                endpoint=endpoint,
+                interface_digest=provider.digest,
+                implementation_identity="remote-unknown",
+            ),
+        }
     )
 
 
@@ -379,7 +650,7 @@ def configure_application(configs: dict[str, Config], training_text: str) -> Non
         remote = receiver.install_remote(services["producer"].installed["words"])
         receiver.publish(remote, (services["producer"].installed["words"],), imported=True)
         report = receiver.install_report()
-        checker = binding_ref(checker_binding())
+        checker = binding_ref(remote_checker_binding(configs["receiver"]))
         scopes = {
             "report": report.scope,
             "triage": Scope(
@@ -410,7 +681,12 @@ def configure_application(configs: dict[str, Config], training_text: str) -> Non
                     else fingerprint({"intent": "triage-binding"}),
                 ),
                 checker=checker,
-                builders=(binding_ref(remote if name == "report" else report),),
+                checker_arguments={
+                    "name": "remote-words",
+                    "attempt": "readiness",
+                    "binding_digest": remote.digest,
+                },
+                builders=(binding_ref(remote if name == "report" else report), checker),
                 peers=("producer", "verifier"),
             )
             for name in ("report", "triage")

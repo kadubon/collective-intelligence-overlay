@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.3.0 (unreleased)
+
+Bounded owner goals produce signed opportunities and authenticated peer proposals.
+Durable Steps retain alternatives and select installed builders under ordinary
+admission, finite budgets and adaptive allocation. Host target transitions preserve
+the configured contract. Parameterized local artifacts are content-addressed and
+reconstructed only through installed factories. The external document application
+now exercises these paths with independently calibrated checker bindings, explicit
+rejection versus UNKNOWN, and replay that preserves original evidence expiry.
+Matched experiments, remaining semantics and release-wide validation are incomplete;
+see `docs/implementation-status.md` and `docs/validation.md`.
+
 ## 0.2.1
 
 New invocation reservations are released exactly once only when the database

@@ -1,6 +1,7 @@
 import asyncio
 import os
 import sys
+from decimal import Decimal
 from pathlib import Path
 
 import httpx
@@ -15,10 +16,15 @@ from collective_intelligence_overlay.storage import budgets
 
 
 @pytest.mark.parametrize(
-    "training_text", ["calibration vocabulary", "a longer calibration document"]
+    "training_text,work_allowance",
+    [
+        ("calibration vocabulary", 50),
+        ("a longer calibration document", 50),
+        ("bounded checker calibration", 5),
+    ],
 )
 async def test_peer_selected_document_formation_restart_and_withdrawal(
-    tmp_path, policy, monkeypatch, training_text
+    tmp_path, policy, monkeypatch, training_text, work_allowance
 ):
     url = os.environ.get("CIO_TEST_DATABASE_URL")
     if not url:
@@ -28,7 +34,9 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
     from adaptive_documents import ENVIRONMENT, configure_application, write_json
 
     opa = await asyncio.to_thread(os.path.abspath, policy.binary)
-    configs = await asyncio.to_thread(initialize, tmp_path / "application", url, opa)
+    configs = await asyncio.to_thread(
+        initialize, tmp_path / "application", url, opa, work_allowance=Decimal(work_allowance)
+    )
     for name, original in configs.items():
         config = original.model_copy(
             update={"execution_environment": ENVIRONMENT, "max_seconds": 300}
@@ -131,6 +139,64 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 )
                 assert checked["evidence"]["verdict"] == "PASS"
             await sync("receiver", "verifier")
+            checker_description = await call("verifier", operation="describe-checker")
+            from adaptive_documents import checker_binding
+
+            source = (await call("receiver", operation="describe", name="remote-words"))["binding"]
+            from collective_intelligence_overlay.bindings import Binding
+
+            before_checker_test = await send(
+                configs["receiver"],
+                identities["receiver"],
+                "verifier",
+                {
+                    "operation": "invoke",
+                    "invocation_id": "unverified-checker",
+                    "binding_id": checker_description["binding"]["id"],
+                    "binding_digest": checker_binding().digest,
+                    "arguments": {
+                        "name": "remote-words",
+                        "attempt": "unverified-checker",
+                        "binding_digest": Binding.model_validate(source).digest,
+                    },
+                },
+            )
+            assert before_checker_test["state"] == "unknown"
+            checker_test = await call("producer", operation="certify-checker", target="verifier")
+            if work_allowance == 5:
+                assert checker_test["evidence"]["verdict"] == "UNKNOWN", checker_test
+                assert checker_test["checks"][0]["state"] == "completed"
+                assert checker_test["checks"][1]["state"] == "conflict"
+                assert await asyncio.to_thread(balance, "verifier") == 0
+                repeated_test = await call(
+                    "producer", operation="certify-checker", target="verifier"
+                )
+                assert repeated_test == checker_test
+                assert await asyncio.to_thread(balance, "verifier") == 0
+                await sync("verifier", "producer")
+                decision = await call(
+                    "verifier",
+                    operation="qualify",
+                    request={
+                        "receiver": "verifier",
+                        "subject": checker_binding().subject.model_dump(mode="json"),
+                        "capability_issuer": "verifier",
+                        "binding_digest": checker_binding().digest,
+                        "scope": checker_binding().scope.model_dump(mode="json"),
+                        "semantic_fit": "confirmed",
+                    },
+                )
+                assert decision["decision"]["outcome"] != "ACCEPT"
+                return
+            assert checker_test["evidence"]["verdict"] == "PASS", checker_test
+            await sync("verifier", "producer")
+            await sync("receiver", "verifier")
+            await sync("receiver", "producer")
+            imported_checker_test = await call(
+                "producer", operation="certify-checker", target="receiver"
+            )
+            assert imported_checker_test["evidence"]["verdict"] == "PASS", imported_checker_test
+            await sync("receiver", "producer")
             first = await call("receiver", operation="adaptive-run", max_steps=1)
             assert first["reason"] == "step_limit" and len(first["history"]) == 1
             c3 = (await call("receiver", operation="describe", name="report"))["binding"]
@@ -168,6 +234,12 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             assert len(history[0]["formation"]["formation"]["receipts"]) == 2
             assert len(history[2]["formation"]["formation"]["receipts"]) == 3
             assert history[1]["evidence"]["verdict"] == history[3]["evidence"]["verdict"] == "PASS"
+            assert history[1]["allocation"]["qualified_checkers"]
+            assert (
+                "verification_backlog_with_qualified_checker" in history[1]["allocation"]["reasons"]
+            )
+            assert history[1]["step"]["invocation"]["state"] == "completed"
+            assert history[3]["step"]["selection"]["skipped"]
             c4 = (await call("receiver", operation="describe", name="triage"))["binding"]
             request = {
                 "operation": "invoke",
@@ -187,10 +259,12 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             # target process is stopped. No fresh probe or reservation can hide
             # behind a successful response.
             checker_before = await asyncio.to_thread(balance, "verifier")
+            repeated_certificate = await call(
+                "producer", operation="certify-checker", target="receiver"
+            )
+            assert repeated_certificate == imported_checker_test
             await stop("verifier")
             await start("verifier")
-            from adaptive_documents import checker_binding
-
             check_request = {
                 "operation": "request-document-check",
                 "name": "report",

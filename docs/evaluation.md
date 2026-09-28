@@ -7,8 +7,9 @@ materializes a report workflow from observed component use, checks it independen
 and uses that workflow to derive and form a parameterized document classifier.
 Two calibration inputs are tested in separate databases and processes, producing
 different thresholds. These are integration cases, not independent statistical
-evidence of an adaptive benefit. The application currently uses a fixed domain
-priority and has no matched adaptive-versus-static results. Initial setup and full
+evidence of an adaptive benefit. The application now uses the core allocator and
+checks its checker bindings through independent finite contract tests before reuse.
+It has no matched adaptive-versus-static results. Initial setup and full
 experiment cost reporting remain work in progress; do not infer cost savings from
 the test duration or the number of candidates.
 

@@ -133,7 +133,7 @@ class Steps:
                             self.context,
                             tuple(observed),
                             allocation_policy or AllocationPolicy(),
-                            await asyncio.to_thread(self._last_allocation),
+                            await asyncio.to_thread(self.last_allocation),
                         )
                         allocations.append(allocation)
                     by_id = {item.id: item for item in observed}
@@ -200,7 +200,8 @@ class Steps:
             ).scalar_one_or_none()
         return Selection.model_validate(body) if body is not None else None
 
-    def _last_allocation(self) -> AllocationObservation | None:
+    def last_allocation(self) -> AllocationObservation | None:
+        """Read the latest persisted owner choice for bounded host-loop cooldown."""
         with self.store.engine.connect() as conn:
             body = conn.execute(
                 select(selections.c.body)

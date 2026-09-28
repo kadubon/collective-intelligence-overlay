@@ -51,6 +51,12 @@ from collective_intelligence_overlay.queries import RecordQuery
 from collective_intelligence_overlay.storage import Conflict
 
 ENVIRONMENT = {"documents": "1"}
+
+
+class CandidateChanged(ValueError):
+    """An actual described binding differs from the explicitly pinned target."""
+
+
 APPLICATION_SCRIPT = Path(__file__).resolve()
 TEXT = {
     "type": "object",
@@ -405,7 +411,7 @@ class DocumentService(PeerService):
                 request["binding_digest"] is not None
                 and request["binding_digest"] != binding.digest
             ):
-                raise ValueError("candidate changed before checking")
+                raise CandidateChanged("candidate changed before checking")
             candidates = await asyncio.to_thread(
                 self.overlay.store.record_page,
                 RecordQuery(kinds=("capability",), issuer=provider, subject=binding.subject),

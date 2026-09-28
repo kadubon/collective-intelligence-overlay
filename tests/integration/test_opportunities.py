@@ -672,7 +672,7 @@ async def test_cooldown_uses_persisted_choice_and_does_not_renew_forever(
     first = await worker.run(alternatives, max_steps=1, allocation_policy=policy)
     assert first.allocations[0].preferred_kind == "connection"
     restarted = Steps(host, steps.executor, steps.context)
-    previous = restarted._last_allocation()
+    previous = restarted.last_allocation()
     assert previous == first.allocations[0]
     expanded = Opportunities(steps.executor.registry, identities["receiver"], (connection, *checks))
     page = await expanded.discover()
