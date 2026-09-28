@@ -22,6 +22,7 @@ from collective_intelligence_overlay.invocations import (
     Reservation,
     invocations,
 )
+from collective_intelligence_overlay.lineage import FormationSession
 from collective_intelligence_overlay.models import (
     Capability,
     Event,
@@ -31,6 +32,31 @@ from collective_intelligence_overlay.models import (
     now,
 )
 from collective_intelligence_overlay.storage import Conflict, Store, budgets, leases
+
+
+def test_concurrent_formation_start_reservations_preserve_floor(store):
+    store.set_budget("work", Decimal(2))
+    barrier = Barrier(4)
+
+    def acquire(index):
+        barrier.wait(timeout=5)
+        try:
+            return store.acquire(
+                f"formation-{index}",
+                "receiver",
+                "work",
+                Decimal(1),
+                minimum_remaining=Decimal(1),
+            )
+        except Conflict:
+            return None
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        results = list(pool.map(acquire, range(4)))
+    assert results.count(1) == 1 and results.count(None) == 3
+    with store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 1
+        assert len(conn.execute(select(leases)).all()) == 1
 
 
 def test_protected_allowance_and_capacity_are_atomic_across_units(store):
@@ -91,11 +117,22 @@ def test_protected_allowance_and_capacity_are_atomic_across_units(store):
     assert fresh and checked["state"] == "running"
 
 
-def registered(overlay, identities, records, operation, assess=None):
+def registered(
+    overlay,
+    identities,
+    records,
+    operation,
+    assess=None,
+    *,
+    identifier="invocation-tool",
+    components=(),
+    initialize_budget=True,
+):
     cap, checked = records
-    subject = Subject(id="invocation-tool", version="1", digest=callable_digest(operation))
+    subject = Subject(id=identifier, version="1", digest=callable_digest(operation))
     binding = Binding(
-        id="invocation-tool",
+        id=identifier,
+        components=components,
         revision="1",
         issuer="producer",
         registrar="receiver",
@@ -124,13 +161,14 @@ def registered(overlay, identities, records, operation, assess=None):
                 "subject": subject,
                 "schema_version": "2",
                 "binding_digest": binding.digest,
-                **({"id": "invocation-check"} if model is Evidence else {}),
+                **({"id": identifier + "-check"} if model is Evidence else {}),
             }
         )
         overlay.store.put(identities[record.issuer].sign(record))
     registry = Registry(overlay)
     registry.register_local(binding, operation, assess or (lambda _: True))
-    overlay.store.set_budget("work", Decimal(10))
+    if initialize_budget:
+        overlay.store.set_budget("work", Decimal(10))
     return (
         Executor(registry, identities["receiver"], Reservation()),
         binding,
@@ -139,6 +177,111 @@ def registered(overlay, identities, records, operation, assess=None):
             environment=cap.scope.environment,
         ),
     )
+
+
+@pytest.mark.parametrize("child_unit", ["work", "tokens"])
+async def test_nested_calls_keep_floor_and_independent_request_can_spend_it(
+    overlay, identities, records, child_unit
+):
+    effects = []
+    overlay.store.set_budget("tokens", Decimal(1))
+
+    async def leaf(arguments):
+        effects.append(0)
+        return 0
+
+    _, child, _ = registered(overlay, identities, records, leaf, identifier="child")
+
+    async def operation(arguments):
+        value = arguments["value"]
+        effects.append(value)
+        if value:
+            await child_runner.invoke(
+                "nested-child",
+                child.id,
+                child.digest,
+                {"value": 0},
+                context,
+                minimum_remaining=Decimal(0),
+            )
+        return value
+
+    executor, binding, context = registered(
+        overlay,
+        identities,
+        records,
+        operation,
+        components=(child.digest,),
+        initialize_budget=False,
+    )
+    executor.registry.register_local(child, leaf, lambda _: True)
+    child_runner = Executor(executor.registry, identities["receiver"], Reservation(unit=child_unit))
+    result = await executor.invoke(
+        "protected-parent",
+        binding.id,
+        binding.digest,
+        {"value": 1},
+        context,
+        minimum_remaining=Decimal(9),
+    )
+    assert result["state"] == ("unknown" if child_unit == "work" else "completed")
+    assert effects == ([1] if child_unit == "work" else [1, 0])
+    with overlay.store.engine.connect() as conn:
+        assert (
+            conn.execute(select(budgets.c.remaining).where(budgets.c.unit == "work")).scalar_one()
+            == 9
+        )
+    assert (
+        await executor.invoke("protected-parent", binding.id, binding.digest, {"value": 1}, context)
+        == result
+    )
+    independent = await executor.invoke(
+        "independent-check", binding.id, binding.digest, {"value": 0}, context
+    )
+    assert independent["state"] == "completed"
+    assert effects == ([1, 0] if child_unit == "work" else [1, 0, 0])
+    with overlay.store.engine.connect() as conn:
+        assert (
+            conn.execute(select(budgets.c.remaining).where(budgets.c.unit == "work")).scalar_one()
+            == 8
+        )
+
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(
+            select(budgets.c.remaining).where(budgets.c.unit == "tokens")
+        ).scalar_one() == (1 if child_unit == "work" else 0)
+
+
+async def test_formation_overhead_and_direct_calls_preserve_checking_floor(
+    overlay, identities, records
+):
+    effects = []
+
+    async def operation(arguments):
+        effects.append(arguments["value"])
+        return arguments["value"]
+
+    executor, binding, context = registered(overlay, identities, records, operation)
+    async with FormationSession(
+        executor.registry, identities["receiver"], minimum_remaining=Decimal(9)
+    ):
+        with pytest.raises(Conflict, match="protected allowance"):
+            await executor.invoke(
+                "formation-child", binding.id, binding.digest, {"value": 1}, context
+            )
+    with pytest.raises(Conflict, match="budget exhausted"):
+        async with FormationSession(
+            executor.registry, identities["receiver"], minimum_remaining=Decimal(9)
+        ):
+            pytest.fail("formation overhead consumed protected allowance")
+    assert effects == []
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 9
+        assert len(conn.execute(select(leases)).all()) == 1
+    checked = await executor.invoke(
+        "after-formation", binding.id, binding.digest, {"value": 3}, context
+    )
+    assert checked["state"] == "completed" and effects == [3]
 
 
 async def test_rejected_requests_release_execution_allowance_and_keep_overhead(

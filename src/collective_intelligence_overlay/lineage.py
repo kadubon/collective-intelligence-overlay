@@ -12,7 +12,7 @@ from typing import Any
 from sqlalchemy import select
 
 from .bindings import Registry, formation_receipts, formation_steps
-from .invocations import invocations
+from .invocations import Reservation, _allowance_floors, invocations
 from .models import Capability, Cost, Event, FormationReceipt, ReceiptRef, Verdict, uid
 from .security import Identity, verify
 from .storage import Conflict, records
@@ -27,7 +27,13 @@ class FormationSession:
     """
 
     def __init__(
-        self, registry: Registry, identity: Identity, *, max_steps: int = 16, max_seconds: int = 120
+        self,
+        registry: Registry,
+        identity: Identity,
+        *,
+        max_steps: int = 16,
+        max_seconds: int = 120,
+        minimum_remaining: Decimal = Decimal(0),
     ) -> None:
         if identity.name != registry.overlay.store.owner:
             raise ValueError("formation belongs to the local resource owner")
@@ -36,6 +42,7 @@ class FormationSession:
         self.registry, self.identity = registry, identity
         self.store = registry.overlay.store
         self.max_steps, self.max_seconds = max_steps, max_seconds
+        self.minimum_remaining = Reservation(minimum_remaining=minimum_remaining).minimum_remaining
         self.id = "formation-" + uid()
         self.receipts: list[ReceiptRef] = []
         self.published = False
@@ -45,8 +52,21 @@ class FormationSession:
         if self.active or self.published or formation_receipts.get() is not None:
             raise ValueError("nested formation sessions are not supported")
         self.started = time.perf_counter()
+        floor_key = (self.identity.name, "work")
+        floor = max(
+            self.minimum_remaining, (_allowance_floors.get() or {}).get(floor_key, Decimal(0))
+        )
         self.fence = await asyncio.to_thread(
-            self.store.acquire, self.id, self.identity.name, "work", Decimal(1), self.max_seconds
+            self.store.acquire,
+            self.id,
+            self.identity.name,
+            "work",
+            Decimal(1),
+            self.max_seconds,
+            minimum_remaining=floor,
+        )
+        self.floor_token = _allowance_floors.set(
+            {**(_allowance_floors.get() or {}), floor_key: floor}
         )
         self.receipt_token = formation_receipts.set(self.receipts)
         self.step_token = formation_steps.set([0, self.max_steps])
@@ -63,6 +83,7 @@ class FormationSession:
     ) -> bool | None:
         formation_receipts.reset(self.receipt_token)
         formation_steps.reset(self.step_token)
+        _allowance_floors.reset(self.floor_token)
         self.active = False
         if not self.published:
             with contextlib.suppress(Conflict):

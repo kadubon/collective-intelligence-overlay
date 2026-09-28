@@ -12,6 +12,7 @@ import argparse
 import asyncio
 import json
 import os
+from contextlib import AsyncExitStack
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any
@@ -485,12 +486,24 @@ class AdaptiveDocuments(DocumentService):
                 if self.config.max_children == 0:
                     reason = "child_limit"
                     break
-                async with FormationSession(
-                    self.registry,
-                    self.identity,
-                    max_steps=min(8, self.config.max_children),
-                    max_seconds=min(30, self.config.max_seconds),
-                ) as formation:
+                async with AsyncExitStack() as stack:
+                    try:
+                        formation = await stack.enter_async_context(
+                            FormationSession(
+                                self.registry,
+                                self.identity,
+                                max_steps=min(8, self.config.max_children),
+                                max_seconds=min(30, self.config.max_seconds),
+                                minimum_remaining=max(
+                                    self.executor.allowance.minimum_remaining,
+                                    self.executor.allowance.quantity
+                                    * allocation.reserve_operations,
+                                ),
+                            )
+                        )
+                    except Conflict:
+                        reason = "insufficient_allowance"
+                        break
                     result = await self.steps.step(
                         observation.id, replies.replies, allocation=allocation
                     )

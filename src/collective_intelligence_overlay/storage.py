@@ -740,10 +740,18 @@ class Store:
         seconds: int = 60,
         *,
         reclaim_expired: bool = True,
+        minimum_remaining: Decimal = Decimal(0),
     ) -> int:
         with self.engine.begin() as conn:
             return self._acquire(
-                conn, task_id, worker, unit, reservation, seconds, reclaim_expired=reclaim_expired
+                conn,
+                task_id,
+                worker,
+                unit,
+                reservation,
+                seconds,
+                reclaim_expired=reclaim_expired,
+                minimum_remaining=minimum_remaining,
             )
 
     def _acquire(
@@ -756,8 +764,15 @@ class Store:
         seconds: int,
         *,
         reclaim_expired: bool = True,
+        minimum_remaining: Decimal = Decimal(0),
     ) -> int:
-        if not reservation.is_finite() or reservation < 0 or not 1 <= seconds <= 3600:
+        if (
+            not reservation.is_finite()
+            or reservation < 0
+            or not 1 <= seconds <= 3600
+            or not minimum_remaining.is_finite()
+            or minimum_remaining < 0
+        ):
             raise ValueError("invalid lease bounds")
         # Shared transaction helper; budget precedes lease in every reservation.
         available: Decimal = conn.execute(
@@ -773,7 +788,7 @@ class Store:
         if old and old["unit"] != unit:
             raise Conflict("lease unit cannot change")
         # Expired reservations remain charged: the external effect may have occurred.
-        if available < reservation:
+        if available < reservation + minimum_remaining:
             raise Conflict("budget exhausted")
         fence = old["fence"] + 1 if old else 1
         values = dict(

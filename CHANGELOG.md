@@ -9,6 +9,9 @@ the configured contract. Parameterized local artifacts are content-addressed and
 reconstructed only through installed factories. The external document application
 now exercises these paths with independently calibrated checker bindings, explicit
 rejection versus UNKNOWN, and replay that preserves original evidence expiry.
+Protected checking allowance is retained across same-owner, same-unit child
+Executor calls and formation-session start reservations; independent checking can
+use that allowance after the formation context ends.
 Matched experiments, remaining semantics and release-wide validation are incomplete;
 see `docs/implementation-status.md` and `docs/validation.md`.
 

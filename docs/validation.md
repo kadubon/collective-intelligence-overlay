@@ -2,6 +2,17 @@
 
 ## 0.3.0 development checkpoint
 
+The nested-allowance increment passed 48 invocation, lineage, opportunity and
+three-process adaptive application tests in 224.20 seconds, zero skips. Additional
+focused checks passed three owner/unit-context and formation-floor cases (7.53
+seconds) and one four-worker atomic formation-start race (2.68 seconds), zero skips.
+A permitted child cannot consume the same owner's protected unit even when it
+requests a zero floor. Independent checking and a different budget unit remain
+usable. Formation overhead cannot consume the retained balance. Existing uncertain
+effect, cancellation, replay, lineage and three-process calibration paths passed.
+Lint, formatting, package typing and generated documentation checks passed. This
+does not replace the remaining release-wide gates or matched experiments.
+
 The checker-calibration and allocation integration passed 18 opportunity and
 three-process document tests in 238.63 seconds, zero skips. After replay/expiry
 hardening, all three adaptive application cases passed again in 151.91 seconds,
@@ -10,8 +21,8 @@ probe completes; replay preserves the original evidence and exhausted balance.
 Successful calibration is replayable with the target offline and retains original
 timestamps. Formation and checking now both use proposals, Steps and the core
 allocator. These are deterministic functional checks, not matched performance
-experiments. Protection of the reserved checking allowance across nested formation
-calls and formation-session overhead still requires implementation and testing.
+experiments. The subsequent increment above protects reserved checking allowance
+across nested formation calls and formation-session overhead.
 
 The checker-replay increment passed 34 lease-concurrency, invocation and three-process
 document E2E tests in 178.23 seconds, zero skips. After the verifier restarts with the

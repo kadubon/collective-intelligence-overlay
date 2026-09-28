@@ -48,6 +48,17 @@ thresholds of one for its two-goal demonstration; operator `allocation` settings
 inner verifier lease for atomic evidence publication. Parent/child wall times must
 not be added as separate resource consumption. Matched experiments remain incomplete.
 
+`Executor.invoke(..., minimum_remaining=...)` protects the remaining allowance
+through nested Executor calls for the same owner and unit. A child cannot lower
+its inherited floor; another unit or owner retains its own allowance contract.
+The floor is scoped to the execution context and restored on return or failure,
+so a separate authorized checking request can spend the retained allowance.
+`FormationSession(..., minimum_remaining=...)` applies the work-unit floor to both
+its start reservation and enclosed Executor calls. The external application passes
+the allocation's reserve to this session and stops with `insufficient_allowance`
+when its start reservation cannot preserve that reserve. These bounds apply to SDK
+reservations, not arbitrary resource use by trusted installed Python code.
+
 `opportunities.Goal` is operator configuration: a versioned goal, exact ordinary-use
 `UseRequest`, fixed checker binding, bounded installed-builder allowlist and explicit
 proposal peers. `Opportunities(registry, identity, goals)` owns isolated copies.

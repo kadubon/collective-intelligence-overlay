@@ -6,6 +6,7 @@ import asyncio
 import contextlib
 import copy
 import time
+from contextvars import ContextVar
 from decimal import Decimal
 from typing import Any
 
@@ -24,6 +25,10 @@ from .models import Cost, Event, ExecutionReceipt, Identifier, Model, ReceiptRef
 from .overlay import AdmissionDenied
 from .security import Identity
 from .storage import Conflict, Store, budgets, leases, metadata
+
+_allowance_floors: ContextVar[dict[tuple[str, str], Decimal] | None] = ContextVar(
+    "allowance_floors", default=None
+)
 
 invocations = Table(
     "invocations",
@@ -415,15 +420,16 @@ class Executor:
         *,
         minimum_remaining: Decimal | None = None,
     ) -> dict[str, Any]:
-        allowance = (
-            self.allowance
-            if minimum_remaining is None
-            else Reservation.model_validate(
-                {
-                    **self.allowance.model_dump(),
-                    "minimum_remaining": max(self.allowance.minimum_remaining, minimum_remaining),
-                }
-            )
+        floor_key = (self.identity.name, self.allowance.unit)
+        allowance = Reservation.model_validate(
+            {
+                **self.allowance.model_dump(),
+                "minimum_remaining": max(
+                    self.allowance.minimum_remaining,
+                    (_allowance_floors.get() or {}).get(floor_key, Decimal(0)),
+                    Decimal(0) if minimum_remaining is None else minimum_remaining,
+                ),
+            }
         )
         arguments = copy.deepcopy(arguments)
         context = context.model_copy(deep=True)
@@ -540,6 +546,9 @@ class Executor:
         invocation_token = active_invocation.set(
             fingerprint([self.identity.name, context.caller, invocation_id])
         )
+        floor_token = _allowance_floors.set(
+            {**(_allowance_floors.get() or {}), floor_key: allowance.minimum_remaining}
+        )
 
         async def boundary() -> None:
             await asyncio.to_thread(self.store.dispatched, claim)
@@ -569,6 +578,7 @@ class Executor:
             if not isinstance(exc, Exception):
                 raise
         finally:
+            _allowance_floors.reset(floor_token)
             active_invocation.reset(invocation_token)
         result_record = await asyncio.to_thread(self.store.get, context.caller, invocation_id)
         assert result_record is not None
