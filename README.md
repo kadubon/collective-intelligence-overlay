@@ -23,12 +23,12 @@ the overlay records evidence, qualifies reuse and stops known-invalid dependenci
   imported A2A bindings, reuse an HTML report workflow, then revoke its dependency.
 - Typed costs and an explicitly limited deterministic comparison.
 
-The 0.2.0 development checkout also supports typed local/MCP/A2A bindings,
+Version 0.2.0 adds typed local/MCP/A2A bindings,
 durable invocations, paged synchronization/history and observed formation receipts.
 An [external document application](examples/document_application.py) demonstrates
 three peers building and checking C3, using it to construct C4, restarting and
 stopping both descendants after withdrawal. See the [tutorial](docs/quickstart.md)
-and [current validation scope](docs/implementation-status.md); 0.2.0 is not yet published.
+and [current validation scope](docs/implementation-status.md).
 
 A signature establishes origin, not truth. Sample checks do not prove correctness on
 all future data. Distinct local identities are not independent organizations or
@@ -62,16 +62,16 @@ Expected fields: `processes: 3`, `admission: ACCEPT`, report total `117.00`,
 Timings vary. The command preserves owner-local artifacts and databases and stops
 its child processes. Use a new output directory for another run.
 
-Version [0.1.0 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.1.0/).
-To install into an activated Python 3.12 environment:
+The 0.2.0 installation command for an activated Python 3.12 environment is:
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.1.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.2.0'
 collective-intelligence-overlay --version
 ```
 
-PostgreSQL and OPA are still required for the reference demo. Publication hashes
-and clean-install verification are recorded in [releasing](docs/releasing.md).
+PostgreSQL and OPA are still required for the reference demo. Actual publication
+status, hashes and clean-install verification are recorded in [releasing](docs/releasing.md).
+For 0.1.0 upgrades, follow [migration and recovery](docs/deployment.md).
 
 ## Add to an existing agent
 

@@ -25,7 +25,7 @@ Local checks used Windows CPython 3.12.10 and PostgreSQL 16.15 on WSL Ubuntu.
 The MAF provider moved to a separate distribution and A2A/MCP changed their public
 APIs in the tested release lines. Old import paths are deliberately not supported.
 
-0.2.0 development promotes the already resolved `jsonschema` package to a direct
+0.2.0 promotes the already resolved `jsonschema` package to a direct
 core dependency; it does not update the existing SDK versions. This reuses JSON
 Schema validation for MCP and application contracts instead of creating a schema
 interpreter or compiling JSON Schema into new Pydantic types. External `$ref`

@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.0 (unreleased)
+## 0.2.0
 
 Typed local/MCP/overlay-A2A and standard A2A service bindings, durable owner-scoped invocations,
 indexed admission queries and resumable signed paged synchronization. New execution
@@ -34,8 +34,8 @@ metrics now expose bounded cursor pages, including histories beyond 1,000 events
 Current target assessment distinguishes historical independent PASS, local ACCEPT,
 obligations and observed receipt delays without inventing scope for legacy events.
 The `/extensions/v2` A2A boundary requires coordinated peer upgrades. These changes
-remain under development; see `docs/implementation-status.md` for completed checks
-and outstanding release requirements. No 0.2.0 publication is claimed.
+are covered by the validation scope in `docs/implementation-status.md`.
+See `docs/releasing.md` for actual release and post-publication verification state.
 
 ## 0.1.0
 

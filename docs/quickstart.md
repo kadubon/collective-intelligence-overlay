@@ -64,7 +64,7 @@ test driver, not an autonomous global planner. [Configuration](configuration.md)
 describes bounded controls and ownership. [Troubleshooting](troubleshooting.md)
 explains common failures.
 
-## Registered document application (0.2.0 development checkout)
+## Registered document application (0.2.0 source checkout)
 
 With the same dedicated PostgreSQL/OPA environment and a new output directory:
 

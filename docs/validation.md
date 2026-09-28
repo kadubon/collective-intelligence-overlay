@@ -1,109 +1,70 @@
 # Validation status
 
-Registered-demo checkpoint: the complete local service suite passed **106 tests,
-zero skips, 242.72 seconds**. The subsequent commit/rollback parameterization and
-registered checker mismatch/FAIL tests passed with their focused suites (**10 tests,
-17.09 seconds**). Both changes are included in the next distribution run.
-The standalone evaluation command also completed its three-process registered-A2A
-path: ACCEPT, 117.00, REQUALIFY, REJECT, with a durable execution receipt. All four
-deterministic comparison arms returned 3/3 correct; their timings do not establish
-model-quality or speed gains. Ruff, format, mypy and documentation checks pass.
+Observed on 2026-09-28 with Windows CPython 3.12.10, PostgreSQL 16.15 on WSL
+Ubuntu, OPA 1.21.0 and the frozen dependency set in `uv.lock`.
 
-Local 0.2.0 distribution preparation: wheel/sdist build and strict twine checks
-passed. A fresh environment outside the checkout passed the core import/version/path
-checks, **96 agents tests (251.90 seconds, zero skips)** and **one model adapter test
-(6.98 seconds)** after installing that extra separately. The sdist rebuilt and its
-wheel reinstalled successfully; CLI reported 0.2.0. The installed
-development environment's pip-audit check found no known vulnerabilities among
-auditable dependencies; the unpublished project 0.2.0 was explicitly skipped by
-the index lookup. License metadata checks passed for 129 distributions, and
-CycloneDX 1.6 generation produced 133 components. These are point-in-time tool
-observations, not an external audit or a completed CI/release gate.
+| Check | Observed result |
+| --- | --- |
+| Complete local service suite after registered CSV conversion | 106 passed, zero skips, 242.72 seconds |
+| Subsequent commit/rollback and registered-checker negative cases, with focused suites | 10 passed, zero skips, 17.09 seconds |
+| Clean wheel with core then agents, outside checkout, including both new cases | 107 passed, zero skips, 232.54 seconds |
+| Model extra installed separately; actual provider adapter with mock HTTP | 1 passed, 1.70 seconds; no paid inference |
+| Core import/version/path and CLI; sdist rebuild and reinstall | Passed, version 0.2.0 |
+| Ruff check/format, strict mypy, generated schemas and documentation links | Passed |
+| Build and strict twine check | Wheel and sdist passed |
+| pip-audit | No known vulnerabilities among auditable dependencies; unpublished project 0.2.0 explicitly skipped by index lookup |
+| License metadata | 129 distributions reviewed against the existing allowlist |
+| CycloneDX 1.6 | 133 components generated |
 
-Tested local checkpoint artifact hashes (not published release artifacts):
+The clean distribution run covers the full 108-test implementation (107 agents
+checks plus one separately installed model check). Subsequent documentation-only
+changes are checked again by release CI. These local observations do not by
+themselves establish publication; exact-commit CI and actual PyPI installation
+are recorded in [releasing](releasing.md).
 
-```text
-e0ffdbd07915615730614f7c093e631763d5313301d1ac08bcd12a0035dd651a  collective_intelligence_overlay-0.2.0-py3-none-any.whl
-a340a95e407925fd851d52e2915b41e521082d45f376ccb0522d32983a7f542e  collective_intelligence_overlay-0.2.0.tar.gz
-```
+The standalone evaluation command completed the three-process registered-A2A path:
+ACCEPT, held-out total 117.00, changed environment REQUALIFY, dependency withdrawal
+REJECT, with a durable execution receipt. All four deterministic comparison arms
+returned 3/3 correct. This does not establish model-quality gains or a speed advantage.
+The external document E2E separately verifies C3 composition, C3-based C4 formation,
+independent checks, held-out results, CLI invocation, restart/result lookup, delta
+synchronization and transitive withdrawal across three actual peer processes.
 
-Latest full-service checkpoint: **96 passed, zero skipped, 244.02 seconds**, with
-PostgreSQL/OPA, real dump/restore, migrations through 0008 and A2A response limits.
-The CSV registration example added after collection passed separately (**1 passed,
-3.65 seconds**). The separate stress run passed 1,000/10,000/100,000 profiles; see
-[scale observations](scale.md). These local checks do not establish CI/publication.
+The suite uses real PostgreSQL, OPA subprocesses, official MAF APIs, A2A HTTP and
+MCP HTTP. Negative paths cover identity/endpoint/tool/binding substitution, actual
+child input/permission checks, FAIL/UNKNOWN/expiry, concurrent withdrawal, invocation
+replay/conflict/cancellation, process death after an effect, and fenced budgets.
+Sync tests cover complete prefixes under commit and rollback, scoped cursors,
+interrupted/duplicate pages, final-page withdrawal and freshness that only advances
+on completion. A signature or completed invocation never manufactures PASS.
 
-0.2.0 development: the latest full local PostgreSQL/OPA/SDK run passed 84 tests
-with zero skips (179.25 seconds), including the external three-process C1–C4
-document application. Subsequent numeric/formation-cost checks passed 5 focused
-tests, and the final MAF proposal-tool version of that E2E passed in 39.19 seconds.
-The subsequent exact-issuer dependency-query and cycle-identity fixes passed 17
-indexed-storage/negative-path tests with real PostgreSQL/OPA (19.82 seconds, no skips).
-The new mixed signed-history harness passed its 1,000/10,000 profiles (2 tests,
-65.82 seconds). Both returned nine SELECT rows, executed nine DB statements and
-verified four signatures per qualification over five repetitions. An enum-only
-fixture correction removed serializer warnings and passed the 1,000 profile again
-(8.73 seconds). The first 100,000 profile failed with UNKNOWN after bulk setup;
-the full three-profile run took 672.68 seconds. The fixture's source observations
-were established before setup and exceed the unchanged 300-second freshness limit
-at that scale. The harness now establishes direct local-fixture observations after
-setup and prints full decision reasons on failure. The revised three-profile run
-passed all three tests in 673.69 seconds, including 100,000 records. Each of the
-15 target qualifications verified four signatures, executed nine DB statements and
-returned nine SELECT rows. Raw observations and limits are in [scale methodology](scale.md).
-Migration and restore tests subsequently passed five checks (6.77 seconds, zero
-skips), including actual PostgreSQL custom dump/restore through the WSL client
-tools, original signed 0.1.0 data, post-restore cursor/freshness invalidation and the
-offline CLI path. Full production artifact/key recovery remains operator-specific.
-Migration 0008 and exact reverse dependency filters passed 11 inspection/migration
-tests (18.70 seconds). With the new projection installed, indexed-storage and the
-1,000 profile passed another seven tests (21.83 seconds), all with zero skips.
-Shared A2A HTTP response limits passed six tests (50.25 seconds, zero skips),
-including real chunked HTTP rejection, standard service execution and the complete
-three-process document formation E2E.
-Ruff/format, strict mypy and documentation checks pass. Detailed scope and unfinished
-0.2.0 release gates are tracked in [implementation status](implementation-status.md).
-The release and package observations below concern 0.1.0 unless explicitly stated.
+Migration tests start from original v0.1.0 signed records, apply revisions through
+0008 and preserve payload bytes, dissent, revocations and budgets. Interrupted
+backfill is transactional. Actual PostgreSQL custom dump/restore is exercised,
+including offline feed-generation rotation and freshness invalidation. Recovery of
+operator keys/artifacts and reconciliation of work absent from a backup remain
+operator responsibilities; see [deployment](deployment.md).
 
-Local observations before release:
+The mixed signed-history harness passed 1,000/10,000/100,000 profiles in 673.69
+seconds. Each of five qualifications per profile verified four signatures, executed
+nine DB statements and returned nine SELECT rows. [Raw reports and methodology](scale.md)
+include type counts, dependencies, plans, bytes, Python allocation peaks, latency,
+OPA cost and host conditions. The first stress attempt returned UNKNOWN because
+fixture freshness preceded a long bulk load; the corrected fixture observes after
+loading, without changing production freshness rules. No universal O(1) or latency
+SLO is claimed.
 
-- 43 tests passed against real PostgreSQL and OPA, including the three-process A2A
-  lifecycle, actual MAF Agent/tool execution and workflow composition, MCP HTTP,
-  provider adapter with mock HTTP, signature/identity/expiry failures, graph cycles,
-  evidence withdrawal, lease competition and stale-worker result rejection.
-- Ruff and strict mypy passed at the local release-preparation checkpoint.
-- Wheel/sdist built; twine strict metadata check passed. A fresh external environment
-  installed the wheel, ran CLI/core SDK checks and rebuilt a wheel from the sdist.
-- pip-audit reported no known vulnerabilities for the checked environment. The
-  unpublished local project itself had no PyPI entry to audit.
-- License metadata was reviewed using pip-licenses, and CycloneDX generation is
-  part of the release checks.
+The original v0.1.0 release passed 43 Linux source and clean-wheel tests, Windows
+package checks, OIDC publication and actual PyPI hash/install verification. Its
+history and artifacts are preserved in [releasing](releasing.md).
 
-These are checkpoint results. The release workflow reruns checks on the release
-commit and publishes the same tested distributions. Refer to [releasing](releasing.md)
-for actual CI/publication state; presence of a workflow is not a successful run.
+Service tests skip when explicit PostgreSQL/OPA configuration is absent. Release
+Linux CI provides those services and must execute all mandatory checks; skips are
+not successful validation. Windows CI covers portable unit/package behavior;
+full Windows-to-WSL service checks are the separate local observations above.
 
 Not established: paid model quality, resource-matched real-model comparisons,
-multi-organization operation, external security audit, long-duration availability,
+independent organizations, external security audit, long-duration operation,
 general semantic correctness, instantaneous remote revocation, arbitrary external
-effect exactly-once behavior, physical memory erasure or intelligence-growth theorems.
-No production SLO or universal commercial-readiness claim is made.
-
-`pytest` skips service tests if explicit service configuration is absent. CI's main
-Linux job provides both services and executes the complete suite. Its Windows job
-checks portable unit/package behavior; it does not claim a Windows-hosted PostgreSQL
-production deployment. Local Windows-to-WSL full tests are separately reported.
-
-GitHub release-tag CI succeeded for `7e4f119` (`v0.1.0`): 43 source tests and 43
-clean-wheel tests passed on Linux, alongside Windows unit/package checks and
-license/security/SBOM checks. The earlier e710c59 Linux startup-readiness failure
-was fixed with a regression test.
-
-After OIDC publication, both actual PyPI file hashes matched the CI artifacts.
-A fresh Python 3.12 environment installed `collective-intelligence-overlay[agents]`
-from PyPI with cache disabled and ran outside the repository. Version/import/CLI
-checks and the three-process lifecycle passed: ACCEPT, report total 117.00,
-environment change REQUALIFY, dependency revocation REJECT. Each of the four
-network comparison modes produced 3/3 correct results; these deterministic checks
-do not establish model-quality gains or an overlay speed advantage. The result
-and supply-chain reports are attached to the [release](releasing.md).
+effect exactly-once behavior, physical erasure or general intelligence growth.
+Dependency scanning is a point-in-time tool result, not an external security audit.

@@ -18,21 +18,22 @@ PostgreSQLで重複、費用、leaseと古いworkerの結果を管理します�
 APIキー不要のデモでは、別プロセスの3 peerがCSV集計とHTMLレポートを登録し、
 別主体による検証、A2A bindingの導入と再検証、合成利用、依存失効を一巡させます。
 処理コードは移転せず、提供側の登録能力を呼び出します。
-0.2.0の開発版では、登録binding、永続invocation、ページ同期・履歴、形成receiptを
+0.2.0では、登録binding、永続invocation、ページ同期・履歴、形成receiptを
 追加しています。[外部の文書処理例](examples/document_application.py)では、3プロセスで
 C3を合成・検証し、その出力からC4を形成して、再起動と元能力の撤回まで確認します。
 [手順](docs/quickstart.md)と[検証範囲](docs/implementation-status.md)を参照してください。
-0.2.0はまだ公開していません。
+実際の公開状況は[release記録](docs/releasing.md)に、0.1.0からの移行と復旧は
+[deployment](docs/deployment.md)に記載しています。
 ローカルの別identityは、別組織や統計的独立性の証明ではありません。
 署名、配送成功、schema一致だけで成果の正しさを認定するものでもありません。
 
 ## 最短の確認
 
-公開済みの[PyPI 0.1.0](https://pypi.org/project/collective-intelligence-overlay/0.1.0/)は、
-有効化したPython 3.12環境へ次のコマンドで導入できます。
+0.2.0を有効化したPython 3.12環境へ導入するコマンドは次のとおりです。
+公開の成否と検証結果は上記のrelease記録を参照してください。
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.1.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.2.0'
 collective-intelligence-overlay --version
 ```
 
