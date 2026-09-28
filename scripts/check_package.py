@@ -31,6 +31,7 @@ with zipfile.ZipFile(wheel) as archive:
         "licenses/NOTICE",
         "migrations/versions/0008_dependency_refs.py",
         "migrations/versions/0009_invocation_allowance.py",
+        "migrations/versions/0010_work_selections.py",
         "schemas/event.json",
         "schemas/evidence.json",
         "schemas/opportunity.json",

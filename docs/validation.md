@@ -2,6 +2,11 @@
 
 ## 0.3.0 development checkpoint
 
+The subsequent single-step increment passed 15 focused opportunity, concurrent
+choice, restart, UNKNOWN, migration and actual backup/restore tests in 18.54 seconds,
+zero skips. Strict mypy covers 44 source files. This is incremental evidence, not
+a replacement for the final full distribution and service release gates.
+
 The first opportunity/proposal increment passed all 144 source tests in 296.21
 seconds with zero skips, using actual PostgreSQL, OPA, MAF, A2A and MCP, including
 the existing three-process applications, migration/restore and 1k/10k profiles.

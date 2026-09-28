@@ -38,6 +38,13 @@ stable semantic IDs, concurrent deduplication, retained alternative proposals an
 host checks against changed observations and installed bindings. The optional MAF
 adapter uses actual structured-output Agent calls with bounded repair and no tools;
 tests use a deterministic local client and do not demonstrate model superiority.
+An owner-local single-step API now persists one immutable choice and connects it
+to the existing Executor using stable invocation identity. It retains alternatives,
+checks allowance before choosing, and reuses running/completed/UNKNOWN state on
+replay. Tests cover concurrent replies in different orders, restart between choice
+and claim, insufficient allowance and a response lost after the actual operation.
+This is still a static choice rule; bounded adaptive allocation and the complete
+multi-peer formation cycle remain to be implemented and evaluated.
 
 ## 0.2.0 implementation and validation
 

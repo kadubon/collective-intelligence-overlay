@@ -1,6 +1,7 @@
 import asyncio
 import base64
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 from sqlalchemy import select
@@ -12,6 +13,7 @@ from collective_intelligence_overlay.bindings import (
     Target,
     callable_digest,
 )
+from collective_intelligence_overlay.invocations import Executor, Reservation
 from collective_intelligence_overlay.models import (
     BindingRef,
     Capability,
@@ -32,6 +34,7 @@ from collective_intelligence_overlay.opportunities import (
 )
 from collective_intelligence_overlay.queries import RecordQuery
 from collective_intelligence_overlay.security import digest
+from collective_intelligence_overlay.steps import Steps
 from collective_intelligence_overlay.storage import records as record_table
 
 
@@ -256,3 +259,116 @@ async def test_deterministic_proposer_preserves_alternatives_and_replay(
         )
     with pytest.raises(ValueError, match="not shared"):
         propose(opportunity, reference, identities["verifier"], drafts)
+
+
+async def configured_steps(overlay, identities, records, amount=4):
+    original, goal, binding = setup(overlay, identities, records)
+    target = goal.request.subject.model_copy(update={"id": "missing-output"})
+    goal = goal.model_copy(update={"request": goal.request.model_copy(update={"subject": target})})
+    opportunities = Opportunities(original.registry, identities["receiver"], (goal,))
+    candidate = Capability.model_validate(
+        {
+            **records[0].model_dump(),
+            "schema_version": "2",
+            "issuer": "receiver",
+            "subject": binding.subject,
+            "binding_digest": binding.digest,
+        }
+    )
+    evidence = records[1].model_copy(
+        update={
+            "schema_version": "2",
+            "subject": binding.subject,
+            "binding_digest": binding.digest,
+            "id": "builder-check",
+        }
+    )
+    for record in (candidate, evidence):
+        overlay.store.put(identities[record.issuer].sign(record))
+    overlay.store.set_budget("work", Decimal(amount))
+    opportunity = (await opportunities.discover()).opportunities[0]
+    ref = overlay.store.reference("opportunity", "receiver", opportunity.id)
+    proposals = propose(
+        opportunity,
+        ref,
+        identities["producer"],
+        ProposalDrafts(
+            alternatives=(
+                ProposalDraft(
+                    builder=goal.builders[0], arguments={"value": 3}, alternative="three"
+                ),
+                ProposalDraft(builder=goal.builders[0], arguments={"value": 5}, alternative="five"),
+            )
+        ),
+    )
+    envelopes = tuple((p.issuer, identities[p.issuer].sign(p)) for p in proposals)
+    executor = Executor(opportunities.registry, identities["receiver"], Reservation())
+    context = ExecutionContext(caller="receiver", environment=binding.scope.environment)
+    return Steps(opportunities, executor, context), opportunity, envelopes
+
+
+async def test_step_concurrency_replay_and_one_allowance(overlay, identities, records):
+    steps, opportunity, envelopes = await configured_steps(overlay, identities, records)
+    results = await asyncio.gather(
+        steps.step(opportunity.id, envelopes),
+        steps.step(opportunity.id, tuple(reversed(envelopes))),
+    )
+    assert results[0].selection == results[1].selection
+    restarted = Steps(steps.opportunities, steps.executor, steps.context)
+    replay = await restarted.step(opportunity.id)
+    assert replay.reason == "existing_invocation"
+    assert replay.invocation["state"] == "completed"
+    assert replay.invocation["result"]["value"] in (3, 5)
+    from collective_intelligence_overlay.storage import budgets
+
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == Decimal(3)
+    assert len(overlay.store.record_page(RecordQuery(kinds=("proposal",))).items) == 2
+
+
+async def test_step_insufficient_allowance_does_not_choose_or_dispatch(
+    overlay, identities, records
+):
+    steps, opportunity, envelopes = await configured_steps(overlay, identities, records, amount=0)
+    result = await steps.step(opportunity.id, envelopes)
+    assert result.reason == "insufficient_allowance" and result.selection is None
+    assert steps._choice(opportunity.id) is None
+
+
+async def test_restart_after_choice_uses_original_alternative(
+    overlay, identities, records, monkeypatch
+):
+    steps, opportunity, envelopes = await configured_steps(overlay, identities, records)
+    original = steps.executor.invoke
+
+    async def interrupted(*args, **kwargs):
+        raise RuntimeError("process stopped before invocation claim")
+
+    monkeypatch.setattr(steps.executor, "invoke", interrupted)
+    with pytest.raises(RuntimeError):
+        await steps.step(opportunity.id, envelopes)
+    chosen = steps._choice(opportunity.id)
+    assert chosen is not None
+    monkeypatch.setattr(steps.executor, "invoke", original)
+    restarted = Steps(steps.opportunities, steps.executor, steps.context)
+    result = await restarted.step(opportunity.id, tuple(reversed(envelopes)))
+    assert result.selection == chosen and result.invocation["state"] == "completed"
+
+
+async def test_step_unknown_is_not_reexecuted(overlay, identities, records, monkeypatch):
+    steps, opportunity, envelopes = await configured_steps(overlay, identities, records)
+    original = steps.executor.registry.execute
+    calls = []
+
+    async def lost_response(*args, **kwargs):
+        output = await original(*args, **kwargs)
+        calls.append(output)
+        raise RuntimeError("response lost after the actual installed operation")
+
+    monkeypatch.setattr(steps.executor.registry, "execute", lost_response)
+    result = await steps.step(opportunity.id, envelopes)
+    assert result.invocation["state"] == "unknown"
+    assert result.invocation["reservation_state"] == "held"
+    restarted = Steps(steps.opportunities, steps.executor, steps.context)
+    again = await restarted.step(opportunity.id)
+    assert again.invocation == result.invocation and len(calls) == 1

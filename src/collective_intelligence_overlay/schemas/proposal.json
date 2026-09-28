@@ -122,7 +122,8 @@
             "revocation",
             "event",
             "decision",
-            "opportunity"
+            "opportunity",
+            "proposal"
           ],
           "title": "Kind",
           "type": "string"

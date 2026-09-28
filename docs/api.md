@@ -27,8 +27,21 @@ max_tokens=2048)` invokes a real MAF `Agent` with structured output and no tools
 The host explicitly supplies the client; paid inference remains opt-in. Invalid
 JSON/schema output gets bounded repair, transport uncertainty gets no retry, and
 returned costs separate measured elapsed time from unavailable tokens/prices.
-Returned drafts still require the same host validation. These development APIs
-do not yet provide the complete selection/step loop or a released 0.3.0 contract.
+Returned drafts still require the same host validation.
+
+`steps.Steps(opportunities, executor, owner_context).step(opportunity_id, replies)`
+accepts at most 128 `(authenticated_caller, signed_proposal)` replies. It retains
+the alternatives and atomically stores one immutable owner-local choice. The
+current rule follows registered builder order, then stable issuer/proposal order;
+it does not rank claimed prices or treat votes as truth. The chosen operation uses
+the existing Executor and a stable owner/opportunity invocation ID. Repeating a
+step, including after restart, returns that invocation's running or saved state.
+An UNKNOWN execution is never automatically retried with a fresh ID. A crash
+after choice but before claim resumes the same choice, with current grant and
+observation checks. Selection overhead is recorded separately before execution.
+Migration `0010` adds only the local choice table and preserves all existing signed
+records, reservations and invocation states. The full adaptive bounded loop and
+the 0.3.0 release contract remain in development.
 
 For 0.2.0 registered execution, an operator creates a `Registry(overlay)`, then
 uses `register_local`, `register_mcp` or `register_a2a` with an explicit `Binding`

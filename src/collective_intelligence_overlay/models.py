@@ -273,7 +273,9 @@ class Decision(Model):
 class RecordRef(Model):
     """Exact observation identity; a reference is not execution or checking authority."""
 
-    kind: Literal["capability", "evidence", "revocation", "event", "decision", "opportunity"]
+    kind: Literal[
+        "capability", "evidence", "revocation", "event", "decision", "opportunity", "proposal"
+    ]
     issuer: Identifier
     id: RecordId
     payload_digest: Digest

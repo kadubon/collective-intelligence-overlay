@@ -272,6 +272,13 @@ class Opportunities:
         proposal = verify(envelope, store.principals)
         if not isinstance(proposal, Proposal) or proposal.issuer != caller:
             raise ValueError("proposal issuer must match authenticated peer")
+        return self._validate_proposal(proposal, caller, context)
+
+    def _validate_proposal(
+        self, proposal: Proposal, caller: str, context: ExecutionContext
+    ) -> Proposal:
+        """Only for records already authenticated by verify or Store resolution."""
+        store = self.registry.overlay.store
         goal = self.goal(proposal.goal_id)
         if caller not in {self.identity.name, *goal.peers}:
             raise ValueError("peer not authorized for this goal")
