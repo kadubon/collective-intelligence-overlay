@@ -2,6 +2,17 @@
 
 ## 0.3.0 development checkpoint
 
+The isolated comparison pilot completed four assignments using 12 fresh databases
+and separate keys/artifacts. Normal-budget arms each passed three held-out business
+outputs; verifier-budget-14 arms each checked one formed target and stopped before
+the remaining three business tasks. The earlier budget-10 calibration failures are
+retained in a separate archive. Pilot 2's 550 signed records, arm isolation,
+allowance conservation and outcome counts passed report validation. Four additional
+tests passed in 8.57 seconds, zero skips: fresh database/key/budget isolation,
+invalid initialization, existing-directory preservation, and detection of changed
+budget/outcome counts in the saved real reports. See [evaluation](evaluation.md)
+for raw archives, timings, missing resources and the incomplete connection scenario.
+
 The fixed document-control path and shared materialization refactor passed all four
 three-process E2E cases in 213.00 seconds, zero skips. The new control uses the same
 installed builder/checker contracts and verifies formation, independent checking,

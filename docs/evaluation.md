@@ -9,9 +9,9 @@ Two calibration inputs are tested in separate databases and processes, producing
 different thresholds. These are integration cases, not independent statistical
 evidence of an adaptive benefit. The application now uses the core allocator and
 checks its checker bindings through independent finite contract tests before reuse.
-It has no matched adaptive-versus-static results. Initial setup and full
-experiment cost reporting remain work in progress; do not infer cost savings from
-the test duration or the number of candidates.
+The isolated pilot below supplies initial matched observations. Complete workload
+coverage and cost reporting remain work in progress; do not infer cost savings from
+integration-test duration or the number of candidates.
 
 The fixed document control is exposed as the owner-only `static-run` operation in
 the same external application. It uses a prespecified report/check/triage/check
@@ -24,13 +24,58 @@ is a 0.2.1-equivalent verified-reuse control on the current implementation, not 
 execution of an old installed binary. It is not the allocator's `mode="static"`,
 which still participates in opportunity discovery.
 
-Functional integration of this control is separate from a matched experiment.
-Matched runs must initialize independent databases, identities, artifacts and
-caches per arm; include primitive/checker setup costs; use the same predeclared
-task order, bounds and held-out evaluation contract; and retain failure/censoring
-and all arm results. Verification and connection/environment bottlenecks, full
-cost output and a reproducible comparison command are still required. A positive
-effect is not an acceptance criterion.
+## Isolated document pilot (2026-09-28)
+
+Run with the existing PostgreSQL/OPA prerequisites and optional agents dependencies:
+
+```console
+uv run python examples/evaluate_documents.py --directory .local/document-comparison --opa PATH_TO_OPA --seed 0
+uv run python examples/evaluate_documents.py --verify EXTRACTED_REPORT_DIRECTORY
+```
+
+`CIO_TEST_DATABASE_URL` must name a dedicated PostgreSQL admin database. Each arm
+creates three new databases, identities and artifact/cache directories; existing
+arm directories are rejected. Processes stop after each arm; databases and local
+private configuration remain for inspection. The command writes its protocol before
+running, retains every failed/censored arm and does not use paid model inference.
+Exit zero means the collection completed, not that all business tasks passed.
+
+[Pilot 2 raw reports and source snapshots](../experiments/documents-pilot-2.zip)
+contain one fixed-seed run per condition. The owner order for allowances below is
+producer/verifier/receiver. Elapsed time includes database/key/template preparation,
+primitive and checker testing, synchronization, formation and attempted business
+evaluation; export time is separately retained. It is an inclusive observation,
+not the sum of parent/child or peer timings.
+
+| Condition | Mode | Initial work allowance | Formed targets independently checked | Business tasks passed / unreached | Elapsed seconds | Stop |
+| --- | --- | --- | --- | --- | --- | --- |
+| Normal | Fixed | 50/50/50 | 2 | 3 / 0 | 48.239 | Goals satisfied |
+| Normal | Adaptive | 50/50/50 | 2 | 3 / 0 | 52.806 | Goals satisfied |
+| Checking constrained | Fixed | 50/14/50 | 1 | 0 / 3 | 34.581 | Check not completed |
+| Checking constrained | Adaptive | 50/14/50 | 1 | 0 / 3 | 43.849 | Check not completed |
+
+Both normal arms retained allowance 39/35/16; both constrained arms retained
+43/0/32. These are contractual balances, not measured CPU, tokens or currency.
+Neither outcome count nor allowance saving favored adaptation in this pilot.
+Adaptive elapsed observations were higher; a single run does not estimate an
+expected difference or statistical significance. The three business tasks are
+dependent tasks within an arm, not three independent trials.
+
+The [first pilot](../experiments/documents-pilot-1.zip) used verifier allowance 10.
+Both constrained arms stopped during initial checker calibration, before testing
+formation allocation. Both normal arms passed all three business outputs. Those
+negative results were retained; pilot 2 declared the revised allowance before its
+run. Pilot 1 has raw observations and public keys but no complete source snapshot;
+it is exploratory evidence, not a fully reproducible release benchmark.
+
+Pilot 2 validation checks 12 distinct databases, distinct signing identities across
+arms, 550 signed records, budget conservation and held-out count consistency.
+It also binds reported checker evidence to signed records. This is consistency
+checking of operator-produced observations, not an external audit or universal
+correctness proof. Raw reports separate original estimates, elapsed observations,
+reservations, missing CPU/token/currency costs and unreached tasks. Missing costs
+are not zero. Connection/environment bottlenecks, finer stage accounting and final
+release-wide experiment coverage remain required. Positive benefit is not a gate.
 
 The [mixed-history scale harness](scale.md) measures indexed qualification at
 1,000/10,000 records and offers a selectable 100,000-record stress profile.

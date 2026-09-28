@@ -33,11 +33,21 @@ def free_port() -> int:
 
 
 def initialize(
-    directory: Path, admin_url: str, opa: str, *, work_allowance: Decimal = Decimal(50)
+    directory: Path,
+    admin_url: str,
+    opa: str,
+    *,
+    work_allowance: Decimal = Decimal(50),
+    work_allowances: dict[str, Decimal] | None = None,
 ) -> dict[str, Config]:
     """Create new roles/databases only; never reuse or overwrite existing configuration."""
     if not work_allowance.is_finite() or work_allowance < 0:
         raise ValueError("invalid initial work allowance")
+    allowances = dict(work_allowances or {})
+    if set(allowances) - {"producer", "verifier", "receiver"} or any(
+        not amount.is_finite() or amount < 0 for amount in allowances.values()
+    ):
+        raise ValueError("invalid per-owner initial allowance")
     directory.mkdir(parents=True, exist_ok=False, mode=0o700)
     directory = directory.resolve()
     names = ("producer", "verifier", "receiver")
@@ -90,7 +100,7 @@ def initialize(
             _, overlay = config.runtime()
             try:
                 migrate(overlay.store.engine)
-                overlay.store.set_budget("work", work_allowance)
+                overlay.store.set_budget("work", allowances.get(name, work_allowance))
             finally:
                 overlay.store.close()
             configs[name] = config

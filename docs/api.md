@@ -85,6 +85,9 @@ the target. Reused probe results cannot extend the certificate expiry; incomplet
 calibration retains UNKNOWN and its original timestamps on identical replay.
 `demo.initialize(..., work_allowance=Decimal(50))` permits an explicit nonnegative
 initial allowance for fresh application owners; it does not top up existing stores.
+An optional `work_allowances={"verifier": Decimal(14)}` overrides named owners at
+initialization only. Unknown owners, negative and nonfinite amounts are rejected
+before creating configuration or databases.
 
 Both formation and verification then use authenticated peer proposals and `Steps`.
 The core allocator qualifies the checker binding, includes its dependency evidence,
