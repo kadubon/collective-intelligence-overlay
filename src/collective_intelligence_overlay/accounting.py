@@ -315,3 +315,146 @@ def _first_observations(
         if reused and reused >= created
         else None,
     }
+
+
+def work_metrics_page(
+    store: Store,
+    query: RecordQuery,
+    *,
+    cursor: RecordCursor | None = None,
+    limit: int = 128,
+    byte_limit: int = 196608,
+) -> dict[str, Any]:
+    """Bounded opportunity-cohort report with current durable execution observations.
+
+    The signed opportunity prefix is stable. Mutable invocation state is observed
+    in a separate repeatable-read transaction, not reconstructed at the cohort date.
+    Missing attempts, proposals or checking evidence are never inferred from success.
+    """
+    from .invocations import invocations
+    from .models import Opportunity
+    from .steps import Selection, selections
+    from .storage import leases
+
+    if (
+        query.kinds != ("opportunity",)
+        or query.issuer != store.owner
+        or query.scope is None
+        or query.policy_digest is None
+        or query.since is None
+        or query.until is None
+    ):
+        raise ValueError("work metrics require local opportunity, scope, policy and period filters")
+    page = store.record_page(query, cursor=cursor, limit=limit, byte_limit=byte_limit)
+    opportunities = [item for item in page.items if isinstance(item, Opportunity)]
+    ids = [item.id for item in opportunities]
+    items = []
+    totals: dict[tuple[str, str, str], Decimal] = defaultdict(Decimal)
+    arithmetic = Context(prec=40)
+    with store.engine.connect().execution_options(isolation_level="REPEATABLE READ") as conn:
+        with conn.begin():
+            observed_at = now()
+            choices = (
+                {
+                    row["opportunity_id"]: row
+                    for row in conn.execute(
+                        select(selections).where(
+                            (selections.c.owner == store.owner)
+                            & selections.c.opportunity_id.in_(ids)
+                        )
+                    ).mappings()
+                }
+                if ids
+                else {}
+            )
+            parsed = {key: Selection.model_validate(row["body"]) for key, row in choices.items()}
+            executions = (
+                {
+                    row["id"]: row
+                    for row in conn.execute(
+                        select(invocations, leases.c.unit, leases.c.reservation)
+                        .select_from(
+                            invocations.join(leases, invocations.c.lease_id == leases.c.task_id)
+                        )
+                        .where(
+                            (invocations.c.owner == store.owner)
+                            & (invocations.c.caller == store.owner)
+                            & invocations.c.id.in_(
+                                [choice.invocation_id for choice in parsed.values()]
+                            )
+                        )
+                    ).mappings()
+                }
+                if parsed
+                else {}
+            )
+            for opportunity in opportunities:
+                choice = parsed.get(opportunity.id)
+                execution = executions.get(choice.invocation_id) if choice else None
+                if choice and (
+                    choice.owner != store.owner
+                    or choice.opportunity.id != opportunity.id
+                    or choice.opportunity.issuer != store.owner
+                ):
+                    raise ValueError("selection does not match local opportunity")
+                state = (
+                    execution["state"] if execution else "not_invoked" if choice else "unselected"
+                )
+                if execution:
+                    key = (opportunity.work_kind, execution["unit"], execution["reservation_state"])
+                    totals[key] = arithmetic.add(totals[key], execution["reservation"])
+                items.append(
+                    {
+                        "opportunity": opportunity.id,
+                        "goal": opportunity.goal_id,
+                        "goal_digest": opportunity.goal_digest,
+                        "work_kind": opportunity.work_kind,
+                        "created_at": opportunity.created_at.isoformat(),
+                        "age_seconds": max(
+                            0, (observed_at - opportunity.created_at).total_seconds()
+                        ),
+                        "opportunity_expired": opportunity.expires_at <= observed_at,
+                        "selection": choice.model_dump(mode="json") if choice else None,
+                        "selected_at": choices[opportunity.id]["created_at"].isoformat()
+                        if choice
+                        else None,
+                        "alternatives_at_selection": 1 + len(choice.skipped) if choice else None,
+                        "execution_state": state,
+                        "execution_reason": execution["reason"] if execution else None,
+                        "invocation_id": choice.invocation_id if choice else None,
+                        "reservation_state": execution["reservation_state"] if execution else None,
+                        "unknown_since_last_update_seconds": max(
+                            0, (observed_at - execution["updated_at"]).total_seconds()
+                        )
+                        if execution and state == "unknown"
+                        else None,
+                        "checked_outcome": None,
+                    }
+                )
+    return {
+        "receiver": store.owner,
+        "query": query.model_dump(mode="json"),
+        "aggregation": "this_page_only",
+        "cohort": "opportunity_creation_period",
+        "snapshot": page.snapshot.model_dump(mode="json"),
+        "execution_observed_at": observed_at.isoformat(),
+        "complete": page.next_cursor is None,
+        "next_cursor": page.next_cursor.model_dump(mode="json") if page.next_cursor else None,
+        "unique_opportunities": len(items),
+        "selected": sum(item["selection"] is not None for item in items),
+        "execution_states": dict(Counter(item["execution_state"] for item in items)),
+        "work_kinds": dict(Counter(item["work_kind"] for item in items)),
+        "allowance_observations": [
+            {"work_kind": kind, "unit": unit, "reservation_state": state, "quantity": str(amount)}
+            for (kind, unit, state), amount in sorted(totals.items())
+        ],
+        "allowance_basis": "contractual reservation amounts; not measured resource consumption",
+        "unavailable": [
+            "discovery_attempts",
+            "deduplicated_attempts",
+            "all_proposals",
+            "deferred_attempts",
+            "independently_checked_work_outcomes",
+        ],
+        "items": items,
+    }

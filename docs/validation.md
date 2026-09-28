@@ -2,6 +2,15 @@
 
 ## 0.3.0 development checkpoint
 
+The scoped work-metrics increment passed 22 opportunity and existing inspection
+tests in 42.20 seconds, zero skips. Two additional real-database CLI/report cases
+passed in 4.57 seconds, zero skips, including JSON output and exit code 3 for a
+remaining page. Reports retain completed versus UNKNOWN execution, selected
+alternatives, original estimates and held/consumed allowance. They do not infer
+independent PASS, zero missing costs or unrecorded attempt counts. A fixed opportunity
+prefix excludes later appends while explicitly observing current execution state.
+Full attempt/deferral instrumentation and matched outcome aggregation remain needed.
+
 The formation-input increment passed 54 record, admission, binding, lineage,
 opportunity, reference-registration and migration/restore tests in 79.07 seconds,
 zero skips. After distinguishing explicit evidence withdrawal from ordinary expiry,

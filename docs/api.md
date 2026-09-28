@@ -2,6 +2,20 @@
 
 ## 0.3.0 development APIs (unreleased)
 
+`accounting.work_metrics_page(store, query, cursor=None, limit=128)` reports a
+bounded cohort of locally issued opportunities with durable selection and current
+invocation states. The `RecordQuery` must specify opportunity kind, local issuer,
+scope, policy digest and a half-open creation period. The CLI uses the same API:
+`collective-intelligence-overlay metrics --config PATH --work --query-file QUERY.json`.
+`inspect opportunity` and `inspect proposal` expose the original bounded records.
+Output is page-local JSON; `next_cursor` continues the fixed record prefix. Mutable
+invocation state is read separately at `execution_observed_at`, not replayed at the
+cohort cutoff. Re-reading a page must replace its previous observations rather than
+adding them again. Reservations remain separate from measured costs; completion
+does not establish independent verification. Selected alternatives and estimates
+are retained, while unrecorded discovery, deduplication, deferral and total proposal
+attempts are explicitly unavailable. Full work-effect measurement remains incomplete.
+
 `Capability(schema_version="3", formation_inputs=(FormationInput(...), ...))`
 distinguishes materialized construction inputs from runtime `dependencies`. Each
 input pins `subject`, `issuer` and `binding_digest`. Keep live call dependencies in

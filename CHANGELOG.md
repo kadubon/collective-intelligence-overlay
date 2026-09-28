@@ -2,6 +2,11 @@
 
 ## 0.3.0 (unreleased)
 
+Scoped work metrics page local opportunities alongside durable selection and
+execution state. `metrics --work` uses the same bounded SDK path; `inspect` accepts
+opportunities and proposals. Unrecorded attempt counts and checked outcomes remain
+explicitly unavailable rather than inferred from completed invocations.
+
 Capability v3 distinguishes materialized formation inputs from runtime dependencies.
 Independent result checking remains required. Formation source withdrawal,
 counterexamples or withdrawn evidence require requalification; ordinary-use expiry

@@ -10,7 +10,7 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from . import __version__
-from .accounting import capability_metrics, metrics_page
+from .accounting import capability_metrics, metrics_page, work_metrics_page
 from .config import load_config
 from .models import UseRequest
 from .queries import RecordCursor, RecordQuery
@@ -57,6 +57,7 @@ def main() -> int:
             cmd.add_argument("--cursor-file", type=Path)
             cmd.add_argument("--page-size", type=int, default=128)
         if name == "metrics":
+            cmd.add_argument("--work", action="store_true", help="report scoped opportunity work")
             cmd.add_argument(
                 "--requests-file", type=Path, help="evaluate up to 32 explicit UseRequests"
             )
@@ -68,7 +69,16 @@ def main() -> int:
             )
         if name == "inspect":
             cmd.add_argument(
-                "kind", choices=["capability", "evidence", "revocation", "event", "decision"]
+                "kind",
+                choices=[
+                    "capability",
+                    "evidence",
+                    "revocation",
+                    "event",
+                    "decision",
+                    "opportunity",
+                    "proposal",
+                ],
             )
         if name == "sync":
             cmd.add_argument("--peer", required=True)
@@ -186,7 +196,8 @@ def main() -> int:
             elif args.command == "metrics":
                 if args.requests_file:
                     if (
-                        args.query_file
+                        args.work
+                        or args.query_file
                         or args.cursor_file
                         or args.requests_file.stat().st_size > 65536
                     ):
@@ -202,8 +213,9 @@ def main() -> int:
                         )
                     )
                 else:
-                    query, cursor = _inspection(args, "event")
-                    result = metrics_page(overlay.store, query, cursor=cursor, limit=args.page_size)
+                    query, cursor = _inspection(args, "opportunity" if args.work else "event")
+                    report = work_metrics_page if args.work else metrics_page
+                    result = report(overlay.store, query, cursor=cursor, limit=args.page_size)
             else:
                 import shutil
 

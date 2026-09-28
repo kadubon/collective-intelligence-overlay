@@ -693,3 +693,101 @@ async def test_cooldown_uses_persisted_choice_and_does_not_renew_forever(
     urgent = await allocate(expanded, steps.context, changed_page.opportunities, policy, previous)
     assert urgent.preferred_kind == "repair"
     assert not urgent.qualified_checkers
+
+
+@pytest.mark.parametrize("lose_response", [False, True])
+async def test_work_metrics_page_tracks_durable_selection_without_inventing_pass(
+    overlay, identities, records, monkeypatch, lose_response, tmp_path, capsys
+):
+    from collective_intelligence_overlay.accounting import work_metrics_page
+    from collective_intelligence_overlay.queries import RecordCursor, RecordQuery
+
+    steps, opportunity, envelopes = await configured_steps(overlay, identities, records)
+    query = RecordQuery(
+        kinds=("opportunity",),
+        issuer="receiver",
+        scope=opportunity.scope,
+        policy_digest=opportunity.policy_digest,
+        since=opportunity.created_at - timedelta(seconds=1),
+        until=now() + timedelta(hours=1),
+    )
+    before = work_metrics_page(overlay.store, query, limit=1)
+    assert before["unique_opportunities"] == 1 and before["selected"] == 0
+    assert before["execution_states"] == {"unselected": 1}
+    assert before["items"][0]["checked_outcome"] is None
+    original = steps.executor.registry.execute
+
+    async def lost_response(*args, **kwargs):
+        await original(*args, **kwargs)
+        raise RuntimeError("actual operation completed but reply lost")
+
+    if lose_response:
+        monkeypatch.setattr(steps.executor.registry, "execute", lost_response)
+    executed = await steps.step(opportunity.id, envelopes)
+    expected = "unknown" if lose_response else "completed"
+    assert executed.invocation["state"] == expected
+    # A later record cannot enter the report's original committed prefix.
+    later = opportunity.model_copy(update={"id": "later-work-observation"})
+    overlay.store.put(identities["receiver"].sign(later))
+    after = work_metrics_page(
+        overlay.store,
+        query,
+        cursor=RecordCursor.model_validate(before["snapshot"]).model_copy(update={"after": 0}),
+        limit=1,
+    )
+    assert after["unique_opportunities"] == after["selected"] == 1
+    assert after["execution_states"] == {expected: 1}
+    detail = after["items"][0]
+    assert detail["alternatives_at_selection"] == len(envelopes)
+    assert detail["checked_outcome"] is None
+    assert (
+        detail["selection"]["estimates"] == executed.selection.model_dump(mode="json")["estimates"]
+    )
+    assert (detail["unknown_since_last_update_seconds"] is not None) == lose_response
+    assert after["allowance_observations"] == [
+        {
+            "work_kind": opportunity.work_kind,
+            "unit": "work",
+            "reservation_state": "held" if lose_response else "consumed",
+            "quantity": "1.000000000",
+        }
+    ]
+    assert "independently_checked_work_outcomes" in after["unavailable"]
+    for invalid in (
+        query.model_copy(update={"issuer": "producer"}),
+        query.model_copy(update={"scope": None}),
+        query.model_copy(update={"since": None}),
+    ):
+        with pytest.raises(ValueError, match="filters"):
+            work_metrics_page(overlay.store, invalid)
+
+    import json
+    from types import SimpleNamespace
+
+    from collective_intelligence_overlay import cli
+
+    query_path = tmp_path / "work-query.json"
+    query_path.write_text(query.model_dump_json(), encoding="utf-8")
+    monkeypatch.setattr(
+        cli,
+        "load_config",
+        lambda _: SimpleNamespace(runtime=lambda: (identities["receiver"], overlay)),
+    )
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "collective-intelligence-overlay",
+            "metrics",
+            "--config",
+            "unused.json",
+            "--work",
+            "--query-file",
+            str(query_path),
+            "--page-size",
+            "1",
+        ],
+    )
+    assert cli.main() == 3  # The later cohort member requires another bounded page.
+    output = json.loads(capsys.readouterr().out)
+    assert output["unique_opportunities"] == 1 and output["next_cursor"] is not None
+    assert output["execution_states"] == {expected: 1}
