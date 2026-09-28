@@ -237,6 +237,13 @@ the revised harness establishes local observations after setup and is rerunning.
 No stress success is claimed. Reference registration cleanup, final docs/skills,
 distribution/security/license/CI gates and publication remain pending.
 
+Fourteenth checkpoint: overlay peer clients now share the standard service client's
+bounded HTTP transport. Agent Card and message responses are limited before SDK
+parsing; endpoint escape and compressed responses fail closed. Existing ASGI input
+limits remain intact. Six real HTTP/service/document-E2E tests passed in 50.25
+seconds with no skips; Ruff/format and strict mypy pass. The revised stress run is
+still active. Previously listed reference/documentation/release work remains pending.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

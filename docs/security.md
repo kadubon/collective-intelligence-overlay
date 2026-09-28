@@ -1,5 +1,11 @@
 # Security and threat model
 
+Both overlay peers and standard A2A service clients restrict SDK HTTP traffic to
+the configured JSON-RPC endpoint and its Agent Card path. Response bytes are capped
+before protobuf parsing, including chunked responses; compressed responses are
+rejected. Redirects, environment proxies and transport retries are disabled.
+This bounds application buffering, not the operating system's socket buffers.
+
 The trusted computing base is the participant's host, DB administrator, installed
 code/checkers, OPA binary/policy, key registry and clock. Agents, model output, remote
 records and tool output are untrusted. This is not a trustless database/network system.

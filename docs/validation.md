@@ -23,6 +23,9 @@ offline CLI path. Full production artifact/key recovery remains operator-specifi
 Migration 0008 and exact reverse dependency filters passed 11 inspection/migration
 tests (18.70 seconds). With the new projection installed, indexed-storage and the
 1,000 profile passed another seven tests (21.83 seconds), all with zero skips.
+Shared A2A HTTP response limits passed six tests (50.25 seconds, zero skips),
+including real chunked HTTP rejection, standard service execution and the complete
+three-process document formation E2E.
 Ruff/format, strict mypy and documentation checks pass. Detailed scope and unfinished
 0.2.0 release gates are tracked in [implementation status](implementation-status.md).
 The release and package observations below concern 0.1.0 unless explicitly stated.

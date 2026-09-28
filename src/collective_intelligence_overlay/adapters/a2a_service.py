@@ -9,44 +9,8 @@ from google.protobuf.json_format import MessageToDict
 
 from ..bindings import Target, active_invocation, fingerprint
 from ..models import uid
-from ..security import MAX_RECORD_BYTES
 from .a2a import struct
-
-
-class _BoundedTransport(httpx.AsyncBaseTransport):
-    """Restrict SDK HTTP requests and bound response bytes before protobuf parsing."""
-
-    def __init__(self, endpoint: str) -> None:
-        self.allowed = {
-            ("POST", endpoint),
-            ("GET", endpoint.rstrip("/") + "/.well-known/agent-card.json"),
-        }
-        self.transport = httpx.AsyncHTTPTransport(retries=0, trust_env=False)
-
-    async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
-        if (request.method, str(request.url)) not in self.allowed:
-            raise ValueError("A2A SDK request left the configured service boundary")
-        request.headers["accept-encoding"] = "identity"
-        response = await self.transport.handle_async_request(request)
-        try:
-            if response.headers.get("content-encoding", "identity") != "identity":
-                raise ValueError("compressed A2A response is not supported")
-            content = bytearray()
-            async for chunk in response.aiter_raw():
-                if len(content) + len(chunk) > MAX_RECORD_BYTES:
-                    raise ValueError("A2A service response exceeds byte bound")
-                content.extend(chunk)
-            return httpx.Response(
-                response.status_code,
-                headers=response.headers,
-                content=bytes(content),
-                request=request,
-            )
-        finally:
-            await response.aclose()
-
-    async def aclose(self) -> None:
-        await self.transport.aclose()
+from .http_limits import BoundedA2ATransport
 
 
 async def invoke(
@@ -54,7 +18,7 @@ async def invoke(
 ) -> Any:
     """No overlay extension, remote code attestation or protocol Task continuation."""
     async with httpx.AsyncClient(
-        transport=_BoundedTransport(endpoint),
+        transport=BoundedA2ATransport(endpoint),
         auth=auth,
         timeout=30,
         follow_redirects=False,

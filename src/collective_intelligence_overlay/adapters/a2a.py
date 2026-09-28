@@ -214,7 +214,10 @@ async def send(
     )
     if len(json.dumps(data).encode()) > MAX_RECORD_BYTES:
         raise ValueError("message too large")
+    from .http_limits import BoundedA2ATransport
+
     async with httpx.AsyncClient(
+        transport=BoundedA2ATransport(url),
         timeout=30,
         follow_redirects=False,
         trust_env=False,
@@ -230,7 +233,15 @@ async def send(
             raise ValueError("unsupported required extension")
         if not any(e.uri == EXTENSION for e in card.capabilities.extensions):
             raise ValueError("overlay extension absent")
-        client = await create_client(card, ClientConfig(streaming=False, httpx_client=http))
+        client = await create_client(
+            card,
+            ClientConfig(
+                streaming=False,
+                polling=False,
+                httpx_client=http,
+                supported_protocol_bindings=["JSONRPC"],
+            ),
+        )
         request = SendMessageRequest(
             message=Message(
                 message_id=uid(),
