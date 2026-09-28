@@ -1,0 +1,45 @@
+# Compatibility and licensing
+
+Observed 2026-09-28. `pyproject.toml` is authoritative for supported ranges;
+`uv.lock` fixes the tested resolution. Initial interpreter support is Python 3.12.
+Local checks used Windows CPython 3.12.10 and PostgreSQL 16.15 on WSL Ubuntu.
+
+| Component | Observed version | License | Used public surface / source |
+| --- | --- | --- | --- |
+| agent-framework-core | 1.19.0 | MIT | [Agent, function middleware, workflow](https://learn.microsoft.com/en-us/agent-framework/concepts/agents/middleware/) |
+| agent-framework-openai | 1.14.4 | MIT | Optional provider; Responses API via current public client; mock HTTP test |
+| a2a-sdk | 1.1.5 | Apache-2.0 | [Official Python SDK](https://github.com/a2aproject/a2a-python); protobuf v1, JSONRPC, required extension |
+| mcp | 2.2.0 | MIT | [Official SDK v2](https://github.com/modelcontextprotocol/python-sdk); Streamable HTTP client/server |
+| Pydantic | 2.13.5 | MIT | Typed records, JSON/schema; installed distribution metadata |
+| SQLAlchemy / Alembic | 2.1.1 / 1.20.0 | MIT | Transactions, PostgreSQL, explicit migrations |
+| pg8000 | 1.31.5 | BSD-3-Clause | PostgreSQL driver; installed LICENSE inspected |
+| securesystemslib | 1.5.1 | MIT | DSSE Envelope and CryptoSigner; no custom canonicalization |
+| cryptography | 50.0.1 | Apache-2.0 OR BSD-3-Clause | Ed25519 and key loading; installed license inspected |
+| PyJWT | 2.15.0 | MIT | [JWT validation](https://pyjwt.readthedocs.io/en/stable/usage.html); pinned EdDSA, aud/iss/exp |
+| httpx / httpx2 | 0.28.1 / 2.13.1 | BSD-3-Clause | A2A and MCP SDK transport dependencies respectively |
+| OPA | 1.21.0 | Apache-2.0 | [Official policy engine](https://www.openpolicyagent.org/docs); local `eval`, Rego v1 |
+| PostgreSQL | 16.15 | PostgreSQL License | [Upstream license](https://www.postgresql.org/about/licence/); actual WSL binary tested |
+| uv / uv_build | 0.12.19 | MIT OR Apache-2.0 | [Build backend](https://docs.astral.sh/uv/concepts/build-backend/); wheel/sdist and lock |
+
+The MAF provider moved to a separate distribution and A2A/MCP changed their public
+APIs in the tested release lines. Old import paths are deliberately not supported.
+No private SDK methods are patched. Different compatible patch releases still need
+the same integration suite; a schema match alone does not prove semantic compatibility.
+
+Core, `agents`, and `agents,model` are distinct installation scopes. Actual MAF tool
+execution, A2A HTTP exchange, MCP HTTP and mocked provider HTTP are tested. Paid
+model inference and arbitrary third-party A2A implementations are not claimed tested.
+
+`pip-licenses` supplies the full dependency report; `check_licenses.py` rejects unknown
+or unreviewed metadata. This checks existing tool output rather than implementing a
+license parser. Reviewed weak/file-level copyleft exceptions: certifi/fqdn (MPL-2.0,
+runtime/transitive), hypothesis/pathspec (MPL-2.0, development), chardet (LGPL-2.1-or-later,
+development), docutils (mixed public-domain/BSD/GPL development files). These packages
+are not copied into this wheel; their own distributions retain notices/source terms.
+Redistributors bundling dependencies must preserve their respective obligations.
+
+No BSL, SSPL, evaluation-only service or proprietary container is required. The
+PostgreSQL example uses the upstream official container image; its OS packages carry
+their own licenses. Binary tests do not establish container security or full-image
+license audit. SBOM generation uses cyclonedx-bom; known-vulnerability checks use
+pip-audit. Metadata scanning does not replace legal review or supply-chain attestation.
