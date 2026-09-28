@@ -1,5 +1,25 @@
 # Python API and CLI
 
+0.2.0 development adds receiver-persisted paged synchronization:
+
+```sh
+collective-intelligence-overlay sync --config receiver.json --peer producer --page-size 32 --max-pages 16
+```
+
+JSON output includes `complete`, `through`, `cursor`, `pages`, and the completed
+snapshot's `anchor`. Exit 0 means completed, 3 means the page budget ended with
+a durable continuation, and 2 means failure. Run the same command to resume.
+`--filter-file` accepts a `FeedFilter` JSON object containing exact `subjects`;
+omitting it synchronizes the complete shared feed. A cursor is bound to source,
+receiver, filter and feed generation. On expiration/restoration use `--restart`
+explicitly; this resets transport progress without deleting records or revocations.
+Partial or failed synchronization does not grant freshness. Neither a heartbeat
+nor authenticated connectivity can refresh a Config-created peer's evidence.
+
+The A2A overlay extension is now `/extensions/v2`; package, record schema and DB
+migration versions remain separate. 0.1 peers are not rolling-compatible with this
+extension: stop peers, back up consistently, upgrade/migrate, then synchronize.
+
 Core imports are side-effect free. Construct `Store(url, owner, principals)` explicitly;
 call `migrate(store.engine)` only during controlled deployment. Always call `store.close()`.
 Construct `Policy(opa_binary, PolicySettings(...))`, then `Overlay(store, policy)`.

@@ -1,12 +1,11 @@
 """Peer service binds configured runtime resources to the public overlay API."""
 
+import asyncio
 import contextlib
 import json
 import time
 from decimal import Decimal
 from typing import Any, Literal
-
-from sqlalchemy import select
 
 from .accounting import metrics
 from .artifacts import Artifacts
@@ -14,7 +13,8 @@ from .config import Config
 from .models import Capability, Cost, Event, Revocation, Subject, UseRequest, Verdict, uid
 from .reference import capability, check, compose_report, csv_sum, render_report
 from .security import verify
-from .storage import Conflict, records
+from .storage import Conflict
+from .synchronization import Feed, FeedFilter, ResnapshotRequired
 
 
 class PeerService:
@@ -33,17 +33,19 @@ class PeerService:
                 p.identity for p in self.config.peers
             }:
                 raise ValueError("peer not authorized for evidence exchange")
-            with self.overlay.store.engine.connect() as conn:
-                result: list[dict[str, Any]] = list(
-                    conn.execute(
-                        select(records.c.envelope)
-                        .where(records.c.issuer == self.config.owner)
-                        .limit(257)
-                    ).scalars()
+            try:
+                page = await asyncio.to_thread(
+                    Feed(self.overlay.store, self.identity).page,
+                    caller,
+                    FeedFilter.model_validate(data.get("filter", {})),
+                    cursor=data.get("cursor"),
+                    since=int(data.get("since", 0)),
+                    generation=data.get("generation"),
+                    limit=int(data.get("limit", 32)),
                 )
-            if len(result) > 256:
-                raise ValueError("discovery limit exceeded")
-            return {"envelopes": result}
+            except ResnapshotRequired:
+                return {"error": "RESNAPSHOT_REQUIRED"}
+            return page.model_dump(mode="json")
         if operation == "submit":
             record = verify(data["envelope"], self.overlay.store.principals)
             if record.issuer != caller:
@@ -52,20 +54,18 @@ class PeerService:
         if caller != self.config.owner:
             raise ValueError("owner operation; delegation is not configured")
         if operation == "sync":
-            from .adapters.a2a import send
+            from .adapters.a2a import synchronize
 
-            peer = str(data["peer"])
-            response = await send(self.config, self.identity, peer, {"operation": "discover"})
-            envelopes = response.get("envelopes")
-            if not isinstance(envelopes, list) or len(envelopes) > 256:
-                raise ValueError("invalid discovery result")
-            for envelope in envelopes:
-                self.overlay.store.put(envelope)
-            self.overlay.observed(peer)
-            if envelopes:
-                subject = verify(envelopes[0], self.overlay.store.principals).subject
-                self.record_event(subject, "import", "transfer", started)
-            return {"received": len(envelopes)}
+            return await synchronize(
+                self.config,
+                self.identity,
+                self.overlay.store,
+                str(data["peer"]),
+                filter_data=data.get("filter"),
+                max_pages=int(data.get("max_pages", 16)),
+                page_size=int(data.get("page_size", 32)),
+                restart=data.get("restart") is True,
+            )
         if operation == "qualify":
             decision = await self.overlay.qualify(UseRequest.model_validate(data["request"]))
             self.record_event(

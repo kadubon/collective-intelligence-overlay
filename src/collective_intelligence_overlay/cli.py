@@ -23,13 +23,19 @@ def main() -> int:
     demo.add_argument("--directory", type=Path, required=True)
     demo.add_argument("--database-url", default=os.environ.get("CIO_TEST_DATABASE_URL"))
     demo.add_argument("--opa", default=os.environ.get("CIO_OPA", "opa"))
-    for name in ("check-config", "migrate", "peer", "inspect", "metrics", "doctor"):
+    for name in ("check-config", "migrate", "peer", "inspect", "metrics", "doctor", "sync"):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
         if name == "inspect":
             cmd.add_argument(
                 "kind", choices=["capability", "evidence", "revocation", "event", "decision"]
             )
+        if name == "sync":
+            cmd.add_argument("--peer", required=True)
+            cmd.add_argument("--page-size", type=int, default=32)
+            cmd.add_argument("--max-pages", type=int, default=16)
+            cmd.add_argument("--filter-file", type=Path)
+            cmd.add_argument("--restart", action="store_true")
     args = parser.parse_args()
     overlay = None
     try:
@@ -45,12 +51,32 @@ def main() -> int:
             result = asyncio.run(run_demo(args.directory, configs))
         else:
             config = load_config(args.config)
-            _, overlay = config.runtime()
+            identity, overlay = config.runtime()
             if args.command == "check-config":
                 result = {"valid": True, "owner": config.owner}
             elif args.command == "migrate":
                 migrate(overlay.store.engine)
                 result = {"migration": "head"}
+            elif args.command == "sync":
+                from .adapters.a2a import synchronize
+
+                filter_data = None
+                if args.filter_file:
+                    if args.filter_file.stat().st_size > 65536:
+                        raise ValueError("filter exceeds size bound")
+                    filter_data = json.loads(args.filter_file.read_text(encoding="utf-8"))
+                result = asyncio.run(
+                    synchronize(
+                        config,
+                        identity,
+                        overlay.store,
+                        args.peer,
+                        filter_data=filter_data,
+                        max_pages=args.max_pages,
+                        page_size=args.page_size,
+                        restart=args.restart,
+                    )
+                )
             elif args.command == "peer":
                 import uvicorn
 
@@ -99,8 +125,23 @@ def main() -> int:
                     print(json.dumps(result))
                     return 2
         print(json.dumps(result, ensure_ascii=False, default=str))
+        if args.command == "sync" and not result["complete"]:
+            return 3
         return 0
     except Exception as exc:
+        from .synchronization import ResnapshotRequired
+
+        if isinstance(exc, ResnapshotRequired):
+            print(
+                json.dumps(
+                    {
+                        "error": "RESNAPSHOT_REQUIRED",
+                        "message": "use sync --restart explicitly; records are retained",
+                    }
+                ),
+                file=sys.stderr,
+            )
+            return 2
         # Avoid dumping connection strings, request bodies, bearer tokens or private material.
         print(
             json.dumps(

@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timedelta
+from decimal import Decimal
 from typing import Any, Literal
 
 import jwt
@@ -25,9 +26,10 @@ from sqlalchemy import (
     select,
     update,
 )
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.dialects.postgresql import insert as pg_insert
 
-from .models import Subject, now
+from .models import Cost, Event, Subject, now
 from .security import Identity, Principal, digest, verify
 from .storage import Conflict, Store, feed_state, metadata, projection_digest, records, subject_key
 
@@ -43,6 +45,7 @@ checkpoints = Table(
     Column("cursor", Text),
     Column("complete", Boolean, nullable=False),
     Column("last_receipt", String(64)),
+    Column("subjects", JSONB, nullable=False),
 )
 
 
@@ -270,6 +273,56 @@ class Receiver:
             )
         return dict(row) if row else None
 
+    def begin(self, source: str, filter: FeedFilter) -> None:
+        """Invalidate freshness before network IO; retain the durable continuation."""
+        with self.store.engine.begin() as conn:
+            conn.execute(
+                pg_insert(checkpoints)
+                .values(
+                    source=source,
+                    filter_digest=filter.digest,
+                    through=0,
+                    upper=0,
+                    complete=False,
+                    subjects=[subject_key(s) for s in filter.subjects],
+                )
+                .on_conflict_do_update(
+                    index_elements=["source", "filter_digest"], set_={"complete": False}
+                )
+            )
+
+    def observations(self, keys: set[str]) -> dict[str, datetime | None]:
+        with self.store.engine.connect() as conn:
+            rows = (
+                conn.execute(
+                    select(checkpoints)
+                    .where(
+                        or_(
+                            checkpoints.c.filter_digest == FeedFilter().digest,
+                            *[checkpoints.c.subjects.contains([key]) for key in keys],
+                        )
+                    )
+                    .limit(2049)
+                )
+                .mappings()
+                .all()
+            )
+        if len(rows) > 2048:
+            raise ValueError("related synchronization scope bound exceeded")
+        result: dict[str, datetime | None] = {}
+        for key in keys:
+            for source in self.store.principals:
+                applicable = [
+                    r
+                    for r in rows
+                    if r["source"] == source and (not r["subjects"] or key in r["subjects"])
+                ]
+                anchors = [r["anchor"] for r in applicable if r["complete"] and r["anchor"]]
+                result[source + ":" + key] = (
+                    max(anchors) if anchors and all(r["complete"] for r in applicable) else None
+                )
+        return result
+
     def restart(self, source: str, filter: FeedFilter) -> None:
         """Explicitly discard transport progress, never received records or tombstones."""
         with self.store.engine.begin() as conn:
@@ -281,6 +334,7 @@ class Receiver:
                     through=0,
                     upper=0,
                     complete=False,
+                    subjects=[subject_key(s) for s in filter.subjects],
                 )
                 .on_conflict_do_update(
                     index_elements=["source", "filter_digest"],
@@ -296,7 +350,15 @@ class Receiver:
                 )
             )
 
-    def apply(self, source: str, filter: FeedFilter, page: FeedPage) -> bool:
+    def apply(
+        self,
+        source: str,
+        filter: FeedFilter,
+        page: FeedPage,
+        *,
+        identity: Identity | None = None,
+        network_seconds: Decimal | None = None,
+    ) -> bool:
         principal = self.store.principals.get(source)
         if principal is None:
             raise ValueError("untrusted synchronization source")
@@ -314,6 +376,28 @@ class Receiver:
         if anchor.tzinfo is None or anchor > now():
             raise ValueError("invalid snapshot time")
         receipt_hash = digest(page.receipt.encode())
+        transfer = None
+        if identity is not None:
+            if identity.name != self.store.owner or network_seconds is None:
+                raise ValueError("transfer accounting must belong to the receiver")
+            if checked:
+                transfer = Event(
+                    id="transfer-" + receipt_hash,
+                    issuer=self.store.owner,
+                    subject=checked[0][0].subject,
+                    action="import",
+                    task_id="sync/" + source,
+                    attempt_id=receipt_hash,
+                    correlation_id=filter.digest,
+                    costs=(
+                        Cost(
+                            category="transfer",
+                            status="measured",
+                            quantity=network_seconds,
+                            unit="seconds",
+                        ),
+                    ),
+                )
         selector = (checkpoints.c.source == source) & (checkpoints.c.filter_digest == filter.digest)
         with self.store.engine.begin() as conn:
             conn.execute(
@@ -324,6 +408,7 @@ class Receiver:
                     through=0,
                     upper=0,
                     complete=False,
+                    subjects=[subject_key(s) for s in filter.subjects],
                 )
                 .on_conflict_do_nothing()
             )
@@ -344,6 +429,8 @@ class Receiver:
                 raise Conflict("old snapshot cannot refresh the receiver")
             for record, envelope in checked:
                 self.store._insert(conn, record, envelope)
+            if transfer is not None and identity is not None:
+                self.store._insert(conn, transfer, identity.sign(transfer))
             conn.execute(
                 update(checkpoints)
                 .where(selector)
@@ -355,6 +442,7 @@ class Receiver:
                     cursor=page.next_cursor,
                     complete=claims["complete"],
                     last_receipt=receipt_hash,
+                    subjects=[subject_key(s) for s in filter.subjects],
                 )
             )
         return True

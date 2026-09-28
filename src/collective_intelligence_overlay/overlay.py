@@ -7,7 +7,7 @@ from typing import TypeVar
 
 from .models import Capability, Decision, Evidence, Outcome, Subject, UseRequest, now, uid
 from .policy import Policy
-from .storage import Store
+from .storage import Store, subject_key
 
 T = TypeVar("T")
 
@@ -19,19 +19,39 @@ class AdmissionDenied(RuntimeError):
 
 
 class Overlay:
-    def __init__(self, store: Store, policy: Policy, *, max_graph_nodes: int = 256) -> None:
+    def __init__(
+        self,
+        store: Store,
+        policy: Policy,
+        *,
+        max_graph_nodes: int = 256,
+        persistent_sources: bool = False,
+    ) -> None:
         if not 1 <= max_graph_nodes <= 1024:
             raise ValueError("invalid graph limit")
         self.store = store
         self.policy = policy
         self.max_graph_nodes = max_graph_nodes
+        self.persistent_sources = persistent_sources
         # Operator/transport supplied reachability, never taken from agent content.
         self.observed_sources: dict[str, datetime] = {store.owner: now()}
 
     def observed(self, issuer: str) -> None:
+        if self.persistent_sources:
+            raise ValueError("peer freshness requires committed synchronization, not reachability")
         if issuer not in self.store.principals:
             raise ValueError("unknown source")
         self.observed_sources[issuer] = now()
+
+    async def _sources_unchanged(self, observed: dict[str, datetime | None]) -> bool:
+        if not self.persistent_sources:
+            return True
+        from .synchronization import Receiver
+
+        current = await asyncio.to_thread(
+            Receiver(self.store).observations, {key.rsplit(":", 1)[1] for key in observed}
+        )
+        return all(current.get(key) == anchor for key, anchor in observed.items())
 
     async def qualify(self, request: UseRequest) -> Decision:
         try:
@@ -46,6 +66,7 @@ class Overlay:
         if request.receiver != self.store.owner:
             raise ValueError("admission is local")
         revisions: dict[str, int] = {}
+        used_sources: dict[str, datetime | None] = {}
         valid_until = now() + timedelta(seconds=self.policy.settings.max_source_age_seconds)
         try:
             snapshot = await asyncio.to_thread(
@@ -57,15 +78,33 @@ class Overlay:
                 snapshot.revocations,
             )
             revisions = snapshot.revisions
+            observations: dict[str, datetime | None] = {}
+            if self.persistent_sources:
+                from .synchronization import Receiver
+
+                observations = await asyncio.to_thread(
+                    Receiver(self.store).observations, set(revisions)
+                )
             timestamp = now()
             visited: set[str] = set()
             evaluations = 0
             support_steps = 0
 
-            def source_current(issuer: str) -> bool:
+            def observation(issuer: str, subject: Subject) -> datetime | None:
+                key = issuer + ":" + subject_key(subject)
+                observed = (
+                    observations.get(key)
+                    if self.persistent_sources
+                    else self.observed_sources.get(issuer)
+                )
+                if self.persistent_sources and issuer != self.store.owner:
+                    used_sources[key] = observed
+                return observed
+
+            def source_current(issuer: str, subject: Subject) -> bool:
                 if issuer == self.store.owner:
                     return True
-                observed = self.observed_sources.get(issuer)
+                observed = observation(issuer, subject)
                 return (
                     observed is not None
                     and 0
@@ -95,7 +134,7 @@ class Overlay:
                     if (
                         support.verdict != "PASS"
                         or not support.created_at <= timestamp < support.expires_at
-                        or not source_current(support.issuer)
+                        or not source_current(support.issuer, support.subject)
                         or (timestamp - support.created_at).total_seconds()
                         > self.policy.settings.max_evidence_age_seconds
                         or support.obligations
@@ -193,12 +232,13 @@ class Overlay:
                     and req.receiver in e.receivers
                     and e.method in self.store.principals[e.issuer].methods
                 }
-                source_fresh = all(source_current(issuer) for issuer in source_issuers)
+                source_fresh = all(source_current(issuer, subject) for issuer in source_issuers)
                 for source_issuer in source_issuers - {self.store.owner}:
-                    if source_issuer in self.observed_sources:
+                    observed = observation(source_issuer, subject)
+                    if observed is not None:
                         valid_until = min(
                             valid_until,
-                            self.observed_sources[source_issuer]
+                            observed
                             + timedelta(seconds=self.policy.settings.max_source_age_seconds),
                         )
                 facts = {
@@ -222,10 +262,17 @@ class Overlay:
             decision = await evaluate(request, frozenset())
         except (ValueError, RecursionError):
             decision = self._decision(request, Outcome.UNKNOWN, ("invalid_or_excessive_records",))
-        decision = decision.model_copy(update={"revisions": revisions, "valid_until": valid_until})
+        decision = decision.model_copy(
+            update={
+                "revisions": revisions,
+                "valid_until": valid_until,
+                "source_observations": used_sources,
+            }
+        )
         if decision.outcome == Outcome.ACCEPT and (
             await asyncio.to_thread(self.store.revisions, set(revisions)) != revisions
             or now() >= valid_until
+            or not await self._sources_unchanged(used_sources)
         ):
             decision = decision.model_copy(
                 update={"outcome": Outcome.UNKNOWN, "reasons": ("state_changed_during_check",)}
@@ -264,6 +311,7 @@ class Overlay:
                 await asyncio.to_thread(self.store.revisions, set(decision.revisions))
                 != decision.revisions
                 or now() >= decision.valid_until
+                or not await self._sources_unchanged(decision.source_observations)
             ):
                 decision = decision.model_copy(
                     update={"outcome": Outcome.UNKNOWN, "reasons": ("state_changed_before_use",)}

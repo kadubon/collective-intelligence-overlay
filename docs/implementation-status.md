@@ -77,6 +77,22 @@ the existing peer `discover/sync` path and its freshness handling still require
 integration with them, followed by real HTTP/three-process tests. No claim of
 completed end-to-end synchronization is made at this checkpoint.
 
+Fourth checkpoint: the A2A `/extensions/v2` peer discover/sync path now uses the
+paged feed and persistent receiver checkpoints. Config-created overlays require
+scope-bound committed synchronization observations, rechecked at execution;
+reachability cannot refresh them. Migration 0004 stores synchronization subjects.
+The real three-process E2E sends one record per page. A separate admission test
+proves that starting an incomplete delta changes ACCEPT to UNKNOWN and importing
+the last-page withdrawal changes it to REJECT. Transfer events and cursor updates
+commit with the imported page; replay does not create another transfer charge.
+The CLI exposes bounded/resumable `sync`, explicit `--restart`, JSON continuation
+and exit code 3 for incomplete page budgets. Fresh full run: **63 passed, zero
+skipped, 72.66 seconds**; Ruff/format, strict mypy and docs checks pass. The optional
+model example uses the same synchronization API; paid model calls remain untested.
+Durable invocation/provider bindings, generic reference registration, C3/C4
+formation/lineage, scoped metrics, additional adversarial sync/recovery/scale
+profiles, full documentation and release validation remain incomplete.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

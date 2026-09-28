@@ -65,6 +65,7 @@ class Config(Model):
         return identity, Overlay(
             Store(self.database_url.get_secret_value(), self.owner, principals),
             Policy(self.opa_binary, self.policy),
+            persistent_sources=True,
         )
 
 

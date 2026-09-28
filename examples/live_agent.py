@@ -13,7 +13,7 @@ from agent_framework import Agent, tool
 from agent_framework.openai import OpenAIChatClient
 from openai import AsyncOpenAI
 
-from collective_intelligence_overlay.adapters.a2a import send
+from collective_intelligence_overlay.adapters.a2a import synchronize
 from collective_intelligence_overlay.adapters.maf import AdmissionMiddleware
 from collective_intelligence_overlay.adapters.mcp import call_tool
 from collective_intelligence_overlay.config import load_config
@@ -33,10 +33,9 @@ async def run(args: argparse.Namespace) -> None:
         # This process fetches signed records directly; remote discovery never grants use.
         for peer in config.peers:
             if peer.identity != config.owner:
-                response = await send(config, identity, peer.identity, {"operation": "discover"})
-                for envelope in response["envelopes"]:
-                    overlay.store.put(envelope)
-                overlay.observed(peer.identity)
+                response = await synchronize(config, identity, overlay.store, peer.identity)
+                if not response["complete"]:
+                    raise ValueError("peer synchronization incomplete; resume before model calls")
 
         @tool(name="csv_sum")
         async def aggregate(source: str) -> str:

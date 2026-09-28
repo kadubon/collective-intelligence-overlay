@@ -17,6 +17,8 @@ async def test_three_process_lifecycle(tmp_path, policy, monkeypatch):
         if peer_name in unavailable:
             unavailable.remove(peer_name)
             raise AgentCardResolutionError("server not yet ready")
+        if data.get("operation") == "sync":
+            data = {**data, "page_size": 1}
         return await actual(config, identity, peer_name, data)
 
     monkeypatch.setattr(a2a, "send", delayed)
@@ -33,3 +35,4 @@ async def test_three_process_lifecycle(tmp_path, policy, monkeypatch):
     assert result["held_out_result"] == "<p>Rows: 3; total: 117.00</p>"
     assert result["changed_environment"] == "REQUALIFY"
     assert result["after_dependency_revocation"] == "REJECT"
+    assert result["metrics"]["actions"]["import"] >= 6

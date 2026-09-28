@@ -2,8 +2,10 @@
 
 import asyncio
 import json
+import time
 from collections.abc import Awaitable, Callable
 from datetime import timedelta
+from decimal import Decimal
 from typing import Any
 
 import httpx
@@ -45,7 +47,7 @@ from ..models import now, uid
 from ..security import MAX_RECORD_BYTES, Identity, allowed_url
 from .http_limits import BodyLimit
 
-EXTENSION = "https://github.com/kadubon/collective-intelligence-overlay/extensions/v1"
+EXTENSION = "https://github.com/kadubon/collective-intelligence-overlay/extensions/v2"
 Handler = Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]]
 
 
@@ -225,3 +227,80 @@ async def send(
                     raise ValueError("invalid extension response")
                 return MessageToDict(reply.parts[0].data)
         raise ValueError("A2A completed without an overlay result")
+
+
+async def synchronize(
+    config: Config,
+    identity: Identity,
+    store: Any,
+    source: str,
+    *,
+    filter_data: dict[str, Any] | None = None,
+    max_pages: int = 16,
+    page_size: int = 32,
+    restart: bool = False,
+) -> dict[str, Any]:
+    """One bounded synchronization step; continuation survives process restart."""
+    from ..synchronization import FeedFilter, FeedPage, Receiver, ResnapshotRequired
+
+    if source == store.owner or source not in {peer.identity for peer in config.peers}:
+        raise ValueError("synchronization requires a configured remote source")
+    if not 1 <= max_pages <= 128:
+        raise ValueError("invalid synchronization page budget")
+    filter = FeedFilter.model_validate(filter_data or {})
+    receiver = Receiver(store)
+    if restart:
+        await asyncio.to_thread(receiver.restart, source, filter)
+    await asyncio.to_thread(receiver.begin, source, filter)
+    received = 0
+    async with asyncio.timeout(config.max_seconds):
+        for index in range(max_pages):
+            state = await asyncio.to_thread(receiver.checkpoint, source, filter)
+            assert state is not None
+            started = time.perf_counter()
+            response = await send(
+                config,
+                identity,
+                source,
+                {
+                    "operation": "discover",
+                    "filter": filter.model_dump(mode="json"),
+                    "cursor": state["cursor"],
+                    "since": state["through"],
+                    "generation": state["generation"],
+                    "limit": page_size,
+                },
+            )
+            if response.get("error") == "RESNAPSHOT_REQUIRED":
+                raise ResnapshotRequired("source requires explicit snapshot restart")
+            page = FeedPage.model_validate(response)
+            inserted = await asyncio.to_thread(
+                receiver.apply,
+                source,
+                filter,
+                page,
+                identity=identity,
+                network_seconds=Decimal(str(round(time.perf_counter() - started, 9))),
+            )
+            if inserted:
+                received += len(page.records)
+            state = await asyncio.to_thread(receiver.checkpoint, source, filter)
+            assert state is not None
+            if state["complete"]:
+                return {
+                    "received": received,
+                    "complete": True,
+                    "pages": index + 1,
+                    "cursor": None,
+                    "through": state["through"],
+                    "anchor": state["anchor"].isoformat(),
+                }
+    assert state is not None
+    return {
+        "received": received,
+        "complete": False,
+        "pages": max_pages,
+        "cursor": state["cursor"],
+        "through": state["through"],
+        "anchor": None,
+    }

@@ -4,7 +4,8 @@ import jwt
 import pytest
 from sqlalchemy import create_engine, event, text, update
 
-from collective_intelligence_overlay.models import Revocation
+from collective_intelligence_overlay.models import Revocation, UseRequest
+from collective_intelligence_overlay.overlay import Overlay
 from collective_intelligence_overlay.storage import Store, feed_state, migrate, projection_digest
 from collective_intelligence_overlay.synchronization import (
     Feed,
@@ -179,3 +180,63 @@ def test_import_and_cursor_commit_are_atomic(source_store, store, identities, re
     assert store.record_count() == 0
     assert receiver.checkpoint("producer", FeedFilter()) is None
     assert receiver.apply("producer", FeedFilter(), page)
+
+
+async def test_incomplete_delta_blocks_admission_until_last_page_withdrawal(
+    source_store,
+    store,
+    identities,
+    records,
+    policy,
+):
+    cap, evidence = records
+    source_store.put(identities["producer"].sign(cap))
+    source_store.put(identities["verifier"].sign(evidence))
+    verifier_store = Store(
+        source_store.engine.url.render_as_string(hide_password=False),
+        "verifier",
+        source_store.principals,
+    )
+    receiver = Receiver(store)
+    producer = Feed(source_store, identities["producer"])
+    verifier = Feed(verifier_store, identities["verifier"])
+    filter = FeedFilter()
+    try:
+        for source, feed in (("producer", producer), ("verifier", verifier)):
+            receiver.apply(source, filter, feed.page("receiver", filter))
+        overlay = Overlay(store, policy, persistent_sources=True)
+        request = UseRequest(
+            receiver="receiver", subject=cap.subject, scope=cap.scope, semantic_fit="confirmed"
+        )
+        assert (await overlay.qualify(request)).outcome == "ACCEPT"
+        with pytest.raises(ValueError, match="committed synchronization"):
+            overlay.observed("producer")
+        unrelated = cap.model_copy(
+            update={"subject": cap.subject.model_copy(update={"id": "noise"})}
+        )
+        source_store.put(identities["producer"].sign(unrelated))
+        source_store.put(
+            identities["producer"].sign(
+                Revocation(issuer="producer", subject=cap.subject, reason="last-page withdrawal")
+            )
+        )
+        receiver.begin("producer", filter)
+        assert (await overlay.qualify(request)).outcome == "UNKNOWN"
+        checkpoint = receiver.checkpoint("producer", filter)
+        first = producer.page(
+            "receiver",
+            filter,
+            since=checkpoint["through"],
+            generation=checkpoint["generation"],
+            limit=1,
+        )
+        receiver.apply("producer", filter, first)
+        assert (
+            await Overlay(store, policy, persistent_sources=True).qualify(request)
+        ).outcome == "UNKNOWN"
+        receiver.apply(
+            "producer", filter, producer.page("receiver", filter, cursor=first.next_cursor, limit=1)
+        )
+        assert (await overlay.qualify(request)).outcome == "REJECT"
+    finally:
+        verifier_store.close()
