@@ -62,6 +62,21 @@ A2A bindings/provider execution, generic peer registration, durable invocation,
 pagination/sync/freshness, actual C3/C4 lineage and metrics, complete scale
 profiles, documentation/skills, clean artifacts and release gates.
 
+Third checkpoint: `synchronization.Feed` now supplies byte/count-bounded,
+receiver/filter/generation-bound snapshot and delta pages with EdDSA JWT receipts
+and cursors. Snapshot completion retains its original timestamp; zero-change
+deltas are explicit. Oversized records fail without advancing the cursor.
+Migration 0003 adds receiver-owned persistent checkpoints. `Receiver.apply`
+verifies the page and original signed records, then atomically imports records
+and advances the checkpoint. Retransmission does not add records or refresh the
+timestamp; explicit restart preserves tombstones. Separate source/receiver DB
+tests cover restart, a last-page withdrawal, bad signatures and transaction
+interruption. **62 tests passed, zero skipped, 53.24 seconds**; Ruff, strict mypy
+and documentation checks pass. These are the synchronization SDK primitives;
+the existing peer `discover/sync` path and its freshness handling still require
+integration with them, followed by real HTTP/three-process tests. No claim of
+completed end-to-end synchronization is made at this checkpoint.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 
