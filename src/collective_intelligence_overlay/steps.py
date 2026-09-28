@@ -21,7 +21,7 @@ from .bindings import ExecutionContext, fingerprint
 from .invocations import Executor
 from .models import Cost, Event, Identifier, Opportunity, Proposal, RecordRef, now, uid
 from .opportunities import Opportunities
-from .storage import budgets, metadata
+from .storage import Conflict, budgets, metadata
 
 selections = Table(
     "work_selections",
@@ -66,12 +66,24 @@ class Steps:
     """Host API for one bounded choice. This is not a workflow or retry engine."""
 
     def __init__(
-        self, opportunities: Opportunities, executor: Executor, context: ExecutionContext
+        self,
+        opportunities: Opportunities,
+        executor: Executor,
+        context: ExecutionContext,
+        *,
+        max_concurrent: int = 4,
     ) -> None:
         if executor.registry is not opportunities.registry:
             raise ValueError("step and executor must share the same registered host")
         if context.caller != executor.identity.name or context.purpose != "reuse":
             raise ValueError("steps require an ordinary-use owner context")
+        if not 1 <= max_concurrent <= 32:
+            raise ValueError("invalid owner concurrency bound")
+        executor.allowance = executor.allowance.model_copy(
+            update={
+                "max_concurrent": min(max_concurrent, executor.allowance.max_concurrent or 32),
+            }
+        )
         self.opportunities, self.executor = opportunities, executor
         self.context = context.model_copy(deep=True)
         self.store = executor.registry.overlay.store
@@ -96,43 +108,42 @@ class Steps:
         results: list[StepResult] = []
         allocations: list[AllocationObservation] = []
         seen: set[str] = set()
-        start = rounds = discovered = deduplicated = 0
+        rounds = discovered = deduplicated = 0
         reason = "step_limit"
-        cycle_observed = False
         try:
             async with asyncio.timeout(seconds):
                 for _ in range(max_steps):
                     rounds += 1
-                    page = await self.opportunities.discover(
-                        max_candidates=max_candidates, start=start
-                    )
-                    discovered += page.discovered
-                    deduplicated += page.deduplicated
-                    start = page.next_goal or 0
+                    start = 0
+                    observed: list[Opportunity] = []
+                    while True:
+                        page = await self.opportunities.discover(
+                            max_candidates=max_candidates, start=start
+                        )
+                        discovered += page.discovered
+                        deduplicated += page.deduplicated
+                        observed.extend(page.opportunities)
+                        if page.next_goal is None:
+                            break
+                        start = page.next_goal
                     allocation = None
-                    if page.opportunities:
+                    if observed:
                         allocation = await allocate(
                             self.opportunities,
                             self.context,
-                            page.opportunities,
+                            tuple(observed),
                             allocation_policy or AllocationPolicy(),
                         )
                         allocations.append(allocation)
-                    by_id = {item.id: item for item in page.opportunities}
+                    by_id = {item.id: item for item in observed}
                     pending = (
                         [by_id[key] for key in allocation.ordered if key not in seen]
                         if allocation
                         else []
                     )
                     if not pending:
-                        if page.next_goal is None:
-                            if cycle_observed:
-                                cycle_observed = False
-                                continue
-                            reason = "no_progress"
-                            break
-                        continue
-                    cycle_observed = page.next_goal is not None
+                        reason = "no_progress"
+                        break
                     opportunity = pending[0]
                     seen.add(opportunity.id)
                     choice = await asyncio.to_thread(self._choice, opportunity.id)
@@ -193,7 +204,9 @@ class Steps:
             remaining = conn.execute(
                 select(budgets.c.remaining).where(budgets.c.unit == self.executor.allowance.unit)
             ).scalar_one_or_none()
-        return remaining is not None and remaining >= self.executor.allowance.quantity
+        return remaining is not None and remaining >= (
+            self.executor.allowance.quantity + self.executor.allowance.minimum_remaining
+        )
 
     async def step(
         self,
@@ -324,11 +337,30 @@ class Steps:
             selected_record.arguments,
             self.context,
         )
-        result = await self.executor.invoke(
-            choice.invocation_id,
-            selected_record.builder.id,
-            selected_record.builder.digest,
-            selected_record.arguments,
-            self.context,
-        )
+        opportunity = await asyncio.to_thread(self.store.resolve_reference, choice.opportunity)
+        reserve = self.executor.allowance.minimum_remaining
+        if (
+            isinstance(opportunity, Opportunity)
+            and opportunity.work_kind == "formation"
+            and choice.allocation
+        ):
+            reserve = max(
+                reserve, self.executor.allowance.quantity * choice.allocation.reserve_operations
+            )
+        try:
+            result = await self.executor.invoke(
+                choice.invocation_id,
+                selected_record.builder.id,
+                selected_record.builder.digest,
+                selected_record.arguments,
+                self.context,
+                minimum_remaining=reserve,
+            )
+        except Conflict:
+            old = await asyncio.to_thread(
+                self.executor.store.get, self.context.caller, choice.invocation_id
+            )
+            if old is None:
+                return StepResult(reason="allowance_or_capacity_deferred", selection=choice)
+            return StepResult(reason="existing_invocation", selection=choice, invocation=old)
         return StepResult(reason="invocation_observed", selection=choice, invocation=result)

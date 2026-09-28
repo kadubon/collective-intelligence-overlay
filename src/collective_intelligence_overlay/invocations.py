@@ -10,7 +10,7 @@ from decimal import Decimal
 from typing import Any
 
 from pydantic import Field, TypeAdapter
-from sqlalchemy import JSON, Column, DateTime, Integer, String, Table, insert, select, update
+from sqlalchemy import JSON, Column, DateTime, Integer, String, Table, func, insert, select, update
 
 from .bindings import (
     ExecutionContext,
@@ -57,6 +57,8 @@ class Reservation(Model):
     unit: Identifier = "work"
     quantity: Decimal = Field(default=Decimal(1), gt=0, max_digits=24, decimal_places=9)
     seconds: int = Field(default=30, ge=1, le=300)
+    minimum_remaining: Decimal = Field(default=Decimal(0), ge=0, max_digits=24, decimal_places=9)
+    max_concurrent: int | None = Field(default=None, ge=1, le=32)
 
 
 def _selector(caller: str, invocation_id: str) -> Any:
@@ -202,11 +204,15 @@ class InvocationStore:
         lease_id = "invoke-" + fingerprint([self.store.owner, caller, invocation_id])
         with self.store.engine.begin() as conn:
             # Serialize all allowance claims before locking invocation/lease/feed.
-            conn.execute(
+            remaining: Decimal = conn.execute(
                 select(budgets.c.remaining)
                 .where(budgets.c.unit == allowance.unit)
                 .with_for_update()
             ).scalar_one()
+            # Owner-local serialization across budget units. No other owner is
+            # excluded, and finish/dispatch retain budget -> invocation -> lease.
+            owner_lock = int(fingerprint(["invocation-capacity", self.store.owner])[:15], 16)
+            conn.execute(select(func.pg_advisory_xact_lock(owner_lock)))
             old = (
                 conn.execute(select(invocations).where(selector).with_for_update())
                 .mappings()
@@ -216,6 +222,19 @@ class InvocationStore:
                 if old["fingerprint"] != request_hash:
                     raise Conflict("invocation ID reused with different request")
                 return dict(old), False
+            if remaining < allowance.quantity + allowance.minimum_remaining:
+                raise Conflict("budget exhausted or protected allowance would be consumed")
+            if allowance.max_concurrent is not None:
+                running = conn.execute(
+                    select(invocations.c.id)
+                    .where(
+                        (invocations.c.owner == self.store.owner)
+                        & (invocations.c.state == "running")
+                    )
+                    .limit(allowance.max_concurrent)
+                ).all()
+                if len(running) >= allowance.max_concurrent:
+                    raise Conflict("owner invocation capacity exhausted")
             if (
                 conn.execute(
                     select(leases.c.task_id).where(leases.c.task_id == lease_id).with_for_update()
@@ -393,7 +412,19 @@ class Executor:
         binding_digest: str,
         arguments: dict[str, Any],
         context: ExecutionContext,
+        *,
+        minimum_remaining: Decimal | None = None,
     ) -> dict[str, Any]:
+        allowance = (
+            self.allowance
+            if minimum_remaining is None
+            else Reservation.model_validate(
+                {
+                    **self.allowance.model_dump(),
+                    "minimum_remaining": max(self.allowance.minimum_remaining, minimum_remaining),
+                }
+            )
+        )
         arguments = copy.deepcopy(arguments)
         context = context.model_copy(deep=True)
         steps = formation_steps.get()
@@ -475,7 +506,7 @@ class Executor:
                 binding_id,
                 binding_digest,
                 request,
-                self.allowance,
+                allowance,
             )
         )
         try:

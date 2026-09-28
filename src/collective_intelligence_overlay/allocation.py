@@ -33,6 +33,7 @@ class AllocationPolicy(BaseModel):
     verification_threshold: int = Field(default=2, ge=1, le=32)
     connection_threshold: int = Field(default=2, ge=1, le=32)
     unverified_limit: int = Field(default=8, ge=1, le=32)
+    reserve_operations: int = Field(default=1, ge=0, le=16)
 
 
 class AllocationObservation(BaseModel):
@@ -50,6 +51,7 @@ class AllocationObservation(BaseModel):
     reasons: tuple[Identifier, ...]
     ordered: tuple[Identifier, ...] = Field(max_length=32)
     deferred: dict[Identifier, Identifier] = Field(max_length=32)
+    reserve_operations: int = Field(default=0, ge=0, le=16)
 
 
 async def allocate(
@@ -168,4 +170,7 @@ async def _allocate(
         reasons=tuple(reasons),
         ordered=tuple(o.id for o in eligible),
         deferred=deferred,
+        reserve_operations=policy.reserve_operations
+        if checkers and policy.mode == "adaptive"
+        else 0,
     )

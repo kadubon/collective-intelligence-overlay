@@ -67,6 +67,13 @@ verification priority; checker withdrawal removes that readiness. An unverified
 page limit suppresses formation, and a static mode preserves the comparison rule.
 These are bounded page observations. Persistent cooldown, reserved allowance,
 cross-worker capacity and a complete cross-page backlog bound still need work.
+Subsequent work completes all registered-goal pages before allocation and enforces
+same-unit protected allowance plus owner-local concurrency in the existing claim
+transaction. Migration 0011 adds a bounded owner/state index. Steps supplies a
+concurrency bound; legacy host executors require explicit consistent configuration.
+Tests exercise claims racing across different budget units, retained checking
+allowance, ordinary release and later-page verification backlog. Cooldown remains
+incomplete, as do the adaptive formation application and release-wide gates.
 
 ## 0.2.0 implementation and validation
 

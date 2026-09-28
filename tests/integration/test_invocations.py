@@ -33,6 +33,64 @@ from collective_intelligence_overlay.models import (
 from collective_intelligence_overlay.storage import Conflict, Store, budgets, leases
 
 
+def test_protected_allowance_and_capacity_are_atomic_across_units(store):
+    store.set_budget("work", Decimal(2))
+    store.set_budget("tokens", Decimal(2))
+    api = InvocationStore(store)
+    barrier = Barrier(2)
+
+    def claim(unit):
+        barrier.wait(timeout=5)
+        try:
+            row, fresh = api.claim(
+                "receiver",
+                "capacity-" + unit,
+                "binding",
+                "a" * 64,
+                {"unit": unit},
+                Reservation(unit=unit, max_concurrent=1, minimum_remaining=1),
+            )
+            return unit, row, fresh
+        except Conflict:
+            return unit, None, False
+
+    with ThreadPoolExecutor(max_workers=2) as pool:
+        results = list(pool.map(claim, ("work", "tokens")))
+    successful = [(unit, row) for unit, row, fresh in results if fresh]
+    assert len(successful) == 1
+    unit, row = successful[0]
+    api.cancel("receiver", row["id"])
+    # Cancelling known-undispatched work returns capacity and allowance once.
+    next_row, fresh = api.claim(
+        "receiver",
+        "after-cancel",
+        "binding",
+        "a" * 64,
+        {"unit": unit},
+        Reservation(unit=unit, max_concurrent=1, minimum_remaining=1),
+    )
+    assert fresh and next_row["reservation_state"] == "held"
+    with pytest.raises(Conflict, match="protected allowance"):
+        api.claim(
+            "receiver",
+            "would-consume-reserve",
+            "binding",
+            "a" * 64,
+            {"unit": unit},
+            Reservation(unit=unit, minimum_remaining=1),
+        )
+    with store.engine.connect() as conn:
+        assert (
+            conn.execute(select(budgets.c.remaining).where(budgets.c.unit == unit)).scalar_one()
+            == 1
+        )
+    # An operator-authorized checking operation can use the retained unit.
+    checked, fresh = api.claim(
+        "receiver", "checking-work", "binding", "a" * 64, {"checking": True}, Reservation(unit=unit)
+    )
+    assert fresh and checked["state"] == "running"
+
+
 def registered(overlay, identities, records, operation, assess=None):
     cap, checked = records
     subject = Subject(id="invocation-tool", version="1", digest=callable_digest(operation))

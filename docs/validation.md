@@ -2,6 +2,15 @@
 
 ## 0.3.0 development checkpoint
 
+The claim-capacity increment passed 39 opportunity/allocation and invocation tests
+in 59.75 seconds, zero skips, including the 0.2.1 allowance/cancellation/crash
+regressions. A subsequent extended cross-page/reserved-allowance case passed in
+the 12-test opportunity set (19.47 seconds). Concurrent claims in two budget units
+admit only one at a configured capacity of one. Generated work cannot consume its
+protected remainder; an explicitly configured checking claim can use that unit.
+All checks are owner-local; they do not constrain trusted host code that elects to
+use a different operator contract. Strict typing covers 47 source files.
+
 The allocation increment passed 13 opportunity/allocation/step and real A2A tests
 in 27.61 seconds, zero skips. Actual Registry/OPA checks cause verification work
 to precede formation when a checker qualifies; withdrawal removes that priority

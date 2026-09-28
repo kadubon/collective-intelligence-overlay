@@ -84,9 +84,24 @@ Every returned `AllocationObservation` identifies the receiver, rule/policy
 digests, observation window, exact signed sources, checker decisions, page counts,
 ordering and deferrals. The selected observation is retained in the immutable
 local selection, and the allocation's elapsed cost is measured separately.
-Counts describe that page, not a global backlog or independent statistical samples.
-Persistent cooldown, reserved allowance/capacity across workers and a complete
-cross-page backlog limit remain in development.
+Direct `allocate` counts describe its supplied page, not independent statistical
+samples or an all-network backlog. `Steps.run` completes all pages of the registered
+goal set (at most 32 goals) before allocation, so a later page cannot hide a local
+verification queue from generation. The operator's `reserve_operations` retains
+that many normal invocation allowances for a qualified local checker; it is not
+a price estimate or a claim about remote slots. Formation's claim atomically checks
+the protected remainder in the existing budget unit. No conversion is performed.
+
+`Reservation(minimum_remaining=..., max_concurrent=...)` controls these claim checks.
+`Steps(..., max_concurrent=4)` sets a bounded allowance on its supplied executor,
+retaining any stricter limit. All owner workers must use the same operator limits;
+the legacy trusted-host Executor default remains opt-in. Claim serialization is
+local to the owner and database, includes budget units, and counts running child
+invocations too. An operator must allow capacity for intended nested work; excess
+claims defer rather than wait indefinitely. Expired/uncertain rows are reconciled
+through the existing invocation lookup, not silently reclassified by the allocator.
+Migration `0011` adds an owner/state index without changing records or balances.
+Persistent allocation cooldown remains in development.
 
 `bindings.ArtifactSpec` stores an installed builder ID/version/source digest,
 bounded parameters, environment, component bindings and content-addressed data

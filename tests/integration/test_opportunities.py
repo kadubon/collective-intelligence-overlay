@@ -453,6 +453,45 @@ async def test_allocation_reacts_to_backlog_but_does_not_trust_unqualified_check
     assert adaptive.qualified_checkers == (checking.checker,)
     assert adaptive.deferred[page.opportunities[0].id] == "unverified_queue_limit"
     assert adaptive.sample_count == 2 and adaptive.checker_decisions
+    requested = []
+
+    async def alternatives(observation):
+        requested.append(observation.work_kind)
+        ref = overlay.store.reference("opportunity", "receiver", observation.id)
+        generated = propose(
+            observation,
+            ref,
+            identities["producer"],
+            ProposalDrafts(
+                alternatives=(
+                    ProposalDraft(
+                        builder=checking.builders[0], arguments={"value": 3}, alternative="bounded"
+                    ),
+                )
+            ),
+        )
+        return tuple((p.issuer, identities[p.issuer].sign(p)) for p in generated)
+
+    worker = Steps(host, steps.executor, steps.context)
+    # Page size one still accounts for the verification backlog on the next page.
+    run = await worker.run(
+        alternatives,
+        max_steps=1,
+        max_candidates=1,
+        allocation_policy=AllocationPolicy(verification_threshold=1, unverified_limit=1),
+    )
+    assert requested == ["verification"] and run.allocations[0].sample_count == 2
+    assert run.steps[0].selection.allocation == run.allocations[0]
+    requested.clear()
+    retained = await worker.run(
+        alternatives,
+        max_steps=1,
+        max_candidates=1,
+        allocation_policy=AllocationPolicy(verification_threshold=2, reserve_operations=4),
+    )
+    assert requested == ["formation"]
+    assert retained.steps[0].reason == "allowance_or_capacity_deferred"
+    assert retained.steps[0].invocation is None
     # A checker withdrawal is not overridden by the existence of a backlog.
     withdrawal = Revocation(issuer="receiver", subject=binding.subject, reason="checker withdrawn")
     overlay.store.put(identities["receiver"].sign(withdrawal))
