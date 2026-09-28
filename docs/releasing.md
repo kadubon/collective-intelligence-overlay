@@ -1,5 +1,12 @@
 # Release procedure and current state
 
+## 0.2.1 candidate, then 0.3.0
+
+0.2.1 allowance-release changes are under local safety/distribution validation.
+There is no 0.2.1 or 0.3.0 publication claim yet. Publish and verify 0.2.1 before
+publishing the separately developed 0.3.0 opportunity/formation changes.
+The existing 0.2.0 publication record below was already accurate at task start.
+
 ## 0.2.0 published and verified on 2026-09-28
 
 - Release commit: `394ba59aa6ec9e95b4f725862747f5198826cf9b`; annotated tag `v0.2.0`.
@@ -81,14 +88,16 @@ GitHub's API. The publish job downloads the checked wheel/sdist artifact and per
 no source checkout or rebuild. Do not use skip-existing to hide conflicting releases.
 
 Release steps: run frozen checks, build, twine check, clean wheel/sdist installation,
-license/vulnerability/SBOM checks; commit/push; verify CI; create `v0.2.0`; verify tag
+license/vulnerability/SBOM checks; commit/push; verify CI; create the matching
+`v<pyproject version>` tag; verify tag
 workflow and PyPI; install from the actual index in a fresh environment; then create
 GitHub Release notes describing scope, compatibility and unverified boundaries, and
 attach the exact published distributions and supply-chain reports.
 
 For local checks alongside historical artifacts, build into a separate directory
-with `uv build --out-dir .local/dist-0.2.0` and run
-`uv run python scripts/check_package.py --dist-dir .local/dist-0.2.0`.
+with `uv build --out-dir .local/dist-candidate` and run
+`uv run python scripts/check_package.py --dist-dir .local/dist-candidate`.
+Use a fresh directory per version; never mix two releases in the publish artifact.
 The checker verifies packaged schemas/migrations/licenses, installs core outside the
 checkout, verifies the installed version and path, then runs tests with `agents`
 before adding `model` for its mocked provider test. It rebuilds and installs the

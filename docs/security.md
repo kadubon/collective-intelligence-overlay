@@ -52,6 +52,13 @@ There is no transparency-log upload. Normal CLI errors omit payloads and credent
 Do not use debug tracebacks in shared logs. No code claims arbitrary secret detection
 inside domain data. The application owner must redact sensitive inputs before sharing.
 
+0.2.1 allowance release requires database ownership and a reserved phase; it is
+never authorized merely by an AdmissionDenied exception or a cancelled Python
+await. Authenticated callers authorized for a binding can still consume inspection
+resources with rejected requests. Execution allowance release does not make OPA,
+DB or authentication free. Existing message/argument bounds, request deadlines and
+configured A2A concurrency limits remain in force; no new rate-limit service is added.
+
 Tests cover tampering, identity/audience/expiry, unknown schemas, stale evidence,
 permission denial, bounded input, revocation, cancellation and stale worker fencing.
 External penetration testing, malicious administrator resistance, multi-organization

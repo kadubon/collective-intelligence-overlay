@@ -13,6 +13,11 @@ the overlay records evidence, qualifies reuse and stops known-invalid dependenci
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [Architecture](docs/architecture.md)
 
+The 0.2.1 release candidate returns execution allowance after a refusal or
+cancellation only when the database proves no dispatch and fences further dispatch.
+Inspection costs remain recorded; uncertain effects and old reservations stay held.
+See [upgrade/recovery](docs/deployment.md) and [release state](docs/releasing.md).
+
 ## What works
 
 - Signed, versioned capability and evidence records, including PASS / FAIL / UNKNOWN.

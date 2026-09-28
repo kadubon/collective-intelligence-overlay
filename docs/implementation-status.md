@@ -1,5 +1,29 @@
 # Implementation status
 
+## 0.2.1 then 0.3.0 work in progress
+
+Baseline: clean main `bb24512`, published v0.2.0 at `394ba59`; actual GitHub CI
+and PyPI confirm 0.2.0, with neither target release present at task start.
+
+Stage A: reproduce pre-dispatch allowance retention against PostgreSQL/OPA;
+implement an atomic fenced, idempotent release only for durably proven undispatched
+work, preserve uncertain effects and measured inspection overhead; test cancellation,
+expiry, dispatch, delayed DB-thread commits, old workers and migration. Run every
+existing distribution/security/service gate and publish/verify 0.2.1 separately.
+
+Stage B starts only after Stage A safety gates pass. Add bounded typed opportunities
+and peer proposals, owner-local explainable selection and finite steps using the
+existing Executor/MAF/A2A/Store. Persist actual builder artifacts and C3-to-C4 use;
+retain independent checking, receiver admission and conservative withdrawal.
+Run isolated static-versus-adaptive matched experiments for verification and
+connection/environment bottlenecks, including failures, costs and censoring.
+Validate migration, restart/concurrency, bounded discovery/scale, docs/skill and
+clean distributions; publish/verify 0.3.0 after 0.2.1. No positive effect is assumed.
+
+Both stages remain incomplete. The specification's A1-A4, B1-B12 and C1-C5,
+including all named adverse cases, artifacts and publication gates, remain the
+completion criteria; this plan does not replace or narrow them.
+
 ## 0.2.0 implementation and validation
 
 The 0.2.0 incremental specification was supplied on 2026-09-28. Implementation

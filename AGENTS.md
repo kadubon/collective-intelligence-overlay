@@ -30,6 +30,11 @@ Verification probes require read-only operator grants and do not create PASS,
 ordinary reuse or observed-use formation links. Remote interface pins are not
 code attestation. Preserve caller/resource-owner boundaries and UNKNOWN outcomes
 after uncertain side effects; reservations are not measured consumption.
+For 0.2.1 invocation release, lock budget then invocation then lease. Confirm
+reserved phase and matching worker/fence, revoke dispatch and return allowance in
+one transaction. Never release from an exception type or Python cancellation flag.
+Keep measured inspection overhead and legacy/uncertain reservations; old workers
+must not settle replacement leases. Test delayed DB-thread commits and cancellation.
 
 Keep original v1 DSSE bytes/envelopes during migration. Indexes are projections,
 not replacement records. Preserve legacy issuer/binding ambiguity. Feed sequence

@@ -1,5 +1,27 @@
 # Evidence, admission and lifecycle
 
+0.2.1 execution allowance is distinct from measured cost. New invocation rows
+track `held`, `released` or `consumed`; migrated rows retain `legacy_unknown`.
+The standard one-work reservation is permission to make one dispatched execution,
+not a non-refundable admission fee or measured price. Successful completion consumes
+that allowance by contract; an uncertain dispatched attempt retains it. USD cost
+remains unavailable unless measured elsewhere under an explicit accounting contract.
+
+A failed reserved invocation can release its allowance only while its invocation
+and lease still agree on worker/fence. Budget, invocation and lease are locked in
+that order, dispatch is fenced, and allowance is returned in the same transaction.
+The release marker makes repeat cancellation, cleanup and retry idempotent. No
+negative measured cost is emitted. Inspection elapsed time remains recorded as
+overhead, even when the business result is UNKNOWN and allowance was released.
+The reservation state does not replace the business state or manufacture PASS.
+
+After durable dispatch, no exception type proves non-execution: a parent may have
+acted before a child refuses. Even dispatch followed by a final admission refusal
+retains the reservation conservatively. Cancellation of an asyncio await does not
+stop its database thread; dispatch and release compete through the same durable
+state. Unknown commits are not refund authority. Process loss can leave inspection
+cost unavailable; later cleanup must not invent a zero measurement.
+
 Generated means a candidate exists. Verified means a named checker produced a
 scoped result. Reusable means a receiver has currently admitted that exact candidate
 for its request. These states do not collapse into one flag.

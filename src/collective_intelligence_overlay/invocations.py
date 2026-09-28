@@ -44,6 +44,8 @@ invocations = Table(
     Column("result_digest", String(64)),
     Column("reason", String(160)),
     Column("receipt_id", String(160)),
+    Column("reservation_state", String(32), nullable=False, server_default="legacy_unknown"),
+    Column("release_reason", String(160)),
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
@@ -81,6 +83,8 @@ def _public(row: Any) -> dict[str, Any]:
             "created_at",
             "updated_at",
             "receipt_id",
+            "reservation_state",
+            "release_reason",
         )
     }
     for key in ("created_at", "updated_at"):
@@ -93,39 +97,94 @@ class InvocationStore:
     def __init__(self, store: Store) -> None:
         self.store = store
 
+    @staticmethod
+    def _locked(conn: Any, caller: str, invocation_id: str) -> tuple[Any, Any]:
+        selector = _selector(caller, invocation_id)
+        # Unit/lease identity is immutable. This first read grants no authority.
+        unit = conn.execute(
+            select(leases.c.unit)
+            .select_from(invocations.join(leases, invocations.c.lease_id == leases.c.task_id))
+            .where(selector)
+        ).scalar_one_or_none()
+        if unit is None:
+            return None, None
+        # Every invocation transition follows claim's budget -> invocation -> lease
+        # order. A concurrent claim of the same ID cannot deadlock with release.
+        conn.execute(select(budgets.c.unit).where(budgets.c.unit == unit).with_for_update()).one()
+        row = conn.execute(select(invocations).where(selector).with_for_update()).mappings().one()
+        lease = (
+            conn.execute(
+                select(leases).where(leases.c.task_id == row["lease_id"]).with_for_update()
+            )
+            .mappings()
+            .one()
+        )
+        return row, lease
+
+    @staticmethod
+    def _release(conn: Any, row: Any, lease: Any, reason: str) -> bool:
+        if not (
+            row["state"] == "running"
+            and row["phase"] == "reserved"
+            and row["reservation_state"] == "held"
+            and lease["state"] == "active"
+            and row["worker"] == lease["worker"]
+            and row["fence"] == lease["fence"]
+        ):
+            return False
+        # The caller holds all three locks. Revoke dispatch ownership in this same
+        # transaction before making the reserved allowance available again.
+        conn.execute(
+            update(leases)
+            .where(leases.c.task_id == row["lease_id"])
+            .values(state="cancelled", fence=leases.c.fence + 1, actual=None)
+        )
+        conn.execute(
+            update(invocations)
+            .where(_selector(row["caller"], row["id"]))
+            .values(reservation_state="released", release_reason=reason)
+        )
+        conn.execute(
+            update(budgets)
+            .where(budgets.c.unit == lease["unit"])
+            .values(remaining=budgets.c.remaining + lease["reservation"])
+        )
+        return True
+
     def get(self, caller: str, invocation_id: str) -> dict[str, Any] | None:
         selector = _selector(caller, invocation_id)
         with self.store.engine.begin() as conn:
-            row = (
-                conn.execute(select(invocations).where(selector).with_for_update())
-                .mappings()
-                .one_or_none()
-            )
+            row, lease = self._locked(conn, caller, invocation_id)
             if row is None:
                 return None
             if row["state"] == "running":
-                lease = (
-                    conn.execute(
-                        select(leases).where(leases.c.task_id == row["lease_id"]).with_for_update()
-                    )
-                    .mappings()
-                    .one()
-                )
-                if lease["expires_at"] <= now() or lease["state"] != "active":
+                if (
+                    lease["expires_at"] <= now()
+                    or lease["state"] != "active"
+                    or lease["worker"] != row["worker"]
+                    or lease["fence"] != row["fence"]
+                ):
+                    released = self._release(conn, row, lease, "worker_lost_or_expired")
                     conn.execute(
                         update(invocations)
                         .where(selector)
                         .values(
-                            state="unknown",
+                            state="cancelled" if released else "unknown",
                             reason="worker_lost_or_expired",
                             updated_at=now(),
                         )
                     )
-                    conn.execute(
-                        update(leases)
-                        .where(leases.c.task_id == row["lease_id"])
-                        .values(state="cancelled", actual=None)
-                    )
+                    if not released:
+                        conn.execute(
+                            update(leases)
+                            .where(
+                                (leases.c.task_id == row["lease_id"])
+                                & (leases.c.worker == row["worker"])
+                                & (leases.c.fence == row["fence"])
+                                & (leases.c.state == "active")
+                            )
+                            .values(state="cancelled", fence=leases.c.fence + 1, actual=None)
+                        )
                     row = conn.execute(select(invocations).where(selector)).mappings().one()
             return _public(row)
 
@@ -157,6 +216,13 @@ class InvocationStore:
                 if old["fingerprint"] != request_hash:
                     raise Conflict("invocation ID reused with different request")
                 return dict(old), False
+            if (
+                conn.execute(
+                    select(leases.c.task_id).where(leases.c.task_id == lease_id).with_for_update()
+                ).one_or_none()
+                is not None
+            ):
+                raise Conflict("invocation lease exists without matching identity; reconcile")
             worker = uid()
             fence = self.store._acquire(
                 conn, lease_id, worker, allowance.unit, allowance.quantity, allowance.seconds
@@ -178,6 +244,8 @@ class InvocationStore:
                 result_digest=None,
                 reason=None,
                 receipt_id=None,
+                reservation_state="held",
+                release_reason=None,
                 created_at=now(),
                 updated_at=now(),
             )
@@ -195,20 +263,7 @@ class InvocationStore:
 
     @staticmethod
     def _owned(conn: Any, claim: dict[str, Any]) -> None:
-        row = (
-            conn.execute(
-                select(invocations).where(_selector(claim["caller"], claim["id"])).with_for_update()
-            )
-            .mappings()
-            .one()
-        )
-        lease = (
-            conn.execute(
-                select(leases).where(leases.c.task_id == row["lease_id"]).with_for_update()
-            )
-            .mappings()
-            .one()
-        )
+        row, lease = InvocationStore._locked(conn, claim["caller"], claim["id"])
         if (
             row["state"] != "running"
             or row["worker"] != claim["worker"]
@@ -232,50 +287,87 @@ class InvocationStore:
         if identity.name != self.store.owner or event.issuer != self.store.owner:
             raise ValueError("invocation completion belongs to resource owner")
         with self.store.engine.begin() as conn:
-            self._owned(conn, claim)
+            row, lease = self._locked(conn, claim["caller"], claim["id"])
+            if row["worker"] != claim["worker"] or row["fence"] != claim["fence"]:
+                raise Conflict("invocation worker changed")
+            if row["receipt_id"] is not None:
+                raise Conflict("invocation receipt already recorded")
+            if reason is None:
+                self._owned(conn, claim)
+                if row["phase"] != "dispatched":
+                    raise Conflict("completion requires durable dispatch")
+            elif row["state"] == "completed":
+                raise Conflict("completed invocation cannot become failed")
+            released = reason is not None and self._release(conn, row, lease, reason)
+            if (
+                reason is not None
+                and row["phase"] == "reserved"
+                and row["reservation_state"] in {"held", "released"}
+            ):
+                # Inspection used resources even when its execution allowance is
+                # released. Sign this observation once; never negate an old cost.
+                event = event.model_copy(
+                    update={
+                        "costs": tuple(
+                            cost.model_copy(update={"category": "overhead"}) for cost in event.costs
+                        )
+                    }
+                )
             self.store._insert(conn, event, identity.sign(event))
+            terminal = row["state"] != "running"
             conn.execute(
                 update(invocations)
                 .where(_selector(claim["caller"], claim["id"]))
                 .values(
-                    state="unknown" if reason else "completed",
+                    state=row["state"] if terminal else "unknown" if reason else "completed",
                     result=result,
                     result_digest=fingerprint(result) if reason is None else None,
-                    reason=reason,
+                    reason=row["reason"] if terminal else reason,
                     receipt_id=event.id,
                     updated_at=now(),
+                    reservation_state="released"
+                    if released
+                    else "consumed"
+                    if reason is None and row["reservation_state"] == "held"
+                    else row["reservation_state"],
                 )
             )
-            conn.execute(
-                update(leases)
-                .where(leases.c.task_id == claim["lease_id"])
-                .values(state="cancelled" if reason else "complete", actual=None)
-            )
+            if not terminal and not released:
+                conn.execute(
+                    update(leases)
+                    .where(
+                        (leases.c.task_id == claim["lease_id"])
+                        & (leases.c.worker == claim["worker"])
+                        & (leases.c.fence == claim["fence"])
+                        & (leases.c.state == "active")
+                    )
+                    .values(state="cancelled" if reason else "complete", actual=None)
+                )
 
     def cancel(self, caller: str, invocation_id: str) -> dict[str, Any] | None:
         with self.store.engine.begin() as conn:
             selector = _selector(caller, invocation_id)
-            row = (
-                conn.execute(select(invocations).where(selector).with_for_update())
-                .mappings()
-                .one_or_none()
-            )
+            row, lease = self._locked(conn, caller, invocation_id)
             if row is None:
                 return None
             if row["state"] == "running":
-                conn.execute(
-                    select(leases).where(leases.c.task_id == row["lease_id"]).with_for_update()
-                )
-                conn.execute(
-                    update(leases)
-                    .where(leases.c.task_id == row["lease_id"])
-                    .values(state="cancelled", fence=leases.c.fence + 1, actual=None)
-                )
+                released = self._release(conn, row, lease, "cancelled_by_caller")
+                if not released:
+                    conn.execute(
+                        update(leases)
+                        .where(
+                            (leases.c.task_id == row["lease_id"])
+                            & (leases.c.worker == row["worker"])
+                            & (leases.c.fence == row["fence"])
+                            & (leases.c.state == "active")
+                        )
+                        .values(state="cancelled", fence=leases.c.fence + 1, actual=None)
+                    )
                 conn.execute(
                     update(invocations)
                     .where(selector)
                     .values(
-                        state="unknown" if row["phase"] == "dispatched" else "cancelled",
+                        state="cancelled" if released else "unknown",
                         reason="cancelled_by_caller",
                         updated_at=now(),
                     )
@@ -290,6 +382,7 @@ class Executor:
     def __init__(self, registry: Registry, identity: Identity, allowance: Reservation) -> None:
         self.registry, self.identity, self.allowance = registry, identity, allowance
         self.store = InvocationStore(registry.overlay.store)
+        self._cleanup: set[asyncio.Task[None]] = set()
         if identity.name != self.store.store.owner:
             raise ValueError("executor identity must own resources")
 
@@ -325,26 +418,10 @@ class Executor:
             self._observe(old)
             return old
         prepared = self.registry.prepare(binding_id, binding_digest, arguments, context)
-        claim, fresh = await asyncio.to_thread(
-            self.store.claim,
-            context.caller,
-            invocation_id,
-            binding_id,
-            binding_digest,
-            request,
-            self.allowance,
-        )
-        if not fresh:
-            existing = _public(claim)
-            self._observe(existing)
-            return existing
         started = time.perf_counter()
         parent_invocation = active_invocation.get()
-        invocation_token = active_invocation.set(
-            fingerprint([self.identity.name, context.caller, invocation_id])
-        )
 
-        def event(failed: bool, output: Any = None) -> Event:
+        def event(claim: dict[str, Any], failed: bool, output: Any = None) -> Event:
             return Event(
                 schema_version="2",
                 id=claim["lease_id"],
@@ -390,6 +467,49 @@ class Executor:
                 ),
             )
 
+        claiming = asyncio.create_task(
+            asyncio.to_thread(
+                self.store.claim,
+                context.caller,
+                invocation_id,
+                binding_id,
+                binding_digest,
+                request,
+                self.allowance,
+            )
+        )
+        try:
+            claim, fresh = await asyncio.shield(claiming)
+        except asyncio.CancelledError:
+
+            async def settle() -> None:
+                # Cancellation of the await says nothing about the thread's
+                # commit. Only a confirmed fresh claim may be settled here.
+                with contextlib.suppress(Exception):
+                    delayed_claim, is_fresh = await claiming
+                    if is_fresh:
+                        await asyncio.to_thread(
+                            self.store.finish,
+                            delayed_claim,
+                            None,
+                            self.identity,
+                            event(delayed_claim, True),
+                            reason="cancelled_during_claim",
+                        )
+
+            cleanup = asyncio.create_task(settle())
+            self._cleanup.add(cleanup)
+            cleanup.add_done_callback(self._cleanup.discard)
+            await asyncio.shield(cleanup)
+            raise
+        if not fresh:
+            existing = _public(claim)
+            self._observe(existing)
+            return existing
+        invocation_token = active_invocation.set(
+            fingerprint([self.identity.name, context.caller, invocation_id])
+        )
+
         async def boundary() -> None:
             await asyncio.to_thread(self.store.dispatched, claim)
 
@@ -398,7 +518,7 @@ class Executor:
                 result = await self.registry.execute(
                     binding_id, binding_digest, arguments, context, before_call=boundary
                 )
-                completed_event = event(False, result)
+                completed_event = event(claim, False, result)
                 await asyncio.to_thread(
                     self.store.finish, claim, result, self.identity, completed_event
                 )
@@ -407,7 +527,12 @@ class Executor:
             with contextlib.suppress(Conflict):
                 await asyncio.shield(
                     asyncio.to_thread(
-                        self.store.finish, claim, None, self.identity, event(True), reason=reason
+                        self.store.finish,
+                        claim,
+                        None,
+                        self.identity,
+                        event(claim, True),
+                        reason=reason,
                     )
                 )
             if not isinstance(exc, Exception):

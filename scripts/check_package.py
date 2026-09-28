@@ -30,6 +30,7 @@ with zipfile.ZipFile(wheel) as archive:
         "licenses/LICENSE",
         "licenses/NOTICE",
         "migrations/versions/0008_dependency_refs.py",
+        "migrations/versions/0009_invocation_allowance.py",
         "schemas/event.json",
         "schemas/evidence.json",
     ):

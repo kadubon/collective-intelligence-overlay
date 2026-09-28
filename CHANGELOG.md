@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.2.1 (release candidate)
+
+New invocation reservations are released exactly once only when the database
+transaction confirms a still-owned reserved phase and fences further dispatch.
+Pre-dispatch refusal, cancellation and expired-worker cleanup no longer retain
+execution allowance indefinitely. Dispatched or historical uncertain work remains
+held; a child AdmissionDenied after a parent effect does not trigger release.
+Claim/dispatch/cancel/finish/cleanup share budget–invocation–lease lock order.
+Cancellation of a DB-thread await does not imply rollback. Inspection overhead
+remains an immutable measured event even when execution allowance is returned.
+Migration 0009 preserves all old invocation reservations as legacy unknown;
+stop old workers before applying it. No opportunity or adaptive formation feature
+is included in this patch. See release records for actual publication status.
+
 ## 0.2.0
 
 Typed local/MCP/overlay-A2A and standard A2A service bindings, durable owner-scoped invocations,

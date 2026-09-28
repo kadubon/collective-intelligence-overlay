@@ -41,6 +41,10 @@ After a lost response, use `executor.store.get(caller, invocation_id)` or the
 authenticated A2A `invocation` operation. Repeat the same request/ID only to obtain
 its running or saved result. Changed requests conflict; UNKNOWN after dispatch
 requires reconciliation before a new attempt. Cancellation does not prove zero cost.
+In 0.2.1, inspect `reservation_state` and `release_reason` separately from business
+state. Only a database-confirmed undispatched reservation is released after fencing;
+dispatched and legacy-unknown work remains held. Inspection overhead stays recorded.
+Do not top up balances or infer rollback from cancellation of a DB-thread await.
 The CLI exposes the same authenticated path as `invoke`, `invocation` and
 `cancel-invocation`; use the full flags and exit-state mapping in the API reference.
 

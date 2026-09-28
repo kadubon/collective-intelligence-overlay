@@ -41,9 +41,11 @@ A2A Messages and do not expose protocol Tasks or promise automatic worker resume
 `completed` means execution/result persistence, not verified correctness. Exact
 retries return the existing result or running state; another request with the same
 caller/ID conflicts. A lost/expired worker or a cancellation after dispatch becomes
-`unknown` and is not automatically rerun. Reservations remain reserved/charged;
-they are not measured resource consumption. This version does not implement
-automatic settlement/refunds. Existing v0.1 historical `actual` values are retained
+`unknown` and is not automatically rerun. In 0.2.1, a provably undispatched new
+reservation is released in the same transaction that fences its worker. Dispatched,
+mismatched or legacy reservations remain held; they are not measured resource
+consumption. This is allowance release, not automatic monetary settlement.
+Existing v0.1 historical `actual` values are retained
 by migration; new work does not infer actual consumption from reservation quantity.
 The low-level `Overlay.execute(request, operation)` remains a trusted-host API;
 registered execution binds the exact actuator and actual arguments instead.
@@ -220,7 +222,10 @@ Invocation commands print the provider's JSON state. Completed execution exits 0
 running exits 3, absent caller-owned invocation exits 4, and rejected/conflict/UNKNOWN
 or other unsuccessful execution exits 2. `cancel-invocation` also exits 0 for a
 confirmed pre-dispatch `cancelled` result; post-dispatch uncertainty remains exit 2.
-Cancellation does not undo effects or refund reservations. Use the same stable ID
+Cancellation does not undo effects. In 0.2.1, it returns execution allowance only
+when reserved ownership is durably verified and fenced before dispatch; other
+reservations stay held. JSON results include `reservation_state` and `release_reason`.
+The disposition is separate from the business outcome and measured costs. Use the same stable ID
 after a lost response and inspect the saved state before authorizing another attempt.
 `invoke --purpose verification` requests only an already configured read-only grant;
 it cannot grant itself authority or create PASS evidence. Arguments are a JSON object

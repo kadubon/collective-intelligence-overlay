@@ -63,6 +63,20 @@ reconciliation. DB result commits and lease completion are atomic; a lost respon
 does not authorize a second external side effect. A2A transient task memory is not
 the durable business ledger. Long-running remote tasks are outside this initial server.
 
+0.2.0 to 0.2.1 requires stopping every old peer/worker before migration 0009.
+It adds reservation disposition/release reason to invocation projections without
+rewriting signed records, leases, results or balances. Existing rows are marked
+`legacy_unknown`, including those formerly called reserved; none is automatically
+refunded. Reconcile them using external evidence. Do not run old workers against
+the upgraded database; rolling-upgrade safety has not been established.
+
+For new 0.2.1 invocations, result lookup and cancellation can release a still-owned
+undispatched expired reservation while atomically fencing its worker. Dispatched
+or mismatched/legacy ownership remains held. A failed cleanup/unknown DB commit
+must be inspected, not followed by an operator balance overwrite or a new-ID retry.
+The lower-level trusted-host Store lease API and FormationSession keep their existing
+contract; this patch does not retroactively reinterpret their costs or old leases.
+
 Upgrades: back up, stop work, review compatibility, install a tested wheel, apply
 forward Alembic revisions explicitly, and requalify changed dependencies. Destructive
 downgrades are unsupported; restore a verified backup instead. Test recovery against

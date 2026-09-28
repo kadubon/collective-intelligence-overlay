@@ -19,10 +19,79 @@ from sqlalchemy import (
     inspect,
     select,
     text,
+    update,
 )
 
 from collective_intelligence_overlay.security import Principal, verify
 from collective_intelligence_overlay.storage import Store, budgets, leases, migrate, records
+
+
+def test_actual_020_invocation_upgrade_keeps_unknown_allowances_and_signed_history(
+    unmigrated_store,
+):
+    from collective_intelligence_overlay.invocations import (
+        InvocationStore,
+        Reservation,
+        invocations,
+    )
+
+    store = unmigrated_store
+    fixture = json.loads((Path(__file__).parents[1] / "fixtures/v020_database.json").read_text())
+    assert fixture["created_by"] == "collective-intelligence-overlay==0.2.0"
+    assert fixture["release_commit"] == "394ba59aa6ec9e95b4f725862747f5198826cf9b"
+    store.principals = {
+        name: Principal(
+            Key.from_dict(item["keyid"], item["key"]),
+            item["trust_group"],
+            frozenset(item["methods"]),
+        )
+        for name, item in fixture["principals"].items()
+    }
+    migrate(store.engine, "0008")
+    old = MetaData()
+    old.reflect(store.engine)
+    with store.engine.begin() as conn:
+        for name, rows in fixture["tables"].items():
+            table = old.tables[name]
+            for original in rows:
+                values = dict(original)
+                for column in table.columns:
+                    if values[column.name] is not None:
+                        if isinstance(column.type, DateTime):
+                            values[column.name] = datetime.fromisoformat(values[column.name])
+                        elif isinstance(column.type, Numeric):
+                            values[column.name] = Decimal(values[column.name])
+                if name == "feed_state":
+                    conn.execute(update(table).where(table.c.id == 1).values(**values))
+                else:
+                    conn.execute(insert(table).values(**values))
+    migrate(store.engine)
+    migrate(store.engine)
+    with store.engine.connect() as conn:
+        current = list(conn.execute(select(records)).mappings())
+        originals = {
+            (r["kind"], r["issuer"], r["record_id"]): r for r in fixture["tables"]["records"]
+        }
+        assert len(current) == len(originals)
+        for row in current:
+            source = originals[row["kind"], row["issuer"], row["record_id"]]
+            assert row["body"] == source["body"] and row["envelope"] == source["envelope"]
+            verify(row["envelope"], store.principals)
+        assert set(conn.execute(select(invocations.c.reservation_state)).scalars()) == {
+            "legacy_unknown"
+        }
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 7
+    ledger = InvocationStore(store)
+    assert ledger.cancel("receiver", "reserved")["reservation_state"] == "legacy_unknown"
+    assert ledger.cancel("receiver", "dispatched")["reservation_state"] == "legacy_unknown"
+    assert ledger.get("receiver", "completed")["result"] == {"value": 7}
+    assert {e.verdict for e in store.evidence()} == {"PASS", "FAIL", "UNKNOWN"}
+    assert len(store.revocations()) == 1
+    claim, fresh = ledger.claim("receiver", "new", "b", "c" * 64, {}, Reservation())
+    assert fresh and claim["reservation_state"] == "held"
+    assert ledger.cancel("receiver", "new")["reservation_state"] == "released"
+    with store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 7
 
 
 def seed_actual_v010(store):
