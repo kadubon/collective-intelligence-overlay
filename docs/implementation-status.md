@@ -130,6 +130,22 @@ generated schema checks pass. Standard non-overlay A2A, external application
 registration examples, new three-process lifecycle, scoped paged metrics,
 scale/recovery profiles, complete docs and release gates remain pending.
 
+Seventh checkpoint: `Registry.register_a2a_service` supports a pinned standard
+non-overlay A2A service using the official SDK's JSONRPC 1.0 immediate JSON Message
+contract. Credentials stay in host-owned HTTPX authentication, and the transport
+restricts SDK requests to configured card/RPC destinations with bounded response
+bytes. Card changes, substituted endpoints, required extensions, unexpected Task
+or text responses and oversized output do not become accepted results. Real HTTP
+tests show that external checking is required before ordinary admitted use, exact
+retry does not redispatch and uncertain results persist as UNKNOWN. No remote
+code identity or long-running Task support is claimed.
+
+Fresh full run: **74 passed, zero skipped, 80.33 seconds**; Ruff/format, strict
+mypy and documentation checks pass. The external application/three-process C1–C4
+lifecycle, scoped paged metrics, scale and restore profiles, complete documentation,
+clean distribution tests, CI and 0.2.0 publishing remain pending. Changes are local;
+no new tag, release or PyPI publication has been attempted.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

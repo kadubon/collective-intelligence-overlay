@@ -11,6 +11,25 @@ saved = executor.store.get(authenticated_caller, invocation_id)
 cancelled = executor.store.cancel(authenticated_caller, invocation_id)
 ```
 
+`register_a2a_service(binding, assess, auth=..., local=False)` connects a standard
+service without installing the overlay there. Pin `target.interface_digest` to
+`fingerprint(MessageToDict(card))`, `target.peer` to the configured card name,
+and `target.name` to its expected skill ID. The pin is an operator-approved
+interface declaration, not authenticated evidence of remote code identity. Actual
+service credentials are supplied as an operator-owned HTTPX `Auth` object, not
+saved in a binding or receipt. HTTPS is required except explicit loopback testing.
+
+The supported service contract is A2A 1.0 JSONRPC: one JSON data part in, one
+immediate JSON data part out. Required extensions, substituted destinations,
+redirects, compressed/oversized responses and other result shapes are rejected.
+Protocol Tasks require operator reconciliation and remain UNKNOWN locally; this
+adapter does not poll or resume them. The SDK handles A2A serialization and
+transport. A card's skill declaration cannot prove the service selected the right
+implementation: independent output checking and local admission remain required.
+The standard protocol's distinction between Messages and Tasks and its required
+extension negotiation are described in the
+[A2A specification](https://a2a-protocol.org/latest/specification/).
+
 `context` is an operator-constructed `ExecutionContext`, never caller-supplied
 permissions. For peers, `PeerService(config, configure=register_application)`
 creates the registry and calls the application registration function. The provider

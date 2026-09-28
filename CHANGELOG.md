@@ -2,7 +2,7 @@
 
 ## 0.2.0 (unreleased)
 
-Typed local/MCP/overlay-A2A execution bindings, durable owner-scoped invocations,
+Typed local/MCP/overlay-A2A and standard A2A service bindings, durable owner-scoped invocations,
 indexed admission queries and resumable signed paged synchronization. New execution
 and formation receipts preserve observed use without asserting verification or
 functional novelty. Exact component bindings and separate child applicability

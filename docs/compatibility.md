@@ -36,6 +36,11 @@ the same integration suite; a schema match alone does not prove semantic compati
 Core, `agents`, and `agents,model` are distinct installation scopes. Actual MAF tool
 execution, A2A HTTP exchange, MCP HTTP and mocked provider HTTP are tested. Paid
 model inference and arbitrary third-party A2A implementations are not claimed tested.
+The standard non-overlay A2A adapter is tested against a separate official-SDK
+HTTP server with an immediate JSON Message contract. Tests include card pins,
+destination substitution, required extensions, unexpected Task/text responses,
+oversized output and durable retry. No additional dependency or protocol engine
+was introduced. Standard long-running Task continuation is not implemented.
 
 `pip-licenses` supplies the full dependency report; `check_licenses.py` rejects unknown
 or unreviewed metadata. This checks existing tool output rather than implementing a

@@ -22,6 +22,8 @@ from .overlay import Overlay
 from .security import Identity, allowed_url, digest
 
 if TYPE_CHECKING:
+    import httpx
+
     from .config import Config
 
 active_invocation: ContextVar[str | None] = ContextVar("active_overlay_invocation", default=None)
@@ -381,5 +383,30 @@ class Registry:
                     "remote invocation is incomplete or unknown; reconcile by invocation ID"
                 )
             return response["result"]
+
+        self._register(binding, operation, assess)
+
+    def register_a2a_service(
+        self,
+        binding: Binding,
+        assess: Assessment,
+        *,
+        auth: httpx.Auth | None = None,
+        local: bool = False,
+    ) -> None:
+        """Bind a standard A2A service with a pinned card and immediate JSON result.
+
+        Credentials belong to the host's HTTPX auth object, never signed manifests.
+        The card pin identifies an interface declaration, not remote executable code.
+        """
+        target = binding.target.model_copy(deep=True)
+        if target.kind != "a2a" or target.endpoint is None or target.peer is None:
+            raise ValueError("standard A2A registration requires an exact service destination")
+        endpoint = allowed_url(target.endpoint, frozenset({target.endpoint}), local=local)
+
+        async def operation(arguments: dict[str, Any]) -> Any:
+            from .adapters.a2a_service import invoke
+
+            return await invoke(target, endpoint, arguments, auth=auth)
 
         self._register(binding, operation, assess)
