@@ -191,6 +191,7 @@ CLI commands all use the SDK:
 | `--version` | Distribution version |
 | `check-config --config PATH` | Configuration and pinned-key check |
 | `migrate --config PATH` | Apply packaged Alembic revisions |
+| `restore-state --config PATH` | Offline post-restore feed rotation and freshness invalidation; reconcile missing work before use |
 | `peer --config PATH [--reference]` | Run an A2A peer; explicitly enable the compatibility reference app |
 | `demo --directory PATH [--database-url URL] [--opa PATH]` | Three-process deterministic loop |
 | `inspect --config PATH KIND` | capability/evidence/revocation/event/decision JSON |

@@ -25,7 +25,16 @@ def main() -> int:
     demo.add_argument("--directory", type=Path, required=True)
     demo.add_argument("--database-url", default=os.environ.get("CIO_TEST_DATABASE_URL"))
     demo.add_argument("--opa", default=os.environ.get("CIO_OPA", "opa"))
-    for name in ("check-config", "migrate", "peer", "inspect", "metrics", "doctor", "sync"):
+    for name in (
+        "check-config",
+        "migrate",
+        "peer",
+        "inspect",
+        "metrics",
+        "doctor",
+        "sync",
+        "restore-state",
+    ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
         if name in {"inspect", "metrics"}:
@@ -73,6 +82,12 @@ def main() -> int:
             elif args.command == "migrate":
                 migrate(overlay.store.engine)
                 result = {"migration": "head"}
+            elif args.command == "restore-state":
+                result = {
+                    "generation": overlay.store.reset_sync_after_restore(),
+                    "freshness": "invalidated",
+                    "required": "reconcile post-backup work and resynchronize before use",
+                }
             elif args.command == "sync":
                 from .adapters.a2a import synchronize
 

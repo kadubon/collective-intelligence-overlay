@@ -11,6 +11,8 @@ compatibility reference application (`peer --reference`).
 Admission SQL constrains explicit capability issuers throughout the dependency
 closure. Cycle detection includes issuer and artifact digest; issuer-less legacy
 references continue to reject ambiguity.
+The offline `restore-state` command rotates feed generations and invalidates local
+sync freshness after database restoration without rewriting signed history or budgets.
 
 An external document application exercises three independent peer processes:
 remote C1 use, MAF C3 composition, C3-based C4 calibration, separate checking,

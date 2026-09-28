@@ -29,9 +29,33 @@ Backup procedure:
    the standard protected PostgreSQL credential mechanism, not a command-line password.
 3. Back up the owner's artifact directory, config and key material separately with
    appropriate access control/encryption. Record package version and policy digest.
-4. Restore into a fresh owner database with `pg_restore`, restore protected artifacts,
-   then run migrations, `doctor`, record/signature checks and a scoped requalification.
-5. Re-establish source freshness; do not reset revocations or reuse cached ACCEPTs.
+4. With every peer and writer stopped, restore into a fresh owner database with
+   `pg_restore`, restore protected artifacts, point the protected config at that
+   database, and run `migrate --config PATH`.
+5. Before starting peers, run `restore-state --config PATH`. This rotates the
+   source feed generation, clears all receiver cursor/freshness checkpoints and
+   increments subject revisions in one transaction. Old feed and inspection cursors
+   must restart. The operation preserves signed records, tombstones, leases,
+   reservations, decisions and invocation results; repeating it rotates again.
+6. Run `doctor`, record/signature checks and reconcile work since the backup with
+   external providers before enabling use. Run full synchronization with peers and
+   scoped requalification. Do not reuse cached ACCEPTs or delete known revocations.
+
+`restore-state` is an offline operator command, not a remotely exposed peer action.
+It cannot prove that writers are stopped or reconstruct records missing from an old
+backup. Restoring an old budget or invocation ledger can lose knowledge of later
+spending/effects. Keep execution disabled until that gap has been reconciled; fresh
+feed generation is not proof that the business ledger is current. Other receivers
+must explicitly restart when they observe the changed source generation, retaining
+their previously received withdrawals.
+
+The integration suite exercises actual `pg_dump --format=custom` and `pg_restore`
+on the signed 0.1.0 database fixture, then migrates the restored database. It checks
+original envelopes, PASS/FAIL/UNKNOWN, withdrawal, leases and remaining budget.
+Both PostgreSQL client tools must be on PATH. Windows developers using the test
+cluster in WSL may set `CIO_PG_TOOL_PREFIX='["wsl","-e"]'`; credentials for commands
+inside WSL must be available to PostgreSQL there. This test is separate from
+operator-specific encrypted artifact/key backup and full production disaster recovery.
 
 Never delete active leases to make recovery look successful. Expired workers may
 have produced external effects: reservations remain charged and results require

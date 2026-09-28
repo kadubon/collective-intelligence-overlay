@@ -217,6 +217,16 @@ pending. A 100,000-profile local process is running and is not yet reported as a
 success. Backup/restore, reverse dependency APIs, compatibility reference cleanup
 and the other release gates remain incomplete.
 
+Twelfth checkpoint: `Store.reset_sync_after_restore` and the offline `restore-state`
+CLI rotate feed generation, invalidate receiver freshness/cursors and increment
+subject revisions without changing signed records or the business ledger. Real
+PostgreSQL dump/restore of the original 0.1.0 fixture followed by migration preserves
+envelopes, dissent, withdrawals, leases and budget. Migration/restore/CLI tests passed
+**5 tests, zero skips, 6.77 seconds**. This is not full production disaster recovery;
+post-backup external effects and spending still require operator reconciliation.
+The 100,000-record stress run remains active and unreported. Reverse dependency APIs,
+reference registration cleanup, remaining docs/skills and release gates remain pending.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

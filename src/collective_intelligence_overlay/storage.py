@@ -46,6 +46,7 @@ from .models import (
     Subject,
     UseRequest,
     now,
+    uid,
 )
 from .queries import RecordCursor, RecordPage, RecordQuery
 from .security import Principal, verify
@@ -303,6 +304,37 @@ class Store:
     def record_count(self) -> int:
         with self.engine.connect() as conn:
             return int(conn.execute(select(func.count()).select_from(records)).scalar_one())
+
+    def reset_sync_after_restore(self) -> str:
+        """Offline operator recovery: rotate feed generation and discard freshness.
+
+        Stop all writers/peers before this operation. This cannot reconstruct work
+        or withdrawals absent from the backup; reconcile them before resuming use.
+        Signed records, reservations, leases and invocation results are preserved.
+        """
+        from .synchronization import checkpoints
+
+        generation = uid()
+        with self.engine.begin() as conn:
+            conn.execute(select(feed_state).where(feed_state.c.id == 1).with_for_update()).one()
+            conn.execute(
+                update(feed_state).where(feed_state.c.id == 1).values(generation=generation)
+            )
+            conn.execute(
+                update(checkpoints).values(
+                    generation=None,
+                    through=0,
+                    upper=0,
+                    anchor=None,
+                    cursor=None,
+                    complete=False,
+                    last_receipt=None,
+                )
+            )
+            conn.execute(
+                update(subject_revisions).values(revision=subject_revisions.c.revision + 1)
+            )
+        return generation
 
     @staticmethod
     def _revisions(conn: Connection, keys: set[str]) -> dict[str, int]:

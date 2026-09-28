@@ -1,14 +1,28 @@
 import json
+import os
+import shutil
+import subprocess
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
+from uuid import uuid4
 
 import pytest
 from securesystemslib.signer import Key
-from sqlalchemy import DateTime, MetaData, Numeric, event, insert, inspect, select, text
+from sqlalchemy import (
+    DateTime,
+    MetaData,
+    Numeric,
+    create_engine,
+    event,
+    insert,
+    inspect,
+    select,
+    text,
+)
 
 from collective_intelligence_overlay.security import Principal, verify
-from collective_intelligence_overlay.storage import budgets, leases, migrate, records
+from collective_intelligence_overlay.storage import Store, budgets, leases, migrate, records
 
 
 def seed_actual_v010(store):
@@ -92,3 +106,79 @@ def test_interrupted_backfill_rolls_back_and_resumes_without_rewriting(unmigrate
     migrate(store.engine)
     with store.engine.connect() as conn:
         assert len(conn.execute(select(records)).all()) == len(fixture["tables"]["records"])
+
+
+def test_actual_pg_backup_restore_and_upgrade(unmigrated_store):
+    store = unmigrated_store
+    prefix = json.loads(os.environ.get("CIO_PG_TOOL_PREFIX", "[]"))
+    if not prefix and (not shutil.which("pg_dump") or not shutil.which("pg_restore")):
+        pytest.skip("real pg_dump/pg_restore required; set CIO_PG_TOOL_PREFIX for WSL")
+    assert isinstance(prefix, list) and all(isinstance(item, str) for item in prefix)
+    fixture = seed_actual_v010(store)
+    url = store.engine.url
+    environment = os.environ.copy()
+    if url.password:
+        environment["PGPASSWORD"] = url.password
+    connection = ["-h", url.host, "-p", str(url.port or 5432), "-U", url.username]
+    dump = subprocess.run(
+        [*prefix, "pg_dump", *connection, "--format=custom", "--dbname", url.database],
+        check=True,
+        capture_output=True,
+        env=environment,
+        timeout=60,
+    ).stdout
+    assert dump.startswith(b"PGDMP")
+    database = "cio_restore_" + uuid4().hex
+    admin = create_engine(url.set(database="postgres"), isolation_level="AUTOCOMMIT")
+    restored = None
+    try:
+        with admin.connect() as conn:
+            conn.execute(text(f'CREATE DATABASE "{database}"'))
+        subprocess.run(
+            [
+                *prefix,
+                "pg_restore",
+                *connection,
+                "--no-owner",
+                "--no-acl",
+                "--exit-on-error",
+                "--dbname",
+                database,
+            ],
+            input=dump,
+            check=True,
+            capture_output=True,
+            env=environment,
+            timeout=60,
+        )
+        restored = Store(
+            url.set(database=database).render_as_string(hide_password=False),
+            store.owner,
+            store.principals,
+        )
+        migrate(restored.engine)
+        restored.reset_sync_after_restore()
+        with restored.engine.connect() as conn:
+            rows = list(conn.execute(select(records)).mappings())
+            originals = {
+                (r["kind"], r["issuer"], r["record_id"]): r for r in fixture["tables"]["records"]
+            }
+            assert len(rows) == len(originals)
+            for row in rows:
+                original = originals[row["kind"], row["issuer"], row["record_id"]]
+                assert row["body"] == original["body"]
+                assert row["envelope"] == original["envelope"]
+                verify(row["envelope"], restored.principals)
+            assert conn.execute(select(budgets.c.remaining)).scalar_one() == Decimal(7)
+            saved = {r["task_id"]: r for r in conn.execute(select(leases)).mappings()}
+            assert saved["in-flight"]["reservation"] == Decimal(2)
+            assert saved["in-flight"]["state"] == "active"
+            assert saved["finished"]["actual"] == Decimal(1)
+        assert {r.verdict for r in restored.evidence()} == {"PASS", "FAIL", "UNKNOWN"}
+        assert len(restored.revocations()) == 1
+    finally:
+        if restored is not None:
+            restored.close()
+        with admin.connect() as conn:
+            conn.execute(text(f'DROP DATABASE IF EXISTS "{database}" WITH (FORCE)'))
+        admin.dispose()
