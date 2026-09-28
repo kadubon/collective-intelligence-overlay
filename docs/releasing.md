@@ -1,9 +1,15 @@
 # Release procedure and current state
 
 Requested destination: `kadubon/collective-intelligence-overlay`, next version
-`0.2.0`, PyPI distribution `collective-intelligence-overlay`. Version 0.2.0 is still
-local development: no tag, CI publication or PyPI success is claimed. The completed
+`0.2.0`, PyPI distribution `collective-intelligence-overlay`. Version 0.2.0 is in
+development on main: no release tag or PyPI success is claimed. The completed
 publication below describes 0.1.0 only.
+
+The development commit `e88a5f60a7cba01b3f8bc8a27d9fe59e4a94a829` passed
+[main CI run 36376792432](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36376792432):
+Linux 105 tests, installed agents artifact 104 tests plus one model test, and Windows
+unit/package checks. Publishing was correctly skipped for this ordinary branch push.
+Later local work must pass the final release gates again before creating v0.2.0.
 
 Published and verified on 2026-09-28:
 

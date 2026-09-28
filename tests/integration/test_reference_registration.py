@@ -58,3 +58,62 @@ async def test_reference_functions_register_and_check_each_child(overlay, identi
     overlay.store.put(identities["receiver"].sign(withdrawal))
     with pytest.raises(AdmissionDenied):
         await registry.execute(binding.id, binding.digest, {"source": source}, use)
+
+
+async def test_reference_peer_publishes_registered_candidates_and_durable_probes(
+    overlay, identities, records, tmp_path
+):
+    from decimal import Decimal
+    from types import SimpleNamespace
+
+    from collective_intelligence_overlay.reference_peer import ReferencePeerService
+
+    config = SimpleNamespace(
+        owner="receiver",
+        artifact_directory=tmp_path / "artifacts",
+        max_seconds=30,
+        execution_environment={"reference": "1"},
+        policy=overlay.policy.settings,
+        runtime=lambda: (identities["receiver"], overlay),
+    )
+    service = ReferencePeerService(config)
+    with pytest.raises(ValueError, match="owner-only"):
+        await service.handle("other", {"operation": "reference-register"})
+    registrations = await service.handle("receiver", {"operation": "reference-register"})
+    assert len(registrations["registrations"]) == 3
+    assert await service.handle("receiver", {"operation": "reference-register"}) == registrations
+    binding, cap = service.registered[0]
+    overlay.store.set_budget("work", Decimal(10))
+    request = {
+        "operation": "invoke",
+        "binding_id": binding.id,
+        "binding_digest": binding.digest,
+        "invocation_id": "before-pass",
+        "arguments": {"source": "category,amount\na,3.50\n"},
+    }
+    assert (await service.handle("receiver", request))["state"] == "unknown"
+    probe = await service.handle(
+        "verifier", {**request, "invocation_id": "probe", "purpose": "verification"}
+    )
+    assert probe["state"] == "completed"
+    assert verify_csv(request["arguments"]["source"], probe["result"])
+    _, evidence = records
+    evidence = evidence.model_copy(
+        update={
+            "id": "registered-reference-check",
+            "schema_version": "2",
+            "binding_digest": binding.digest,
+            "subject": cap.subject,
+            "scope": cap.scope,
+            "claim": cap.claim,
+        }
+    )
+    overlay.store.put(identities["verifier"].sign(evidence))
+    result = await service.handle("receiver", {**request, "invocation_id": "ordinary"})
+    assert result["state"] == "completed"
+    restarted = ReferencePeerService(config)
+    assert await restarted.handle("receiver", {"operation": "reference-register"}) == registrations
+    lookup = await restarted.handle(
+        "receiver", {"operation": "invocation", "invocation_id": "ordinary"}
+    )
+    assert lookup["invocation"] == result

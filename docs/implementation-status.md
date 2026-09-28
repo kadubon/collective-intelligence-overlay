@@ -281,6 +281,20 @@ looks up its same result after peer restart (**1 passed, 41.59 seconds**). Ruff,
 strict mypy and docs checks pass. Compatibility demo conversion and final release
 audit/CI/publication remain pending; package validation must rerun on final artifacts.
 
+Nineteenth checkpoint: registered CSV functions are now packaged in the reference
+application module and re-exported by the external example. ReferencePeerService
+uses the same registry and exposes owner-only `reference-register` to publish v2
+candidates; repeated registration preserves their original signed records. Real
+tests cover denial before PASS, explicit checker probes, separate evidence,
+ordinary invocation and persisted lookup after reinitialization (2 passed, 5.09
+seconds); the historical three-peer demo still passes (16.69 seconds). Its default
+workflow conversion remains pending.
+
+The earlier development commit e88a5f6 passed actual GitHub Linux/Windows CI:
+105 Linux tests, 104 clean agents tests plus one model test, license/security/build
+checks and Windows package tests. The ordinary-push publish job was skipped.
+There is still no 0.2.0 tag or PyPI publication.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

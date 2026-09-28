@@ -10,7 +10,9 @@ from .artifacts import Artifacts
 from .config import Config
 from .models import Capability, Cost, Event, Subject, UseRequest, Verdict
 from .peer import PeerService
+from .queries import RecordQuery
 from .reference import capability, check, compose_report, csv_sum, render_report
+from .reference_bindings import register_reference
 from .storage import Conflict
 
 
@@ -19,8 +21,40 @@ class ReferencePeerService(PeerService):
         super().__init__(config)
         self.artifacts = Artifacts(config.artifact_directory)
         self.reference_cache: dict[str, Any] = {}
+        self.registered = register_reference(
+            self.registry,
+            "verifier",
+            callers=tuple(dict.fromkeys((config.owner, "verifier", "receiver"))),
+            owner_probes=True,
+        )
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
+        if data.get("operation") == "reference-register":
+            if caller != self.config.owner:
+                raise ValueError("reference registration is owner-only")
+            candidates = []
+            for binding, proposed in self.registered:
+                page = self.overlay.store.record_page(
+                    RecordQuery(
+                        kinds=("capability",),
+                        issuer=proposed.issuer,
+                        subject=proposed.subject,
+                    )
+                )
+                if page.items:
+                    candidate = Capability.model_validate(page.items[0].model_dump())
+                    if candidate.binding_digest != binding.digest:
+                        raise ValueError("persisted reference binding differs from installed code")
+                else:
+                    candidate = proposed
+                    self.overlay.store.put(self.identity.sign(candidate))
+                candidates.append(
+                    {
+                        "binding": binding.model_dump(mode="json"),
+                        "capability": candidate.model_dump(mode="json"),
+                    }
+                )
+            return {"registrations": candidates}
         if data.get("operation") == "work":
             if caller != self.config.owner:
                 raise ValueError("reference work is owner-only")
