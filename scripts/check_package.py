@@ -33,6 +33,7 @@ with zipfile.ZipFile(wheel) as archive:
         "migrations/versions/0009_invocation_allowance.py",
         "migrations/versions/0010_work_selections.py",
         "migrations/versions/0011_invocation_capacity.py",
+        "migrations/versions/0012_selection_window.py",
         "schemas/event.json",
         "schemas/evidence.json",
         "schemas/opportunity.json",

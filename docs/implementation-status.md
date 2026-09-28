@@ -74,6 +74,11 @@ concurrency bound; legacy host executors require explicit consistent configurati
 Tests exercise claims racing across different budget units, retained checking
 allowance, ordinary release and later-page verification backlog. Cooldown remains
 incomplete, as do the adaptive formation application and release-wide gates.
+Persistent cooldown is now connected to the latest owner-local choice through
+an indexed lookup. Stable priority retains its original start time, and repair or
+loss of checker eligibility is not blocked by hysteresis. Formation/application,
+lineage-role distinctions, full metrics/experiments, scale and publication gates
+remain incomplete.
 
 ## 0.2.0 implementation and validation
 

@@ -34,6 +34,7 @@ class AllocationPolicy(BaseModel):
     connection_threshold: int = Field(default=2, ge=1, le=32)
     unverified_limit: int = Field(default=8, ge=1, le=32)
     reserve_operations: int = Field(default=1, ge=0, le=16)
+    cooldown_seconds: int = Field(default=10, ge=0, le=3600)
 
 
 class AllocationObservation(BaseModel):
@@ -52,6 +53,8 @@ class AllocationObservation(BaseModel):
     ordered: tuple[Identifier, ...] = Field(max_length=32)
     deferred: dict[Identifier, Identifier] = Field(max_length=32)
     reserve_operations: int = Field(default=0, ge=0, le=16)
+    preferred_kind: WorkKind | None = None
+    priority_since: AwareDatetime | None = None
 
 
 async def allocate(
@@ -59,12 +62,13 @@ async def allocate(
     context: ExecutionContext,
     observations: tuple[Opportunity, ...],
     policy: AllocationPolicy,
+    previous: AllocationObservation | None = None,
 ) -> AllocationObservation:
     if not 1 <= len(observations) <= 32:
         raise ValueError("allocation requires a bounded observation page")
     started = time.perf_counter()
     try:
-        return await _allocate(host, context, observations, policy)
+        return await _allocate(host, context, observations, policy, previous)
     finally:
         event = Event(
             issuer=host.identity.name,
@@ -93,6 +97,7 @@ async def _allocate(
     context: ExecutionContext,
     observations: tuple[Opportunity, ...],
     policy: AllocationPolicy,
+    previous: AllocationObservation | None,
 ) -> AllocationObservation:
     if not 1 <= len(observations) <= 32 or len({o.id for o in observations}) != len(observations):
         raise ValueError("allocation requires a bounded distinct observation page")
@@ -102,6 +107,8 @@ async def _allocate(
     refs, check_decisions, checkers = [], [], []
     deferred: dict[str, str] = {}
     eligible = list(observations)
+    preferred: WorkKind | None = None
+    priority_since = None
     store = host.registry.overlay.store
     for observation in observations:
         ref = await asyncio.to_thread(store.reference, "opportunity", store.owner, observation.id)
@@ -140,7 +147,6 @@ async def _allocate(
         if len(observations) < policy.minimum_samples:
             reasons.append("insufficient_samples_use_static_order")
         else:
-            preferred: WorkKind | None = None
             if counts["repair"]:
                 preferred = "repair"
                 reasons.append("known_failure_requires_repair")
@@ -153,9 +159,31 @@ async def _allocate(
             elif counts["observation"]:
                 preferred = "observation"
                 reasons.append("insufficient_observations")
-            if preferred is not None:
-                eligible.sort(key=lambda o: o.work_kind != preferred)
         eligible = [o for o in eligible if o.id not in deferred]
+        if preferred is not None:
+            priority_since = started
+        if (
+            previous is not None
+            and previous.receiver == store.owner
+            and previous.rule_digest == fingerprint(policy.model_dump(mode="json"))
+            and previous.policy_digest == host.registry.overlay.policy.digest
+            and previous.preferred_kind is not None
+            and previous.priority_since is not None
+        ):
+            if previous.preferred_kind == preferred:
+                priority_since = previous.priority_since
+            elif (
+                preferred != "repair"
+                and preferred is not None
+                and 0
+                <= (started - previous.priority_since).total_seconds()
+                < policy.cooldown_seconds
+                and any(o.work_kind == previous.preferred_kind for o in eligible)
+            ):
+                preferred, priority_since = previous.preferred_kind, previous.priority_since
+                reasons.append("retain_qualified_priority_during_cooldown")
+        if preferred is not None:
+            eligible.sort(key=lambda o: o.work_kind != preferred)
     return AllocationObservation(
         receiver=store.owner,
         rule_digest=fingerprint(policy.model_dump(mode="json")),
@@ -170,6 +198,8 @@ async def _allocate(
         reasons=tuple(reasons),
         ordered=tuple(o.id for o in eligible),
         deferred=deferred,
+        preferred_kind=preferred,
+        priority_since=priority_since,
         reserve_operations=policy.reserve_operations
         if checkers and policy.mode == "adaptive"
         else 0,

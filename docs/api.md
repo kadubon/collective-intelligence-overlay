@@ -101,7 +101,13 @@ invocations too. An operator must allow capacity for intended nested work; exces
 claims defer rather than wait indefinitely. Expired/uncertain rows are reconciled
 through the existing invocation lookup, not silently reclassified by the allocator.
 Migration `0011` adds an owner/state index without changing records or balances.
-Persistent allocation cooldown remains in development.
+`AllocationPolicy.cooldown_seconds` controls priority hysteresis. The loop reads
+the latest owner-local selection through migration 0012's owner/time index and
+keeps its prior priority only while that work kind remains eligible. Keeping the
+same priority does not reset the original switch time. Known-failure repair can
+override cooldown immediately; a withdrawn checker cannot retain verification
+priority. A changed rule/policy digest also prevents inheriting an old cooldown.
+This is a finite local rule, not an estimate of globally optimal allocation.
 
 `bindings.ArtifactSpec` stores an installed builder ID/version/source digest,
 bounded parameters, environment, component bindings and content-addressed data

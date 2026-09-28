@@ -503,3 +503,93 @@ async def test_allocation_reacts_to_backlog_but_does_not_trust_unqualified_check
     )
     assert not unavailable.qualified_checkers and not unavailable.ordered
     assert unavailable.deferred[page.opportunities[1].id] == "checker_unavailable"
+
+
+async def test_cooldown_uses_persisted_choice_and_does_not_renew_forever(
+    overlay, identities, records
+):
+    steps, _, _ = await configured_steps(overlay, identities, records)
+    base = steps.opportunities.goal("transformation")
+    binding = steps.executor.registry.inspect("installed")
+    connection = base.model_copy(
+        update={
+            "id": "connect",
+            "request": base.request.model_copy(
+                update={
+                    "subject": binding.subject,
+                    "scope": base.request.scope.model_copy(
+                        update={"environment": {"reference": "2"}}
+                    ),
+                }
+            ),
+        }
+    )
+    checks = []
+    for index in range(2):
+        subject = binding.subject.model_copy(update={"id": f"unchecked-{index}"})
+        overlay.store.put(
+            identities["receiver"].sign(
+                Capability.model_validate(
+                    {
+                        **records[0].model_dump(),
+                        "schema_version": "2",
+                        "issuer": "receiver",
+                        "subject": subject,
+                        "binding_digest": binding.digest,
+                    }
+                )
+            )
+        )
+        checks.append(
+            base.model_copy(
+                update={
+                    "id": f"check-{index}",
+                    "checker_arguments": {"value": 3},
+                    "request": base.request.model_copy(update={"subject": subject}),
+                }
+            )
+        )
+    policy = AllocationPolicy(connection_threshold=1, verification_threshold=2, cooldown_seconds=60)
+    host = Opportunities(steps.executor.registry, identities["receiver"], (connection, checks[0]))
+    worker = Steps(host, steps.executor, steps.context)
+
+    async def alternatives(observation):
+        ref = overlay.store.reference("opportunity", "receiver", observation.id)
+        generated = propose(
+            observation,
+            ref,
+            identities["producer"],
+            ProposalDrafts(
+                alternatives=(
+                    ProposalDraft(
+                        builder=base.builders[0], arguments={"value": 3}, alternative="calibrated"
+                    ),
+                )
+            ),
+        )
+        return tuple((p.issuer, identities[p.issuer].sign(p)) for p in generated)
+
+    first = await worker.run(alternatives, max_steps=1, allocation_policy=policy)
+    assert first.allocations[0].preferred_kind == "connection"
+    restarted = Steps(host, steps.executor, steps.context)
+    previous = restarted._last_allocation()
+    assert previous == first.allocations[0]
+    expanded = Opportunities(steps.executor.registry, identities["receiver"], (connection, *checks))
+    page = await expanded.discover()
+    held = await allocate(expanded, steps.context, page.opportunities, policy, previous)
+    assert held.preferred_kind == "connection" and held.priority_since == previous.priority_since
+    assert "retain_qualified_priority_during_cooldown" in held.reasons
+    expired = previous.model_copy(update={"priority_since": now() - timedelta(seconds=61)})
+    changed = await allocate(expanded, steps.context, page.opportunities, policy, expired)
+    assert changed.preferred_kind == "verification"
+    overlay.store.put(
+        identities["receiver"].sign(
+            Revocation(
+                issuer="receiver", subject=binding.subject, reason="withdrawn during cooldown"
+            )
+        )
+    )
+    changed_page = await expanded.discover()
+    urgent = await allocate(expanded, steps.context, changed_page.opportunities, policy, previous)
+    assert urgent.preferred_kind == "repair"
+    assert not urgent.qualified_checkers

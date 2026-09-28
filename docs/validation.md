@@ -2,6 +2,12 @@
 
 ## 0.3.0 development checkpoint
 
+The cooldown increment passed 19 opportunity/allocation, migration and actual
+backup/restore tests in 27.34 seconds, zero skips. A new Steps instance reads the
+saved allocation, keeps a qualified priority inside its window without renewing
+that window, switches after expiry, and lets withdrawal-triggered repair override
+cooldown. Strict typing covers 48 source files; release-wide validation is pending.
+
 The claim-capacity increment passed 39 opportunity/allocation and invocation tests
 in 59.75 seconds, zero skips, including the 0.2.1 allowance/cancellation/crash
 regressions. A subsequent extended cross-page/reserved-allowance case passed in
