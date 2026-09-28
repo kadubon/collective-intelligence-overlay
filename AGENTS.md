@@ -11,12 +11,31 @@ business logic out of the generic core. `tests` covers unit, integration and E2E
 Use `uv sync --all-extras --frozen`, `uv run ruff check .`, `uv run ruff format --check .`,
 `uv run mypy`, `uv run pytest`, and `uv build`. PostgreSQL and OPA tests need
 `CIO_TEST_DATABASE_URL` and `CIO_OPA`; skipped services are not validation success.
+Real restore tests also require `pg_dump`/`pg_restore` (or `CIO_PG_TOOL_PREFIX` for
+the WSL test client). The default suite runs 1,000/10,000-record scale profiles;
+`CIO_SCALE_COUNTS=100000` selects stress. Keep timing observations separate from
+assertions on bounded rows, signature checks and query counts. See `docs/scale.md`.
+Check generated schemas/docs with `uv run python scripts/check_docs.py`, and clean
+artifacts with `uv run python scripts/check_package.py` after `uv build`.
 
 Preserve generated != verified != reusable. UNKNOWN never becomes PASS because of
 delivery, timeout or missing data. Authentication is not truth. Retain dissent,
 obligations, typed costs and invalidation lineage. Recheck at the actuator boundary.
 Admission belongs to the receiver; keys, policy, permissions and budgets belong to
 the operator. Do not execute received code or promote tool text into permissions.
+
+New execution paths use explicit Registry bindings and persistent Executor IDs.
+Recheck actual child inputs independently; never inherit a parent's semantic fit.
+Verification probes require read-only operator grants and do not create PASS,
+ordinary reuse or observed-use formation links. Remote interface pins are not
+code attestation. Preserve caller/resource-owner boundaries and UNKNOWN outcomes
+after uncertain side effects; reservations are not measured consumption.
+
+Keep original v1 DSSE bytes/envelopes during migration. Indexes are projections,
+not replacement records. Preserve legacy issuer/binding ambiguity. Feed sequence
+allocation must remain commit ordered; completed scoped sync, not heartbeat, grants
+freshness. Do not let replay or backup restoration renew stale observations. Follow
+`docs/deployment.md` for offline generation rotation and post-backup reconciliation.
 
 Add dependencies only for a demonstrated public integration, with license and
 compatibility evidence. Keep optional SDK imports out of the core import path.

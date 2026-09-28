@@ -263,6 +263,15 @@ License metadata checks and CycloneDX generation passed; pip-audit found
 no known dependency vulnerabilities, with the unpublished project explicitly
 unavailable to the index audit. No 0.2.0 tag/push/publication has been performed.
 
+Seventeenth checkpoint: the repository skill now covers bounded/resumable sync,
+explicit registration, stable Executor calls, result lookup, verification grants,
+child admission, observed formation and recovery. AGENTS.md records the new
+invariants and real restore/scale/package checks; slills.md remains a short pointer.
+The bundled skill validator and repository link/schema checker pass, and the named
+sync/inspection CLI options were checked. CLI invocation/result and binding
+inspection conveniences, compatibility demo conversion, final documentation audit
+and CI/publication remain pending.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 
