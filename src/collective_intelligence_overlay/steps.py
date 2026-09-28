@@ -19,7 +19,17 @@ from sqlalchemy.dialects.postgresql import insert
 from .allocation import AllocationObservation, AllocationPolicy, allocate
 from .bindings import ExecutionContext, fingerprint
 from .invocations import Executor
-from .models import Cost, Event, Identifier, Opportunity, Proposal, RecordRef, now, uid
+from .models import (
+    Cost,
+    Event,
+    Identifier,
+    Opportunity,
+    Proposal,
+    RecordRef,
+    WorkObservation,
+    now,
+    uid,
+)
 from .opportunities import Opportunities
 from .storage import Conflict, budgets, metadata
 
@@ -250,11 +260,25 @@ class Steps:
         if not isinstance(opportunity, Opportunity):
             raise ValueError("expected a local opportunity")
         started = time.perf_counter()
+        observation_result = "interrupted"
         try:
             result = await self._step(opportunity, reference, choice, envelopes, allocation)
+            observation_result = result.reason
         finally:
             # Measured inspection survives rejection. No receipt or refund is invented.
             event = Event(
+                schema_version="3",
+                work=WorkObservation(
+                    receiver=self.store.owner,
+                    scope=opportunity.scope,
+                    policy_digest=self.opportunities.registry.overlay.policy.digest,
+                    goal_id=opportunity.goal_id,
+                    goal_digest=opportunity.goal_digest,
+                    opportunity_id=opportunity.id,
+                    stage="selection",
+                    result=observation_result,
+                    proposals_received=len(envelopes),
+                ),
                 issuer=self.store.owner,
                 subject=opportunity.subject,
                 action="recommendation",

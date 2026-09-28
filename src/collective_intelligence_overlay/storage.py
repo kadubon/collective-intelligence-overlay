@@ -204,7 +204,7 @@ class Store:
         ).scalar_one()
         subject = record.subject
         skey = subject_key(subject)
-        receipt = body.get("execution") or body.get("formation") or {}
+        receipt = body.get("execution") or body.get("formation") or body.get("work") or {}
         scope = body.get("scope") or receipt.get("scope")
         result = conn.execute(
             pg_insert(records)

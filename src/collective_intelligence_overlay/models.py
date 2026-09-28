@@ -220,10 +220,37 @@ class FormationReceipt(Model):
     verification: Literal["candidate"] = "candidate"
 
 
+class WorkObservation(Model):
+    receiver: Identifier
+    scope: Scope
+    policy_digest: Digest
+    goal_id: Identifier
+    goal_digest: Digest
+    opportunity_id: Identifier | None = None
+    stage: Literal["discovery", "selection"]
+    result: Identifier
+    proposals_received: int | None = Field(default=None, ge=0, le=128)
+
+    @model_validator(mode="after")
+    def valid_stage(self) -> Self:
+        if self.stage == "discovery":
+            if self.proposals_received is not None or self.result not in {
+                "discovered",
+                "deduplicated",
+                "satisfied",
+                "interrupted",
+            }:
+                raise ValueError("invalid discovery observation")
+        elif self.opportunity_id is None or self.proposals_received is None:
+            raise ValueError("selection observation requires opportunity and received count")
+        return self
+
+
 class Event(RecordModel):
-    schema_version: Literal["1", "2"] = "1"
+    schema_version: Literal["1", "2", "3"] = "1"
     execution: ExecutionReceipt | None = None
     formation: FormationReceipt | None = None
+    work: WorkObservation | None = None
     kind: Literal["event"] = "event"
     id: Identifier = Field(default_factory=uid)
     issuer: Identifier
@@ -253,6 +280,20 @@ class Event(RecordModel):
     @model_validator(mode="after")
     def receipt_version(self) -> Self:
         count = int(self.execution is not None) + int(self.formation is not None)
+        if self.schema_version == "3":
+            if (
+                count
+                or self.work is None
+                or self.action != "recommendation"
+                or self.outcome is not None
+            ):
+                raise ValueError(
+                    "v3 work events require one observation and no execution/truth claim"
+                )
+            if self.work.receiver != self.issuer:
+                raise ValueError("work observations belong to their local owner")
+        elif self.work is not None:
+            raise ValueError("work observations require event v3")
         if (self.schema_version == "1" and count) or (self.schema_version == "2" and count != 1):
             raise ValueError("v2 events require one scoped execution or formation receipt")
         if self.execution and self.execution.resource_owner != self.issuer:

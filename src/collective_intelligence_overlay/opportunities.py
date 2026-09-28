@@ -28,6 +28,7 @@ from .models import (
     RecordRef,
     UseRequest,
     WorkKind,
+    WorkObservation,
     now,
     uid,
 )
@@ -258,10 +259,107 @@ class Opportunities:
         for goal_id in tuple(self._goals)[start:end]:
             goal = self.goal(goal_id)
             started = time.perf_counter()
+            observed_result = "interrupted"
+            observed_id = None
             try:
                 decision = await self.registry.overlay.qualify(goal.request)
+                if decision.outcome == Outcome.ACCEPT:
+                    observed_result = "satisfied"
+                    satisfied += 1
+                    continue
+                semantic = {
+                    "goal": goal.digest,
+                    "outcome": decision.outcome.value,
+                    "reasons": sorted(decision.reasons),
+                    "revisions": decision.revisions,
+                    "evidence_ids": sorted(decision.evidence_ids),
+                    "policy": decision.policy_digest,
+                }
+                observation = fingerprint(semantic)
+                opportunity_id = "op-" + observation
+                observed_id = opportunity_id
+                query = RecordQuery(
+                    kinds=("opportunity",), issuer=self.identity.name, record_id=opportunity_id
+                )
+                store = self.registry.overlay.store
+                page = await asyncio.to_thread(store.record_page, query, limit=1)
+                if page.items:
+                    item = page.items[0]
+                    if not isinstance(item, Opportunity) or item.observation_digest != observation:
+                        raise Conflict("opportunity identity does not match observation")
+                    found.append(item)
+                    observed_result = "deduplicated"
+                    deduplicated += 1
+                    continue
+                kind = work_kind(decision.reasons)
+                if "missing_ambiguous_or_cyclic_dependency" in decision.reasons:
+                    target = await asyncio.to_thread(
+                        store.record_page,
+                        RecordQuery(
+                            kinds=("capability",),
+                            issuer=goal.request.capability_issuer,
+                            subject=goal.request.subject,
+                        ),
+                        limit=1,
+                    )
+                    if not target.items:
+                        kind = "formation"
+                item = Opportunity(
+                    id=opportunity_id,
+                    issuer=self.identity.name,
+                    subject=goal.request.subject,
+                    scope=goal.request.scope,
+                    receivers=(self.identity.name, *goal.peers),
+                    goal_id=goal.id,
+                    goal_digest=goal.digest,
+                    goal_contract_digest=goal.contract_digest,
+                    work_kind=kind,
+                    basis=(
+                        RecordRef(
+                            kind="decision",
+                            issuer=self.identity.name,
+                            id=decision.id,
+                            payload_digest=projection_digest(decision.model_dump(mode="json")),
+                        ),
+                    ),
+                    observation_digest=observation,
+                    policy_digest=decision.policy_digest,
+                    reasons=decision.reasons,
+                    expected_contract=goal.request.scope.output_contract,
+                    checker=goal.checker,
+                    permissions=goal.request.scope.permissions,
+                    expires_at=now() + timedelta(seconds=goal.lifetime_seconds),
+                )
+                try:
+                    inserted = await asyncio.to_thread(store.put, self.identity.sign(item))
+                except Conflict:
+                    # Concurrent observers can produce distinct decision IDs/timestamps
+                    # for the same cause. Retain the first immutable signed observation.
+                    page = await asyncio.to_thread(store.record_page, query, limit=1)
+                    existing = page.items[0] if page.items else None
+                    if (
+                        not isinstance(existing, Opportunity)
+                        or existing.observation_digest != observation
+                    ):
+                        raise
+                    item, inserted = existing, False
+                observed_result = "discovered" if inserted else "deduplicated"
+                discovered += int(inserted)
+                deduplicated += int(not inserted)
+                found.append(item)
             finally:
                 event = Event(
+                    schema_version="3",
+                    work=WorkObservation(
+                        receiver=self.identity.name,
+                        scope=goal.request.scope,
+                        policy_digest=self.registry.overlay.policy.digest,
+                        goal_id=goal.id,
+                        goal_digest=goal.digest,
+                        opportunity_id=observed_id,
+                        stage="discovery",
+                        result=observed_result,
+                    ),
                     issuer=self.identity.name,
                     subject=goal.request.subject,
                     action="recommendation",
@@ -281,86 +379,6 @@ class Opportunities:
                 await asyncio.shield(
                     asyncio.to_thread(self.registry.overlay.store.put, self.identity.sign(event))
                 )
-            if decision.outcome == Outcome.ACCEPT:
-                satisfied += 1
-                continue
-            semantic = {
-                "goal": goal.digest,
-                "outcome": decision.outcome.value,
-                "reasons": sorted(decision.reasons),
-                "revisions": decision.revisions,
-                "evidence_ids": sorted(decision.evidence_ids),
-                "policy": decision.policy_digest,
-            }
-            observation = fingerprint(semantic)
-            opportunity_id = "op-" + observation
-            query = RecordQuery(
-                kinds=("opportunity",), issuer=self.identity.name, record_id=opportunity_id
-            )
-            store = self.registry.overlay.store
-            page = await asyncio.to_thread(store.record_page, query, limit=1)
-            if page.items:
-                item = page.items[0]
-                if not isinstance(item, Opportunity) or item.observation_digest != observation:
-                    raise Conflict("opportunity identity does not match observation")
-                found.append(item)
-                deduplicated += 1
-                continue
-            kind = work_kind(decision.reasons)
-            if "missing_ambiguous_or_cyclic_dependency" in decision.reasons:
-                target = await asyncio.to_thread(
-                    store.record_page,
-                    RecordQuery(
-                        kinds=("capability",),
-                        issuer=goal.request.capability_issuer,
-                        subject=goal.request.subject,
-                    ),
-                    limit=1,
-                )
-                if not target.items:
-                    kind = "formation"
-            item = Opportunity(
-                id=opportunity_id,
-                issuer=self.identity.name,
-                subject=goal.request.subject,
-                scope=goal.request.scope,
-                receivers=(self.identity.name, *goal.peers),
-                goal_id=goal.id,
-                goal_digest=goal.digest,
-                goal_contract_digest=goal.contract_digest,
-                work_kind=kind,
-                basis=(
-                    RecordRef(
-                        kind="decision",
-                        issuer=self.identity.name,
-                        id=decision.id,
-                        payload_digest=projection_digest(decision.model_dump(mode="json")),
-                    ),
-                ),
-                observation_digest=observation,
-                policy_digest=decision.policy_digest,
-                reasons=decision.reasons,
-                expected_contract=goal.request.scope.output_contract,
-                checker=goal.checker,
-                permissions=goal.request.scope.permissions,
-                expires_at=now() + timedelta(seconds=goal.lifetime_seconds),
-            )
-            try:
-                inserted = await asyncio.to_thread(store.put, self.identity.sign(item))
-            except Conflict:
-                # Concurrent observers can produce distinct decision IDs/timestamps
-                # for the same cause. Retain the first immutable signed observation.
-                page = await asyncio.to_thread(store.record_page, query, limit=1)
-                existing = page.items[0] if page.items else None
-                if (
-                    not isinstance(existing, Opportunity)
-                    or existing.observation_digest != observation
-                ):
-                    raise
-                item, inserted = existing, False
-            discovered += int(inserted)
-            deduplicated += int(not inserted)
-            found.append(item)
         return Discovery(
             opportunities=tuple(found),
             discovered=discovered,

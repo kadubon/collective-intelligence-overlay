@@ -2,6 +2,16 @@
 
 ## 0.3.0 development checkpoint
 
+Persisted work-attempt observations passed 41 record, opportunity, inspection and
+feed tests in 50.39 seconds, zero skips. A focused owner-local sharing check then
+passed in 3.47 seconds: work events do not enter the shared feed and generic remote
+submission rejects them. Tests distinguish discovery from deduplication, retain
+no-alternative selection attempts, and avoid counting invocation replay as another
+selection. Event v3 rejects execution/truth claims and legacy signatures omit the
+new field. Lint, formatting, typing and generated schemas/docs checks passed.
+Allocator-only deferrals, complete checked-outcome aggregation and release-wide
+gates remain unfinished.
+
 The scoped work-metrics increment passed 22 opportunity and existing inspection
 tests in 42.20 seconds, zero skips. Two additional real-database CLI/report cases
 passed in 4.57 seconds, zero skips, including JSON output and exit code 3 for a

@@ -2,6 +2,11 @@
 
 ## 0.3.0 (unreleased)
 
+Local Event v3 observations retain discovery, deduplication and fresh selection
+attempts with their original scope/policy and measured overhead. Existing event
+metrics expose their stage/result counts separately from durable opportunity counts.
+Work observations cannot claim PASS or execution and are not shared by the feed.
+
 Scoped work metrics page local opportunities alongside durable selection and
 execution state. `metrics --work` uses the same bounded SDK path; `inspect` accepts
 opportunities and proposals. Unrecorded attempt counts and checked outcomes remain

@@ -115,6 +115,30 @@ def metrics_page(
             Counter(event.execution.transport for event in events if event.execution)
         ),
         "scope_unobserved": sum(event.schema_version == "1" for event in events),
+        "work_observations": [
+            {
+                "event": event.id,
+                "occurred_at": event.occurred_at.isoformat(),
+                **event.work.model_dump(mode="json"),
+            }
+            for event in events
+            if event.work and event.issuer == store.owner
+        ],
+        "work_attempt_counts": [
+            {"stage": stage, "result": result, "count": count}
+            for (stage, result), count in sorted(
+                Counter(
+                    (event.work.stage, event.work.result)
+                    for event in events
+                    if event.work and event.issuer == store.owner
+                ).items()
+            )
+        ],
+        "proposal_deliveries_at_selection": sum(
+            event.work.proposals_received or 0
+            for event in events
+            if event.work and event.issuer == store.owner
+        ),
         "lineage": [
             {
                 "issuer": event.issuer,

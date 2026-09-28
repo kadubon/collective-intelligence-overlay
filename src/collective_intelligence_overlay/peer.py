@@ -65,6 +65,8 @@ class PeerService:
                 raise ValueError("issuer must match authenticated submitting peer")
             if record.kind in {"opportunity", "proposal"}:
                 raise ValueError("work proposals require a registered goal exchange")
+            if isinstance(record, Event) and record.work is not None:
+                raise ValueError("work observations are local owner records")
             return {"inserted": self.overlay.store.put(data["envelope"])}
         if operation == "invoke":
             context = ExecutionContext(

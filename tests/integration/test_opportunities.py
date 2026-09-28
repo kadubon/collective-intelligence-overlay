@@ -791,3 +791,55 @@ async def test_work_metrics_page_tracks_durable_selection_without_inventing_pass
     output = json.loads(capsys.readouterr().out)
     assert output["unique_opportunities"] == 1 and output["next_cursor"] is not None
     assert output["execution_states"] == {expected: 1}
+
+
+async def test_scoped_attempt_events_retain_discovery_deduplication_and_deferral(
+    overlay, identities, records
+):
+    from collective_intelligence_overlay.accounting import metrics_page
+    from collective_intelligence_overlay.queries import RecordQuery
+
+    steps, opportunity, envelopes = await configured_steps(overlay, identities, records)
+    repeated = await steps.opportunities.discover()
+    assert repeated.deduplicated == 1 and repeated.discovered == 0
+    deferred = await steps.step(opportunity.id, ())
+    assert deferred.reason == "no_valid_alternatives"
+    executed = await steps.step(opportunity.id, envelopes)
+    assert executed.invocation["state"] == "completed"
+    query = RecordQuery(
+        kinds=("event",),
+        issuer="receiver",
+        scope=opportunity.scope,
+        policy_digest=overlay.policy.digest,
+    )
+    report = metrics_page(overlay.store, query)
+    counts = {(row["stage"], row["result"]): row["count"] for row in report["work_attempt_counts"]}
+    assert counts == {
+        ("discovery", "discovered"): 1,
+        ("discovery", "deduplicated"): 1,
+        ("selection", "no_valid_alternatives"): 1,
+        ("selection", "selected"): 1,
+    }
+    assert report["proposal_deliveries_at_selection"] == len(envelopes)
+    assert len(report["work_observations"]) == 4
+    assert report["scope_unobserved"] == 0
+    before = report["work_attempt_counts"]
+    await steps.step(opportunity.id, envelopes)  # Exact invocation replay makes no new choice.
+    assert metrics_page(overlay.store, query)["work_attempt_counts"] == before
+
+    from types import SimpleNamespace
+
+    from collective_intelligence_overlay.peer import PeerService
+    from collective_intelligence_overlay.security import verify
+    from collective_intelligence_overlay.synchronization import Feed, FeedFilter
+
+    shared = Feed(overlay.store, identities["receiver"]).page("producer", FeedFilter())
+    assert all(verify(item, overlay.store.principals).kind != "event" for item in shared.records)
+    local_events = overlay.store.record_page(query).items
+    work_event = next(item for item in local_events if item.work)
+    with pytest.raises(ValueError, match="local owner"):
+        await PeerService.handle(
+            SimpleNamespace(overlay=overlay),
+            "receiver",
+            {"operation": "submit", "envelope": identities["receiver"].sign(work_event)},
+        )

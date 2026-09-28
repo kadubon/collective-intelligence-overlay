@@ -129,3 +129,51 @@ def test_capability_v3_formation_inputs_and_signed_version_boundary(
                 "dependency_issuers": [source.issuer],
             }
         )
+
+
+def test_work_event_cannot_claim_execution_or_truth(identities, principals, records):
+    import base64
+    import json
+
+    from collective_intelligence_overlay.models import WorkObservation
+
+    cap = records[0]
+    work = WorkObservation(
+        receiver="receiver",
+        scope=cap.scope,
+        policy_digest="a" * 64,
+        goal_id="goal",
+        goal_digest="b" * 64,
+        stage="discovery",
+        result="deduplicated",
+    )
+    event = Event(
+        schema_version="3",
+        issuer="receiver",
+        subject=cap.subject,
+        action="recommendation",
+        task_id="goal",
+        attempt_id="attempt",
+        correlation_id="goal",
+        work=work,
+    )
+    assert verify(identities["receiver"].sign(event), principals) == event
+    for changes in (
+        {"schema_version": "2"},
+        {"outcome": "PASS"},
+        {"action": "reuse"},
+        {"issuer": "producer"},
+    ):
+        with pytest.raises(ValueError):
+            Event.model_validate({**event.model_dump(), **changes})
+    legacy = Event(
+        issuer="receiver",
+        subject=cap.subject,
+        action="recommendation",
+        task_id="goal",
+        attempt_id="old",
+        correlation_id="goal",
+    )
+    assert "work" not in json.loads(
+        base64.b64decode(identities["receiver"].sign(legacy)["payload"])
+    )

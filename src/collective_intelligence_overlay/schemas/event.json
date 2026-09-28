@@ -412,6 +412,99 @@
       ],
       "title": "Verdict",
       "type": "string"
+    },
+    "WorkObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "receiver": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Receiver",
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "policy_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Policy Digest",
+          "type": "string"
+        },
+        "goal_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Goal Id",
+          "type": "string"
+        },
+        "goal_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Goal Digest",
+          "type": "string"
+        },
+        "opportunity_id": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Opportunity Id"
+        },
+        "stage": {
+          "enum": [
+            "discovery",
+            "selection"
+          ],
+          "title": "Stage",
+          "type": "string"
+        },
+        "result": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Result",
+          "type": "string"
+        },
+        "proposals_received": {
+          "anyOf": [
+            {
+              "maximum": 128,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Proposals Received"
+        }
+      },
+      "required": [
+        "receiver",
+        "scope",
+        "policy_digest",
+        "goal_id",
+        "goal_digest",
+        "stage",
+        "result"
+      ],
+      "title": "WorkObservation",
+      "type": "object"
     }
   },
   "additionalProperties": false,
@@ -420,7 +513,8 @@
       "default": "1",
       "enum": [
         "1",
-        "2"
+        "2",
+        "3"
       ],
       "title": "Schema Version",
       "type": "string"
@@ -440,6 +534,17 @@
       "anyOf": [
         {
           "$ref": "#/$defs/FormationReceipt"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "work": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/WorkObservation"
         },
         {
           "type": "null"

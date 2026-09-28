@@ -2,6 +2,20 @@
 
 ## 0.3.0 development APIs (unreleased)
 
+Discovery and fresh selection attempts now emit `Event(schema_version="3",
+work=WorkObservation(...))` with owner, scope, policy, goal and stage/result. Existing
+`metrics_page` / CLI `metrics` event queries expose `work_attempt_counts`,
+`work_observations` and `proposal_deliveries_at_selection`. These count persisted
+attempt observations in the event period, not unique opportunities or validated
+proposals. Exact invocation replay does not create another selection observation.
+The existing measured overhead event is extended rather than counted twice; discovery
+elapsed time now covers qualification and opportunity persistence. Hard failure
+before observation commit can leave a gap, so these are not an exhaustive request
+audit. Work observations grant no execution or PASS and stay local: the shared
+feed excludes events, and generic remote submission rejects work observations.
+Allocator-only deferrals and independent result verification still need additional
+instrumentation for the complete matched experiment report.
+
 `accounting.work_metrics_page(store, query, cursor=None, limit=128)` reports a
 bounded cohort of locally issued opportunities with durable selection and current
 invocation states. The `RecordQuery` must specify opportunity kind, local issuer,

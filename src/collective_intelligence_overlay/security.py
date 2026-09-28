@@ -46,6 +46,8 @@ class Identity:
         )
         if isinstance(record, Event) and record.schema_version == "1":
             exclude = {"execution", "formation"}
+        if isinstance(record, Event) and record.schema_version != "3":
+            exclude.add("work")
         if isinstance(record, Capability) and record.schema_version == "1":
             exclude.add("dependency_issuers")
         if isinstance(record, Capability) and record.schema_version != "3":

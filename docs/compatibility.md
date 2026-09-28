@@ -2,7 +2,9 @@
 
 The 0.3.0 development path adds Capability schema 3 and its DSSE media type
 `application/vnd.collective-intelligence-overlay.record.v3+json` for explicit
-formation inputs. Other existing record versions are unchanged. Old readers reject
+formation inputs. Event schema 3 uses the same media type for local work
+observations, with no execution/formation receipt or truth verdict. Existing record
+versions are unchanged. Old readers reject
 this new version; rolling interoperability is not claimed. Original v1/v2 payloads
 remain stored verbatim, and signing those versions omits the new field. Admission
 loads the new relationships through the existing bounded indexed subject closure;
