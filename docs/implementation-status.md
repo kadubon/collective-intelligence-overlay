@@ -30,9 +30,11 @@ completion criteria; this plan does not replace or narrow them.
 The host can now select a formed candidate as a goal's exact target while preserving
 its scope, logical identity, issuer, checker and allowlists. It verifies the signed
 candidate against the installed binding, invalidates old proposals and rediscovers
-the checking deficit. Applications must persist the returned configuration; foreign
-proposal contracts still require explicit registration for changed targets. This
-does not yet connect the adaptive three-process document application end to end.
+the checking deficit. Applications must persist the returned configuration. Foreign
+proposers can explicitly opt into candidate versions within an approved public
+contract; neither collection nor that exported configuration contains private
+checker inputs. This does not yet connect the adaptive three-process document
+application end to end.
 
 The first 0.3.0 working-tree increment adds versioned Opportunity/Proposal models,
 generated schemas, bounded exact record inspection and original-payload reference

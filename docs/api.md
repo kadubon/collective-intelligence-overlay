@@ -21,8 +21,7 @@ allowlists remain fixed. Old proposals become inapplicable. Repeating selection 
 the current target is a no-op; a stale expected goal digest raises `Conflict`.
 Persist the returned `Goal` with application configuration and restore it on startup.
 This host configuration operation is not exposed to peers and is not a distributed
-goal store. Foreign proposal contracts remain exact and need explicit host
-registration for the changed target. Selection does not establish PASS or admission.
+goal store. Selection does not establish PASS or admission.
 
 `Store.reference(kind, issuer, record_id)` and `resolve_reference(ref)` bind records
 to original signed payload bytes; local decisions instead use the existing local
@@ -43,10 +42,26 @@ Returned drafts still require the same host validation.
 
 For configured A2A peers, the host assigns `service.proposal_exchange =
 ProposalExchange(service.overlay.store, service.identity, approved_foreign_goals,
-installed_async_proposer)`. Foreign goals pin the owner, target, scope, checker
-and builder allowlist; the local proposer must be explicitly named in `goal.peers`.
+installed_async_proposer)`. Export foreign configuration using
+`ProposalContract.from_goal(goal)` and its normal model JSON methods; this omits
+private checker arguments and request argument digests. The constructor also
+accepts a `Goal` for local host convenience and retains only its public contract.
+Contracts pin the owner, target, scope, checker and builder allowlist; the local
+proposer must be explicitly named in `peers`.
 The `propose` operation is denied by default even when evidence sharing is enabled.
 The installed callback returns `ProposalDrafts`; it cannot change the contract.
+The default pins the exact target. An operator can set `allow_target_updates=True`
+when constructing the exchange to allow another version/digest of the same logical
+subject under the registered contract. New opportunities include an optional
+`goal_contract_digest`, excluding only goal revision and candidate version/digests.
+Scope, checker, output contract, permission set and lifetime are checked explicitly;
+returned drafts still use the original builder allowlist. A commitment is an
+authenticated assertion by the owner, not proof of its private decision. The owner
+rechecks its exact live goal before executing a reply. Neither a received goal nor
+checker inputs are transmitted by `collect`, and no received data replaces the
+proposer's registration. Digests are not encryption; keep credentials and held-out
+answers outside exported goal configuration. Observations without the new digest
+can use exact contracts but cannot request candidate transitions.
 `await proposal_exchange.collect(config, store, identity, goal, opportunity_id)`
 uses existing authenticated A2A destinations to obtain each peer's signed reply.
 It returns `replies` for `Steps.step` and a separate `unavailable` peer list. A peer

@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 from urllib.parse import urlsplit
 
@@ -16,11 +17,29 @@ from collective_intelligence_overlay.opportunities import (
     ProposalDrafts,
 )
 from collective_intelligence_overlay.peer import PeerService
-from collective_intelligence_overlay.proposal_exchange import ProposalExchange, collect
+from collective_intelligence_overlay.proposal_exchange import (
+    ProposalContract,
+    ProposalExchange,
+    collect,
+)
 from collective_intelligence_overlay.security import digest, verify
 
 
-async def test_authenticated_a2a_alternative_proposers_and_unavailable_peer(tmp_path, policy):
+async def test_authenticated_a2a_alternative_proposers_and_unavailable_peer(
+    tmp_path, policy, monkeypatch
+):
+    from collective_intelligence_overlay.adapters import a2a
+
+    original_send = a2a.send
+    sent = []
+
+    async def observed_send(config, identity, peer, data):
+        sent.append(data)
+        assert "goal" not in data
+        assert "private-checker-corpus" not in json.dumps(data)
+        return await original_send(config, identity, peer, data)
+
+    monkeypatch.setattr(a2a, "send", observed_send)
     url = os.environ.get("CIO_TEST_DATABASE_URL")
     if not url:
         pytest.skip("real PostgreSQL required")
@@ -46,6 +65,7 @@ async def test_authenticated_a2a_alternative_proposers_and_unavailable_peer(tmp_
             semantic_fit="confirmed",
         ),
         checker=builder,
+        checker_arguments={"text": "private-checker-corpus"},
         builders=(builder,),
         peers=("producer", "verifier"),
     )
@@ -73,8 +93,13 @@ async def test_authenticated_a2a_alternative_proposers_and_unavailable_peer(tmp_
     try:
         for name, proposer in (("producer", producer), ("verifier", verifier)):
             service = services[name]
+            public_contract = ProposalContract.from_goal(goal)
+            assert "private-checker-corpus" not in public_contract.model_dump_json()
             service.proposal_exchange = ProposalExchange(
-                service.overlay.store, service.identity, (goal,), proposer
+                service.overlay.store,
+                service.identity,
+                (ProposalContract.model_validate_json(public_contract.model_dump_json()),),
+                proposer,
             )
             server = uvicorn.Server(
                 uvicorn.Config(
@@ -122,6 +147,98 @@ async def test_authenticated_a2a_alternative_proposers_and_unavailable_peer(tmp_
             await services["producer"].proposal_exchange.respond(
                 "receiver", receiver.identity.sign(changed)
             )
+        next_goal = goal.model_copy(
+            update={
+                "revision": "2",
+                "request": goal.request.model_copy(
+                    update={
+                        "subject": goal.request.subject.model_copy(
+                            update={
+                                "version": "2",
+                                "digest": digest(b"formed-target"),
+                            }
+                        ),
+                        "binding_digest": digest(b"formed-binding"),
+                    }
+                ),
+            }
+        )
+        assert next_goal.contract_digest == goal.contract_digest
+        next_host = Opportunities(Registry(receiver.overlay), receiver.identity, (next_goal,))
+        next_opportunity = (await next_host.discover()).opportunities[0]
+        denied_update = await collect(
+            configs["receiver"],
+            receiver.overlay.store,
+            receiver.identity,
+            next_goal,
+            next_opportunity.id,
+        )
+        assert set(denied_update.unavailable) == {"producer", "verifier"}
+        assert not denied_update.replies
+        # Only the proposer's own host can opt into changed candidate identities.
+        exchange = services["producer"].proposal_exchange
+        exchange.allow_target_updates = True
+        next_result = await collect(
+            configs["receiver"],
+            receiver.overlay.store,
+            receiver.identity,
+            next_goal,
+            next_opportunity.id,
+        )
+        assert next_result.unavailable == ("verifier",)
+        assert len(next_result.replies) == 1
+        next_proposal = verify(next_result.replies[0][1], receiver.overlay.store.principals)
+        assert next_proposal.subject == next_goal.request.subject
+        assert next_proposal.goal_digest == next_goal.digest
+        assert next_proposal.id not in {p.id for p in records}
+        assert sent and all(set(item) == {"operation", "envelope"} for item in sent)
+        assert exchange._goals[("receiver", goal.id)] == ProposalContract.from_goal(goal)
+        # A signed assertion about another target without the host commitment is
+        # insufficient, including legacy observations without the new field.
+        for changes in (
+            {"goal_contract_digest": None},
+            {"expected_contract": "unapproved-output"},
+            {"checker": builder.model_copy(update={"digest": digest(b"replacement")})},
+            {"scope": scope.model_copy(update={"permissions": ("extra",)})},
+        ):
+            with pytest.raises(ValueError, match="contract"):
+                await exchange.respond(
+                    "receiver", receiver.identity.sign(next_opportunity.model_copy(update=changes))
+                )
+        # Even owner-signed attempts cannot expand the registered contract.
+        for modification in (
+            {"checker_arguments": {"accept_without_check": True}},
+            {"builders": (builder.model_copy(update={"digest": digest(b"injected")}),)},
+            {"checker": builder.model_copy(update={"digest": digest(b"new-checker")})},
+            {"peers": ("producer",)},
+            {
+                "request": next_goal.request.model_copy(
+                    update={"scope": scope.model_copy(update={"permissions": ("extra",)})}
+                )
+            },
+            {"request": next_goal.request.model_copy(update={"capability_issuer": "producer"})},
+            {
+                "request": next_goal.request.model_copy(
+                    update={
+                        "subject": next_goal.request.subject.model_copy(
+                            update={"id": "another-goal"}
+                        )
+                    }
+                )
+            },
+        ):
+            bad_goal = next_goal.model_copy(update=modification)
+            bad_observation = next_opportunity.model_copy(
+                update={
+                    "goal_digest": bad_goal.digest,
+                    "goal_contract_digest": bad_goal.contract_digest,
+                }
+            )
+            with pytest.raises(ValueError, match="contract"):
+                await exchange.respond(
+                    "receiver",
+                    receiver.identity.sign(bad_observation),
+                )
     finally:
         for server in servers:
             server.should_exit = True

@@ -63,6 +63,19 @@ class Goal(BaseModel):
     def digest(self) -> str:
         return fingerprint(self.model_dump(mode="json"))
 
+    @property
+    def contract_digest(self) -> str:
+        """Fixed host contract, excluding only candidate identity and goal revision."""
+        return fingerprint(
+            self.model_dump(
+                mode="json",
+                exclude={
+                    "revision": True,
+                    "request": {"binding_digest": True, "subject": {"version", "digest"}},
+                },
+            )
+        )
+
 
 class Discovery(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
@@ -309,6 +322,7 @@ class Opportunities:
                 receivers=(self.identity.name, *goal.peers),
                 goal_id=goal.id,
                 goal_digest=goal.digest,
+                goal_contract_digest=goal.contract_digest,
                 work_kind=kind,
                 basis=(
                     RecordRef(
@@ -378,6 +392,7 @@ class Opportunities:
         if not isinstance(opportunity, Opportunity) or (
             opportunity.issuer != self.identity.name
             or opportunity.goal_digest != goal.digest
+            or opportunity.goal_contract_digest not in {None, goal.contract_digest}
             or opportunity.scope != goal.request.scope
             or opportunity.subject != goal.request.subject
             or opportunity.checker != goal.checker

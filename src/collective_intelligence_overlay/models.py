@@ -301,6 +301,7 @@ class Opportunity(Model):
     receivers: tuple[Identifier, ...] = Field(min_length=1, max_length=32)
     goal_id: Identifier
     goal_digest: Digest
+    goal_contract_digest: Digest | None = None
     work_kind: WorkKind
     basis: tuple[RecordRef, ...] = Field(min_length=1, max_length=32)
     observation_digest: Digest

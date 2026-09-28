@@ -324,6 +324,19 @@
       "title": "Goal Digest",
       "type": "string"
     },
+    "goal_contract_digest": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Goal Contract Digest"
+    },
     "work_kind": {
       "enum": [
         "formation",

@@ -2,6 +2,16 @@
 
 ## 0.3.0 development checkpoint
 
+The public proposal-contract increment passed 21 record, opportunity/step and real
+A2A HTTP tests in 27.42 seconds, zero skips. The transport test exports only public
+contract configuration, observes actual outgoing requests, and confirms private
+checker input is absent. Exact targets remain the default; an explicit proposer
+opt-in permits candidate versions while rejecting changed contract commitments,
+scopes, checkers and output contracts. This tests authenticated assertions and local
+constraints, not the truth of a foreign private decision. Lint, formatting, strict
+typing (48 files) and generated schema/documentation checks passed. The full
+three-process adaptive application and publication gates remain outstanding.
+
 The candidate-target increment passed 15 opportunity/step and actual A2A proposal
 tests in 31.50 seconds, zero skips. The host transition preserves the registered
 contract, rejects changed issuer/scope/logical identity and stale goal versions,
