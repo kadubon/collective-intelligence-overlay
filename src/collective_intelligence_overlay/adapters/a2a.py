@@ -109,6 +109,8 @@ class ExtensionExecutor(AgentExecutor):
         async with asyncio.timeout(30):
             async with self.semaphore:
                 result = await self.handler(principal.user_name, data)
+        if len(json.dumps(result).encode()) > MAX_RECORD_BYTES:
+            raise ValueError("overlay response too large")
         response = Message(
             message_id=uid(),
             role=Role.ROLE_AGENT,

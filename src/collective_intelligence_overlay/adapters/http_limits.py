@@ -14,23 +14,26 @@ class BodyLimit:
         if scope["type"] != "http":
             await self.app(scope, receive, send)
             return
-        buffered: list[Message] = []
-        size = 0
+        body = bytearray()
         while True:
             message = await receive()
-            size += len(message.get("body", b""))
-            if size > MAX_RECORD_BYTES:
+            if message["type"] == "http.disconnect":
+                return
+            body.extend(message.get("body", b""))
+            if len(body) > MAX_RECORD_BYTES:
                 await JSONResponse({"error": "request too large"}, status_code=413)(
                     scope, receive, send
                 )
                 return
-            buffered.append(message)
-            if message["type"] == "http.disconnect" or not message.get("more_body", False):
+            if not message.get("more_body", False):
                 break
+        delivered = False
 
         async def replay() -> Message:
-            if buffered:
-                return buffered.pop(0)
+            nonlocal delivered
+            if not delivered:
+                delivered = True
+                return {"type": "http.request", "body": bytes(body), "more_body": False}
             return await receive()
 
         await self.app(scope, replay, send)

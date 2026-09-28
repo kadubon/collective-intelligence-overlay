@@ -13,7 +13,9 @@ are not updated in place. `read_records`, `capabilities`, `evidence`, `events` a
 `await overlay.qualify(UseRequest(...))` records a local `Decision`. The request binds
 receiver, exact subject/version/digest, scope, environment and semantic assessment.
 `await overlay.execute(request, operation, deadline_seconds=30)` requalifies and calls
-only the supplied trusted async operation. Non-ACCEPT raises `AdmissionDenied` with
+only the supplied trusted async operation. Its deadline includes qualification.
+Qualification itself has a 30-second deadline; PostgreSQL socket operations use a
+five-second timeout. Non-ACCEPT raises `AdmissionDenied` with
 the full decision. Timeout raises `TimeoutError`; cancellation propagates. Neither
 is converted into PASS. Storage/connectivity errors propagate instead of allowing use.
 

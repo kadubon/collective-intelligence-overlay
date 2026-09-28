@@ -34,6 +34,15 @@ class Overlay:
         self.observed_sources[issuer] = now()
 
     async def qualify(self, request: UseRequest) -> Decision:
+        try:
+            async with asyncio.timeout(30):
+                return await self._qualify(request)
+        except TimeoutError:
+            decision = self._decision(request, Outcome.UNKNOWN, ("qualification_timeout",))
+            self.store.save_decision(decision)
+            return decision
+
+    async def _qualify(self, request: UseRequest) -> Decision:
         if request.receiver != self.store.owner:
             raise ValueError("admission is local")
         epoch = self.store.record_count()
@@ -234,17 +243,17 @@ class Overlay:
         """Recheck at the actual trusted actuator boundary, without cached ACCEPT."""
         if not 0 < deadline_seconds <= 3600:
             raise ValueError("timeout must be bounded")
-        decision = await self.qualify(request)
-        if decision.outcome == Outcome.ACCEPT and (
-            self.store.record_count() != decision.record_count or now() >= decision.valid_until
-        ):
-            decision = decision.model_copy(
-                update={"outcome": Outcome.UNKNOWN, "reasons": ("state_changed_before_use",)}
-            )
-            self.store.save_decision(decision.model_copy(update={"id": uid()}))
-        if decision.outcome != Outcome.ACCEPT:
-            raise AdmissionDenied(decision)
         async with asyncio.timeout(deadline_seconds):
+            decision = await self.qualify(request)
+            if decision.outcome == Outcome.ACCEPT and (
+                self.store.record_count() != decision.record_count or now() >= decision.valid_until
+            ):
+                decision = decision.model_copy(
+                    update={"outcome": Outcome.UNKNOWN, "reasons": ("state_changed_before_use",)}
+                )
+                self.store.save_decision(decision.model_copy(update={"id": uid()}))
+            if decision.outcome != Outcome.ACCEPT:
+                raise AdmissionDenied(decision)
             return await operation()
 
     @staticmethod

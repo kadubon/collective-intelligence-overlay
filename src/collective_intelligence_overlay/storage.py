@@ -81,7 +81,9 @@ class Store:
             raise ValueError("reference storage requires PostgreSQL with pg8000")
         self.owner = owner
         self.principals = dict(principals)
-        self.engine: Engine = create_engine(url, pool_pre_ping=True, hide_parameters=True)
+        self.engine: Engine = create_engine(
+            url, pool_pre_ping=True, hide_parameters=True, connect_args={"timeout": 5}
+        )
 
     def close(self) -> None:
         self.engine.dispose()
