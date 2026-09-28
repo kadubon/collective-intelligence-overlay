@@ -16,15 +16,16 @@ from collective_intelligence_overlay.storage import budgets
 
 
 @pytest.mark.parametrize(
-    "training_text,work_allowance",
+    "training_text,work_allowance,mode",
     [
-        ("calibration vocabulary", 50),
-        ("a longer calibration document", 50),
-        ("bounded checker calibration", 5),
+        ("calibration vocabulary", 50, "adaptive-run"),
+        ("a longer calibration document", 50, "adaptive-run"),
+        ("bounded checker calibration", 5, "adaptive-run"),
+        ("calibration vocabulary", 50, "static-run"),
     ],
 )
 async def test_peer_selected_document_formation_restart_and_withdrawal(
-    tmp_path, policy, monkeypatch, training_text, work_allowance
+    tmp_path, policy, monkeypatch, training_text, work_allowance, mode
 ):
     url = os.environ.get("CIO_TEST_DATABASE_URL")
     if not url:
@@ -197,7 +198,7 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             )
             assert imported_checker_test["evidence"]["verdict"] == "PASS", imported_checker_test
             await sync("receiver", "producer")
-            first = await call("receiver", operation="adaptive-run", max_steps=1)
+            first = await call("receiver", operation=mode, max_steps=1)
             assert first["reason"] == "step_limit" and len(first["history"]) == 1
             c3 = (await call("receiver", operation="describe", name="report"))["binding"]
             before_check = await call(
@@ -213,7 +214,7 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             # no next-task instruction after restarting the owner process.
             await stop("receiver")
             await start("receiver")
-            result = await call("receiver", operation="adaptive-run", max_steps=8)
+            result = await call("receiver", operation=mode, max_steps=8)
             assert result["reason"] == "goals_satisfied", result
             history = first["history"] + result["history"]
             assert [item["kind"] for item in history] == [
@@ -227,19 +228,25 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 "triage",
             ]
             for item in (history[0], history[2]):
-                assert set(item["proposers"]) == {"producer", "verifier"}
+                if mode == "adaptive-run":
+                    assert set(item["proposers"]) == {"producer", "verifier"}
                 assert item["formation"]["outcome"] == "UNKNOWN"
-                assert item["step"]["invocation"]["state"] == "completed"
-                assert item["step"]["selection"]["skipped"]
+                if mode == "adaptive-run":
+                    assert item["step"]["invocation"]["state"] == "completed"
+                    assert item["step"]["selection"]["skipped"]
+                else:
+                    assert item["invocation"]["state"] == "completed"
             assert len(history[0]["formation"]["formation"]["receipts"]) == 2
             assert len(history[2]["formation"]["formation"]["receipts"]) == 3
             assert history[1]["evidence"]["verdict"] == history[3]["evidence"]["verdict"] == "PASS"
-            assert history[1]["allocation"]["qualified_checkers"]
-            assert (
-                "verification_backlog_with_qualified_checker" in history[1]["allocation"]["reasons"]
-            )
-            assert history[1]["step"]["invocation"]["state"] == "completed"
-            assert history[3]["step"]["selection"]["skipped"]
+            if mode == "adaptive-run":
+                assert history[1]["allocation"]["qualified_checkers"]
+                assert (
+                    "verification_backlog_with_qualified_checker"
+                    in history[1]["allocation"]["reasons"]
+                )
+                assert history[1]["step"]["invocation"]["state"] == "completed"
+                assert history[3]["step"]["selection"]["skipped"]
             c4 = (await call("receiver", operation="describe", name="triage"))["binding"]
             request = {
                 "operation": "invoke",
@@ -268,7 +275,9 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             check_request = {
                 "operation": "request-document-check",
                 "name": "report",
-                "attempt": "check-" + history[1]["opportunity"],
+                "attempt": ("check-" + history[1]["opportunity"])
+                if mode == "adaptive-run"
+                else history[1]["check_attempt"],
                 "binding_digest": history[1]["evidence"]["binding_digest"],
                 "checker_digest": checker_binding().digest,
             }
@@ -288,8 +297,18 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             await start("receiver")
             assert processes["receiver"].pid != old_pid
             assert await call("receiver", **request) == outcome
-            restarted = await call("receiver", operation="adaptive-run", max_steps=8)
+            restarted = await call("receiver", operation=mode, max_steps=8)
             assert restarted["reason"] == "goals_satisfied" and not restarted["history"]
+            if mode == "static-run":
+                from collective_intelligence_overlay.queries import RecordQuery
+
+                _, inspected = configs["receiver"].runtime()
+                try:
+                    assert not inspected.store.record_page(
+                        RecordQuery(kinds=("opportunity", "proposal"))
+                    ).items
+                finally:
+                    inspected.store.close()
             await call(
                 "producer",
                 operation="revoke",
@@ -297,7 +316,7 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 reason="withdrawn primitive",
             )
             await sync("receiver", "producer")
-            stopped = await call("receiver", operation="adaptive-run", max_steps=8)
+            stopped = await call("receiver", operation=mode, max_steps=8)
             assert stopped["reason"] == "requires_repair" and not stopped["history"]
             denied = await call("receiver", **{**request, "invocation_id": "after-withdrawal"})
             assert denied["state"] == "unknown"

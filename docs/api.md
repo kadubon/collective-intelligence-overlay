@@ -54,6 +54,11 @@ application candidates, with at most eight child calls per formation (or the low
 configured `max_children`) and a 120-second run deadline. Owner concurrency also
 respects configuration; `max_rechecks=0` disables new checks. Concurrent requests
 to the same service return `already_running`.
+The owner-only `static-run` operation accepts the same finite bounds and uses
+the fixed control order described in [evaluation](evaluation.md). Its history
+contains actual invocations, formation receipts and checker evidence, without
+invented opportunity or proposal records. Run comparison arms in separate fresh
+application stores; switching modes in one store is not an isolated experiment.
 The independent checker retains its own allowance and read-only invocation grants.
 Its reference pins a registered Binding, including the installed checker source;
 the explicit application route checks caller, binding and actual argument shape.

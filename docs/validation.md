@@ -2,6 +2,16 @@
 
 ## 0.3.0 development checkpoint
 
+The fixed document-control path and shared materialization refactor passed all four
+three-process E2E cases in 213.00 seconds, zero skips. The new control uses the same
+installed builder/checker contracts and verifies formation, independent checking,
+ordinary-use denial before checking, restart/replay and dependency withdrawal.
+Its database contains no Opportunity/Proposal records. The three existing adaptive
+cases, including insufficient checker-calibration allowance, also passed. These
+are functional cases, not matched performance results; isolated arms, connection
+bottlenecks and full experiment accounting remain required. Lint, formatting,
+package typing and documentation checks passed.
+
 Allocation deferral instrumentation passed 34 opportunity, record and inspection
 tests in 46.08 seconds, zero skips. The tests retain eligible ranks and both checker
 unavailability and unverified-queue deferrals, with five batches referencing exactly

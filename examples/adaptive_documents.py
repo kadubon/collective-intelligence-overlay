@@ -34,6 +34,7 @@ from collective_intelligence_overlay.config import Config, load_config
 from collective_intelligence_overlay.lineage import FormationSession
 from collective_intelligence_overlay.models import (
     BindingRef,
+    Event,
     Evidence,
     Opportunity,
     Proposal,
@@ -215,13 +216,14 @@ class AdaptiveDocuments(DocumentService):
                 return await self.check_requested_candidate(prepared.arguments)
             except Conflict:
                 return {"state": "conflict", "error": "CHECK_ATTEMPT_OR_ALLOWANCE_CONFLICT"}
-        if data.get("operation") == "adaptive-run":
+        if data.get("operation") in {"adaptive-run", "static-run"}:
             if caller != self.config.owner or caller != "receiver":
                 raise ValueError("only the receiver owner may start its finite application")
             if self._run_lock.locked():
                 return {"reason": "already_running", "history": [], "pid": os.getpid()}
             async with self._run_lock:
-                return await self.run(int(data.get("max_steps", 8)))
+                run = self.run_static if data["operation"] == "static-run" else self.run
+                return await run(int(data.get("max_steps", 8)))
         return await super().handle(caller, data)
 
     async def check_requested_candidate(self, data: dict[str, Any]) -> dict[str, Any]:
@@ -525,33 +527,9 @@ class AdaptiveDocuments(DocumentService):
                         selected.arguments,
                         self.context,
                     )
-                    if goal.id == "report":
-                        render = self.installed["render"]
-                        rendered = await self.executor.invoke(
-                            "render-" + observation.id,
-                            render.id,
-                            render.digest,
-                            computation["result"],
-                            self.context,
-                        )
-                        if rendered["state"] != "completed":
-                            raise ValueError("selected count could not connect to the renderer")
-                        binding = self.installed["report"]
-                        dependencies = tuple(self.installed[n] for n in ("remote-words", "render"))
-                    else:
-                        threshold = int(computation["result"]["report"].split(": ")[1])
-                        binding = self.install_triage(threshold)
-                        dependencies = tuple(
-                            self.installed[n] for n in ("remote-words", "render", "report")
-                        )
-                    event = await formation.publish(
-                        binding.id, self.candidate(binding, dependencies)
+                    binding, event = await self.materialize(
+                        formation, goal.id, computation, observation.id
                     )
-                reference = self.overlay.store.reference(
-                    "capability", self.config.owner, binding.subject.key
-                )
-                self.opportunities.select_target(goal.id, goal.digest, binding.id, reference)
-                self.save_goals()
                 history.append(
                     {
                         "opportunity": observation.id,
@@ -562,6 +540,164 @@ class AdaptiveDocuments(DocumentService):
                         "proposers": [caller for caller, _ in replies.replies],
                     }
                 )
+        return {"reason": reason, "history": history, "pid": os.getpid()}
+
+    async def materialize(
+        self, formation: FormationSession, name: str, computation: dict[str, Any], attempt: str
+    ) -> tuple[Binding, Event]:
+        """Shared installed construction logic for both allocation policies."""
+        if name == "report":
+            render = self.installed["render"]
+            rendered = await self.executor.invoke(
+                "render-" + attempt, render.id, render.digest, computation["result"], self.context
+            )
+            if rendered["state"] != "completed":
+                raise ValueError("selected count could not connect to the renderer")
+            binding = self.installed["report"]
+            dependencies = tuple(self.installed[n] for n in ("remote-words", "render"))
+        else:
+            threshold = int(computation["result"]["report"].split(": ")[1])
+            binding = self.install_triage(threshold)
+            dependencies = tuple(self.installed[n] for n in ("remote-words", "render", "report"))
+        event = await formation.publish(binding.id, self.candidate(binding, dependencies))
+        goal = self.opportunities.goal(name)
+        reference = self.overlay.store.reference(
+            "capability", self.config.owner, binding.subject.key
+        )
+        self.opportunities.select_target(goal.id, goal.digest, binding.id, reference)
+        self.save_goals()
+        return binding, event
+
+    async def run_static(self, max_steps: int) -> dict[str, Any]:
+        """Fixed report/check/triage/check control with ordinary admission and cache.
+
+        No opportunity discovery, proposal exchange or adaptive allocation is called.
+        Host target persistence is shared with the treatment's installed factories.
+        """
+        if not 1 <= max_steps <= min(self.config.max_steps, 16):
+            raise ValueError("invalid document application step bound")
+        history: list[dict[str, Any]] = []
+        reason = "step_limit"
+        async with asyncio.timeout(min(self.config.max_seconds, 120)):
+            for _ in range(max_steps):
+                sync = await synchronize(
+                    self.config, self.identity, self.overlay.store, "verifier", page_size=4
+                )
+                if not sync["complete"]:
+                    reason = "incomplete_observation"
+                    break
+                name = None
+                candidate_exists = False
+                for target_name in ("report", "triage"):
+                    goal = self.opportunities.goal(target_name)
+                    page = await asyncio.to_thread(
+                        self.overlay.store.record_page,
+                        RecordQuery(
+                            kinds=("capability",),
+                            issuer=self.config.owner,
+                            subject=goal.request.subject,
+                        ),
+                        limit=1,
+                    )
+                    if page.items:
+                        decision = await self.overlay.qualify(goal.request)
+                        if decision.outcome == "ACCEPT":
+                            continue
+                        if {
+                            "known_revocation",
+                            "dependency_rejected",
+                            "in_scope_counterexample",
+                        } & set(decision.reasons):
+                            return {
+                                "reason": "requires_repair",
+                                "history": history,
+                                "pid": os.getpid(),
+                            }
+                    name, candidate_exists = target_name, bool(page.items)
+                    break
+                if name is None:
+                    reason = "goals_satisfied"
+                    break
+                goal = self.opportunities.goal(name)
+                if candidate_exists:
+                    if self.config.max_rechecks == 0:
+                        reason = "checking_disabled"
+                        break
+                    attempt = "static-check-" + fingerprint(
+                        [goal.contract_digest, goal.request.binding_digest]
+                    )
+                    invocation = await self.executor.invoke(
+                        attempt,
+                        goal.checker.id,
+                        goal.checker.digest,
+                        {
+                            "name": name,
+                            "attempt": attempt,
+                            "binding_digest": goal.request.binding_digest,
+                        },
+                        self.context,
+                    )
+                    checked = invocation.get("result") or {}
+                    history.append(
+                        {
+                            "kind": "verification",
+                            "check_attempt": attempt,
+                            "evidence": checked.get("evidence"),
+                            "invocation": invocation,
+                        }
+                    )
+                    if invocation["state"] != "completed" or not checked.get("evidence"):
+                        reason = "check_not_completed"
+                        break
+                    if checked["evidence"]["verdict"] != "PASS":
+                        reason = "check_not_passed"
+                        break
+                    continue
+                if self.config.max_children == 0:
+                    reason = "child_limit"
+                    break
+                builder = goal.builders[0]
+                attempt = "static-form-" + fingerprint(
+                    [goal.contract_digest, builder.digest, self.training_text]
+                )
+                async with AsyncExitStack() as stack:
+                    try:
+                        formation = await stack.enter_async_context(
+                            FormationSession(
+                                self.registry,
+                                self.identity,
+                                max_steps=min(8, self.config.max_children),
+                                max_seconds=min(30, self.config.max_seconds),
+                                minimum_remaining=max(
+                                    self.executor.allowance.minimum_remaining,
+                                    self.executor.allowance.quantity
+                                    * self.allocation_policy.reserve_operations,
+                                ),
+                            )
+                        )
+                        invocation = await self.executor.invoke(
+                            attempt,
+                            builder.id,
+                            builder.digest,
+                            {"text": self.training_text},
+                            self.context,
+                        )
+                    except Conflict:
+                        reason = "insufficient_allowance"
+                        break
+                    if invocation["state"] != "completed":
+                        history.append({"kind": "formation", "invocation": invocation})
+                        reason = "formation_not_completed"
+                        break
+                    binding, event = await self.materialize(formation, name, invocation, attempt)
+                    history.append(
+                        {
+                            "kind": "formation",
+                            "target": binding.id,
+                            "formation": event.model_dump(mode="json"),
+                            "invocation": invocation,
+                        }
+                    )
         return {"reason": reason, "history": history, "pid": os.getpid()}
 
 

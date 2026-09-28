@@ -2,6 +2,10 @@
 
 ## 0.3.0 (unreleased)
 
+The external document application adds a fixed-order verified-reuse control. It
+shares builders, checkers and materialization with the adaptive path but does not
+call discovery or proposal/allocation APIs. Comparison experiments remain pending.
+
 Allocation observations retain each opportunity's eligible rank or deferral reason
 and rule digest. Scoped observations reference one shared overhead event, committed
 in the same transaction, without duplicating its cost per opportunity.

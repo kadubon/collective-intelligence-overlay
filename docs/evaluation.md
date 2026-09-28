@@ -13,6 +13,25 @@ It has no matched adaptive-versus-static results. Initial setup and full
 experiment cost reporting remain work in progress; do not infer cost savings from
 the test duration or the number of candidates.
 
+The fixed document control is exposed as the owner-only `static-run` operation in
+the same external application. It uses a prespecified report/check/triage/check
+order, the first registered builder, the same calibration text, installed
+materialization code, independently calibrated checker, initial allowance and
+ordinary use-time admission. It caches completed invocations and skips currently
+qualified goals. It calls neither opportunity discovery, proposal exchange nor the
+adaptive allocator. Host goal persistence is shared configuration plumbing. This
+is a 0.2.1-equivalent verified-reuse control on the current implementation, not an
+execution of an old installed binary. It is not the allocator's `mode="static"`,
+which still participates in opportunity discovery.
+
+Functional integration of this control is separate from a matched experiment.
+Matched runs must initialize independent databases, identities, artifacts and
+caches per arm; include primitive/checker setup costs; use the same predeclared
+task order, bounds and held-out evaluation contract; and retain failure/censoring
+and all arm results. Verification and connection/environment bottlenecks, full
+cost output and a reproducible comparison command are still required. A positive
+effect is not an acceptance criterion.
+
 The [mixed-history scale harness](scale.md) measures indexed qualification at
 1,000/10,000 records and offers a selectable 100,000-record stress profile.
 
