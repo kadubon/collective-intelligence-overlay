@@ -16,8 +16,8 @@ from collective_intelligence_overlay.bindings import (
     callable_digest,
     fingerprint,
 )
-from collective_intelligence_overlay.models import Capability, Scope, Subject
-from collective_intelligence_overlay.reference import capability, csv_sum, render_report
+from collective_intelligence_overlay.models import Capability, Evidence, Scope, Subject
+from collective_intelligence_overlay.reference import capability, check, csv_sum, render_report
 
 
 async def aggregate(arguments: dict[str, Any]) -> dict[str, Any]:
@@ -26,6 +26,39 @@ async def aggregate(arguments: dict[str, Any]) -> dict[str, Any]:
 
 async def render(arguments: dict[str, Any]) -> str:
     return render_report(arguments["summary"])
+
+
+def check_registered(
+    owner: str, cap: Capability, binding: Binding, source: str, result: Any, receiver: str
+) -> Evidence:
+    """Check observed output for the registered reference contract, not code attestation."""
+    dependencies = (
+        (capability(cap.issuer, "csv-sum").subject, capability(cap.issuer, "render-report").subject)
+        if cap.entrypoint == "csv-report"
+        else ()
+    )
+    contract = capability(cap.issuer, cap.entrypoint, dependencies)
+    if (
+        cap.schema_version != "2"
+        or cap.binding_digest != binding.digest
+        or cap.subject != binding.subject
+        or cap.issuer != binding.issuer
+        or cap.scope != binding.scope
+        or cap.scope != contract.scope
+        or cap.claim != contract.claim
+    ):
+        raise ValueError("registered reference contract mismatch")
+    observed = check(owner, contract, source, result, receiver)
+    return Evidence.model_validate(
+        {
+            **observed.model_dump(),
+            "schema_version": "2",
+            "binding_digest": binding.digest,
+            "subject": cap.subject,
+            "receivers": tuple(dict.fromkeys((receiver, cap.issuer))),
+            "declared_origin": {"checker": "observed reference output; no remote code attestation"},
+        }
+    )
 
 
 def csv_scope(arguments: dict[str, Any]) -> bool:

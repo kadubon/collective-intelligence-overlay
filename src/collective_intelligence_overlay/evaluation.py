@@ -65,7 +65,9 @@ async def compare(overlay: Overlay, request: UseRequest) -> dict[str, Any]:
 
 
 async def compare_network(
-    call: Callable[..., Awaitable[dict[str, Any]]], candidate: dict[str, Any]
+    call: Callable[..., Awaitable[dict[str, Any]]],
+    candidate: dict[str, Any],
+    binding: dict[str, Any] | None = None,
 ) -> list[dict[str, Any]]:
     """Same three running peers, checker, inputs and fixed work budget in every arm."""
     from .models import uid
@@ -80,6 +82,8 @@ async def compare_network(
                 request = {
                     "receiver": "receiver",
                     "subject": candidate["subject"],
+                    "capability_issuer": candidate["issuer"],
+                    "binding_digest": candidate.get("binding_digest"),
                     "scope": candidate["scope"],
                     "semantic_fit": "confirmed",
                 }
@@ -111,7 +115,8 @@ async def compare_network(
                 checked = await call(
                     "verifier",
                     operation="work",
-                    mode="verify",
+                    mode="verify-registered" if cap.get("schema_version") == "2" else "verify",
+                    binding=binding,
                     attempt=uid(),
                     capability=cap,
                     source=source,

@@ -15,8 +15,9 @@
 再利用を判定します。UNKNOWNや異論は消さず、既知の依存失効を実行前に検査します。
 PostgreSQLで重複、費用、leaseと古いworkerの結果を管理します。
 
-APIキー不要のデモでは、別プロセスの3 peerがCSV集計とHTMLレポートの能力を形成し、
-別主体による検証、移転、合成利用、依存失効を一巡させます。
+APIキー不要のデモでは、別プロセスの3 peerがCSV集計とHTMLレポートを登録し、
+別主体による検証、A2A bindingの導入と再検証、合成利用、依存失効を一巡させます。
+処理コードは移転せず、提供側の登録能力を呼び出します。
 0.2.0の開発版では、登録binding、永続invocation、ページ同期・履歴、形成receiptを
 追加しています。[外部の文書処理例](examples/document_application.py)では、3プロセスで
 C3を合成・検証し、その出力からC4を形成して、再起動と元能力の撤回まで確認します。
@@ -56,8 +57,19 @@ uv run collective-intelligence-overlay demo --directory .local/demo
 
 ## 既存agentへの追加
 
-`Overlay.qualify(request)`で候補を調べ、`Overlay.execute(request, operation)`で
-実行直前に再判定します。[MAF/MCP/A2A連携](docs/integrations.md)と
+hostがbinding、導入済み関数、入力評価器、実行contextを指定し、そのRegistryに
+接続した永続Executorを使います。
+
+```python
+registry.register_local(binding, operation, assess)
+invocation = await executor.invoke(
+    "caller-stable-operation-id", binding.id, binding.digest, arguments, context
+)
+```
+
+通常利用の前に対応する候補を公開し、独立した検証を受けます。実行時には実際の
+入力と権限を再検査し、ownerの予算を予約して同じIDに結果を保存します。
+実行完了は検証PASSではありません。[MAF/MCP/A2A連携](docs/integrations.md)と
 [API/CLI](docs/api.md)に具体例があります。model呼出しには明示的なopt-inが必要です。
 
 DBとhostの管理者を信頼する構成です。[セキュリティ境界](docs/security.md)、

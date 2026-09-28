@@ -66,6 +66,7 @@ def initialize(directory: Path, admin_url: str, opa: str) -> dict[str, Config]:
             keyfile.write_bytes(signers[name].private_bytes)
             os.chmod(keyfile, 0o600)
             config = Config(
+                execution_environment={"reference": "1"},
                 owner=name,
                 database_url=SecretStr(url.render_as_string(hide_password=False)),
                 private_key=keyfile,
@@ -158,50 +159,67 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
                 raise RuntimeError("peer startup timeout")
         setup_started = time.perf_counter_ns()
         source = (directory / "formation.csv").read_text(encoding="utf-8")
-        candidates = []
-        for name, data in (("csv-sum", source), ("render-report", '{"rows":3,"total":"17.75"}')):
-            formed = await call(
-                "producer", operation="work", mode="form", attempt=uid(), name=name, source=data
+        registered = (await call("producer", operation="reference-register"))["registrations"]
+
+        async def verify_registered(owner: str, item: dict[str, Any], source: str) -> None:
+            binding = item["binding"]
+            cap = item["capability"]
+            arguments = (
+                {"summary": json.loads(source)}
+                if cap["entrypoint"] == "render-report"
+                else {"source": source}
             )
+            probe = await send(
+                configs["verifier"],
+                identities["verifier"],
+                owner,
+                {
+                    "operation": "invoke",
+                    "invocation_id": uid(),
+                    "binding_id": binding["id"],
+                    "binding_digest": cap["binding_digest"],
+                    "arguments": arguments,
+                    "purpose": "verification",
+                },
+            )
+            if probe.get("state") != "completed":
+                raise RuntimeError(f"reference probe failed: {probe}")
             checked = await call(
                 "verifier",
                 operation="work",
-                mode="verify",
+                mode="verify-registered",
                 attempt=uid(),
-                capability=formed["capability"],
-                source=data,
-                result=formed["result"],
+                capability=cap,
+                binding=binding,
+                source=source,
+                result=probe["result"],
                 receiver="receiver",
             )
             if checked["evidence"]["verdict"] != "PASS":
-                raise RuntimeError("reference verification failed")
-            candidates.append(formed["capability"])
-        composite = await call(
-            "producer",
-            operation="work",
-            mode="form",
-            attempt=uid(),
-            name="csv-report",
-            source=source,
-            dependencies=[c["subject"] for c in candidates],
-        )
-        await call(
-            "verifier",
-            operation="work",
-            mode="verify",
-            attempt=uid(),
-            capability=composite["capability"],
-            source=source,
-            result=composite["result"],
-            receiver="receiver",
-        )
-        for name in ("producer", "verifier"):
-            await call("receiver", operation="sync", peer=name)
-        cap = composite["capability"]
+                raise RuntimeError("registered reference verification failed")
+            await call(owner, operation="sync", peer="verifier")
+
+        for item in registered:
+            data = (
+                '{"rows":3,"total":"17.75"}'
+                if item["capability"]["entrypoint"] == "render-report"
+                else source
+            )
+            await verify_registered("producer", item, data)
+        for peer in ("producer", "verifier"):
+            await call("receiver", operation="sync", peer=peer)
+        imported = []
+        for item in (registered[0], registered[2]):
+            local = await call("receiver", operation="reference-import", binding=item["binding"])
+            await verify_registered("receiver", local, source)
+            imported.append(local)
+        cap = imported[-1]["capability"]
         req = {
             "receiver": "receiver",
             "subject": cap["subject"],
             "scope": cap["scope"],
+            "capability_issuer": cap["issuer"],
+            "binding_digest": cap["binding_digest"],
             "semantic_fit": "confirmed",
         }
         admitted = await call("receiver", operation="qualify", request=req)
@@ -216,11 +234,11 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
         from .evaluation import compare_network
 
         setup_seconds = (time.perf_counter_ns() - setup_started) / 1e9
-        comparison = await compare_network(call, candidates[0])
+        comparison = await compare_network(call, imported[0]["capability"], imported[0]["binding"])
         await call(
             "producer",
             operation="revoke",
-            subject=candidates[0]["subject"],
+            subject=registered[0]["capability"]["subject"],
             reason="dependency withdrawn",
         )
         await call("receiver", operation="sync", peer="producer")
@@ -231,6 +249,8 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
             "shared_formation_transfer_seconds": setup_seconds,
             "admission": admitted["decision"]["outcome"],
             "held_out_result": reused["result"],
+            "execution_receipt": reused["invocation"]["receipt_id"],
+            "execution_path": "registered-A2A",
             "changed_environment": requalification["decision"]["outcome"],
             "after_dependency_revocation": rejected["decision"]["outcome"],
             "metrics": await call("receiver", operation="metrics"),

@@ -7,12 +7,13 @@ from decimal import Decimal
 from typing import Any, Literal
 
 from .artifacts import Artifacts
+from .bindings import Binding, ExecutionContext, Target, fingerprint
 from .config import Config
 from .models import Capability, Cost, Event, Subject, UseRequest, Verdict
 from .peer import PeerService
 from .queries import RecordQuery
-from .reference import capability, check, compose_report, csv_sum, render_report
-from .reference_bindings import register_reference
+from .reference import capability, check, csv_sum
+from .reference_bindings import check_registered, csv_scope, register_reference
 from .storage import Conflict
 
 
@@ -27,8 +28,78 @@ class ReferencePeerService(PeerService):
             callers=tuple(dict.fromkeys((config.owner, "verifier", "receiver"))),
             owner_probes=True,
         )
+        self.imported: dict[str, tuple[Binding, Capability]] = {}
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
+        if data.get("operation") == "reference-import":
+            if caller != self.config.owner:
+                raise ValueError("reference import is owner-only")
+            source = Binding.model_validate(data["binding"])
+            page = self.overlay.store.record_page(
+                RecordQuery(
+                    kinds=("capability",),
+                    issuer=source.issuer,
+                    subject=source.subject,
+                )
+            )
+            if len(page.items) != 1 or not isinstance(page.items[0], Capability):
+                raise ValueError("synchronize the source capability before importing")
+            original = page.items[0]
+            if original.binding_digest != source.digest:
+                raise ValueError("source binding mismatch")
+            peer = next(p for p in self.config.peers if p.identity == source.issuer)
+            subject = Subject(
+                id=f"{self.config.owner}/remote-{source.id}",
+                version="1",
+                digest=fingerprint([peer.identity, source.digest]),
+            )
+            binding = Binding.model_validate(
+                {
+                    **source.model_dump(),
+                    "id": "remote-" + source.id,
+                    "issuer": self.config.owner,
+                    "registrar": self.config.owner,
+                    "subject": subject,
+                    "components": (),
+                    "callers": (self.config.owner, "verifier"),
+                    "verification_callers": ("verifier",),
+                    "target": Target(
+                        kind="a2a",
+                        name=source.id,
+                        peer=peer.identity,
+                        endpoint=peer.url,
+                        interface_digest=source.digest,
+                        implementation_identity="remote-unknown",
+                    ),
+                }
+            )
+            candidate = Capability.model_validate(
+                {
+                    **original.model_dump(),
+                    "issuer": self.config.owner,
+                    "subject": subject,
+                    "binding_digest": binding.digest,
+                    "dependencies": (original.subject,),
+                    "dependency_issuers": (original.issuer,),
+                    "classification": "imported",
+                    "provenance": "configured reference A2A service; no code transfer",
+                }
+            )
+            if binding.id not in self.imported:
+                self.registry.register_a2a(
+                    binding,
+                    csv_scope if original.entrypoint != "render-report" else lambda _: True,
+                    self.config,
+                    self.identity,
+                )
+                self.overlay.store.put(self.identity.sign(candidate))
+                self.imported[binding.id] = binding, candidate
+            elif self.imported[binding.id][0].digest != binding.digest:
+                raise ValueError("import binding changed; explicit operator revision required")
+            return {
+                "binding": binding.model_dump(mode="json"),
+                "capability": candidate.model_dump(mode="json"),
+            }
         if data.get("operation") == "reference-register":
             if caller != self.config.owner:
                 raise ValueError("reference registration is owner-only")
@@ -63,6 +134,39 @@ class ReferencePeerService(PeerService):
 
     async def work(self, data: dict[str, Any]) -> dict[str, Any]:
         """Finite single-attempt reference work with local budget and persistent fencing."""
+        if data["mode"] == "reuse" and data["request"].get("binding_digest"):
+            request = UseRequest.model_validate(data["request"])
+            pairs = (*self.registered, *self.imported.values())
+            registered_matches = [
+                (b, c)
+                for b, c in pairs
+                if c.subject == request.subject
+                and c.issuer == request.capability_issuer
+                and b.digest == request.binding_digest
+                and b.scope == request.scope
+            ]
+            if len(registered_matches) != 1:
+                raise ValueError("missing or ambiguous installed reference binding")
+            binding, selected_cap = registered_matches[0]
+            arguments = (
+                {"summary": json.loads(data["source"])}
+                if selected_cap.entrypoint == "render-report"
+                else {"source": data["source"]}
+            )
+            result = await self.executor.invoke(
+                str(data["attempt"]),
+                binding.id,
+                binding.digest,
+                arguments,
+                ExecutionContext(
+                    caller=self.config.owner,
+                    environment=self.config.execution_environment,
+                    permissions=frozenset(self.config.policy.permissions),
+                ),
+            )
+            if result["state"] != "completed":
+                raise ValueError("reference invocation incomplete; inspect its saved state")
+            return {"result": result["result"], "invocation": result}
         attempt = str(data["attempt"])
         fence = self.overlay.store.acquire(
             attempt, self.config.owner, "work", Decimal(1), seconds=60
@@ -70,23 +174,11 @@ class ReferencePeerService(PeerService):
         started = time.perf_counter()
         cap: Capability | None = None
         pending: list[dict[str, Any]] = []
-        action: Literal["formation", "verification", "reuse", "composition"]
+        action: Literal["verification", "reuse"]
         try:
             mode = data["mode"]
             source = str(data.get("source", ""))
-            if mode == "form":
-                deps = tuple(Subject.model_validate(d) for d in data.get("dependencies", []))
-                cap = capability(self.config.owner, str(data["name"]), deps)
-                artifact = self.identity.sign(cap)
-                pending.append(artifact)
-                result = await self._run(cap.entrypoint, source)
-                response = {
-                    "capability": cap.model_dump(mode="json"),
-                    "result": result,
-                    "envelope": artifact,
-                }
-                action = "formation"
-            elif mode in {"scratch", "scratch_checked"}:
+            if mode in {"scratch", "scratch_checked"}:
                 # Explicit benchmark baseline: no overlay admission or shared evidence.
                 from .reference import verify_csv
 
@@ -106,33 +198,27 @@ class ReferencePeerService(PeerService):
                     "quality_checked": mode == "scratch_checked",
                 }
                 action = "reuse"
-            elif mode == "verify":
+            elif mode in {"verify", "verify-registered"}:
                 cap = Capability.model_validate(data["capability"])
                 self.artifacts.put(json.dumps(data["result"]).encode())
-                evidence = check(
-                    self.config.owner, cap, source, data["result"], str(data["receiver"])
+                evidence = (
+                    check_registered(
+                        self.config.owner,
+                        cap,
+                        Binding.model_validate(data["binding"]),
+                        source,
+                        data["result"],
+                        str(data["receiver"]),
+                    )
+                    if mode == "verify-registered"
+                    else check(
+                        self.config.owner, cap, source, data["result"], str(data["receiver"])
+                    )
                 )
                 envelope = self.identity.sign(evidence)
                 pending.append(envelope)
                 response = {"evidence": evidence.model_dump(mode="json"), "envelope": envelope}
                 action = "verification"
-            elif mode == "reuse":
-                req = UseRequest.model_validate(data["request"])
-                matches = [c for c in self.overlay.store.capabilities() if c.subject == req.subject]
-                if len(matches) != 1:
-                    raise ValueError("missing or ambiguous capability")
-                cap = matches[0]
-
-                async def operation() -> Any:
-                    # Only preinstalled code is executable, and its digest must match.
-                    expected = capability(cap.issuer, cap.entrypoint, cap.dependencies)
-                    if expected.subject != cap.subject:
-                        raise ValueError("unrecognized installed artifact")
-                    return await self._run(cap.entrypoint, source)
-
-                result = await self.overlay.execute(req, operation)
-                response = {"result": result}
-                action = "composition" if cap.dependencies else "reuse"
             else:
                 raise ValueError("unknown reference work mode")
             elapsed = Decimal(str(round(time.perf_counter() - started, 9)))
@@ -147,9 +233,7 @@ class ReferencePeerService(PeerService):
                 costs=(
                     Cost(
                         category="verification"
-                        if mode == "verify"
-                        else "formation"
-                        if mode == "form"
+                        if mode in {"verify", "verify-registered"}
                         else "use",
                         status="measured",
                         quantity=elapsed,
@@ -193,13 +277,3 @@ class ReferencePeerService(PeerService):
                 else:
                     self.overlay.store.finish(attempt, self.config.owner, fence, cancelled=True)
             raise
-
-    @staticmethod
-    async def _run(name: str, source: str) -> Any:
-        if name == "csv-sum":
-            return csv_sum(source)
-        if name == "render-report":
-            return render_report(json.loads(source))
-        if name == "csv-report":
-            return await compose_report(source)
-        raise ValueError("unregistered reference capability")

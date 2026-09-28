@@ -6,8 +6,11 @@ for the installed CSV aggregation and report rendering functions. It returns thr
 `Registry.execute` with their own arguments and assessment. The host publishes the
 new v2 candidates and obtains independent checks before ordinary reuse. Explicit
 read-only checker probes are permitted before PASS; their success is not evidence.
-Old v1 evidence is not reinterpreted as binding verification. The compatibility
-`peer --reference` demo conversion remains pending.
+Old v1 evidence is not reinterpreted as binding verification. The `peer --reference`
+application uses these packaged registrations. The CSV demo checks provider bindings,
+installs explicit receiver-side A2A imports, checks those imports, and invokes them
+through Executor. Reinitializing a peer requires reinstalling its configured remote
+imports before starting new calls; existing invocation lookup remains durable.
 
 Run the real-service example test with the PostgreSQL/OPA test environment:
 `uv run pytest tests/integration/test_reference_registration.py -q`. It covers
@@ -46,7 +49,8 @@ are rejected. Cards remain self-description, not verified capability evidence.
 
 Supported domain operations include discover, submit, owner sync, qualify, metrics,
 capability metrics, revoke, invoke, invocation lookup and cancellation. The bundled
-compatibility reference app explicitly enables its work operation. These are
+reference app explicitly enables candidate registration, configured service import
+and independent checking/baseline work. Its normal reuse path is registered execution. These are
 application payloads inside A2A; no
 parallel RPC protocol is implemented. A2A completion only reports delivery/execution
 state; the Decision/Evidence payload contains business acceptance.

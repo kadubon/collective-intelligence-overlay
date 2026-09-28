@@ -295,6 +295,14 @@ The earlier development commit e88a5f6 passed actual GitHub Linux/Windows CI:
 checks and Windows package tests. The ordinary-push publish job was skipped.
 There is still no 0.2.0 tag or PyPI publication.
 
+Twentieth checkpoint: the default CSV demo now publishes explicit v2 bindings,
+checks provider and receiver-imported bindings through actual verification probes,
+and reuses them through the persistent Executor and A2A transport. The old reference
+formation/reuse callback branches were removed. The evaluation command uses the
+same registered network path. Both three-process demos and the reference registration
+checks passed together (4 tests, 76.46 seconds). Full final distribution checks and
+release publication remain pending.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

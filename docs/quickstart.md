@@ -32,10 +32,13 @@ uv run collective-intelligence-overlay metrics --config .local/demo/receiver/con
 ```
 
 The demo creates random database roles/databases, per-peer signing keys, bounded
-work budgets and three A2A server processes. It writes real formation/evaluation
-CSVs into the chosen directory. The producer registers aggregate, renderer and
-composite candidates. The verifier uses a separate checker; the receiver imports
-signed evidence and applies its own OPA policy. MAF executes the two-stage report.
+work budgets and three A2A server processes. It writes real evaluation CSVs into
+the chosen directory. The producer registers aggregate, renderer and composite
+candidates. The verifier probes those bindings and independently checks the output;
+the receiver imports remote-service bindings and obtains separate checks for them.
+It applies its own OPA policy before calling the provider through A2A. MAF executes
+the two-stage report, with separate child admission. This installs known functions;
+the document application below demonstrates observed-use formation.
 Changing the environment requires requalification; revoking the aggregate blocks
 the composite. Child processes stop, but keys, databases and result artifacts remain.
 

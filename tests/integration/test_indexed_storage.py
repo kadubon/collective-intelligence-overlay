@@ -158,7 +158,10 @@ async def test_cost_event_during_check_does_not_invalidate_subject(
     assert overlay.store.revisions(set(before)) == before
 
 
-def test_transactional_prefix_serializes_writers_and_rollbacks(store, identities, records):
+@pytest.mark.parametrize("commit_first", [False, True])
+def test_transactional_prefix_serializes_writers_and_rollbacks(
+    store, identities, records, commit_first
+):
     cap, evidence = records
     started = ThreadEvent()
     with ThreadPoolExecutor(max_workers=1) as pool:
@@ -178,14 +181,25 @@ def test_transactional_prefix_serializes_writers_and_rollbacks(store, identities
                 assert reader.execute(select(feed_state.c.sequence)).scalar_one() == 0
                 assert reader.execute(select(record_table.c.sequence)).all() == []
             assert not pending.done()
-            transaction.rollback()
+            if commit_first:
+                transaction.commit()
+            else:
+                transaction.rollback()
         assert pending.result(timeout=5)
     with store.engine.connect() as reader:
-        assert reader.execute(select(feed_state.c.sequence)).scalar_one() == 1
-        assert reader.execute(select(record_table.c.kind, record_table.c.sequence)).all() == [
-            ("evidence", 1)
-        ]
-    assert store.put(identities["producer"].sign(cap))
+        assert reader.execute(select(feed_state.c.sequence)).scalar_one() == (
+            2 if commit_first else 1
+        )
+        expected = [("capability", 1), ("evidence", 2)] if commit_first else [("evidence", 1)]
+        assert (
+            reader.execute(
+                select(record_table.c.kind, record_table.c.sequence).order_by(
+                    record_table.c.sequence
+                )
+            ).all()
+            == expected
+        )
+    assert store.put(identities["producer"].sign(cap)) is not commit_first
     assert not store.put(identities["producer"].sign(cap))
     with store.engine.connect() as reader:
         assert reader.execute(select(feed_state.c.sequence)).scalar_one() == 2

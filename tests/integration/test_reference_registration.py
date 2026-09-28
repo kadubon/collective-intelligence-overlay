@@ -11,6 +11,31 @@ from collective_intelligence_overlay.reference import verify_csv
 from collective_intelligence_overlay.security import digest
 
 
+def test_registered_checker_binds_evidence_to_exact_contract(overlay):
+    from collective_intelligence_overlay.reference_bindings import (
+        check_registered,
+        register_reference,
+    )
+
+    binding, cap = register_reference(Registry(overlay), "verifier")[0]
+    source = "category,amount\na,3.50\n"
+    observed = check_registered(
+        "verifier", cap, binding, source, {"rows": 1, "total": "3.50"}, "receiver"
+    )
+    assert observed.verdict == "PASS"
+    assert observed.binding_digest == binding.digest
+    assert observed.subject == cap.subject
+    incorrect = check_registered(
+        "verifier", cap, binding, source, {"rows": 1, "total": "99.00"}, "receiver"
+    )
+    assert incorrect.verdict == "FAIL"
+    for update in ({"claim": "different claim"}, {"binding_digest": "0" * 64}):
+        with pytest.raises(ValueError, match="contract mismatch"):
+            check_registered(
+                "verifier", cap.model_copy(update=update), binding, source, {}, "receiver"
+            )
+
+
 async def test_reference_functions_register_and_check_each_child(overlay, identities):
     path = Path(__file__).parents[2] / "examples/reference_registration.py"
     spec = importlib.util.spec_from_file_location("registered_reference_example", path)

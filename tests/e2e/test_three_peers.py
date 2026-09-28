@@ -33,6 +33,8 @@ async def test_three_process_lifecycle(tmp_path, policy, monkeypatch):
     assert all(r["correct"] == r["tasks"] == 3 for r in result["comparison"])
     assert result["admission"] == "ACCEPT"
     assert result["held_out_result"] == "<p>Rows: 3; total: 117.00</p>"
+    assert result["execution_path"] == "registered-A2A"
+    assert result["execution_receipt"]
     assert result["changed_environment"] == "REQUALIFY"
     assert result["after_dependency_revocation"] == "REJECT"
     assert result["metrics"]["actions"]["import"] >= 6

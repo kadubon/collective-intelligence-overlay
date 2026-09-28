@@ -17,6 +17,10 @@ The offline `restore-state` command rotates feed generations and invalidates loc
 sync freshness after database restoration without rewriting signed history or budgets.
 CLI `invoke`, `invocation` and `cancel-invocation` use the existing authenticated A2A
 operations; `binding-check` validates a manifest without registering executable code.
+The default CSV demo now registers v2 bindings, independently checks actual probes
+and invokes imported provider capabilities through persistent A2A execution. The
+evaluation script uses this same path; legacy hard-coded formation/reuse dispatch
+has been removed from the reference peer.
 
 An external document application exercises three independent peer processes:
 remote C1 use, MAF C3 composition, C3-based C4 calibration, separate checking,

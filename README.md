@@ -19,8 +19,8 @@ the overlay records evidence, qualifies reuse and stops known-invalid dependenci
 - Receiver-specific OPA decisions: ACCEPT / REQUALIFY / REJECT / UNKNOWN.
 - PostgreSQL persistence, duplicate/conflict detection, budgets and fenced result commits.
 - Real A2A HTTP exchange, MAF function middleware/workflow composition and MCP HTTP calls.
-- A three-process demo: form CSV tools, independently check outputs, reuse an HTML
-  report workflow, then invalidate it by revoking its aggregate dependency.
+- A three-process demo: register CSV tools, independently check their outputs and
+  imported A2A bindings, reuse an HTML report workflow, then revoke its dependency.
 - Typed costs and an explicitly limited deterministic comparison.
 
 The 0.2.0 development checkout also supports typed local/MCP/A2A bindings,
@@ -76,15 +76,23 @@ and clean-install verification are recorded in [releasing](docs/releasing.md).
 ## Add to an existing agent
 
 Importing the core never opens a database or runs a migration. The host supplies
-an `Overlay`, a pinned `UseRequest` and a trusted local operation:
+an `Overlay`, explicitly installed `Registry` bindings and a persistent `Executor`:
 
 ```python
-decision = await overlay.qualify(request)
-result = await overlay.execute(request, registered_operation)
+registry.register_local(binding, operation, assess)
+invocation = await executor.invoke(
+    "caller-stable-operation-id", binding.id, binding.digest, arguments, context
+)
 ```
 
-`execute` requalifies immediately before calling the operation. A previous ACCEPT
-is not a permanent permission. [Integration](docs/integrations.md) shows MAF
+Here the host supplies the pinned binding, installed function, input assessment,
+execution context and executor connected to that registry. Publish the corresponding
+candidate and obtain independent evidence before ordinary reuse.
+The executor checks the binding and actual inputs at execution, reserves the owner's
+budget and retains the result under the caller's stable ID. Completion is not an
+independent PASS. A previous ACCEPT is not a permanent permission. The lower-level
+`Overlay.execute` callback API remains available for compatibility.
+[Integration](docs/integrations.md) shows registration, MAF
 middleware and the real, opt-in model example. See [API and CLI](docs/api.md) for
 configuration, exceptions, cancellation and the operator/agent boundary.
 

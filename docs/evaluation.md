@@ -38,19 +38,15 @@ Network, verification and overlay overhead are timed. Initial formation/transfer
 is reported separately, and no counterfactual saving is inferred. Real model budgets,
 long-term maintenance and organization effects remain unmeasured.
 
-`scripts/evaluate_reference.py` additionally uses the public API for a deterministic mechanism
-microbenchmark. Four arms use the same installed transformation, checker and three
-held-out inputs: single-agent local cache, separate roles without persistent sharing,
-shared memory, and overlay admission. Baselines retain competent caching and the
-same output checks. All execute serially. The role-based baseline is not a separate
-distributed-agent performance experiment; topology, network and real model costs
-are not matched by this microbenchmark.
-
-Elapsed times include execution, checking, failed attempts and overlay process/DB
-overhead. Setup reports database/identity provisioning, formation, checking and local
-transfer separately; maintenance read timing is also explicit. Unknown currency,
-long-term maintenance and unmeasured network costs remain unavailable. No cost saving
-is inferred from an unmeasured counterfactual. The benchmark may show only overhead.
+`scripts/evaluate_reference.py` runs the same three-process registered demo and
+writes `evaluation.json`; it does not maintain a second execution path. The overlay
+arm uses a checked receiver-side A2A binding, provider admission and durable
+invocations. Setup includes registration, checking, synchronization and service
+import. The historical `shared_formation_transfer_seconds` output key is retained
+for compatibility; it does not claim the preinstalled CSV algorithm was invented.
+Elapsed times include network, execution, checking and overlay overhead. Unknown
+currency and long-term maintenance remain unavailable. No cost saving is inferred
+from an unmeasured counterfactual; this test may show only overhead.
 
 Metrics group immutable events and typed cost records. They retain formation,
 verification, transfer, use, failure, maintenance and other categories when supplied.

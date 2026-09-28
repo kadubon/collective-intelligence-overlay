@@ -1,5 +1,14 @@
 # Validation status
 
+Registered-demo checkpoint: the complete local service suite passed **106 tests,
+zero skips, 242.72 seconds**. The subsequent commit/rollback parameterization and
+registered checker mismatch/FAIL tests passed with their focused suites (**10 tests,
+17.09 seconds**). Both changes are included in the next distribution run.
+The standalone evaluation command also completed its three-process registered-A2A
+path: ACCEPT, 117.00, REQUALIFY, REJECT, with a durable execution receipt. All four
+deterministic comparison arms returned 3/3 correct; their timings do not establish
+model-quality or speed gains. Ruff, format, mypy and documentation checks pass.
+
 Local 0.2.0 distribution preparation: wheel/sdist build and strict twine checks
 passed. A fresh environment outside the checkout passed the core import/version/path
 checks, **96 agents tests (251.90 seconds, zero skips)** and **one model adapter test
