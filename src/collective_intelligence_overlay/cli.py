@@ -25,6 +25,10 @@ def main() -> int:
     demo.add_argument("--directory", type=Path, required=True)
     demo.add_argument("--database-url", default=os.environ.get("CIO_TEST_DATABASE_URL"))
     demo.add_argument("--opa", default=os.environ.get("CIO_OPA", "opa"))
+    binding_check = commands.add_parser(
+        "binding-check", help="validate a manifest; does not register it"
+    )
+    binding_check.add_argument("--manifest", type=Path, required=True)
     for name in (
         "check-config",
         "migrate",
@@ -34,9 +38,20 @@ def main() -> int:
         "doctor",
         "sync",
         "restore-state",
+        "invoke",
+        "invocation",
+        "cancel-invocation",
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
+        if name in {"invoke", "invocation", "cancel-invocation"}:
+            cmd.add_argument("--peer", required=True)
+            cmd.add_argument("--invocation-id", required=True)
+        if name == "invoke":
+            cmd.add_argument("--binding-id", required=True)
+            cmd.add_argument("--binding-digest", required=True)
+            cmd.add_argument("--arguments-file", type=Path, required=True)
+            cmd.add_argument("--purpose", choices=["reuse", "verification"], default="reuse")
         if name in {"inspect", "metrics"}:
             cmd.add_argument("--query-file", type=Path)
             cmd.add_argument("--cursor-file", type=Path)
@@ -65,7 +80,17 @@ def main() -> int:
     overlay = None
     try:
         result: Any
-        if args.command == "demo":
+        if args.command == "binding-check":
+            from .bindings import Binding
+
+            binding = Binding.model_validate(_json_file(args.manifest))
+            result = {
+                "valid": True,
+                "binding_digest": binding.digest,
+                "binding": binding.model_dump(mode="json"),
+                "registered": False,
+            }
+        elif args.command == "demo":
             from .demo import initialize, run_demo
 
             if not args.database_url:
@@ -88,6 +113,24 @@ def main() -> int:
                     "freshness": "invalidated",
                     "required": "reconcile post-backup work and resynchronize before use",
                 }
+            elif args.command in {"invoke", "invocation", "cancel-invocation"}:
+                from .adapters.a2a import send
+
+                request = {
+                    "operation": args.command.replace("-", "_"),
+                    "invocation_id": args.invocation_id,
+                }
+                if args.command == "invoke":
+                    arguments = _json_file(args.arguments_file)
+                    if not isinstance(arguments, dict):
+                        raise ValueError("invocation arguments must be a JSON object")
+                    request.update(
+                        binding_id=args.binding_id,
+                        binding_digest=args.binding_digest,
+                        arguments=arguments,
+                        purpose=args.purpose,
+                    )
+                result = asyncio.run(send(config, identity, args.peer, request))
             elif args.command == "sync":
                 from .adapters.a2a import synchronize
 
@@ -179,6 +222,18 @@ def main() -> int:
                     print(json.dumps(result))
                     return 2
         print(json.dumps(result, ensure_ascii=False, default=str))
+        if args.command in {"invoke", "invocation", "cancel-invocation"}:
+            if result.get("error"):
+                return 2
+            invocation = result if args.command == "invoke" else result.get("invocation")
+            if invocation is None:
+                return 4
+            state = invocation.get("state")
+            if state == "running":
+                return 3
+            if args.command == "cancel-invocation" and state == "cancelled":
+                return 0
+            return 0 if state == "completed" else 2
         if args.command == "sync" and not result["complete"]:
             return 3
         if (
@@ -220,18 +275,21 @@ def main() -> int:
             overlay.store.close()
 
 
-def _inspection(args: argparse.Namespace, kind: str) -> tuple[RecordQuery, RecordCursor | None]:
-    def read(path: Path) -> Any:
-        if path.stat().st_size > 65536:
-            raise ValueError("inspection argument file exceeds byte bound")
-        return json.loads(path.read_text(encoding="utf-8"))
+def _json_file(path: Path) -> Any:
+    with path.open("rb") as source:
+        content = source.read(65537)
+    if len(content) > 65536:
+        raise ValueError("JSON argument file exceeds byte bound")
+    return json.loads(content)
 
+
+def _inspection(args: argparse.Namespace, kind: str) -> tuple[RecordQuery, RecordCursor | None]:
     query = RecordQuery.model_validate(
-        read(args.query_file) if args.query_file else {"kinds": [kind]}
+        _json_file(args.query_file) if args.query_file else {"kinds": [kind]}
     )
     if query.kinds != (kind,):
         raise ValueError("inspection query kind differs from command")
-    cursor = RecordCursor.model_validate(read(args.cursor_file)) if args.cursor_file else None
+    cursor = RecordCursor.model_validate(_json_file(args.cursor_file)) if args.cursor_file else None
     return query, cursor
 
 

@@ -30,6 +30,8 @@ The trusted host registers preinstalled callables or configured MCP/A2A services
 through `Registry`, with input/output schemas, caller/resource bounds and an
 application assessment of the actual arguments. A remote interface hash does not
 prove remote implementation code identity. Never load received code to register it.
+`binding-check --manifest PATH` validates JSON and computes its digest; it does not
+perform that registration or grant execution.
 
 Use `Executor.invoke` with the expected binding digest, actual arguments,
 host-constructed `ExecutionContext` and a stable invocation ID. It qualifies and
@@ -39,6 +41,8 @@ After a lost response, use `executor.store.get(caller, invocation_id)` or the
 authenticated A2A `invocation` operation. Repeat the same request/ID only to obtain
 its running or saved result. Changed requests conflict; UNKNOWN after dispatch
 requires reconciliation before a new attempt. Cancellation does not prove zero cost.
+The CLI exposes the same authenticated path as `invoke`, `invocation` and
+`cancel-invocation`; use the full flags and exit-state mapping in the API reference.
 
 Read-only verification probes require an operator's explicit `verification_callers`
 grant and verification purpose. A successful probe is neither independent PASS

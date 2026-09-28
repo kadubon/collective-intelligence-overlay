@@ -201,6 +201,10 @@ CLI commands all use the SDK:
 | `--version` | Distribution version |
 | `check-config --config PATH` | Configuration and pinned-key check |
 | `migrate --config PATH` | Apply packaged Alembic revisions |
+| `binding-check --manifest PATH` | Validate bounded Binding JSON and report its digest; does not register code or grant execution |
+| `invoke --config PATH --peer NAME --invocation-id ID --binding-id ID --binding-digest DIGEST --arguments-file PATH` | Invoke an already registered provider binding with a stable ID |
+| `invocation --config PATH --peer NAME --invocation-id ID` | Retrieve the authenticated caller's durable result/state |
+| `cancel-invocation --config PATH --peer NAME --invocation-id ID` | Request cancellation without assuming external effects were undone |
 | `restore-state --config PATH` | Offline post-restore feed rotation and freshness invalidation; reconcile missing work before use |
 | `peer --config PATH [--reference]` | Run an A2A peer; explicitly enable the compatibility reference app |
 | `demo --directory PATH [--database-url URL] [--opa PATH]` | Three-process deterministic loop |
@@ -211,3 +215,18 @@ CLI commands all use the SDK:
 Success exits 0; invalid arguments/configuration/service failures exit 2. Errors are
 redacted by default. `CIO_DEBUG=1` is local troubleshooting only and can include
 sensitive exception context; never enable it in shared logs.
+
+Invocation commands print the provider's JSON state. Completed execution exits 0,
+running exits 3, absent caller-owned invocation exits 4, and rejected/conflict/UNKNOWN
+or other unsuccessful execution exits 2. `cancel-invocation` also exits 0 for a
+confirmed pre-dispatch `cancelled` result; post-dispatch uncertainty remains exit 2.
+Cancellation does not undo effects or refund reservations. Use the same stable ID
+after a lost response and inspect the saved state before authorizing another attempt.
+`invoke --purpose verification` requests only an already configured read-only grant;
+it cannot grant itself authority or create PASS evidence. Arguments are a JSON object
+in a file limited to 64 KiB; CLI identity comes from the protected owner config.
+
+`binding-check` validates the bounded manifest and computes its digest, without
+loading code, connecting to a service or registering the manifest. Actual registration
+uses the trusted application's `Registry` setup callback. There is deliberately no
+CLI that loads executable code named by an untrusted manifest.

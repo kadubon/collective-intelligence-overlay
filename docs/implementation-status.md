@@ -272,6 +272,15 @@ sync/inspection CLI options were checked. CLI invocation/result and binding
 inspection conveniences, compatibility demo conversion, final documentation audit
 and CI/publication remain pending.
 
+Eighteenth checkpoint: CLI invoke/result/cancel commands now delegate to the
+existing authenticated A2A operations with caller identity from config. Stable IDs,
+explicit purpose, bounded JSON input and state-specific exit codes are preserved.
+`binding-check` validates a manifest without loading/registering code. Eight CLI
+tests passed; the real three-process document E2E now invokes C4 through the CLI and
+looks up its same result after peer restart (**1 passed, 41.59 seconds**). Ruff,
+strict mypy and docs checks pass. Compatibility demo conversion and final release
+audit/CI/publication remain pending; package validation must rerun on final artifacts.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

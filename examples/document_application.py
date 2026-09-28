@@ -523,6 +523,33 @@ async def run_application(directory: Path, configs: dict[str, Config]) -> dict[s
     async def call(owner: str, **data: Any) -> dict[str, Any]:
         return await send(configs[owner], identities[owner], owner, data)
 
+    async def cli_call(command: str, *arguments: str) -> dict[str, Any]:
+        process = await asyncio.create_subprocess_exec(
+            sys.executable,
+            "-m",
+            "collective_intelligence_overlay.cli",
+            command,
+            "--config",
+            str((directory / "receiver/config.json").resolve()),
+            "--peer",
+            "receiver",
+            "--invocation-id",
+            "held-out-triage",
+            *arguments,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE,
+        )
+        try:
+            stdout, stderr = await asyncio.wait_for(process.communicate(), 45)
+        except BaseException:
+            if process.returncode is None:
+                process.terminate()
+                await process.wait()
+            raise
+        if process.returncode != 0:
+            raise ValueError(f"CLI {command} failed: {stderr.decode(errors='replace')}")
+        return dict(json.loads(stdout))
+
     async def start(owner: str) -> None:
         log = (directory / owner / "document-peer.log").open("ab")
         logs.append(log)
@@ -653,7 +680,19 @@ async def run_application(directory: Path, configs: dict[str, Config]) -> dict[s
             accepted = await call("receiver", operation="capability_metrics", requests=requests)
             held_out = "This previously unseen document has its own content."
             use_request = invocation(c4, "held-out-triage", held_out)
-            result = await call("receiver", **use_request)
+            argument_file = directory / "held-out-arguments.json"
+            await asyncio.to_thread(
+                argument_file.write_text, json.dumps({"text": held_out}), encoding="utf-8"
+            )
+            result = await cli_call(
+                "invoke",
+                "--binding-id",
+                c4.id,
+                "--binding-digest",
+                c4.digest,
+                "--arguments-file",
+                str(argument_file.resolve()),
+            )
             expected = {"long": len(re.findall(r"\S+", held_out)) > 2, "threshold": 2}
             if result["state"] != "completed" or result["result"] != expected:
                 raise ValueError("held-out composed execution failed")
@@ -665,6 +704,9 @@ async def run_application(directory: Path, configs: dict[str, Config]) -> dict[s
             replay = await call("receiver", **use_request)
             if replay != result:
                 raise ValueError("durable invocation result changed after restart")
+            looked_up = await cli_call("invocation")
+            if looked_up["invocation"] != result:
+                raise ValueError("CLI lookup differs from durable result after restart")
             await call(
                 "producer",
                 operation="revoke",

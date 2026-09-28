@@ -15,6 +15,8 @@ Migration 0008 enables indexed reverse dependency filters on the existing bounde
 record pages, with explicit handling of legacy unknown-issuer edges.
 The offline `restore-state` command rotates feed generations and invalidates local
 sync freshness after database restoration without rewriting signed history or budgets.
+CLI `invoke`, `invocation` and `cancel-invocation` use the existing authenticated A2A
+operations; `binding-check` validates a manifest without registering executable code.
 
 An external document application exercises three independent peer processes:
 remote C1 use, MAF C3 composition, C3-based C4 calibration, separate checking,
