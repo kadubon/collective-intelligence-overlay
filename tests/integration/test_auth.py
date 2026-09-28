@@ -9,6 +9,19 @@ from collective_intelligence_overlay.config import Config, TrustedIdentity
 from collective_intelligence_overlay.models import now
 
 
+def test_extension_preserves_exact_json_numbers_through_protobuf():
+    from google.protobuf.struct_pb2 import Value
+
+    from collective_intelligence_overlay.adapters.a2a import extension_data, read_extension_data
+    from collective_intelligence_overlay.bindings import fingerprint
+
+    original = {"integer": 2**80 + 7, "schema": {"maximum": 4096}, "decimal": 1.0}
+    restored = read_extension_data(Value.FromString(extension_data(original).SerializeToString()))
+    assert restored == original
+    assert fingerprint(restored) == fingerprint(original)
+    assert isinstance(restored["schema"]["maximum"], int)
+
+
 async def test_authentication_expiry_wrong_audience_and_size(identities, tmp_path):
     identity = identities["producer"]
     config = Config(

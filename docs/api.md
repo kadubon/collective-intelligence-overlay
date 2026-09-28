@@ -48,6 +48,26 @@ by migration; new work does not infer actual consumption from reservation quanti
 The low-level `Overlay.execute(request, operation)` remains a trusted-host API;
 registered execution binds the exact actuator and actual arguments instead.
 
+To let an independent checker exercise a candidate before it has PASS evidence,
+the operator may set `Binding.verification_callers` for a **read-only** binding.
+Those callers request `ExecutionContext(purpose="verification", ...)`, or send
+`purpose: "verification"` with an A2A invocation. The ordinary caller allowlist,
+actual input/resource checks, semantic applicability, permissions, licenses,
+freshness, known counterexamples/withdrawals, child admission and work reservations
+still apply. Only the missing-independent-PASS requirement is waived for that root
+probe. The wire caller cannot supply an authorization grant. A plain qualification
+request with that purpose is rejected unless trusted host code explicitly supplies
+the grant; `verification_granted` on the low-level Overlay API is privileged host
+input, like its operation callback.
+
+Probe completion persists a `verification` execution receipt and an UNKNOWN
+business outcome. It creates no PASS, does not count as first ordinary reuse and
+cannot establish an observed-use formation link. An independent checker must
+inspect its output and issue separately scoped evidence. Stable invocation identity
+includes purpose, so an invocation cannot be retried with a different purpose.
+Policy ACCEPT for a probe means permission to verify only; its decision reason and
+request purpose distinguish it from reuse permission.
+
 `lineage.FormationSession(registry, identity, max_steps=16, max_seconds=120)`
 records completed `Executor` calls observed during bounded operator construction.
 Within its async context, install the resulting local binding, then call

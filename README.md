@@ -23,6 +23,13 @@ the overlay records evidence, qualifies reuse and stops known-invalid dependenci
   report workflow, then invalidate it by revoking its aggregate dependency.
 - Typed costs and an explicitly limited deterministic comparison.
 
+The 0.2.0 development checkout also supports typed local/MCP/A2A bindings,
+durable invocations, paged synchronization/history and observed formation receipts.
+An [external document application](examples/document_application.py) demonstrates
+three peers building and checking C3, using it to construct C4, restarting and
+stopping both descendants after withdrawal. See the [tutorial](docs/quickstart.md)
+and [current validation scope](docs/implementation-status.md); 0.2.0 is not yet published.
+
 A signature establishes origin, not truth. Sample checks do not prove correctness on
 all future data. Distinct local identities are not independent organizations or
 statistically independent evidence. This software does not prove intelligence growth.

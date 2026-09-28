@@ -85,6 +85,7 @@ def _public(row: Any) -> dict[str, Any]:
     }
     for key in ("created_at", "updated_at"):
         result[key] = row[key].isoformat()
+    result["purpose"] = row["request"].get("purpose", "reuse")
     return result
 
 
@@ -310,6 +311,7 @@ class Executor:
         request = {
             "owner": self.identity.name,
             "caller": context.caller,
+            "purpose": context.purpose,
             "binding": binding_id,
             "binding_digest": binding_digest,
             "arguments": arguments,
@@ -348,21 +350,31 @@ class Executor:
                 id=claim["lease_id"],
                 issuer=self.identity.name,
                 subject=prepared.binding.subject,
-                action="failure" if failed else "reuse",
+                action="failure" if failed else context.purpose,
                 task_id=invocation_id,
                 attempt_id=claim["lease_id"],
                 correlation_id=invocation_id,
                 outcome=Verdict.UNKNOWN,
                 costs=(
                     Cost(
-                        category="failure" if failed else "use",
+                        category="failure"
+                        if failed
+                        else "verification"
+                        if context.purpose == "verification"
+                        else "use",
                         status="measured",
                         quantity=Decimal(str(round(time.perf_counter() - started, 9))),
                         unit="wall_seconds",
                     ),
-                    Cost(category="use", status="unavailable", quantity=None, unit="USD"),
+                    Cost(
+                        category="verification" if context.purpose == "verification" else "use",
+                        status="unavailable",
+                        quantity=None,
+                        unit="USD",
+                    ),
                 ),
                 execution=ExecutionReceipt(
+                    purpose=context.purpose,
                     invocation_id=invocation_id,
                     caller=context.caller,
                     resource_owner=self.identity.name,
@@ -409,7 +421,12 @@ class Executor:
 
     def _observe(self, result: dict[str, Any]) -> None:
         sink = formation_receipts.get()
-        if sink is not None and result["state"] == "completed" and result.get("receipt_id"):
+        if (
+            sink is not None
+            and result["state"] == "completed"
+            and result.get("receipt_id")
+            and result.get("purpose") == "reuse"
+        ):
             ref = ReceiptRef(issuer=result["owner"], id=result["receipt_id"])
             if ref not in sink:
                 if len(sink) >= 64:

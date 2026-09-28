@@ -80,6 +80,7 @@ class Binding(BaseModel):
     input_schema: dict[str, Any]
     output_schema: dict[str, Any]
     callers: tuple[Identifier, ...] = Field(min_length=1, max_length=128)
+    verification_callers: tuple[Identifier, ...] = Field(default=(), max_length=128)
     permissions: tuple[Identifier, ...] = Field(default=(), max_length=64)
     effects: Literal["read-only", "idempotent", "reconcile-required"]
     # JSON pointers to security-relevant argument values and exact allowed values.
@@ -89,6 +90,10 @@ class Binding(BaseModel):
 
     @model_validator(mode="after")
     def schemas(self) -> Binding:
+        if self.verification_callers and (
+            self.effects != "read-only" or not set(self.verification_callers) <= set(self.callers)
+        ):
+            raise ValueError("verification grants require read-only effects and authorized callers")
         if set(self.permissions) != set(self.scope.permissions):
             raise ValueError("binding and capability scope permissions differ")
         for schema in (self.input_schema, self.output_schema):
@@ -125,6 +130,7 @@ class ExecutionContext(BaseModel):
 
     model_config = ConfigDict(extra="forbid", frozen=True)
     caller: Identifier
+    purpose: Literal["reuse", "verification"] = "reuse"
     environment: dict[str, str]
     permissions: frozenset[str] = frozenset()
 
@@ -250,6 +256,8 @@ class Registry:
             raise ValueError("binding changed; requalification required")
         if context.caller not in binding.callers:
             raise ValueError("caller not authorized for binding")
+        if context.purpose == "verification" and context.caller not in binding.verification_callers:
+            raise ValueError("caller has no operator verification grant")
         if not set(binding.permissions) <= context.permissions:
             raise ValueError("insufficient execution permissions")
         if context.environment != binding.scope.environment:
@@ -266,6 +274,7 @@ class Registry:
         # Assessment is operator-installed domain logic, not inferred schema equality.
         fits = entry.assess(copy.deepcopy(actual)) is True
         request = UseRequest(
+            purpose=context.purpose,
             receiver=self.overlay.store.owner,
             subject=binding.subject,
             capability_issuer=binding.issuer,
@@ -315,10 +324,16 @@ class Registry:
                 await before_call()
                 # Durable dispatch can yield to another task: recheck admission
                 # and the exact registration after that await, before the actuator.
-                return await self.overlay.execute(prepared.request, actuator)
+                return await self.overlay.execute(
+                    prepared.request,
+                    actuator,
+                    verification_granted=context.purpose == "verification",
+                )
             return await actuator()
 
-        return await self.overlay.execute(prepared.request, operation)
+        return await self.overlay.execute(
+            prepared.request, operation, verification_granted=context.purpose == "verification"
+        )
 
     def register_mcp(self, binding: Binding, assess: Assessment, *, local: bool = False) -> None:
         if binding.target.kind != "mcp" or binding.target.endpoint is None:

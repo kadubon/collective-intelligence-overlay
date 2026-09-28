@@ -1,8 +1,9 @@
 # Validation status
 
-0.2.0 development: the latest full local PostgreSQL/OPA/SDK run passed 80 tests
-with zero skips (109.39 seconds). A subsequent decimal-aggregation correction
-passed the 9-test record/accounting unit module, including a new precision case.
+0.2.0 development: the latest full local PostgreSQL/OPA/SDK run passed 84 tests
+with zero skips (179.25 seconds), including the external three-process C1–C4
+document application. Subsequent numeric/formation-cost checks passed 5 focused
+tests, and the final MAF proposal-tool version of that E2E passed in 39.19 seconds.
 Ruff/format, strict mypy and documentation checks pass. Detailed scope and unfinished
 0.2.0 release gates are tracked in [implementation status](implementation-status.md).
 The release and package observations below concern 0.1.0 unless explicitly stated.

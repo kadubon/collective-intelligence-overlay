@@ -108,6 +108,9 @@ def metrics_page(
         "execution_states": dict(
             Counter(event.execution.state for event in events if event.execution)
         ),
+        "execution_purposes": dict(
+            Counter(event.execution.purpose for event in events if event.execution)
+        ),
         "transport_observations": dict(
             Counter(event.execution.transport for event in events if event.execution)
         ),
@@ -293,6 +296,10 @@ def _first_observations(
                     == projection_digest(request.scope.model_dump(mode="json"))
                 )
                 & (records.c.body["execution"]["state"].as_string() == "completed")
+                & or_(
+                    records.c.body["execution"]["purpose"].as_string() == "reuse",
+                    records.c.body["execution"]["purpose"].as_string().is_(None),
+                )
                 & (
                     records.c.body["execution"]["binding_digest"].as_string()
                     == request.binding_digest

@@ -217,6 +217,8 @@ async def test_standard_service_requires_external_check_and_preserves_unknown(
 async def test_standard_card_changes_and_required_extensions_block_dispatch(service):
     endpoint, card, operation = service
     binding = installed_binding(endpoint, card)
+    with pytest.raises(ValueError, match="numeric values"):
+        await invoke(binding.target, endpoint, {"text": "data", "unsafe_integer": 2**80 + 7})
     bad_pin = binding.target.model_copy(update={"interface_digest": fingerprint("different")})
     with pytest.raises(ValueError, match="card changed"):
         await invoke(bad_pin, endpoint, {"text": "data"})

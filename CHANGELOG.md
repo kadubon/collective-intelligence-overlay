@@ -9,6 +9,12 @@ functional novelty. Exact component bindings and separate child applicability
 checks protect composed execution. The generic peer is separated from the bundled
 compatibility reference application (`peer --reference`).
 
+An external document application exercises three independent peer processes:
+remote C1 use, MAF C3 composition, C3-based C4 calibration, separate checking,
+restart/replay and dependency withdrawal. Operator-granted read-only verification
+probes keep pre-PASS testing separate from ordinary reuse. The v2 extension retains
+exact business JSON numbers through Protobuf rather than silently changing digests.
+
 Record v2 and migrations 0002–0006 preserve historical v1 signed payloads.
 Migration 0007 adds scoped history and decision projections. Inspection and event
 metrics now expose bounded cursor pages, including histories beyond 1,000 events.

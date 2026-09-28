@@ -60,3 +60,45 @@ See [evaluation](evaluation.md) before interpreting its timings. The demo is a f
 test driver, not an autonomous global planner. [Configuration](configuration.md)
 describes bounded controls and ownership. [Troubleshooting](troubleshooting.md)
 explains common failures.
+
+## Registered document application (0.2.0 development checkout)
+
+With the same dedicated PostgreSQL/OPA environment and a new output directory:
+
+```sh
+uv run python examples/document_application.py --directory .local/documents
+```
+
+This application lives outside the package. A publishes an installed whitespace
+word counter; B probes it under an explicit read-only verification grant and checks
+its output using a separate implementation. C registers a remote-service binding
+and a local renderer, composes C3 with the actual MAF workflow API, then uses C3's
+calibration output to construct a threshold-based document triage capability C4.
+B independently checks each candidate before ordinary reuse. Formation, checking
+and held-out inputs differ; the example contains no finite lookup table or model call.
+
+`document-results.json` records C3/C4 execution-receipt links, held-out output,
+three distinct peer PIDs, restart/replay, current admission and paged metrics.
+Expected results include two accepted capabilities before withdrawal, zero after
+withdrawal, and two REJECT decisions for the descendants. C restarts from its
+owner-local artifacts and retains the original completed invocation result.
+The preinstalled functions reconstruct only this known application; artifacts do
+not contain executable code or a workflow language.
+
+`propose_document_formation` is a public MAF `FunctionTool` and can be supplied to
+an ordinary `Agent(client=operator_client, tools=[propose_document_formation])`.
+It returns a bounded proposal for an installed stage, without granting authority.
+The no-key driver invokes that same tool with deterministic inputs and submits the
+proposal as the receiver's operator. The receiver still checks its own construction
+limits, bindings and budget. Model-based autonomous discovery is not claimed.
+
+The script provisions and drives a finite test sequence, with independent peer
+processes, keys, databases, policies and budgets. This is a local interoperability
+test, not evidence of organizational/statistical independence or causal improvement.
+Construction is an operator action; interrupted construction must be inspected,
+not blindly retried as a new attempt. The generic invocation route supplies durable
+result lookup and retry for actual capability calls. Restart one application peer:
+
+```sh
+uv run python examples/document_application.py --config .local/documents/receiver/config.json
+```

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import contextlib
+import time
 from decimal import Decimal
 from types import TracebackType
 from typing import Any
@@ -12,7 +13,7 @@ from sqlalchemy import select
 
 from .bindings import Registry, formation_receipts, formation_steps
 from .invocations import invocations
-from .models import Capability, Event, FormationReceipt, ReceiptRef, Verdict, uid
+from .models import Capability, Cost, Event, FormationReceipt, ReceiptRef, Verdict, uid
 from .security import Identity, verify
 from .storage import Conflict, records
 
@@ -43,6 +44,7 @@ class FormationSession:
     async def __aenter__(self) -> FormationSession:
         if self.active or self.published or formation_receipts.get() is not None:
             raise ValueError("nested formation sessions are not supported")
+        self.started = time.perf_counter()
         self.fence = await asyncio.to_thread(
             self.store.acquire, self.id, self.identity.name, "work", Decimal(1), self.max_seconds
         )
@@ -131,6 +133,7 @@ class FormationSession:
             outcome = outcomes[event.id]
             if (
                 receipt.state != "completed"
+                or receipt.purpose != "reuse"
                 or outcome["state"] != "completed"
                 or receipt.result_digest != outcome["result_digest"]
                 or receipt.binding_digest != outcome["binding_digest"]
@@ -148,6 +151,15 @@ class FormationSession:
             attempt_id=self.id,
             correlation_id=self.id,
             outcome=Verdict.UNKNOWN,
+            costs=(
+                Cost(
+                    category="formation",
+                    status="measured",
+                    unit="wall_seconds",
+                    quantity=Decimal(str(round(time.perf_counter() - self.started, 9))),
+                ),
+                Cost(category="formation", status="unavailable", unit="USD", quantity=None),
+            ),
             formation=FormationReceipt(
                 receipts=tuple(self.receipts),
                 scope=candidate.scope,

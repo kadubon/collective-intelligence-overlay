@@ -59,6 +59,7 @@ class PeerService:
         if operation == "invoke":
             context = ExecutionContext(
                 caller=caller,
+                purpose=data.get("purpose", "reuse"),
                 environment=self.config.execution_environment,
                 permissions=frozenset(self.config.policy.permissions),
             )

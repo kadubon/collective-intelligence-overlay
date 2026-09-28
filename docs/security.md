@@ -25,6 +25,13 @@ for user code. Never execute received code in the host.
 All operations are denied unless registered. The host checks permission scope at use;
 tool descriptions cannot add permissions. A2A enforces an input byte limit before SDK
 parsing, bounded execution time and concurrency. Graph and model collections are bounded.
+
+Candidate verification is an explicit operator privilege. A binding may allow named
+verification callers only when declared read-only; the normal caller list and other
+checks remain in force. Wire metadata cannot set the trusted `verification_granted`
+flag. That low-level API is part of the trusted host boundary, not an agent tool.
+Probe results are not evidence of correctness and do not authorize ordinary reuse.
+The effect declaration does not sandbox a malicious or compromised implementation.
 MCP uses the official HTTP transport with no redirect/proxy inheritance and explicit
 tool allowlists. The reference MCP server is loopback-only and contains no private data;
 it is not an Internet deployment template.

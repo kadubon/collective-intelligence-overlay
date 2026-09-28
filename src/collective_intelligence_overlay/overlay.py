@@ -53,16 +53,18 @@ class Overlay:
         )
         return all(current.get(key) == anchor for key, anchor in observed.items())
 
-    async def qualify(self, request: UseRequest) -> Decision:
+    async def qualify(self, request: UseRequest, *, verification_granted: bool = False) -> Decision:
         try:
             async with asyncio.timeout(30):
-                return await self._qualify(request)
+                return await self._qualify(request, verification_granted=verification_granted)
         except TimeoutError:
             decision = self._decision(request, Outcome.UNKNOWN, ("qualification_timeout",))
             await asyncio.to_thread(self.store.save_decision, decision)
             return decision
 
-    async def _qualify(self, request: UseRequest) -> Decision:
+    async def _qualify(
+        self, request: UseRequest, *, verification_granted: bool = False
+    ) -> Decision:
         if request.receiver != self.store.owner:
             raise ValueError("admission is local")
         revisions: dict[str, int] = {}
@@ -249,6 +251,7 @@ class Overlay:
                             + timedelta(seconds=self.policy.settings.max_source_age_seconds),
                         )
                 facts = {
+                    "verification_granted": verification_granted and req.purpose == "verification",
                     "dependency_integrity_only": integrity_only,
                     "capability": cap.model_dump(mode="json"),
                     "request": req.model_dump(mode="json"),
@@ -309,12 +312,13 @@ class Overlay:
         operation: Callable[[], Awaitable[T]],
         *,
         deadline_seconds: float = 30,
+        verification_granted: bool = False,
     ) -> T:
         """Recheck at the actual trusted actuator boundary, without cached ACCEPT."""
         if not 0 < deadline_seconds <= 3600:
             raise ValueError("timeout must be bounded")
         async with asyncio.timeout(deadline_seconds):
-            decision = await self.qualify(request)
+            decision = await self.qualify(request, verification_granted=verification_granted)
             if decision.outcome == Outcome.ACCEPT and (
                 await asyncio.to_thread(self.store.revisions, set(decision.revisions))
                 != decision.revisions
@@ -334,6 +338,8 @@ class Overlay:
     @staticmethod
     def recommend(decision: Decision) -> tuple[str, ...]:
         if decision.outcome == Outcome.ACCEPT:
+            if decision.request.purpose == "verification":
+                return ("independent_check_result",)
             return ("reuse_with_use_time_check",)
         if "freshness_unknown" in decision.reasons:
             return ("connection", "observation")

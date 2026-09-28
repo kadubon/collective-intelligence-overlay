@@ -85,11 +85,14 @@ async def invoke(
                 supported_protocol_bindings=["JSONRPC"],
             ),
         )
+        wire_arguments = struct(arguments)
+        if MessageToDict(wire_arguments) != arguments:
+            raise ValueError("standard A2A data part cannot preserve these numeric values")
         request = SendMessageRequest(
             message=Message(
                 message_id=active_invocation.get() or uid(),
                 role=Role.ROLE_USER,
-                parts=[Part(data=struct(arguments))],
+                parts=[Part(data=wire_arguments)],
             )
         )
         async for response in client.send_message(request):

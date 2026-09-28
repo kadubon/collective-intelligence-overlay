@@ -17,6 +17,11 @@ PostgreSQLで重複、費用、leaseと古いworkerの結果を管理します�
 
 APIキー不要のデモでは、別プロセスの3 peerがCSV集計とHTMLレポートの能力を形成し、
 別主体による検証、移転、合成利用、依存失効を一巡させます。
+0.2.0の開発版では、登録binding、永続invocation、ページ同期・履歴、形成receiptを
+追加しています。[外部の文書処理例](examples/document_application.py)では、3プロセスで
+C3を合成・検証し、その出力からC4を形成して、再起動と元能力の撤回まで確認します。
+[手順](docs/quickstart.md)と[検証範囲](docs/implementation-status.md)を参照してください。
+0.2.0はまだ公開していません。
 ローカルの別identityは、別組織や統計的独立性の証明ではありません。
 署名、配送成功、schema一致だけで成果の正しさを認定するものでもありません。
 

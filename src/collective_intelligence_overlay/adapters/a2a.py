@@ -57,6 +57,25 @@ def struct(value: dict[str, Any]) -> Value:
     return Value(struct_value=result)
 
 
+def extension_data(value: dict[str, Any]) -> Value:
+    # Protobuf Struct represents numbers as double. Preserve business JSON exactly,
+    # including large integers and manifest digests, inside the v2 extension part.
+    return struct({"application_json": json.dumps(value, allow_nan=False, separators=(",", ":"))})
+
+
+def read_extension_data(value: Value) -> dict[str, Any]:
+    wrapper = MessageToDict(value)
+    if not isinstance(wrapper, dict) or set(wrapper) != {"application_json"}:
+        raise ValueError("v2 extension requires an exact application JSON payload")
+    encoded = wrapper["application_json"]
+    if not isinstance(encoded, str) or len(encoded.encode()) > MAX_RECORD_BYTES:
+        raise ValueError("invalid or oversized extension payload")
+    result = json.loads(encoded)
+    if not isinstance(result, dict):
+        raise ValueError("extension payload must be an object")
+    return result
+
+
 class PeerAuthentication(AuthenticationBackend):
     def __init__(self, config: Config) -> None:
         self.config = config
@@ -107,7 +126,7 @@ class ExtensionExecutor(AgentExecutor):
         principal = context.call_context.user
         if not principal.is_authenticated:
             raise ValueError("unauthenticated peer")
-        data = MessageToDict(message.parts[0].data)
+        data = read_extension_data(message.parts[0].data)
         async with asyncio.timeout(30):
             async with self.semaphore:
                 result = await self.handler(principal.user_name, data)
@@ -116,7 +135,7 @@ class ExtensionExecutor(AgentExecutor):
         response = Message(
             message_id=uid(),
             role=Role.ROLE_AGENT,
-            parts=[Part(data=struct(result))],
+            parts=[Part(data=extension_data(result))],
             extensions=[EXTENSION],
         )
         await event_queue.enqueue_event(response)
@@ -127,7 +146,7 @@ class ExtensionExecutor(AgentExecutor):
             Message(
                 message_id=uid(),
                 role=Role.ROLE_AGENT,
-                parts=[Part(data=struct({"outcome": "UNKNOWN", "reason": "cancelled"}))],
+                parts=[Part(data=extension_data({"outcome": "UNKNOWN", "reason": "cancelled"}))],
                 extensions=[EXTENSION],
             )
         )
@@ -216,7 +235,7 @@ async def send(
             message=Message(
                 message_id=uid(),
                 role=Role.ROLE_USER,
-                parts=[Part(data=struct(data))],
+                parts=[Part(data=extension_data(data))],
                 extensions=[EXTENSION],
             )
         )
@@ -225,7 +244,7 @@ async def send(
                 reply = response.message
                 if list(reply.extensions) != [EXTENSION] or len(reply.parts) != 1:
                     raise ValueError("invalid extension response")
-                return MessageToDict(reply.parts[0].data)
+                return read_extension_data(reply.parts[0].data)
         raise ValueError("A2A completed without an overlay result")
 
 

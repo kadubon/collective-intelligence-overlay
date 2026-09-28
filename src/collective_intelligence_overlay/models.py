@@ -169,6 +169,7 @@ class ReceiptRef(Model):
 
 
 class ExecutionReceipt(Model):
+    purpose: Literal["reuse", "verification"] = "reuse"
     invocation_id: Identifier
     caller: Identifier
     resource_owner: Identifier
@@ -242,6 +243,7 @@ class Event(RecordModel):
 
 
 class UseRequest(Model):
+    purpose: Literal["reuse", "verification"] = "reuse"
     receiver: Identifier
     subject: Subject
     scope: Scope

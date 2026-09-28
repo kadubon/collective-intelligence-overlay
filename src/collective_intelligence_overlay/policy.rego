@@ -6,6 +6,10 @@ import rego.v1
 default decision := {"outcome": "UNKNOWN", "reasons": ["incomplete_policy_input"]}
 
 reject contains "known_revocation" if input.revoked
+reject contains "verification_not_granted" if {
+    object.get(input.request, "purpose", "reuse") == "verification"
+    not object.get(input, "verification_granted", false)
+}
 reject contains "in_scope_counterexample" if { some e in input.evidence; e.applicable; e.fresh; e.authorized; e.verdict == "FAIL" }
 reject contains "authority_denied" if { some p in input.capability.scope.permissions; not p in input.settings.permissions }
 reject contains "license_not_allowed" if { input.capability.license != null; not input.capability.license in input.settings.licenses }
@@ -35,10 +39,14 @@ valid_pass if {
     count(e.obligations) == 0
     e.support_valid
 }
-requalify contains "independent_evidence_required" if not valid_pass
+requalify contains "independent_evidence_required" if {
+    not valid_pass
+    not object.get(input, "verification_granted", false)
+}
 
 decision := {"outcome": "REJECT", "reasons": sort(reject)} if count(reject) > 0
 else := {"outcome": "UNKNOWN", "reasons": sort(unknown)} if count(unknown) > 0
 else := {"outcome": "REQUALIFY", "reasons": sort(requalify)} if count(requalify) > 0
+else := {"outcome": "ACCEPT", "reasons": ["operator_granted_verification_only"]} if object.get(input, "verification_granted", false)
 else := {"outcome": "ACCEPT", "reasons": ["dependency_integrity_not_execution_permission"]} if object.get(input, "dependency_integrity_only", false)
 else := {"outcome": "ACCEPT", "reasons": ["qualified_for_receiver_and_scope"]}

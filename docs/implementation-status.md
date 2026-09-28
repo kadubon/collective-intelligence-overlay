@@ -171,6 +171,32 @@ The external application and three-process C1–C4 lifecycle, full scale/restore
 profiles, remaining documentation/skills, distribution tests, CI and publication
 remain incomplete. No 0.2.0 tag or publication has been attempted.
 
+Ninth checkpoint: `examples/document_application.py` registers its own executable
+application outside the package. Three real peer processes publish/probe/check C1,
+install a remote-service binding and C2, form C3 using actual MAF workflow calls,
+and use C3's observed calibration output to parameterize C4. The artifact digest
+binds that configuration. Separate checker probes, held-out ordinary use, receiver
+restart with exact persisted result replay, one-record delta pages and C1 withdrawal
+are tested end to end. C3/C4 both become REJECT after the source withdrawal.
+The application exposes a bounded MAF FunctionTool proposal interface; the no-key
+test invokes it deterministically. There is no claim of autonomous discovery.
+
+Read-only bindings can grant specific callers verification purpose. Missing PASS
+alone may be waived for that root probe; other policy/input/resource/withdrawal
+checks remain. Probe receipts do not become PASS, first reuse or observed-use
+formation links. The E2E found Protobuf integer-to-double conversion changing
+manifest digests. The v2 extension now carries exact application JSON inside its
+ordinary A2A data part. Native standard services reject non-preservable numeric
+inputs instead of silently rounding them.
+
+Full service run: **84 passed, zero skipped, 179.25 seconds**. Subsequent native
+numeric-bound and formation-cost changes passed **5 focused tests (60.78 seconds)**;
+the final MAF proposal-tool route passed the full document E2E again in **39.19
+seconds**. Ruff/format, strict package mypy and schema/docs checks pass. The
+compatibility reference registration cleanup, mixed-record scale/restore profiles,
+remaining docs/skills, distribution/security/license/CI gates and 0.2.0 publication
+remain pending. No new release/tag/publication has been attempted.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

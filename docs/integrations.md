@@ -19,12 +19,20 @@ and `workflow.run`. The tool-loop test uses an actual `Agent` with a determinist
 ## A2A
 
 The adapter uses SDK 1.x protobuf `AgentCard`, `Message`, `Part` and the official
-client/server JSON-RPC implementation. Required extension v1 carries domain data.
+client/server JSON-RPC implementation. Required extension v2 carries domain data.
+Its data part contains `application_json`, an opaque JSON string: Protobuf Struct
+uses double-precision numbers and would otherwise change integer/schema
+representations and binding digests. A2A still supplies the message types,
+serialization, authentication boundary and transport; this is extension payload
+encoding, not a second RPC implementation. Standard non-overlay service bindings
+retain their native data-part contracts and are documented in [API](api.md).
 Unknown required extensions, substituted endpoints and inconsistent card identity
 are rejected. Cards remain self-description, not verified capability evidence.
 
-Supported domain operations are discover, submit, owner sync, qualify, metrics,
-revoke and bounded reference work. These are application payloads inside A2A; no
+Supported domain operations include discover, submit, owner sync, qualify, metrics,
+capability metrics, revoke, invoke, invocation lookup and cancellation. The bundled
+compatibility reference app explicitly enables its work operation. These are
+application payloads inside A2A; no
 parallel RPC protocol is implemented. A2A completion only reports delivery/execution
 state; the Decision/Evidence payload contains business acceptance.
 

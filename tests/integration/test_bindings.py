@@ -27,7 +27,7 @@ from collective_intelligence_overlay.bindings import (
     fingerprint,
 )
 from collective_intelligence_overlay.demo import free_port
-from collective_intelligence_overlay.models import Capability, Evidence, Subject
+from collective_intelligence_overlay.models import Capability, Evidence, Revocation, Subject
 from collective_intelligence_overlay.overlay import AdmissionDenied
 from collective_intelligence_overlay.security import verify
 
@@ -293,3 +293,44 @@ def test_legacy_signed_payload_preserved_and_v2_requires_its_media_type(
     with pytest.raises(ValueError, match="media type"):
         verify(mismatch.to_dict(), principals)
     assert legacy["payloadType"] == PAYLOAD_TYPE
+
+
+async def test_operator_probe_is_separate_from_reuse_and_still_honors_withdrawal(
+    overlay, identities, records
+):
+    registry, original, context = setup_binding(overlay, identities, records)
+    binding = Binding.model_validate(
+        {
+            **original.model_dump(),
+            "id": "probe",
+            "subject": {**original.subject.model_dump(), "id": "probe-target"},
+            "verification_callers": ["receiver"],
+        }
+    )
+    registry.register_local(binding, transform, lambda args: bool(args["amounts"]))
+    candidate = Capability.model_validate(
+        {
+            **records[0].model_dump(),
+            "schema_version": "2",
+            "subject": binding.subject,
+            "binding_digest": binding.digest,
+        }
+    )
+    overlay.store.put(identities["producer"].sign(candidate))
+    arguments = {"amounts": [2, 4], "tenant": "tenant-a"}
+    with pytest.raises(AdmissionDenied):
+        await registry.execute(binding.id, binding.digest, arguments, context)
+    probe = context.model_copy(update={"purpose": "verification"})
+    ungranted = registry.prepare(binding.id, binding.digest, arguments, probe).request
+    assert (await overlay.qualify(ungranted)).outcome == "REJECT"
+    assert await registry.execute(binding.id, binding.digest, arguments, probe) == {"total": "6"}
+    assert not any(e.subject == candidate.subject for e in overlay.store.evidence())
+    with pytest.raises(AdmissionDenied):
+        await registry.execute(binding.id, binding.digest, arguments, context)
+    overlay.store.put(
+        identities["producer"].sign(
+            Revocation(issuer="producer", subject=candidate.subject, reason="withdrawn")
+        )
+    )
+    with pytest.raises(AdmissionDenied):
+        await registry.execute(binding.id, binding.digest, arguments, probe)

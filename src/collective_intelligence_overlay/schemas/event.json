@@ -77,6 +77,15 @@
           "title": "Schema Version",
           "type": "string"
         },
+        "purpose": {
+          "default": "reuse",
+          "enum": [
+            "reuse",
+            "verification"
+          ],
+          "title": "Purpose",
+          "type": "string"
+        },
         "invocation_id": {
           "maxLength": 160,
           "minLength": 1,
