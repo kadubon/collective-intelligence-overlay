@@ -33,6 +33,7 @@ from collective_intelligence_overlay.storage import budgets, leases
 ALLOWANCES = {
     "baseline": {"producer": Decimal(50), "receiver": Decimal(50), "verifier": Decimal(50)},
     "verification": {"producer": Decimal(50), "receiver": Decimal(50), "verifier": Decimal(14)},
+    "connection": {"producer": Decimal(50), "receiver": Decimal(50), "verifier": Decimal(50)},
 }
 TRAINING = "calibration vocabulary"
 HELD_OUT = (
@@ -139,6 +140,7 @@ async def run_arm(
         "business_results": [],
         "missing_costs": ["CPU_seconds", "tokens", "USD"],
         "allowance_is_measured_cost": False,
+        "time_to_success_seconds": None,
     }
     configs: dict[str, Any] = {}
     identities = {}
@@ -186,7 +188,7 @@ async def run_arm(
                 identity, overlay = config.runtime()
                 identities[owner] = identity
                 overlay.store.close()
-            configure_application(configs, TRAINING)
+            configure_application(configs, TRAINING, connection_mismatch=scenario == "connection")
             stage = "startup"
             for owner, config in configs.items():
                 log = (config.private_key.parent / "experiment.log").open("wb")
@@ -281,6 +283,8 @@ async def run_arm(
                             "passed": passed,
                         }
                     )
+                if all(item["passed"] for item in report["business_results"]):
+                    report["time_to_success_seconds"] = time.perf_counter() - started
             report["status"] = "finished" if run["reason"] == "goals_satisfied" else "censored"
     except Exception as exc:
         report.update(status="failed", failed_stage=stage, error_type=type(exc).__name__)
@@ -316,21 +320,26 @@ async def run_arm(
 async def compare(directory: Path, admin_url: str, opa: str, seed: int = 0) -> dict[str, Any]:
     await asyncio.to_thread(directory.mkdir, parents=True, exist_ok=False)
     assignments = [
-        (scenario, mode)
-        for scenario in ("baseline", "verification")
-        for mode in ("static-run", "adaptive-run")
+        (scenario, mode) for scenario in ALLOWANCES for mode in ("static-run", "adaptive-run")
     ]
     random.Random(seed).shuffle(assignments)
     protocol = {
-        "version": "documents-comparison.v2",
+        "version": "documents-comparison.v3",
         "initial_work_allowance": {
             scenario: {owner: str(value) for owner, value in amounts.items()}
             for scenario, amounts in ALLOWANCES.items()
         },
         "pilot_adjustment": (
             "v1 verifier=10 stopped during calibration; v2 verifier=14 tests "
-            "post-calibration checking scarcity; all v1 results retained"
+            "post-calibration checking scarcity; v3 adds input-contract mismatch; "
+            "all previous results retained"
         ),
+        "connection_condition": {
+            "initial_report_contract": "report.in.v1",
+            "requested_report_contract": "report.in.v2",
+            "adapter": "installed document-to-text transformation in both policies",
+            "initial_candidate": "operator-installed, no PASS or formation receipt",
+        },
         "sources": {
             name: hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest()
             for name in (
@@ -369,7 +378,7 @@ async def compare(directory: Path, admin_url: str, opa: str, seed: int = 0) -> d
                 "arms": results,
                 "limitations": [
                     "one deterministic run per condition; no statistical superiority claim",
-                    "connection/environment scenario not yet implemented",
+                    "connection covers input adaptation, not arbitrary environment portability",
                     "wall times are inclusive observations, never summed across parent/child calls",
                 ],
             },

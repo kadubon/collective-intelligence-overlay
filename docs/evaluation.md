@@ -40,6 +40,48 @@ private configuration remain for inspection. The command writes its protocol bef
 running, retains every failed/censored arm and does not use paid model inference.
 Exit zero means the collection completed, not that all business tasks passed.
 
+The current v3 protocol adds a third, matched connection condition. The receiver
+starts with an operator-installed report candidate accepting `text`, while its
+goal requires `document` (`report.in.v2`). Ordinary qualification observes the
+scope mismatch. Adaptive allocation selects connection work before the downstream
+formation; the fixed control encounters the same mismatch in its fixed order.
+Both use the same installed input adapter, counter, renderer and checker. Actual
+transformation occurs inside the report workflow and the subsequent triage caller;
+it is not a relabeled scope or permission change. The resulting binding requires
+fresh independent evidence. The initial candidate has no PASS or formation receipt.
+Initialization time is included in elapsed observations; primitive checking and
+later formation/checking draw only from that arm's allowance. This tests
+input-contract adaptation, not arbitrary platform or
+environment portability. `time_to_success_seconds` stays null for failed or
+censored arms; their last-outcome time and unreached tasks remain in the report.
+
+[Pilot 3 raw reports and source snapshots](../experiments/documents-pilot-3.zip)
+contain all six preregistered assignments, run serially with seed 0. The package
+source was unchanged from commit `765fedd`; the three application sources are
+included with their pre-run hashes. No tests ran concurrently with this comparison.
+
+| Condition | Mode | Checked formations | Business passed / unreached | Last-outcome seconds | Time to success seconds |
+| --- | --- | --- | --- | --- | --- |
+| Normal | Fixed | 2 | 3 / 0 | 53.376 | 53.376 |
+| Normal | Adaptive | 2 | 3 / 0 | 59.730 | 59.730 |
+| Checking constrained | Fixed | 1 | 0 / 3 | 38.160 | null |
+| Checking constrained | Adaptive | 1 | 0 / 3 | 39.444 | null |
+| Input connection mismatch | Fixed | 2 | 3 / 0 | 49.253 | 49.253 |
+| Input connection mismatch | Adaptive | 2 | 3 / 0 | 54.132 | 54.132 |
+
+Normal and connection conditions started with work allowance 50 for every owner;
+the checking condition used producer/verifier/receiver allowances 50/14/50.
+Normal/connection arms ended at 39/35/16; checking-constrained arms ended at
+43/0/32. The adaptive connection arm records `connection_backlog` and chooses a
+connection before later verification and formation. The fixed arm uses the same
+adapter in its ordinary fixed order. Both reach identical checked outcomes and
+contractual balances; adaptive elapsed observations are higher in each matched
+pair. There is no measured quality or allowance benefit in this single-run pilot.
+These six arms do not establish statistical superiority, physical resource savings
+or general environment portability. CPU, tokens and currency remain unmeasured.
+Validation checks all 858 exported signed records, 18 separate databases, key
+separation, allowance conservation and reported business/evidence consistency.
+
 [Pilot 2 raw reports and source snapshots](../experiments/documents-pilot-2.zip)
 contain one fixed-seed run per condition. The owner order for allowances below is
 producer/verifier/receiver. Elapsed time includes database/key/template preparation,
@@ -74,8 +116,8 @@ It also binds reported checker evidence to signed records. This is consistency
 checking of operator-produced observations, not an external audit or universal
 correctness proof. Raw reports separate original estimates, elapsed observations,
 reservations, missing CPU/token/currency costs and unreached tasks. Missing costs
-are not zero. Connection/environment bottlenecks, finer stage accounting and final
-release-wide experiment coverage remain required. Positive benefit is not a gate.
+are not zero. Pilot 3 adds input-connection conditions; finer stage accounting and
+final release-wide experiment coverage remain required. Positive benefit is not a gate.
 
 The [mixed-history scale harness](scale.md) measures indexed qualification at
 1,000/10,000 records and offers a selectable 100,000-record stress profile.

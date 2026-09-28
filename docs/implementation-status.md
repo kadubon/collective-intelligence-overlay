@@ -27,6 +27,15 @@ Stage B remains incomplete. The specification's A1-A4, B1-B12 and C1-C5,
 including all named adverse cases, artifacts and publication gates, remain the
 completion criteria; this plan does not replace or narrow them.
 
+The external document comparison now covers normal, checking-constrained and
+input-contract connection conditions with six isolated arms. Both policies use
+the same installed adapter and checker; observed scope mismatch routes adaptive
+work to connection before fresh verification and downstream formation. Pilot 3
+retains all outcomes and 858 signed records from 18 databases. It shows equal
+checked outcomes/allowance consumption and higher adaptive elapsed observations,
+without a statistical effect claim. Detailed metrics, the new-history scale audit,
+full migration/regression/distribution checks and 0.3.0 publication remain pending.
+
 The host can now select a formed candidate as a goal's exact target while preserving
 its scope, logical identity, issuer, checker and allowlists. It verifies the signed
 candidate against the installed binding, invalidates old proposals and rediscovers

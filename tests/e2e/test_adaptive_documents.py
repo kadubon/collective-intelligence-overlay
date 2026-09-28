@@ -16,16 +16,18 @@ from collective_intelligence_overlay.storage import budgets
 
 
 @pytest.mark.parametrize(
-    "training_text,work_allowance,mode",
+    "training_text,work_allowance,mode,connection_mismatch",
     [
-        ("calibration vocabulary", 50, "adaptive-run"),
-        ("a longer calibration document", 50, "adaptive-run"),
-        ("bounded checker calibration", 5, "adaptive-run"),
-        ("calibration vocabulary", 50, "static-run"),
+        ("calibration vocabulary", 50, "adaptive-run", False),
+        ("a longer calibration document", 50, "adaptive-run", False),
+        ("bounded checker calibration", 5, "adaptive-run", False),
+        ("calibration vocabulary", 50, "static-run", False),
+        ("calibration vocabulary", 50, "adaptive-run", True),
+        ("calibration vocabulary", 50, "static-run", True),
     ],
 )
 async def test_peer_selected_document_formation_restart_and_withdrawal(
-    tmp_path, policy, monkeypatch, training_text, work_allowance, mode
+    tmp_path, policy, monkeypatch, training_text, work_allowance, mode, connection_mismatch
 ):
     url = os.environ.get("CIO_TEST_DATABASE_URL")
     if not url:
@@ -46,7 +48,7 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
         data = config.model_dump(mode="json")
         data["database_url"] = config.database_url.get_secret_value()
         write_json(config.private_key.parent / "config.json", data)
-    configure_application(configs, training_text)
+    configure_application(configs, training_text, connection_mismatch=connection_mismatch)
     identities = {}
     for name, config in configs.items():
         identity, overlay = config.runtime()
@@ -198,6 +200,17 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             )
             assert imported_checker_test["evidence"]["verdict"] == "PASS", imported_checker_test
             await sync("receiver", "producer")
+            if connection_mismatch:
+                import json
+
+                application = json.loads(
+                    (configs["receiver"].private_key.parent / "application.json").read_text()
+                )
+                mismatch = await call(
+                    "receiver", operation="qualify", request=application["goals"][0]["request"]
+                )
+                assert mismatch["decision"]["outcome"] != "ACCEPT"
+                assert "scope_mismatch" in mismatch["decision"]["reasons"]
             first = await call("receiver", operation=mode, max_steps=1)
             assert first["reason"] == "step_limit" and len(first["history"]) == 1
             c3 = (await call("receiver", operation="describe", name="report"))["binding"]
@@ -207,7 +220,11 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 invocation_id="unverified-c3",
                 binding_id=c3["id"],
                 binding_digest=first["history"][0]["formation"]["formation"]["binding_digest"],
-                arguments={"text": "ordinary use must wait for independent checking"},
+                arguments={
+                    "document"
+                    if connection_mismatch
+                    else "text": "ordinary use must wait for independent checking"
+                },
             )
             assert before_check["state"] == "unknown"
             # Resume with a formed but still unverified C3. The harness supplies
@@ -218,12 +235,14 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             assert result["reason"] == "goals_satisfied", result
             history = first["history"] + result["history"]
             assert [item["kind"] for item in history] == [
-                "formation",
+                "connection" if connection_mismatch else "formation",
                 "verification",
                 "formation",
                 "verification",
             ]
-            assert [item["target"] for item in history if item["kind"] == "formation"] == [
+            assert [
+                item["target"] for item in history if item["kind"] in {"formation", "connection"}
+            ] == [
                 "report",
                 "triage",
             ]
@@ -240,6 +259,11 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             assert len(history[2]["formation"]["formation"]["receipts"]) == 3
             assert history[1]["evidence"]["verdict"] == history[3]["evidence"]["verdict"] == "PASS"
             if mode == "adaptive-run":
+                if connection_mismatch:
+                    assert history[0]["allocation"]["ordered"][0] == history[0]["opportunity"]
+                    assert "connection_backlog" in history[0]["allocation"]["reasons"]
+                    assert c3["scope"]["input_contract"] == "report.in.v2"
+                    assert c3["input_schema"]["required"] == ["document"]
                 assert history[1]["allocation"]["qualified_checkers"]
                 assert (
                     "verification_backlog_with_qualified_checker"

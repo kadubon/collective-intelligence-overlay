@@ -68,21 +68,24 @@ async def test_existing_experiment_arm_is_never_overwritten(tmp_path, monkeypatc
     assert marker.read_text(encoding="utf-8") == "original result"
 
 
-def test_saved_comparison_signatures_conservation_and_tampered_counts(tmp_path, monkeypatch):
+@pytest.mark.parametrize("pilot,arms,records", [(2, 4, 550), (3, 6, 858)])
+def test_saved_comparison_signatures_conservation_and_tampered_counts(
+    tmp_path, monkeypatch, pilot, arms, records
+):
     import json
     import zipfile
 
     monkeypatch.syspath_prepend(str(Path(__file__).parents[2] / "examples"))
     from evaluate_documents import validate_results
 
-    archive_path = Path(__file__).parents[2] / "experiments" / "documents-pilot-2.zip"
+    archive_path = Path(__file__).parents[2] / "experiments" / f"documents-pilot-{pilot}.zip"
     with zipfile.ZipFile(archive_path) as archive:
         for member in archive.namelist():
             assert (tmp_path / member).resolve().is_relative_to(tmp_path.resolve())
         archive.extractall(tmp_path)
     checked = validate_results(tmp_path)
-    assert checked["arms"] == 4 and checked["separate_databases"] == 12
-    assert checked["verified_signed_records"] == 550
+    assert checked["arms"] == arms and checked["separate_databases"] == arms * 3
+    assert checked["verified_signed_records"] == records
     path = tmp_path / "arm-0" / "receiver-observations.json"
     original = path.read_text(encoding="utf-8")
     report = json.loads(original)

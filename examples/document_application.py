@@ -118,7 +118,11 @@ class DocumentService(PeerService):
                 raise ValueError(
                     "example owner has more candidates than its configured application bound"
                 )
-            existing = {c.entrypoint: c for c in page.items if isinstance(c, Capability)}
+            existing = {
+                c.entrypoint: c
+                for c in sorted(page.items, key=lambda item: item.created_at)
+                if isinstance(c, Capability)
+            }
             for name in ("remote-words", "report", "triage"):
                 if name not in existing:
                     continue
@@ -129,7 +133,7 @@ class DocumentService(PeerService):
                         Binding.model_validate(manifest["parameters"]["provider"])
                     )
                 elif name == "report":
-                    restored = self.install_report()
+                    restored = self.install_report(manifest["parameters"].get("input_key", "text"))
                 else:
                     restored = self.install_triage(int(manifest["parameters"]["threshold"]))
                 if (
@@ -160,6 +164,13 @@ class DocumentService(PeerService):
             "report": (TEXT, REPORT),
             "triage": (TEXT, TRIAGE),
         }[name]
+        document_input = name == "report" and parameters.get("input_key") == "document"
+        if document_input:
+            input_schema = {
+                **TEXT,
+                "required": ["document"],
+                "properties": {"document": TEXT["properties"]["text"]},
+            }
         if name == "remote-words":
             provider = Binding.model_validate(parameters["provider"])
             endpoint = next(p.url for p in self.config.peers if p.identity == provider.issuer)
@@ -180,14 +191,16 @@ class DocumentService(PeerService):
             )
         return Binding(
             id=name,
-            revision="1",
+            revision="2" if document_input else "1",
             issuer=self.config.owner,
             registrar=self.config.owner,
-            subject=Subject(id="documents." + name, version="1", digest=artifact),
+            subject=Subject(
+                id="documents." + name, version="2" if document_input else "1", digest=artifact
+            ),
             target=target,
             scope=Scope(
                 task=name,
-                input_contract=name + ".in.v1",
+                input_contract=name + (".in.v2" if document_input else ".in.v1"),
                 output_contract=name + ".out.v1",
                 environment=ENVIRONMENT,
             ),
@@ -209,7 +222,9 @@ class DocumentService(PeerService):
     ) -> Binding:
         binding = self.make_binding(name, operation, parameters or {}, components)
         self.registry.register_local(
-            binding, operation, lambda args: bool(args.get("text", "nonempty").strip())
+            binding,
+            operation,
+            lambda args: bool(args.get("text", args.get("document", "nonempty")).strip()),
         )
         self.installed[name] = binding
         return binding
@@ -278,7 +293,10 @@ class DocumentService(PeerService):
             raise ValueError("registered child execution was not admitted or completed")
         return result["result"]
 
-    def install_report(self) -> Binding:
+    def install_report(self, input_key: str = "text") -> Binding:
+        if input_key not in {"text", "document"}:
+            raise ValueError("unsupported installed report input adapter")
+
         async def report(arguments: dict[str, Any]) -> dict[str, Any]:
             @maf_executor(id="count")
             async def count(data: dict[str, Any], ctx: WorkflowContext[dict[str, Any]]) -> None:
@@ -295,7 +313,7 @@ class DocumentService(PeerService):
                 .add_edge(count, render)
                 .build()
             )
-            outputs = (await workflow.run(arguments)).get_outputs()
+            outputs = (await workflow.run({"text": arguments[input_key]})).get_outputs()
             if len(outputs) != 1:
                 raise ValueError("document workflow did not yield exactly one report")
             return dict(outputs[0])
@@ -303,6 +321,7 @@ class DocumentService(PeerService):
         return self.install(
             "report",
             report,
+            parameters={"input_key": input_key},
             components=tuple(self.installed[n].digest for n in ("remote-words", "render")),
         )
 
@@ -310,8 +329,10 @@ class DocumentService(PeerService):
         if not 1 <= threshold <= 4096:
             raise ValueError("calibration threshold outside the configured bound")
 
+        report_input = self.installed["report"].input_schema["required"][0]
+
         async def triage(arguments: dict[str, Any]) -> dict[str, Any]:
-            report = await self.call("report", arguments)
+            report = await self.call("report", {report_input: arguments["text"]})
             count = int(report["report"].split(": ")[1])
             return {"long": count > threshold, "threshold": threshold}
 
@@ -440,7 +461,9 @@ class DocumentService(PeerService):
             )
             verdict = "UNKNOWN"
             if observed.get("state") == "completed":
-                count = len(re.findall(r"\S+", arguments.get("text", "")))
+                count = len(
+                    re.findall(r"\S+", arguments.get("text", arguments.get("document", "")))
+                )
                 if name in {"words", "remote-words"}:
                     expected = {"words": count}
                 elif name == "render":

@@ -75,6 +75,9 @@ class AdaptiveDocuments(DocumentService):
         self.home = config.private_key.parent
         data = json.loads((self.home / "application.json").read_text(encoding="utf-8"))
         self.training_text = data["training_text"]
+        self.report_input = data.get("report_input", "text")
+        if self.report_input not in {"text", "document"}:
+            raise ValueError("unsupported report input contract")
         self.allocation_policy = AllocationPolicy.model_validate(
             data.get(
                 "allocation",
@@ -124,7 +127,7 @@ class AdaptiveDocuments(DocumentService):
                     ),
                     limit=1,
                 )
-                if page.items:
+                if page.items and binding.scope == goal.request.scope:
                     reference = self.overlay.store.reference(
                         "capability", config.owner, binding.subject.key
                     )
@@ -174,7 +177,7 @@ class AdaptiveDocuments(DocumentService):
                     ),
                 )
             )
-        if opportunity.work_kind != "formation":
+        if opportunity.work_kind not in {"formation", "connection"}:
             return ProposalDrafts(alternatives=())
         # Distinct, operator-supplied calibration hypotheses. Neither peer sees
         # the independent check corpus or the final evaluation document.
@@ -185,7 +188,9 @@ class AdaptiveDocuments(DocumentService):
             alternatives=(
                 ProposalDraft(
                     builder=contract.builders[0],
-                    arguments={"text": text},
+                    arguments={
+                        self.report_input if opportunity.goal_id == "triage" else "text": text
+                    },
                     alternative=self.config.owner + "-calibration",
                 ),
             )
@@ -237,7 +242,11 @@ class AdaptiveDocuments(DocumentService):
                     "name": name,
                     "attempt": str(data["attempt"]),
                     "binding_digest": data["binding_digest"],
-                    "arguments": {"text": "independent\tvalidation 文書\nwith separate contents"},
+                    "arguments": {
+                        self.report_input
+                        if name == "report"
+                        else "text": "independent\tvalidation 文書\nwith separate contents"
+                    },
                 }
             )
         except CandidateChanged:
@@ -422,7 +431,7 @@ class AdaptiveDocuments(DocumentService):
                     await collect(
                         self.config, self.overlay.store, self.identity, goal, observation.id
                     )
-                    if observation.work_kind in {"formation", "verification"}
+                    if observation.work_kind in {"formation", "verification", "connection"}
                     else None
                 )
                 if replies is not None and not replies.replies:
@@ -481,7 +490,7 @@ class AdaptiveDocuments(DocumentService):
                         }
                     )
                     continue
-                if observation.work_kind != "formation":
+                if observation.work_kind not in {"formation", "connection"}:
                     reason = "requires_" + observation.work_kind
                     break
                 assert replies is not None
@@ -511,7 +520,7 @@ class AdaptiveDocuments(DocumentService):
                     )
                     if result.invocation is None or result.invocation["state"] != "completed":
                         history.append(
-                            {"kind": "formation", "step": result.model_dump(mode="json")}
+                            {"kind": observation.work_kind, "step": result.model_dump(mode="json")}
                         )
                         reason = "formation_not_completed"
                         break
@@ -533,11 +542,12 @@ class AdaptiveDocuments(DocumentService):
                 history.append(
                     {
                         "opportunity": observation.id,
-                        "kind": "formation",
+                        "kind": observation.work_kind,
                         "target": binding.id,
                         "step": result.model_dump(mode="json"),
                         "formation": event.model_dump(mode="json"),
                         "proposers": [caller for caller, _ in replies.replies],
+                        "allocation": allocation.model_dump(mode="json"),
                     }
                 )
         return {"reason": reason, "history": history, "pid": os.getpid()}
@@ -554,6 +564,8 @@ class AdaptiveDocuments(DocumentService):
             if rendered["state"] != "completed":
                 raise ValueError("selected count could not connect to the renderer")
             binding = self.installed["report"]
+            if binding.input_schema["required"] != [self.report_input]:
+                binding = self.install_report(self.report_input)
             dependencies = tuple(self.installed[n] for n in ("remote-words", "render"))
         else:
             threshold = int(computation["result"]["report"].split(": ")[1])
@@ -588,6 +600,7 @@ class AdaptiveDocuments(DocumentService):
                     break
                 name = None
                 candidate_exists = False
+                needs_connection = False
                 for target_name in ("report", "triage"):
                     goal = self.opportunities.goal(target_name)
                     page = await asyncio.to_thread(
@@ -613,13 +626,14 @@ class AdaptiveDocuments(DocumentService):
                                 "history": history,
                                 "pid": os.getpid(),
                             }
+                        needs_connection = "scope_mismatch" in decision.reasons
                     name, candidate_exists = target_name, bool(page.items)
                     break
                 if name is None:
                     reason = "goals_satisfied"
                     break
                 goal = self.opportunities.goal(name)
-                if candidate_exists:
+                if candidate_exists and not needs_connection:
                     if self.config.max_rechecks == 0:
                         reason = "checking_disabled"
                         break
@@ -679,20 +693,25 @@ class AdaptiveDocuments(DocumentService):
                             attempt,
                             builder.id,
                             builder.digest,
-                            {"text": self.training_text},
+                            {self.report_input if name == "triage" else "text": self.training_text},
                             self.context,
                         )
                     except Conflict:
                         reason = "insufficient_allowance"
                         break
                     if invocation["state"] != "completed":
-                        history.append({"kind": "formation", "invocation": invocation})
+                        history.append(
+                            {
+                                "kind": "connection" if needs_connection else "formation",
+                                "invocation": invocation,
+                            }
+                        )
                         reason = "formation_not_completed"
                         break
                     binding, event = await self.materialize(formation, name, invocation, attempt)
                     history.append(
                         {
-                            "kind": "formation",
+                            "kind": "connection" if needs_connection else "formation",
                             "target": binding.id,
                             "formation": event.model_dump(mode="json"),
                             "invocation": invocation,
@@ -789,7 +808,9 @@ def remote_checker_binding(config: Config) -> Binding:
     )
 
 
-def configure_application(configs: dict[str, Config], training_text: str) -> None:
+def configure_application(
+    configs: dict[str, Config], training_text: str, *, connection_mismatch: bool = False
+) -> None:
     """Operator setup only: install primitives/templates and export public contracts."""
     if not training_text.strip() or len(training_text) > 4000:
         raise ValueError("invalid calibration document")
@@ -799,6 +820,13 @@ def configure_application(configs: dict[str, Config], training_text: str) -> Non
         remote = receiver.install_remote(services["producer"].installed["words"])
         receiver.publish(remote, (services["producer"].installed["words"],), imported=True)
         report = receiver.install_report()
+        initial_report = report
+        if connection_mismatch:
+            # An operator-installed v1 candidate cannot satisfy a v2 input request.
+            # Its publication grants no PASS or formation receipt. Both policies
+            # receive the same installed adapter and pay for its later formation.
+            receiver.publish(report, (remote, receiver.installed["render"]))
+            report = receiver.install_report("document")
         checker = binding_ref(remote_checker_binding(configs["receiver"]))
         scopes = {
             "report": report.scope,
@@ -818,14 +846,14 @@ def configure_application(configs: dict[str, Config], training_text: str) -> Non
                     capability_issuer="receiver",
                     scope=scopes[name],
                     semantic_fit="confirmed",
-                    subject=report.subject
+                    subject=initial_report.subject
                     if name == "report"
                     else Subject(
                         id="documents.triage",
                         version="pending",
                         digest=fingerprint({"intent": "triage"}),
                     ),
-                    binding_digest=report.digest
+                    binding_digest=initial_report.digest
                     if name == "report"
                     else fingerprint({"intent": "triage-binding"}),
                 ),
@@ -846,6 +874,7 @@ def configure_application(configs: dict[str, Config], training_text: str) -> Non
                 config.private_key.parent / "application.json",
                 {
                     "training_text": training_text,
+                    "report_input": "document" if connection_mismatch else "text",
                     "contracts": public,
                     **(
                         {"goals": [goal.model_dump(mode="json") for goal in goals]}

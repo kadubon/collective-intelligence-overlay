@@ -5,11 +5,14 @@
 An isolated document comparison command records predeclared assignments, fresh
 owner stores, setup/run timings, signed observations, allowance and negative/censored
 outcomes. Initial pilots show equal checked outcome counts and no allowance saving;
-the connection/environment scenario and complete experiment coverage remain pending.
+the current protocol also includes a matched input-contract connection condition.
+Complete experiment accounting and release gates remain pending.
 
 The external document application adds a fixed-order verified-reuse control. It
 shares builders, checkers and materialization with the adaptive path but does not
-call discovery or proposal/allocation APIs. Comparison experiments remain pending.
+call discovery or proposal/allocation APIs. Both paths can construct an installed
+input adapter following an actual scope mismatch, then independently check its new
+binding before reuse. Restart restores its exact input contract and parameters.
 
 Allocation observations retain each opportunity's eligible rank or deferral reason
 and rule digest. Scoped observations reference one shared overhead event, committed

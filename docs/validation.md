@@ -2,6 +2,28 @@
 
 ## 0.3.0 development checkpoint
 
+The input-contract connection increment passed 11 document-application and experiment
+tests in 369.44 seconds, zero skips, using real PostgreSQL, OPA, MAF and three-process
+A2A. Both fixed and adaptive paths reject the initial mismatched report contract,
+materialize the same installed adapter, independently check its new binding and
+reuse it in downstream formation. Adaptive history records `connection_backlog`.
+Restart/replay and transitive withdrawal remain covered. The original document E2E,
+checker-calibration shortage and report isolation/tamper checks also passed. Lint,
+114-file formatting, 48-module typing and generated docs/schema checks passed.
+These tests are functional observations, not performance comparisons or release-wide
+validation.
+
+Pilot 3 completed six fresh assignments, including both input-contract mismatch
+arms. Each normal/connection arm passed both formation checks and all three
+business outputs; each checking-constrained arm stopped after one checked formation.
+Its public archive passed validation of 858 signed records, 18 separate databases,
+key separation, allowance conservation and result counts. No outcome or allowance
+advantage was observed; all adaptive elapsed observations were higher in this
+single-run comparison. Failed/censored success times remain null. See
+[evaluation](evaluation.md) for exact conditions, timings and source snapshots.
+The expanded archive/isolation suite passed five tests in 10.24 seconds, zero skips,
+including rejection of altered balances and outcome counts in both pilot 2 and 3.
+
 The isolated comparison pilot completed four assignments using 12 fresh databases
 and separate keys/artifacts. Normal-budget arms each passed three held-out business
 outputs; verifier-budget-14 arms each checked one formed target and stopped before
@@ -11,7 +33,7 @@ allowance conservation and outcome counts passed report validation. Four additio
 tests passed in 8.57 seconds, zero skips: fresh database/key/budget isolation,
 invalid initialization, existing-directory preservation, and detection of changed
 budget/outcome counts in the saved real reports. See [evaluation](evaluation.md)
-for raw archives, timings, missing resources and the incomplete connection scenario.
+for raw archives, timings and missing resources. Pilot 3 adds the connection scenario.
 
 The fixed document-control path and shared materialization refactor passed all four
 three-process E2E cases in 213.00 seconds, zero skips. The new control uses the same
