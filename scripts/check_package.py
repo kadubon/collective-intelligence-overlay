@@ -36,6 +36,8 @@ with zipfile.ZipFile(wheel) as archive:
         "schemas/evidence.json",
         "schemas/opportunity.json",
         "schemas/proposal.json",
+        "schemas/binding.json",
+        "schemas/artifactspec.json",
     ):
         assert any(n.endswith(ending) for n in members), ending
 with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:

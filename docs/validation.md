@@ -2,6 +2,13 @@
 
 ## 0.3.0 development checkpoint
 
+The persisted-binding increment passed 20 focused binding, reconstruction and
+opportunity/step tests in 26.74 seconds, zero skips. Reconstruction includes a
+separate interpreter loading the saved manifest, verifying stored evidence in
+PostgreSQL and executing through OPA admission. Equal source with changed
+parameters cannot reuse prior evidence. Lint, formatting, strict typing and
+generated schemas passed. This does not yet verify the full adaptive application.
+
 The subsequent single-step increment passed 15 focused opportunity, concurrent
 choice, restart, UNKNOWN, migration and actual backup/restore tests in 18.54 seconds,
 zero skips. Strict mypy covers 44 source files. This is incremental evidence, not

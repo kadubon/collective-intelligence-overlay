@@ -1,0 +1,333 @@
+{
+  "$defs": {
+    "Scope": {
+      "additionalProperties": false,
+      "description": "Exact operational applicability; schema equality does not prove semantic fit.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Task",
+          "type": "string"
+        },
+        "input_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Input Contract",
+          "type": "string"
+        },
+        "output_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Output Contract",
+          "type": "string"
+        },
+        "environment": {
+          "maxProperties": 64,
+          "patternProperties": {
+            "^[a-zA-Z0-9_.:/-]+$": {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 160,
+            "minLength": 1
+          },
+          "title": "Environment",
+          "type": "object"
+        },
+        "permissions": {
+          "default": [],
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.:/-]+$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "title": "Permissions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task",
+        "input_contract",
+        "output_contract",
+        "environment"
+      ],
+      "title": "Scope",
+      "type": "object"
+    },
+    "Subject": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "title": "Subject",
+      "type": "object"
+    },
+    "Target": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": [
+            "local",
+            "mcp",
+            "a2a"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "name": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Name",
+          "type": "string"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Endpoint"
+        },
+        "peer": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Peer"
+        },
+        "interface_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Interface Digest",
+          "type": "string"
+        },
+        "implementation_identity": {
+          "enum": [
+            "installed",
+            "remote-unknown"
+          ],
+          "title": "Implementation Identity",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "name",
+        "interface_digest",
+        "implementation_identity"
+      ],
+      "title": "Target",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "binding_schema": {
+      "default": "1",
+      "enum": [
+        "1",
+        "2"
+      ],
+      "title": "Binding Schema",
+      "type": "string"
+    },
+    "artifact_digest": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Artifact Digest"
+    },
+    "id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "revision": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Revision",
+      "type": "string"
+    },
+    "issuer": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Issuer",
+      "type": "string"
+    },
+    "subject": {
+      "$ref": "#/$defs/Subject"
+    },
+    "registrar": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Registrar",
+      "type": "string"
+    },
+    "target": {
+      "$ref": "#/$defs/Target"
+    },
+    "scope": {
+      "$ref": "#/$defs/Scope"
+    },
+    "input_schema": {
+      "additionalProperties": true,
+      "title": "Input Schema",
+      "type": "object"
+    },
+    "output_schema": {
+      "additionalProperties": true,
+      "title": "Output Schema",
+      "type": "object"
+    },
+    "callers": {
+      "items": {
+        "maxLength": 160,
+        "minLength": 1,
+        "pattern": "^[a-zA-Z0-9_.:/-]+$",
+        "type": "string"
+      },
+      "maxItems": 128,
+      "minItems": 1,
+      "title": "Callers",
+      "type": "array"
+    },
+    "verification_callers": {
+      "default": [],
+      "items": {
+        "maxLength": 160,
+        "minLength": 1,
+        "pattern": "^[a-zA-Z0-9_.:/-]+$",
+        "type": "string"
+      },
+      "maxItems": 128,
+      "title": "Verification Callers",
+      "type": "array"
+    },
+    "permissions": {
+      "default": [],
+      "items": {
+        "maxLength": 160,
+        "minLength": 1,
+        "pattern": "^[a-zA-Z0-9_.:/-]+$",
+        "type": "string"
+      },
+      "maxItems": 64,
+      "title": "Permissions",
+      "type": "array"
+    },
+    "effects": {
+      "enum": [
+        "read-only",
+        "idempotent",
+        "reconcile-required"
+      ],
+      "title": "Effects",
+      "type": "string"
+    },
+    "resources": {
+      "additionalProperties": {
+        "items": {
+          "type": "string"
+        },
+        "type": "array"
+      },
+      "maxProperties": 64,
+      "title": "Resources",
+      "type": "object"
+    },
+    "components": {
+      "default": [],
+      "items": {
+        "pattern": "^[a-f0-9]{64}$",
+        "type": "string"
+      },
+      "maxItems": 64,
+      "title": "Components",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id",
+    "revision",
+    "issuer",
+    "subject",
+    "registrar",
+    "target",
+    "scope",
+    "input_schema",
+    "output_schema",
+    "callers",
+    "effects"
+  ],
+  "title": "Binding",
+  "type": "object"
+}

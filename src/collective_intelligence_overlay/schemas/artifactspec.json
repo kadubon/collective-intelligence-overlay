@@ -1,0 +1,88 @@
+{
+  "$defs": {
+    "JsonValue": {}
+  },
+  "additionalProperties": false,
+  "description": "Reconstruction data for installed code, not a workflow or executable format.",
+  "properties": {
+    "artifact_schema": {
+      "const": "1",
+      "default": "1",
+      "title": "Artifact Schema",
+      "type": "string"
+    },
+    "builder_id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Builder Id",
+      "type": "string"
+    },
+    "builder_version": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Builder Version",
+      "type": "string"
+    },
+    "builder_source": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Builder Source",
+      "type": "string"
+    },
+    "parameters": {
+      "additionalProperties": {
+        "$ref": "#/$defs/JsonValue"
+      },
+      "maxProperties": 64,
+      "title": "Parameters",
+      "type": "object"
+    },
+    "environment": {
+      "maxProperties": 64,
+      "patternProperties": {
+        "^[a-zA-Z0-9_.:/-]+$": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "type": "string"
+        }
+      },
+      "propertyNames": {
+        "maxLength": 160,
+        "minLength": 1
+      },
+      "title": "Environment",
+      "type": "object"
+    },
+    "components": {
+      "default": [],
+      "items": {
+        "pattern": "^[a-f0-9]{64}$",
+        "type": "string"
+      },
+      "maxItems": 64,
+      "title": "Components",
+      "type": "array"
+    },
+    "data_artifacts": {
+      "default": [],
+      "items": {
+        "pattern": "^[a-f0-9]{64}$",
+        "type": "string"
+      },
+      "maxItems": 16,
+      "title": "Data Artifacts",
+      "type": "array"
+    }
+  },
+  "required": [
+    "builder_id",
+    "builder_version",
+    "builder_source",
+    "parameters",
+    "environment"
+  ],
+  "title": "ArtifactSpec",
+  "type": "object"
+}

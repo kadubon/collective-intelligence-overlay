@@ -45,6 +45,11 @@ replay. Tests cover concurrent replies in different orders, restart between choi
 and claim, insufficient allowance and a response lost after the actual operation.
 This is still a static choice rule; bounded adaptive allocation and the complete
 multi-peer formation cycle remain to be implemented and evaluated.
+Persisted binding v2 now binds installed builder configuration, parameters,
+environment and components to the subject digest. A separate Python process
+restores the saved manifest and executes after actual PostgreSQL/OPA admission.
+Changed calibration values with identical callable source get different identities
+and cannot reuse old evidence. The existing v1 binding digest is retained.
 
 ## 0.2.0 implementation and validation
 

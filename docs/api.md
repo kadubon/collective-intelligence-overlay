@@ -43,6 +43,20 @@ Migration `0010` adds only the local choice table and preserves all existing sig
 records, reservations and invocation states. The full adaptive bounded loop and
 the 0.3.0 release contract remain in development.
 
+`bindings.ArtifactSpec` stores an installed builder ID/version/source digest,
+bounded parameters, environment, component bindings and content-addressed data
+references. `spec.persist(Artifacts(owner_directory))` returns the manifest digest.
+A local `Binding(binding_schema="2", artifact_digest=..., ...)` must use that digest
+as its subject digest. The host restores it through `registry.register_artifact(
+binding, artifacts, installed_factory, assess, builder_id=..., builder_version=...)`.
+The installed factory takes the saved parameters and returns an async operation;
+it cannot be selected by a received import path. Registration checks configuration,
+source, environment and components. Each call verifies persisted data and creates
+fresh parameters before invoking the reconstructed callable. The host still owns
+installed code and its global dependencies; this is not code attestation. Candidate
+registration never supplies PASS evidence. Binding v1 keeps its original digest
+calculation; its new optional artifact field is excluded from that calculation.
+
 For 0.2.0 registered execution, an operator creates a `Registry(overlay)`, then
 uses `register_local`, `register_mcp` or `register_a2a` with an explicit `Binding`
 and an input applicability checker. `Executor(registry, identity, Reservation())`

@@ -70,6 +70,17 @@ Revocation is a retained tombstone. It does not undo past execution, physically 
 artifacts or unlearn model weights. Artifact copying, import, declared formation and
 scope qualification are separate classifications; a new hash does not prove a new function.
 
+In the 0.3.0 development path, persisted local binding v2 identifies both installed
+code and a content-addressed reconstruction manifest. Equal callable source text
+with different calibration parameters gives different subject/binding identities.
+Existing evidence does not qualify that different identity. Reconstructing a saved
+manifest is local installation, not new formation or new verification. The factory
+is installed operator code and cannot be registered through a proposal. Its external
+dependencies remain part of the declared environment and host trust assumptions.
+This binding format version is distinct from Capability/Event record versions,
+the package version and Alembic database revisions. Existing v1 binding hashes
+and original signed v1/v2 record payloads are preserved.
+
 Costs use Decimal and retain category, unit and measured/estimated/unavailable status.
 Missing costs are null, not zero. Metrics deduplicate issuer/event ID and never add
 incompatible currencies or units. Resource reservations are not measured API invoices.

@@ -15,8 +15,9 @@ from dataclasses import dataclass
 from typing import TYPE_CHECKING, Any, Literal
 
 from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
+from .artifacts import Artifacts
 from .models import Digest, Identifier, ReceiptRef, Scope, Subject, UseRequest, uid
 from .overlay import Overlay
 from .security import Identity, allowed_url, digest
@@ -69,7 +70,8 @@ class Target(BaseModel):
 
 class Binding(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
-    binding_schema: Literal["1"] = "1"
+    binding_schema: Literal["1", "2"] = "1"
+    artifact_digest: Digest | None = None
     id: Identifier
     revision: Identifier
     issuer: Identifier
@@ -90,6 +92,12 @@ class Binding(BaseModel):
 
     @model_validator(mode="after")
     def schemas(self) -> Binding:
+        if (self.binding_schema == "2") != (self.artifact_digest is not None):
+            raise ValueError("binding v2 requires a persisted artifact; v1 cannot claim one")
+        if self.binding_schema == "2" and (
+            self.target.kind != "local" or self.subject.digest != self.artifact_digest
+        ):
+            raise ValueError("artifact binding must identify its local persisted subject")
         if self.verification_callers and (
             self.effects != "read-only" or not set(self.verification_callers) <= set(self.callers)
         ):
@@ -122,7 +130,34 @@ class Binding(BaseModel):
 
     @property
     def digest(self) -> str:
-        return fingerprint(self.model_dump(mode="json"))
+        return fingerprint(
+            self.model_dump(
+                mode="json", exclude={"artifact_digest"} if self.binding_schema == "1" else set()
+            )
+        )
+
+
+class ArtifactSpec(BaseModel):
+    """Reconstruction data for installed code, not a workflow or executable format."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    artifact_schema: Literal["1"] = "1"
+    builder_id: Identifier
+    builder_version: Identifier
+    builder_source: Digest
+    parameters: dict[str, JsonValue] = Field(max_length=64)
+    environment: dict[Identifier, Identifier] = Field(max_length=64)
+    components: tuple[Digest, ...] = Field(default=(), max_length=64)
+    data_artifacts: tuple[Digest, ...] = Field(default=(), max_length=16)
+
+    @model_validator(mode="after")
+    def bounded_parameters(self) -> ArtifactSpec:
+        if len(json.dumps(self.parameters, allow_nan=False).encode()) > 65536:
+            raise ValueError("persisted parameters exceed byte bound")
+        return self
+
+    def persist(self, artifacts: Artifacts) -> str:
+        return artifacts.put(self.model_dump_json().encode())
 
 
 class ExecutionContext(BaseModel):
@@ -188,11 +223,66 @@ class Registry:
         self._digests: dict[str, _Registration] = {}
 
     def register_local(self, binding: Binding, operation: Operation, assess: Assessment) -> None:
+        if binding.binding_schema != "1":
+            raise ValueError("persisted bindings require register_artifact")
         if binding.target.kind != "local":
             raise ValueError("local registration requires local binding")
         if callable_digest(operation) != binding.target.interface_digest:
             raise ValueError("installed callable does not match binding")
         self._register(binding, operation, assess)
+
+    def register_artifact(
+        self,
+        binding: Binding,
+        artifacts: Artifacts,
+        factory: Callable[[dict[str, JsonValue]], Operation],
+        assess: Assessment,
+        *,
+        builder_id: str,
+        builder_version: str,
+    ) -> None:
+        """Reconstruct only through a host-installed factory with pinned configuration.
+
+        Factory registration is operator authority. Data contains no import path,
+        code, shell command or package reference to execute. Global dependencies
+        of installed code remain a host/environment trust assumption.
+        """
+        binding = Binding.model_validate(binding.model_dump())
+        if binding.binding_schema != "2" or binding.artifact_digest is None:
+            raise ValueError("expected a persisted v2 binding")
+        manifest_digest = binding.artifact_digest
+        raw = artifacts.get(manifest_digest)
+        spec = ArtifactSpec.model_validate_json(raw)
+        factory_digest = digest(inspect.getsource(factory).encode())
+        if (
+            spec.builder_id != builder_id
+            or spec.builder_version != builder_version
+            or spec.builder_source != factory_digest
+            or spec.environment != binding.scope.environment
+            or spec.components != binding.components
+        ):
+            raise ValueError("artifact builder, environment or components changed")
+        for data_digest in spec.data_artifacts:
+            artifacts.get(data_digest)
+        operation = factory(copy.deepcopy(spec.parameters))
+        if callable_digest(operation) != binding.target.interface_digest:
+            raise ValueError("reconstructed operation differs from binding")
+
+        async def reconstructed(arguments: dict[str, Any]) -> Any:
+            # Fresh parameters prevent state retained in one closure from silently
+            # redefining a persisted procedure on subsequent calls.
+            if artifacts.get(manifest_digest) != raw:
+                raise ValueError("persisted parameters changed")
+            for data_digest in spec.data_artifacts:
+                artifacts.get(data_digest)
+            if digest(inspect.getsource(factory).encode()) != factory_digest:
+                raise ValueError("installed factory changed")
+            current = factory(copy.deepcopy(spec.parameters))
+            if callable_digest(current) != binding.target.interface_digest:
+                raise ValueError("reconstructed operation changed")
+            return await current(arguments)
+
+        self._register(binding, reconstructed, assess)
 
     def _register(self, binding: Binding, operation: Operation, assess: Assessment) -> None:
         if binding.registrar != self.overlay.store.owner:
