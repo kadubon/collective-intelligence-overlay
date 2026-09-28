@@ -16,6 +16,11 @@ to the same service return `already_running`.
 The independent checker retains its own allowance and read-only invocation grants.
 Its reference pins a registered Binding, including the installed checker source;
 the explicit application route checks caller, binding and actual argument shape.
+Completed check requests are bound to their attempt, target binding and input.
+Replaying an identical request returns the original signed evidence and saved probe
+result even while the target is offline. It does not renew timestamps or admission.
+A changed request conflicts before another reservation. An interrupted check with
+no saved result remains unresolved; its expired lease is not automatically reclaimed.
 
 The reproducible three-process setup, initial primitive checks, later autonomous
 choices and cleanup are exercised by
@@ -371,6 +376,12 @@ repair or alternative formation. It grants neither budget nor authority.
 fence. `commit_work` checks active ownership and writes results plus terminal state
 in one transaction. Stale/cancelled/expired workers cannot commit. `finish` terminates
 without result records. Unknown external effects are not retried or refunded automatically.
+For a host path that must never automatically resume an uncertain legacy lease,
+pass `reclaim_expired=False`. Within the existing budget/lease transaction, any
+previous lease then causes `Conflict`, including an expired active row. Its worker,
+fence and allowance remain unchanged. The default retains the existing explicit
+expired-lease takeover behavior. This option does not grant permission to retry
+an unknown external effect; use persisted Executor results for normal bound calls.
 
 CLI commands all use the SDK:
 

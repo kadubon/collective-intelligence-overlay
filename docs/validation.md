@@ -2,6 +2,16 @@
 
 ## 0.3.0 development checkpoint
 
+The checker-replay increment passed 34 lease-concurrency, invocation and three-process
+document E2E tests in 178.23 seconds, zero skips. After the verifier restarts with the
+target process stopped, replay returns the original evidence and probe result without
+another reservation. Changed target digests conflict. Concurrent retries of an
+expired uncertain check keep its original worker, fence and allowance. The existing
+0.2.1 invocation regressions and original document E2E passed in the same run. Lint,
+formatting, package typing and documentation checks passed. Checking still uses the
+existing verifier lease path; integrating it with Steps and adaptive allocation
+remains required.
+
 The external observation-driven document application passed both three-process
 E2E cases in 97.17 seconds, zero skips, with actual PostgreSQL, OPA, A2A HTTP and
 MAF composition. Separate calibration inputs produced thresholds 2 and 4. Each

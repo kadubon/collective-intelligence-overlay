@@ -6,10 +6,12 @@ from pathlib import Path
 import httpx
 import pytest
 from a2a.client import AgentCardResolutionError
+from sqlalchemy import select
 
 from collective_intelligence_overlay.adapters.a2a import send
 from collective_intelligence_overlay.config import Config
 from collective_intelligence_overlay.demo import initialize
+from collective_intelligence_overlay.storage import budgets
 
 
 @pytest.mark.parametrize(
@@ -84,6 +86,16 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
 
     async def sync(owner, source):
         assert (await call(owner, operation="sync", peer=source, page_size=4))["complete"]
+
+    def balance(owner):
+        _, overlay = configs[owner].runtime()
+        try:
+            with overlay.store.engine.connect() as conn:
+                return conn.execute(
+                    select(budgets.c.remaining).where(budgets.c.unit == "work")
+                ).scalar_one()
+        finally:
+            overlay.store.close()
 
     try:
         async with asyncio.timeout(180):
@@ -171,6 +183,34 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             assert outcome["result"] == {"long": True, "threshold": len(training_text.split())}
             old_pid = processes["receiver"].pid
             await stop("receiver")
+            # Replay a completed checker result after checker restart while the
+            # target process is stopped. No fresh probe or reservation can hide
+            # behind a successful response.
+            checker_before = await asyncio.to_thread(balance, "verifier")
+            await stop("verifier")
+            await start("verifier")
+            from adaptive_documents import checker_binding
+
+            check_request = {
+                "operation": "request-document-check",
+                "name": "report",
+                "attempt": "check-" + history[1]["opportunity"],
+                "binding_digest": history[1]["evidence"]["binding_digest"],
+                "checker_digest": checker_binding().digest,
+            }
+            replayed_check = await send(
+                configs["receiver"], identities["receiver"], "verifier", check_request
+            )
+            assert replayed_check["evidence"] == history[1]["evidence"]
+            assert replayed_check["observed"]["state"] == "completed"
+            changed_request = await send(
+                configs["receiver"],
+                identities["receiver"],
+                "verifier",
+                {**check_request, "binding_digest": "0" * 64},
+            )
+            assert changed_request["state"] == "conflict"
+            assert await asyncio.to_thread(balance, "verifier") == checker_before
             await start("receiver")
             assert processes["receiver"].pid != old_pid
             assert await call("receiver", **request) == outcome

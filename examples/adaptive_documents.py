@@ -50,6 +50,7 @@ from collective_intelligence_overlay.proposal_exchange import (
 )
 from collective_intelligence_overlay.queries import RecordQuery
 from collective_intelligence_overlay.steps import Steps
+from collective_intelligence_overlay.storage import Conflict
 
 
 def binding_ref(binding: Any) -> BindingRef:
@@ -154,7 +155,10 @@ class AdaptiveDocuments(DocumentService):
                 {key: data[key] for key in ("name", "attempt", "binding_digest")},
                 ExecutionContext(caller=caller, environment=ENVIRONMENT),
             )
-            return await self.check_requested_candidate(prepared.arguments)
+            try:
+                return await self.check_requested_candidate(prepared.arguments)
+            except Conflict:
+                return {"state": "conflict", "error": "CHECK_ATTEMPT_OR_ALLOWANCE_CONFLICT"}
         if data.get("operation") == "adaptive-run":
             if caller != self.config.owner or caller != "receiver":
                 raise ValueError("only the receiver owner may start its finite application")
@@ -173,6 +177,7 @@ class AdaptiveDocuments(DocumentService):
                 "provider": "receiver",
                 "name": name,
                 "attempt": str(data["attempt"]),
+                "binding_digest": data["binding_digest"],
                 "arguments": {"text": "independent\tvalidation 文書\nwith separate contents"},
             }
         )
@@ -224,6 +229,16 @@ class AdaptiveDocuments(DocumentService):
                             "binding_digest": goal.request.binding_digest,
                         },
                     )
+                    if "evidence" not in checked:
+                        history.append(
+                            {
+                                "opportunity": observation.id,
+                                "kind": "verification",
+                                "unresolved": checked,
+                            }
+                        )
+                        reason = "check_not_completed"
+                        break
                     history.append(
                         {
                             "opportunity": observation.id,

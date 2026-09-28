@@ -43,6 +43,26 @@ def test_stale_worker_cannot_commit(store, records, identities):
         store.finish("task", "old", old)
 
 
+def test_nonreclaiming_check_keeps_unknown_attempt_and_allowance(store):
+    store.set_budget("work", Decimal(10))
+    fence = store.acquire("uncertain-check", "original", "work", Decimal(1), reclaim_expired=False)
+    with store.engine.begin() as conn:
+        conn.execute(update(leases).values(expires_at=now() - timedelta(seconds=1)))
+    store.close()
+
+    def retry(worker):
+        with pytest.raises(Conflict):
+            store.acquire("uncertain-check", worker, "work", Decimal(1), reclaim_expired=False)
+
+    with ThreadPoolExecutor(max_workers=4) as pool:
+        list(pool.map(retry, ["original", "other", "another", "original"]))
+    with store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == Decimal(9)
+        row = conn.execute(select(leases)).mappings().one()
+        assert row["worker"] == "original" and row["fence"] == fence
+        assert row["state"] == "active"
+
+
 def test_cancel_completion_race_and_restart(store, records, identities):
     store.set_budget("work", Decimal(10))
     fence = store.acquire("task", "worker", "work", Decimal(1))

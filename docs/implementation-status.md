@@ -43,6 +43,11 @@ priority is a fixed domain rule, not the core adaptive allocator; checking still
 uses the existing verifier lease path outside Steps. Adaptive integration, failure
 coverage, relation-role semantics, full metrics and matched experiments remain
 required, along with all final distribution and publication gates.
+Completed document checks now replay their saved evidence/probe result across
+verifier restart without calling the target or reserving more allowance. Changed
+requests conflict, and interrupted checks do not reclaim an uncertain expired lease.
+This closes a replay gap in the existing checker path; it does not complete its
+integration with durable local selection and adaptive allocation.
 
 The first 0.3.0 working-tree increment adds versioned Opportunity/Proposal models,
 generated schemas, bounded exact record inspection and original-payload reference

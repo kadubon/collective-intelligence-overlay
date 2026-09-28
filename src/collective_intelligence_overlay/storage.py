@@ -732,10 +732,19 @@ class Store:
             conn.execute(insert(budgets).values(unit=unit, remaining=amount))
 
     def acquire(
-        self, task_id: str, worker: str, unit: str, reservation: Decimal, seconds: int = 60
+        self,
+        task_id: str,
+        worker: str,
+        unit: str,
+        reservation: Decimal,
+        seconds: int = 60,
+        *,
+        reclaim_expired: bool = True,
     ) -> int:
         with self.engine.begin() as conn:
-            return self._acquire(conn, task_id, worker, unit, reservation, seconds)
+            return self._acquire(
+                conn, task_id, worker, unit, reservation, seconds, reclaim_expired=reclaim_expired
+            )
 
     def _acquire(
         self,
@@ -745,6 +754,8 @@ class Store:
         unit: str,
         reservation: Decimal,
         seconds: int,
+        *,
+        reclaim_expired: bool = True,
     ) -> int:
         if not reservation.is_finite() or reservation < 0 or not 1 <= seconds <= 3600:
             raise ValueError("invalid lease bounds")
@@ -757,7 +768,7 @@ class Store:
             .mappings()
             .one_or_none()
         )
-        if old and (old["state"] != "active" or old["expires_at"] > now()):
+        if old and (not reclaim_expired or old["state"] != "active" or old["expires_at"] > now()):
             raise Conflict("task already owned or terminal")
         if old and old["unit"] != unit:
             raise Conflict("lease unit cannot change")

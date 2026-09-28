@@ -48,6 +48,7 @@ from collective_intelligence_overlay.models import (
 )
 from collective_intelligence_overlay.peer import PeerService
 from collective_intelligence_overlay.queries import RecordQuery
+from collective_intelligence_overlay.storage import Conflict
 
 ENVIRONMENT = {"documents": "1"}
 APPLICATION_SCRIPT = Path(__file__).resolve()
@@ -361,8 +362,36 @@ class DocumentService(PeerService):
         if self.config.owner != "verifier":
             raise ValueError("independent checking belongs to the verifier")
         attempt = str(data["attempt"])
+        request = {
+            "provider": str(data["provider"]),
+            "name": str(data["name"]),
+            "arguments": data["arguments"],
+            "binding_digest": data.get("binding_digest"),
+        }
+        evidence_id = "checked-" + fingerprint([self.config.owner, attempt])
+        saved = await asyncio.to_thread(
+            self.overlay.store.record_page,
+            RecordQuery(kinds=("evidence",), issuer=self.config.owner, record_id=evidence_id),
+            limit=1,
+        )
+        if saved.items:
+            evidence = saved.items[0]
+            if not isinstance(evidence, Evidence):
+                raise ValueError("saved check is not evidence")
+            artifact = json.loads(self.artifacts.get(evidence.artifact_digest))
+            if artifact.get("request") != request:
+                raise Conflict("check attempt reused with different request")
+            # This returns the original verdict, expiry and actual probe result.
+            # It neither refreshes admission nor renews an expired PASS.
+            return {"evidence": evidence.model_dump(mode="json"), "observed": artifact["observed"]}
         fence = await asyncio.to_thread(
-            self.overlay.store.acquire, attempt, self.config.owner, "work", Decimal(1), 30
+            self.overlay.store.acquire,
+            attempt,
+            self.config.owner,
+            "work",
+            Decimal(1),
+            30,
+            reclaim_expired=False,
         )
         started = time.perf_counter()
         try:
@@ -372,6 +401,11 @@ class DocumentService(PeerService):
                 self.config, self.identity, provider, {"operation": "describe", "name": name}
             )
             binding = Binding.model_validate(description["binding"])
+            if (
+                request["binding_digest"] is not None
+                and request["binding_digest"] != binding.digest
+            ):
+                raise ValueError("candidate changed before checking")
             candidates = await asyncio.to_thread(
                 self.overlay.store.record_page,
                 RecordQuery(kinds=("capability",), issuer=provider, subject=binding.subject),
@@ -415,13 +449,19 @@ class DocumentService(PeerService):
                 verdict = "PASS" if observed["result"] == expected else "FAIL"
             artifact = self.artifacts.put(
                 json.dumps(
-                    {"binding": binding.digest, "arguments": arguments, "observed": observed},
+                    {
+                        "binding": binding.digest,
+                        "arguments": arguments,
+                        "observed": observed,
+                        "request": request,
+                    },
                     sort_keys=True,
                 ).encode()
             )
             evidence = Evidence.model_validate(
                 {
                     "schema_version": "2",
+                    "id": evidence_id,
                     "issuer": self.config.owner,
                     "subject": cap.subject,
                     "binding_digest": binding.digest,
