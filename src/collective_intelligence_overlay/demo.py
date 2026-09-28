@@ -105,6 +105,8 @@ async def run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, Any
 
 
 async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, Any]:
+    from a2a.client import AgentCardResolutionError
+
     from .adapters.a2a import send
 
     processes: list[asyncio.subprocess.Process] = []
@@ -148,7 +150,7 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
                 try:
                     await send(configs[name], identities[name], name, {"operation": "metrics"})
                     break
-                except (httpx.HTTPError, ConnectionError):
+                except (httpx.HTTPError, ConnectionError, AgentCardResolutionError):
                     await asyncio.sleep(0.1)
             else:
                 raise RuntimeError("peer startup timeout")

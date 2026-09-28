@@ -2,11 +2,11 @@
 
 Local observations before release:
 
-- 36 tests passed against real PostgreSQL and OPA, including the three-process A2A
+- 41 tests passed against real PostgreSQL and OPA, including the three-process A2A
   lifecycle, actual MAF Agent/tool execution and workflow composition, MCP HTTP,
   provider adapter with mock HTTP, signature/identity/expiry failures, graph cycles,
   evidence withdrawal, lease competition and stale-worker result rejection.
-- Ruff and strict mypy passed at that checkpoint.
+- Ruff and strict mypy passed at the local release-preparation checkpoint.
 - Wheel/sdist built; twine strict metadata check passed. A fresh external environment
   installed the wheel, ran CLI/core SDK checks and rebuilt a wheel from the sdist.
 - pip-audit reported no known vulnerabilities for the checked environment. The

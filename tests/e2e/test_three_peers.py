@@ -5,7 +5,21 @@ import pytest
 from collective_intelligence_overlay.demo import initialize, run_demo
 
 
-async def test_three_process_lifecycle(tmp_path, policy):
+async def test_three_process_lifecycle(tmp_path, policy, monkeypatch):
+    from a2a.client import AgentCardResolutionError
+
+    from collective_intelligence_overlay.adapters import a2a
+
+    actual = a2a.send
+    unavailable = {"producer", "verifier", "receiver"}
+
+    async def delayed(config, identity, peer_name, data):
+        if peer_name in unavailable:
+            unavailable.remove(peer_name)
+            raise AgentCardResolutionError("server not yet ready")
+        return await actual(config, identity, peer_name, data)
+
+    monkeypatch.setattr(a2a, "send", delayed)
     url = os.environ.get("CIO_TEST_DATABASE_URL")
     if not url:
         pytest.skip("real PostgreSQL required")

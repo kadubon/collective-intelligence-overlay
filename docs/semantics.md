@@ -30,9 +30,9 @@ applicable evidence in addition to admitted dependencies.
 
 Qualification checks known revocations and expiry again at execution. A remote
 withdrawal may remain unknown until refresh; admission expires after the configured
-source freshness interval. Network failure does not refresh it. This is bounded
+producer/verifier source freshness interval. Network failure does not refresh it. This is bounded
 staleness, not instant global revocation or an atomic transaction with an external actuator.
-The actuator owner must enforce its own idempotency/fencing for external side effects.
+A record-count checkpoint also refuses admission if local evidence changes during checking; it is a conservative check, not a global lock. The actuator owner must enforce its own idempotency/fencing for external side effects.
 
 Revocation is a retained tombstone. It does not undo past execution, physically erase
 artifacts or unlearn model weights. Artifact copying, import, declared formation and
