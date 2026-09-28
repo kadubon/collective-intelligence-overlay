@@ -1,11 +1,31 @@
 # Release procedure and current state
 
-## 0.2.1 candidate, then 0.3.0
+## 0.2.1 published and verified on 2026-09-28
 
-0.2.1 allowance-release changes are under local safety/distribution validation.
-There is no 0.2.1 or 0.3.0 publication claim yet. Publish and verify 0.2.1 before
-publishing the separately developed 0.3.0 opportunity/formation changes.
-The existing 0.2.0 publication record below was already accurate at task start.
+- Release commit `3026c39b7cb3a4808e4b1eaf45332b1b81f4df8a`, annotated tag `v0.2.1`.
+- [Main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36382765828)
+  passed before tagging. [Tag CI and OIDC publication](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36383207196)
+  passed: 129 Linux source tests (190.77 seconds), 128 clean agents tests
+  (126.45 seconds), one model adapter test (1.08 seconds), Windows unit/package
+  checks, audit/license/SBOM/build/docs gates. No mandatory-service skips.
+- [PyPI 0.2.1](https://pypi.org/project/collective-intelligence-overlay/0.2.1/)
+  wheel/sdist match the exact tested CI artifacts. A cache-disabled actual-index
+  install in a new Python 3.12 environment outside the checkout passed import,
+  version, CLI and 34 allowance/migration/restore/E2E tests (105.58 seconds), zero skips.
+- The first immediate install preceded simple-index propagation. An ordinary retry
+  after the version appeared succeeded; no distribution was replaced or overwritten.
+- [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.2.1)
+  includes distributions, CI licenses/SBOM, hash/install verification and both
+  application results. Stop all old workers before migration 0009; legacy
+  reservations remain unknown and are not automatically refunded.
+
+```text
+5d5c35188aaee07c25731d096f05e424ea59cdeb15b19f721dc13be0d98336a7  collective_intelligence_overlay-0.2.1-py3-none-any.whl
+988c71482d60430e5cc57bd48eba0f269528d3a1ba2a41b473d1e23fc4a62750  collective_intelligence_overlay-0.2.1.tar.gz
+```
+
+0.3.0 remains separate work in progress and is not published. The existing 0.2.0
+publication record below was already accurate at the start of this two-stage work.
 
 ## 0.2.0 published and verified on 2026-09-28
 

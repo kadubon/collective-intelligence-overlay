@@ -11,7 +11,7 @@
 
 ## できること
 
-0.2.1 候補版では、DB で未 dispatch と所有権を確認し、以後の dispatch を封じた
+0.2.1 では、DB で未 dispatch と所有権を確認し、以後の dispatch を封じた
 予約だけを一度だけ解放します。検査に使った費用は残り、実行可能性が残る予約と
 旧履歴は保持します。[移行・復旧](docs/deployment.md)と[公開状態](docs/releasing.md)を
 確認してください。
@@ -34,12 +34,12 @@ C3を合成・検証し、その出力からC4を形成して、再起動と元�
 
 ## 最短の確認
 
-[PyPI 0.2.0](https://pypi.org/project/collective-intelligence-overlay/0.2.0/)を公開済みです。
+[PyPI 0.2.1](https://pypi.org/project/collective-intelligence-overlay/0.2.1/)を公開済みです。
 有効化したPython 3.12環境へ次のコマンドで導入できます。
 配布物のハッシュ一致と公開後E2Eの結果は上記のrelease記録に記載しています。
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.2.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.2.1'
 collective-intelligence-overlay --version
 ```
 

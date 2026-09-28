@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.2.1 (release candidate)
+## 0.2.1
 
 New invocation reservations are released exactly once only when the database
 transaction confirms a still-owned reserved phase and fences further dispatch.

@@ -20,7 +20,10 @@ connection/environment bottlenecks, including failures, costs and censoring.
 Validate migration, restart/concurrency, bounded discovery/scale, docs/skill and
 clean distributions; publish/verify 0.3.0 after 0.2.1. No positive effect is assumed.
 
-Both stages remain incomplete. The specification's A1-A4, B1-B12 and C1-C5,
+Stage A is complete: v0.2.1 at `3026c39` passed full CI, OIDC publication,
+artifact hash comparison and 34 actual-PyPI allowance/migration/restore/E2E checks
+(105.58 seconds, zero skips). Its release artifacts and records are preserved.
+Stage B remains incomplete. The specification's A1-A4, B1-B12 and C1-C5,
 including all named adverse cases, artifacts and publication gates, remain the
 completion criteria; this plan does not replace or narrow them.
 

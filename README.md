@@ -13,7 +13,7 @@ the overlay records evidence, qualifies reuse and stops known-invalid dependenci
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [Architecture](docs/architecture.md)
 
-The 0.2.1 release candidate returns execution allowance after a refusal or
+Version 0.2.1 returns execution allowance after a refusal or
 cancellation only when the database proves no dispatch and fences further dispatch.
 Inspection costs remain recorded; uncertain effects and old reservations stay held.
 See [upgrade/recovery](docs/deployment.md) and [release state](docs/releasing.md).
@@ -67,11 +67,11 @@ Expected fields: `processes: 3`, `admission: ACCEPT`, report total `117.00`,
 Timings vary. The command preserves owner-local artifacts and databases and stops
 its child processes. Use a new output directory for another run.
 
-[Version 0.2.0 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.2.0/).
+[Version 0.2.1 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.2.1/).
 To install into an activated Python 3.12 environment:
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.2.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.2.1'
 collective-intelligence-overlay --version
 ```
 
