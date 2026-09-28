@@ -1,5 +1,35 @@
 # Python API and CLI
 
+## 0.3.0 development APIs (unreleased)
+
+`opportunities.Goal` is operator configuration: a versioned goal, exact ordinary-use
+`UseRequest`, fixed checker binding, bounded installed-builder allowlist and explicit
+proposal peers. `Opportunities(registry, identity, goals)` owns isolated copies.
+`await opportunities.discover(max_candidates=8, start=0)` performs existing local
+qualification against bounded indexed snapshots. Use its `next_goal` for another
+bounded page. Results preserve the original signed opportunity when the semantic
+cause is unchanged, including concurrent discovery. Decision IDs, timestamps and
+unrelated events do not create new opportunities. Relevant evidence revisions,
+goal inputs, policy and qualification reasons can create a new observation.
+
+`Store.reference(kind, issuer, record_id)` and `resolve_reference(ref)` bind records
+to original signed payload bytes; local decisions instead use the existing local
+projection digest. Neither operation grants execution or evidence authority.
+`ProposalDrafts` accepts at most eight alternatives. `propose(...)` assigns stable
+IDs and preserves separate hypotheses and issuers. `validate_proposal(envelope,
+authenticated_caller, owner_context)` checks the registered goal, source reference,
+current revisions, deadlines, builder identity and actual argument permissions.
+It does not execute work or mark it verified. Generic evidence synchronization and
+`submit` do not implicitly share or accept these new work records.
+
+Optional `adapters.maf.propose_structured(client, inputs, max_attempts=2, seconds=30,
+max_tokens=2048)` invokes a real MAF `Agent` with structured output and no tools.
+The host explicitly supplies the client; paid inference remains opt-in. Invalid
+JSON/schema output gets bounded repair, transport uncertainty gets no retry, and
+returned costs separate measured elapsed time from unavailable tokens/prices.
+Returned drafts still require the same host validation. These development APIs
+do not yet provide the complete selection/step loop or a released 0.3.0 contract.
+
 For 0.2.0 registered execution, an operator creates a `Registry(overlay)`, then
 uses `register_local`, `register_mcp` or `register_a2a` with an explicit `Binding`
 and an input applicability checker. `Executor(registry, identity, Reservation())`

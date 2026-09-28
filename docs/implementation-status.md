@@ -27,6 +27,18 @@ Stage B remains incomplete. The specification's A1-A4, B1-B12 and C1-C5,
 including all named adverse cases, artifacts and publication gates, remain the
 completion criteria; this plan does not replace or narrow them.
 
+The first 0.3.0 working-tree increment adds versioned Opportunity/Proposal models,
+generated schemas, bounded exact record inspection and original-payload reference
+checks. These records neither change admission revisions nor enter the existing
+evidence synchronization feed. Generic peer submission refuses them until a
+registered goal exchange validates them. This increment does not yet implement
+the full selection/step loop, adaptive experiments or the 0.3.0 release.
+The next increment adds bounded operator goal discovery using actual qualification,
+stable semantic IDs, concurrent deduplication, retained alternative proposals and
+host checks against changed observations and installed bindings. The optional MAF
+adapter uses actual structured-output Agent calls with bounded repair and no tools;
+tests use a deterministic local client and do not demonstrate model superiority.
+
 ## 0.2.0 implementation and validation
 
 The 0.2.0 incremental specification was supplied on 2026-09-28. Implementation

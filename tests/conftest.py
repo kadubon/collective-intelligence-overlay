@@ -101,6 +101,37 @@ def records():
 
 
 @pytest.fixture
+def opportunity(records):
+    from collective_intelligence_overlay.models import BindingRef, Opportunity, RecordRef
+
+    cap = records[0]
+    return Opportunity(
+        id="missing-check",
+        issuer="receiver",
+        subject=cap.subject,
+        scope=cap.scope,
+        receivers=("receiver", "producer"),
+        goal_id="checked-total",
+        goal_digest=digest(b"registered goal"),
+        work_kind="verification",
+        basis=(
+            RecordRef(
+                kind="capability",
+                issuer=cap.issuer,
+                id=cap.subject.key,
+                payload_digest=digest(b"original signed payload"),
+            ),
+        ),
+        observation_digest=digest(b"missing applicable check"),
+        policy_digest=digest(b"local policy"),
+        reasons=("missing-evidence",),
+        expected_contract=cap.scope.output_contract,
+        checker=BindingRef(issuer="verifier", id="csv-check", digest=digest(b"checker")),
+        expires_at=now() + timedelta(hours=1),
+    )
+
+
+@pytest.fixture
 def overlay(store, policy, identities, records):
     for record in records:
         store.put(identities[record.issuer].sign(record))

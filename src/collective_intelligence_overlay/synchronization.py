@@ -156,7 +156,7 @@ class Feed:
                     raise ValueError("invalid feed interval")
                 condition = (
                     (records.c.issuer == self.store.owner)
-                    & (records.c.kind != "event")
+                    & (records.c.kind.in_(("capability", "evidence", "revocation")))
                     & (records.c.sequence > after)
                     & (records.c.sequence <= upper)
                 )
@@ -368,7 +368,7 @@ class Receiver:
         for record, _ in checked:
             if record.issuer != source:
                 raise ValueError("relay records cannot establish original issuer freshness")
-            if record.kind == "event" or (
+            if record.kind not in {"capability", "evidence", "revocation"} or (
                 keys and record.kind != "revocation" and subject_key(record.subject) not in keys
             ):
                 raise ValueError("record outside synchronized filter")

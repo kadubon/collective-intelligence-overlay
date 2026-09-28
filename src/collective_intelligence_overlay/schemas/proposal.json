@@ -1,0 +1,381 @@
+{
+  "$defs": {
+    "BindingRef": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "issuer",
+        "id",
+        "digest"
+      ],
+      "title": "BindingRef",
+      "type": "object"
+    },
+    "Cost": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "category": {
+          "enum": [
+            "formation",
+            "verification",
+            "transfer",
+            "use",
+            "maintenance",
+            "revocation",
+            "failure",
+            "connection",
+            "observation",
+            "repair",
+            "overhead"
+          ],
+          "title": "Category",
+          "type": "string"
+        },
+        "status": {
+          "enum": [
+            "measured",
+            "estimated",
+            "unavailable"
+          ],
+          "title": "Status",
+          "type": "string"
+        },
+        "quantity": {
+          "anyOf": [
+            {
+              "minimum": 0.0,
+              "type": "number"
+            },
+            {
+              "pattern": "^(?!^[-+.]*$)[+-]?0*(?:\\d{0,15}|(?=[\\d.]{1,25}0*$)\\d{0,15}\\.\\d{0,9}0*$)",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Quantity"
+        },
+        "unit": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "category",
+        "status",
+        "quantity",
+        "unit"
+      ],
+      "title": "Cost",
+      "type": "object"
+    },
+    "RecordRef": {
+      "additionalProperties": false,
+      "description": "Exact observation identity; a reference is not execution or checking authority.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "capability",
+            "evidence",
+            "revocation",
+            "event",
+            "decision",
+            "opportunity"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 330,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:@/-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "payload_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Payload Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "issuer",
+        "id",
+        "payload_digest"
+      ],
+      "title": "RecordRef",
+      "type": "object"
+    },
+    "Scope": {
+      "additionalProperties": false,
+      "description": "Exact operational applicability; schema equality does not prove semantic fit.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Task",
+          "type": "string"
+        },
+        "input_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Input Contract",
+          "type": "string"
+        },
+        "output_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Output Contract",
+          "type": "string"
+        },
+        "environment": {
+          "maxProperties": 64,
+          "patternProperties": {
+            "^[a-zA-Z0-9_.:/-]+$": {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 160,
+            "minLength": 1
+          },
+          "title": "Environment",
+          "type": "object"
+        },
+        "permissions": {
+          "default": [],
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.:/-]+$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "title": "Permissions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task",
+        "input_contract",
+        "output_contract",
+        "environment"
+      ],
+      "title": "Scope",
+      "type": "object"
+    },
+    "Subject": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "title": "Subject",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "description": "An alternative input to an installed builder, not received executable code.",
+  "properties": {
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "kind": {
+      "const": "proposal",
+      "default": "proposal",
+      "title": "Kind",
+      "type": "string"
+    },
+    "id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Id",
+      "type": "string"
+    },
+    "issuer": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Issuer",
+      "type": "string"
+    },
+    "subject": {
+      "$ref": "#/$defs/Subject"
+    },
+    "scope": {
+      "$ref": "#/$defs/Scope"
+    },
+    "receivers": {
+      "items": {
+        "maxLength": 160,
+        "minLength": 1,
+        "pattern": "^[a-zA-Z0-9_.:/-]+$",
+        "type": "string"
+      },
+      "maxItems": 32,
+      "minItems": 1,
+      "title": "Receivers",
+      "type": "array"
+    },
+    "goal_id": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Goal Id",
+      "type": "string"
+    },
+    "goal_digest": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Goal Digest",
+      "type": "string"
+    },
+    "opportunity": {
+      "$ref": "#/$defs/RecordRef"
+    },
+    "builder": {
+      "$ref": "#/$defs/BindingRef"
+    },
+    "arguments": {
+      "additionalProperties": true,
+      "maxProperties": 32,
+      "title": "Arguments",
+      "type": "object"
+    },
+    "alternative": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Alternative",
+      "type": "string"
+    },
+    "estimates": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Cost"
+      },
+      "maxItems": 8,
+      "title": "Estimates",
+      "type": "array"
+    },
+    "created_at": {
+      "format": "date-time",
+      "title": "Created At",
+      "type": "string"
+    },
+    "expires_at": {
+      "format": "date-time",
+      "title": "Expires At",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "issuer",
+    "subject",
+    "scope",
+    "receivers",
+    "goal_id",
+    "goal_digest",
+    "opportunity",
+    "builder",
+    "arguments",
+    "alternative",
+    "expires_at"
+  ],
+  "title": "Proposal",
+  "type": "object"
+}

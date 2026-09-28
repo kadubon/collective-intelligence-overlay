@@ -1,5 +1,19 @@
 # Validation status
 
+## 0.3.0 development checkpoint
+
+The first opportunity/proposal increment passed all 144 source tests in 296.21
+seconds with zero skips, using actual PostgreSQL, OPA, MAF, A2A and MCP, including
+the existing three-process applications, migration/restore and 1k/10k profiles.
+Ruff, formatting, strict mypy (42 source files) and generated-schema/documentation
+checks passed. The focused opportunity, reference, MAF and feed set passed 22
+tests in 22.69 seconds. MAF proposal tests use deterministic local responses;
+there were no paid model calls. This is not a 0.3.0 release gate: local selection,
+durable steps, new formation experiments and clean 0.3.0 distributions remain
+incomplete. The following 0.2.1 observations remain historical release evidence.
+
+## 0.2.1
+
 0.2.1 is published and verified. Final tag CI passed 129 Linux source tests,
 128 installed agents tests plus one model check, and Windows package checks.
 Actual PyPI installation passed 34 allowance/migration/restore/E2E checks, zero

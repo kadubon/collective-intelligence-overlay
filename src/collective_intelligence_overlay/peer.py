@@ -55,6 +55,8 @@ class PeerService:
             record = verify(data["envelope"], self.overlay.store.principals)
             if record.issuer != caller:
                 raise ValueError("issuer must match authenticated submitting peer")
+            if record.kind in {"opportunity", "proposal"}:
+                raise ValueError("work proposals require a registered goal exchange")
             return {"inserted": self.overlay.store.put(data["envelope"])}
         if operation == "invoke":
             context = ExecutionContext(

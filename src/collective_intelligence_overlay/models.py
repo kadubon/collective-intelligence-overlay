@@ -3,13 +3,14 @@
 from datetime import UTC, datetime
 from decimal import Decimal
 from enum import StrEnum
-from typing import Annotated, Literal, Self
+from typing import Annotated, Any, Literal, Self
 from uuid import uuid4
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
 Identifier = Annotated[str, Field(min_length=1, max_length=160, pattern=r"^[a-zA-Z0-9_.:/-]+$")]
 Digest = Annotated[str, Field(pattern=r"^[a-f0-9]{64}$")]
+RecordId = Annotated[str, Field(min_length=1, max_length=330, pattern=r"^[a-zA-Z0-9_.:@/-]+$")]
 
 
 def now() -> datetime:
@@ -269,4 +270,91 @@ class Decision(Model):
     valid_until: AwareDatetime = Field(default_factory=now)
 
 
-Record = Capability | Evidence | Revocation | Event
+class RecordRef(Model):
+    """Exact observation identity; a reference is not execution or checking authority."""
+
+    kind: Literal["capability", "evidence", "revocation", "event", "decision", "opportunity"]
+    issuer: Identifier
+    id: RecordId
+    payload_digest: Digest
+
+
+class BindingRef(Model):
+    issuer: Identifier
+    id: Identifier
+    digest: Digest
+
+
+WorkKind = Literal["formation", "connection", "verification", "observation", "repair"]
+
+
+class Opportunity(Model):
+    """A scoped, signed description of a deficit, never a grant or success receipt."""
+
+    kind: Literal["opportunity"] = "opportunity"
+    id: Identifier
+    issuer: Identifier
+    subject: Subject
+    scope: Scope
+    receivers: tuple[Identifier, ...] = Field(min_length=1, max_length=32)
+    goal_id: Identifier
+    goal_digest: Digest
+    work_kind: WorkKind
+    basis: tuple[RecordRef, ...] = Field(min_length=1, max_length=32)
+    observation_digest: Digest
+    policy_digest: Digest
+    reasons: tuple[Identifier, ...] = Field(min_length=1, max_length=16)
+    expected_contract: Identifier
+    checker: BindingRef
+    permissions: tuple[Identifier, ...] = Field(default=(), max_length=32)
+    estimates: tuple[Cost, ...] = Field(default=(), max_length=8)
+    supersedes: Identifier | None = None
+    created_at: AwareDatetime = Field(default_factory=now)
+    expires_at: AwareDatetime
+
+    @model_validator(mode="after")
+    def proposal_is_not_observation(self) -> Self:
+        if self.expires_at <= self.created_at:
+            raise ValueError("opportunity expiry must follow observation")
+        if any(cost.status == "measured" for cost in self.estimates):
+            raise ValueError("opportunity estimates cannot claim measured spending")
+        if len(set((ref.kind, ref.issuer, ref.id) for ref in self.basis)) != len(self.basis):
+            raise ValueError("duplicate opportunity basis")
+        return self
+
+
+class Proposal(Model):
+    """An alternative input to an installed builder, not received executable code."""
+
+    kind: Literal["proposal"] = "proposal"
+    id: Identifier
+    issuer: Identifier
+    subject: Subject
+    scope: Scope
+    receivers: tuple[Identifier, ...] = Field(min_length=1, max_length=32)
+    goal_id: Identifier
+    goal_digest: Digest
+    opportunity: RecordRef
+    builder: BindingRef
+    arguments: dict[str, Any] = Field(max_length=32)
+    alternative: Identifier
+    estimates: tuple[Cost, ...] = Field(default=(), max_length=8)
+    created_at: AwareDatetime = Field(default_factory=now)
+    expires_at: AwareDatetime
+
+    @model_validator(mode="after")
+    def bounded_untrusted_builder_input(self) -> Self:
+        import json
+
+        if self.opportunity.kind != "opportunity":
+            raise ValueError("proposal must refer to an opportunity")
+        if self.expires_at <= self.created_at:
+            raise ValueError("proposal expiry must follow creation")
+        if any(cost.status == "measured" for cost in self.estimates):
+            raise ValueError("proposal estimates are not measured results")
+        if len(json.dumps(self.arguments, allow_nan=False).encode()) > 8192:
+            raise ValueError("proposal arguments exceed byte bound")
+        return self
+
+
+Record = Capability | Evidence | Revocation | Event | Opportunity | Proposal

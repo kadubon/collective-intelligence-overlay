@@ -42,6 +42,7 @@ from .models import (
     Event,
     Evidence,
     Record,
+    RecordRef,
     Revocation,
     Subject,
     UseRequest,
@@ -226,7 +227,7 @@ class Store:
                 task_id=body.get("task_id"),
                 attempt_id=body.get("attempt_id"),
                 occurred_at=record.occurred_at if isinstance(record, Event) else record.created_at,
-                policy_digest=receipt.get("policy_digest"),
+                policy_digest=body.get("policy_digest") or receipt.get("policy_digest"),
                 dependency_refs=[
                     {
                         "subject_key": subject_key(dep),
@@ -247,7 +248,7 @@ class Store:
                 raise Conflict("record identity conflict")
             return False
         conn.execute(update(feed_state).where(feed_state.c.id == 1).values(sequence=prefix + 1))
-        affected = {skey} if not isinstance(record, Event) else set()
+        affected = {skey} if isinstance(record, Capability | Evidence | Revocation) else set()
         if isinstance(record, Revocation) and record.evidence_id is not None:
             affected.update(
                 conn.execute(
@@ -316,6 +317,67 @@ class Store:
     def record_count(self) -> int:
         with self.engine.connect() as conn:
             return int(conn.execute(select(func.count()).select_from(records)).scalar_one())
+
+    def resolve_reference(self, reference: RecordRef) -> Record | Decision:
+        """Resolve one exact observation, never infer permission from its existence.
+
+        Signed record digests cover original DSSE payload bytes, including legacy
+        representations. Local decisions use the existing projection digest and
+        cannot be attributed to another owner. No history scan or fallback occurs.
+        """
+        with self.engine.connect() as conn:
+            if reference.kind == "decision":
+                if reference.issuer != self.owner:
+                    raise ValueError("decision reference belongs to another owner")
+                body = conn.execute(
+                    select(decisions.c.body).where(decisions.c.id == reference.id)
+                ).scalar_one_or_none()
+                if body is None or projection_digest(body) != reference.payload_digest:
+                    raise ValueError("missing or mismatched decision reference")
+                return Decision.model_validate(body)
+            envelope = conn.execute(
+                select(records.c.envelope).where(
+                    (records.c.kind == reference.kind)
+                    & (records.c.issuer == reference.issuer)
+                    & (records.c.record_id == reference.id)
+                )
+            ).scalar_one_or_none()
+        if envelope is None:
+            raise ValueError("missing record reference")
+        payload = base64.b64decode(envelope["payload"], validate=True)
+        if hashlib.sha256(payload).hexdigest() != reference.payload_digest:
+            raise ValueError("mismatched record reference")
+        return verify(envelope, self.principals)
+
+    def reference(self, kind: str, issuer: str, record_id: str) -> RecordRef:
+        """Get an exact reference from stored bytes, not current model defaults."""
+        # Validate the selector before touching the store.
+        reference = RecordRef(kind=kind, issuer=issuer, id=record_id, payload_digest="0" * 64)  # type: ignore[arg-type]
+        with self.engine.connect() as conn:
+            if reference.kind == "decision":
+                if issuer != self.owner:
+                    raise ValueError("decision reference belongs to another owner")
+                body = conn.execute(
+                    select(decisions.c.body).where(decisions.c.id == record_id)
+                ).scalar_one_or_none()
+                if body is None:
+                    raise ValueError("missing decision reference")
+                value = projection_digest(body)
+            else:
+                envelope = conn.execute(
+                    select(records.c.envelope).where(
+                        (records.c.kind == kind)
+                        & (records.c.issuer == issuer)
+                        & (records.c.record_id == record_id)
+                    )
+                ).scalar_one_or_none()
+                if envelope is None:
+                    raise ValueError("missing record reference")
+                verify(envelope, self.principals)
+                value = hashlib.sha256(
+                    base64.b64decode(envelope["payload"], validate=True)
+                ).hexdigest()
+        return reference.model_copy(update={"payload_digest": value})
 
     def reset_sync_after_restore(self) -> str:
         """Offline operator recovery: rotate feed generation and discard freshness.
@@ -517,6 +579,7 @@ class Store:
                     condition &= records.c.kind.in_(query.kinds)
                 for column, value in (
                     (literal(self.owner) if local_decisions else records.c.issuer, query.issuer),
+                    (decisions.c.id if local_decisions else records.c.record_id, query.record_id),
                     (table.c.subject_key, subject_key(query.subject) if query.subject else None),
                     (
                         table.c.scope_digest,

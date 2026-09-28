@@ -4,15 +4,19 @@ from typing import Literal, Self
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
-from .models import Decision, Digest, Identifier, Record, Scope, Subject
+from .models import Decision, Digest, Identifier, Record, RecordId, Scope, Subject
 
 
 class RecordQuery(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
-    kinds: tuple[Literal["capability", "evidence", "revocation", "event", "decision"], ...] = Field(
-        default=("capability", "evidence", "revocation", "event"), min_length=1, max_length=4
-    )
+    kinds: tuple[
+        Literal[
+            "capability", "evidence", "revocation", "event", "decision", "opportunity", "proposal"
+        ],
+        ...,
+    ] = Field(default=("capability", "evidence", "revocation", "event"), min_length=1, max_length=4)
     issuer: Identifier | None = None
+    record_id: RecordId | None = None
     subject: Subject | None = None
     depends_on: Subject | None = None
     dependency_issuer: Identifier | None = None

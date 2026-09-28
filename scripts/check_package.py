@@ -33,6 +33,8 @@ with zipfile.ZipFile(wheel) as archive:
         "migrations/versions/0009_invocation_allowance.py",
         "schemas/event.json",
         "schemas/evidence.json",
+        "schemas/opportunity.json",
+        "schemas/proposal.json",
     ):
         assert any(n.endswith(ending) for n in members), ending
 with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
