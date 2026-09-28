@@ -70,6 +70,22 @@ rewriting signed records, leases, results or balances. Existing rows are marked
 refunded. Reconcile them using external evidence. Do not run old workers against
 the upgraded database; rolling-upgrade safety has not been established.
 
+The 0.3.0 candidate follows migration 0009 with 0010 (durable local work
+selections), 0011 (owner/state invocation index), and 0012 (owner/creation selection
+index). These changes preserve existing invocation dispositions, lease fences,
+results, balances and original signed records. Stop all old workers, retain keys
+and artifacts with the database backup, migrate forward, and restart only the
+validated version. Capability v3 and local work Event v3 are distinct record schema
+changes; the package version does not change every record's schema. Compatibility
+with old live peers or rolling upgrades is not established.
+
+The staged migration regression checks actual 0.2.0 records at the 0009 checkpoint
+before upgrading to head. A separate actual-0.2.1 fixture contains reserved,
+dispatched, consumed, released and response-unknown invocations. Its complete
+record, budget, lease and invocation rows survive upgrade and actual PostgreSQL
+dump/restore unchanged. Recovery-generation rotation does not release allowance;
+later cancellation refunds only the still-provably-undispatched reservation once.
+
 For new 0.2.1 invocations, result lookup and cancellation can release a still-owned
 undispatched expired reservation while atomically fencing its worker. Dispatched
 or mismatched/legacy ownership remains held. A failed cleanup/unknown DB commit

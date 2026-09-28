@@ -2,6 +2,7 @@ import json
 import os
 import shutil
 import subprocess
+from contextlib import contextmanager
 from datetime import datetime
 from decimal import Decimal
 from pathlib import Path
@@ -26,19 +27,16 @@ from collective_intelligence_overlay.security import Principal, verify
 from collective_intelligence_overlay.storage import Store, budgets, leases, migrate, records
 
 
-def test_actual_020_invocation_upgrade_keeps_unknown_allowances_and_signed_history(
-    unmigrated_store,
-):
-    from collective_intelligence_overlay.invocations import (
-        InvocationStore,
-        Reservation,
-        invocations,
+def seed_release(store, version):
+    revision, commit = {
+        "020": ("0008", "394ba59aa6ec9e95b4f725862747f5198826cf9b"),
+        "021": ("0009", "3026c39b7cb3a4808e4b1eaf45332b1b81f4df8a"),
+    }[version]
+    fixture = json.loads(
+        (Path(__file__).parents[1] / f"fixtures/v{version}_database.json").read_text()
     )
-
-    store = unmigrated_store
-    fixture = json.loads((Path(__file__).parents[1] / "fixtures/v020_database.json").read_text())
-    assert fixture["created_by"] == "collective-intelligence-overlay==0.2.0"
-    assert fixture["release_commit"] == "394ba59aa6ec9e95b4f725862747f5198826cf9b"
+    assert fixture["created_by"] == "collective-intelligence-overlay==" + ".".join(version)
+    assert fixture["release_commit"] == commit
     store.principals = {
         name: Principal(
             Key.from_dict(item["keyid"], item["key"]),
@@ -47,7 +45,7 @@ def test_actual_020_invocation_upgrade_keeps_unknown_allowances_and_signed_histo
         )
         for name, item in fixture["principals"].items()
     }
-    migrate(store.engine, "0008")
+    migrate(store.engine, revision)
     old = MetaData()
     old.reflect(store.engine)
     with store.engine.begin() as conn:
@@ -65,6 +63,35 @@ def test_actual_020_invocation_upgrade_keeps_unknown_allowances_and_signed_histo
                     conn.execute(update(table).where(table.c.id == 1).values(**values))
                 else:
                     conn.execute(insert(table).values(**values))
+    return fixture
+
+
+def test_actual_020_invocation_upgrade_keeps_unknown_allowances_and_signed_history(
+    unmigrated_store,
+):
+    from collective_intelligence_overlay.invocations import (
+        InvocationStore,
+        Reservation,
+        invocations,
+    )
+
+    store = unmigrated_store
+    fixture = seed_release(store, "020")
+    # Explicit patch-release checkpoint before adding the 0.3.0 tables/indexes.
+    migrate(store.engine, "0009")
+    with store.engine.connect() as conn:
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0009"
+        assert set(conn.execute(select(invocations.c.reservation_state)).scalars()) == {
+            "legacy_unknown"
+        }
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 7
+        assert {
+            (row.kind, row.issuer, row.record_id): row.envelope
+            for row in conn.execute(select(records))
+        } == {
+            (row["kind"], row["issuer"], row["record_id"]): row["envelope"]
+            for row in fixture["tables"]["records"]
+        }
     migrate(store.engine)
     migrate(store.engine)
     with store.engine.connect() as conn:
@@ -92,6 +119,54 @@ def test_actual_020_invocation_upgrade_keeps_unknown_allowances_and_signed_histo
     assert ledger.cancel("receiver", "new")["reservation_state"] == "released"
     with store.engine.connect() as conn:
         assert conn.execute(select(budgets.c.remaining)).scalar_one() == 7
+
+
+def test_actual_021_upgrade_and_backup_preserve_all_reservation_states(unmigrated_store):
+    from collective_intelligence_overlay.invocations import InvocationStore, invocations
+
+    store = unmigrated_store
+    fixture = seed_release(store, "021")
+
+    def snapshot(target):
+        with target.engine.connect() as conn:
+            return {
+                table.name: [
+                    dict(row)
+                    for row in conn.execute(
+                        select(table).order_by(*table.primary_key.columns)
+                    ).mappings()
+                ]
+                for table in (records, budgets, leases, invocations)
+            }
+
+    original = snapshot(store)
+    assert {row["reservation_state"] for row in original["invocations"]} == {
+        "held",
+        "released",
+        "consumed",
+    }
+    assert original["budgets"][0]["remaining"] == 6
+    migrate(store.engine)
+    migrate(store.engine)
+    assert snapshot(store) == original
+    assert "work_selections" in inspect(store.engine).get_table_names()
+    with database_copy(store) as restored:
+        migrate(restored.engine)
+        assert snapshot(restored) == original
+        restored.reset_sync_after_restore()
+        assert snapshot(restored) == original
+        for row in original["records"]:
+            verify(row["envelope"], restored.principals)
+        assert len(original["records"]) == len(fixture["tables"]["records"])
+        ledger = InvocationStore(restored)
+        assert ledger.get("receiver", "completed")["result"] == {"value": 7}
+        assert ledger.get("receiver", "uncertain")["state"] == "unknown"
+        assert ledger.cancel("receiver", "released")["reservation_state"] == "released"
+        assert ledger.cancel("receiver", "dispatched")["reservation_state"] == "held"
+        assert ledger.cancel("receiver", "reserved")["reservation_state"] == "released"
+        assert ledger.cancel("receiver", "reserved")["reservation_state"] == "released"
+        with restored.engine.connect() as conn:
+            assert conn.execute(select(budgets.c.remaining)).scalar_one() == 7
 
 
 def seed_actual_v010(store):
@@ -177,13 +252,12 @@ def test_interrupted_backfill_rolls_back_and_resumes_without_rewriting(unmigrate
         assert len(conn.execute(select(records)).all()) == len(fixture["tables"]["records"])
 
 
-def test_actual_pg_backup_restore_and_upgrade(unmigrated_store):
-    store = unmigrated_store
+@contextmanager
+def database_copy(store):
     prefix = json.loads(os.environ.get("CIO_PG_TOOL_PREFIX", "[]"))
     if not prefix and (not shutil.which("pg_dump") or not shutil.which("pg_restore")):
         pytest.skip("real pg_dump/pg_restore required; set CIO_PG_TOOL_PREFIX for WSL")
     assert isinstance(prefix, list) and all(isinstance(item, str) for item in prefix)
-    fixture = seed_actual_v010(store)
     url = store.engine.url
     environment = os.environ.copy()
     if url.password:
@@ -225,6 +299,19 @@ def test_actual_pg_backup_restore_and_upgrade(unmigrated_store):
             store.owner,
             store.principals,
         )
+        yield restored
+    finally:
+        if restored is not None:
+            restored.close()
+        with admin.connect() as conn:
+            conn.execute(text(f'DROP DATABASE IF EXISTS "{database}" WITH (FORCE)'))
+        admin.dispose()
+
+
+def test_actual_pg_backup_restore_and_upgrade(unmigrated_store):
+    store = unmigrated_store
+    fixture = seed_actual_v010(store)
+    with database_copy(store) as restored:
         migrate(restored.engine)
         restored.reset_sync_after_restore()
         with restored.engine.connect() as conn:
@@ -245,9 +332,3 @@ def test_actual_pg_backup_restore_and_upgrade(unmigrated_store):
             assert saved["finished"]["actual"] == Decimal(1)
         assert {r.verdict for r in restored.evidence()} == {"PASS", "FAIL", "UNKNOWN"}
         assert len(restored.revocations()) == 1
-    finally:
-        if restored is not None:
-            restored.close()
-        with admin.connect() as conn:
-            conn.execute(text(f'DROP DATABASE IF EXISTS "{database}" WITH (FORCE)'))
-        admin.dispose()

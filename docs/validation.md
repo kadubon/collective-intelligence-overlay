@@ -2,6 +2,20 @@
 
 ## 0.3.0 development checkpoint
 
+The staged-upgrade regression explicitly checks the 0.2.0 fixture at migration
+0009 before applying the 0.3.0 revisions. A new fixture was generated in isolated
+Python mode using the previously verified actual-PyPI 0.2.1 installation (release
+`3026c39`), not the current checkout. It retains seven original signed records,
+five invocation lifecycle states and public verification keys; private keys are
+not retained. It is a low-level lifecycle/migration fixture, not a business-quality
+demonstration. Tests compare complete signed-record, budget, lease and invocation
+rows before/after migration and real PostgreSQL dump/restore, then check result
+lookup, unknown retention and idempotent release. Old 0.1.0/0.2.0 regression and
+generation/freshness restoration checks remain included. This does not establish
+rolling compatibility with old running workers.
+The final migration/restore run passed seven tests in 9.59 seconds, zero skips;
+lint, formatting, typing and documentation checks also passed.
+
 The complete source suite at `5034100` passed **185 tests in 792.81 seconds, zero
 skips**, on Windows/Python 3.12.10 with PostgreSQL 16.15 through WSL, the configured
 OPA binary, and real MAF/A2A/MCP paths. The command was `uv run pytest
