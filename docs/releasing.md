@@ -3,11 +3,30 @@
 Requested destination: `kadubon/collective-intelligence-overlay`, initial version
 `0.1.0`, PyPI distribution `collective-intelligence-overlay`.
 
-Current checkpoint: GitHub main CI passed for commit `29d5279`:
-[verified run](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36361806108).
-The `pypi` GitHub environment exists. Final hardening is being checked before tagging;
-tag, GitHub Release and PyPI publication are not yet confirmed. No publication is
-inferred from a Pending Publisher configuration.
+Published and verified on 2026-09-28:
+
+- Release commit: `7e4f1191aaf7e9bca8a6091e1758204e189cb924`; annotated tag `v0.1.0`.
+- [Tag workflow](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36362453372)
+  succeeded: Linux validation, Windows checks and official PyPA OIDC publication.
+- [PyPI 0.1.0](https://pypi.org/project/collective-intelligence-overlay/0.1.0/) contains
+  the wheel and sdist; both SHA-256 values match the checked CI artifacts.
+- [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.1.0)
+  attaches those exact distributions, dependency licenses, CycloneDX SBOM, hash
+  verification and the installed-package demo result.
+- A fresh Python 3.12 environment installed from the actual PyPI index with cache
+  disabled. Distribution/version, import from site-packages, CLI and three-process
+  demo passed from outside the source checkout. No publication blocker remains.
+
+Published SHA-256 values:
+
+```text
+07498d00996e89a5b88908bed450981aabf024aa3bb9dd204d18c7c959b87aaa  collective_intelligence_overlay-0.1.0-py3-none-any.whl
+3fe3147dd08ec765d00df9d7e0b95d54776bf07dc4ce0bd25df511953e13b34d  collective_intelligence_overlay-0.1.0.tar.gz
+```
+
+Post-publication documentation updates on `main` do not move the release tag or
+rebuild its distributions. The `pypi` GitHub environment exists; future releases
+remain subject to the configured GitHub/PyPI permissions and protection rules.
 
 The only publication workflow is `.github/workflows/workflow.yml`. It requires
 successful Linux integration/E2E/package/security/docs checks and Windows unit/package
@@ -39,10 +58,11 @@ If name ownership conflicts, OIDC is rejected or environment approval is require
 stop that operation and record the exact error here. Never rename the project,
 disable protections, request an API token or overwrite an existing distribution.
 
-After confirmed publication, the install form is:
+Verified installation (activate a Python 3.12 virtual environment first):
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.1.0'
+uv pip install --index-url https://pypi.org/simple 'collective-intelligence-overlay[agents]==0.1.0'
 ```
 
-This command's availability must be checked against PyPI before claiming it succeeds.
+The optional `model` extra supplies the provider adapter; actual paid calls remain
+explicitly opt-in and were not used for release validation.

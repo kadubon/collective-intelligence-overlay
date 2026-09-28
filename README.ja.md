@@ -22,6 +22,16 @@ APIキー不要のデモでは、別プロセスの3 peerがCSV集計とHTMLレ�
 
 ## 最短の確認
 
+公開済みの[PyPI 0.1.0](https://pypi.org/project/collective-intelligence-overlay/0.1.0/)は、
+有効化したPython 3.12環境へ次のコマンドで導入できます。
+
+```sh
+uv pip install 'collective-intelligence-overlay[agents]==0.1.0'
+collective-intelligence-overlay --version
+```
+
+デモと開発環境の再現には、以下のソース手順を使用します。
+
 Python 3.12、uv、PostgreSQL 16、OPAが必要です。有料モデルは不要です。
 ```sh
 git clone https://github.com/kadubon/collective-intelligence-overlay.git

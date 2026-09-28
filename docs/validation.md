@@ -29,7 +29,16 @@ Linux job provides both services and executes the complete suite. Its Windows jo
 checks portable unit/package behavior; it does not claim a Windows-hosted PostgreSQL
 production deployment. Local Windows-to-WSL full tests are separately reported.
 
-GitHub main CI succeeded for 300c300 and 29d5279, including Linux service tests,
-clean artifact tests, license/security/SBOM checks and Windows checks. The earlier
-e710c59 Linux startup-readiness failure was fixed with a regression test. Final
-release-tag verification remains separately recorded in releasing.md.
+GitHub release-tag CI succeeded for `7e4f119` (`v0.1.0`): 43 source tests and 43
+clean-wheel tests passed on Linux, alongside Windows unit/package checks and
+license/security/SBOM checks. The earlier e710c59 Linux startup-readiness failure
+was fixed with a regression test.
+
+After OIDC publication, both actual PyPI file hashes matched the CI artifacts.
+A fresh Python 3.12 environment installed `collective-intelligence-overlay[agents]`
+from PyPI with cache disabled and ran outside the repository. Version/import/CLI
+checks and the three-process lifecycle passed: ACCEPT, report total 117.00,
+environment change REQUALIFY, dependency revocation REJECT. Each of the four
+network comparison modes produced 3/3 correct results; these deterministic checks
+do not establish model-quality gains or an overlay speed advantage. The result
+and supply-chain reports are attached to the [release](releasing.md).

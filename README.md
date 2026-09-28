@@ -55,8 +55,16 @@ Expected fields: `processes: 3`, `admission: ACCEPT`, report total `117.00`,
 Timings vary. The command preserves owner-local artifacts and databases and stops
 its child processes. Use a new output directory for another run.
 
-Release/publication status is tracked in [releasing](docs/releasing.md); source
-instructions do not assume that a package has already reached PyPI.
+Version [0.1.0 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.1.0/).
+To install into an activated Python 3.12 environment:
+
+```sh
+uv pip install 'collective-intelligence-overlay[agents]==0.1.0'
+collective-intelligence-overlay --version
+```
+
+PostgreSQL and OPA are still required for the reference demo. Publication hashes
+and clean-install verification are recorded in [releasing](docs/releasing.md).
 
 ## Add to an existing agent
 
