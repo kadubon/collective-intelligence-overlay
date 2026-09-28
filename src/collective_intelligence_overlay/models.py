@@ -62,8 +62,16 @@ class Scope(Model):
     permissions: tuple[Identifier, ...] = Field(default=(), max_length=64)
 
 
+class FormationInput(Model):
+    """Exact construction input; not a runtime call or independent proof."""
+
+    subject: Subject
+    issuer: Identifier
+    binding_digest: Digest
+
+
 class Capability(RecordModel):
-    schema_version: Literal["1", "2"] = "1"
+    schema_version: Literal["1", "2", "3"] = "1"
     binding_digest: Digest | None = None
     kind: Literal["capability"] = "capability"
     subject: Subject
@@ -73,6 +81,7 @@ class Capability(RecordModel):
     claim: Identifier
     dependencies: tuple[Subject, ...] = Field(default=(), max_length=64)
     dependency_issuers: tuple[Identifier, ...] = Field(default=(), max_length=64)
+    formation_inputs: tuple[FormationInput, ...] = Field(default=(), max_length=64)
     evidence: tuple[Identifier, ...] = Field(default=(), max_length=64)
     license: str | None = None
     provenance: str
@@ -83,10 +92,11 @@ class Capability(RecordModel):
 
     @model_validator(mode="after")
     def valid_lifetime(self) -> Self:
-        if (self.schema_version == "2") != (self.binding_digest is not None):
+        if (self.schema_version in {"2", "3"}) != (self.binding_digest is not None):
             raise ValueError("v2 capability requires binding identity; v1 cannot invent it")
         if (
-            self.schema_version == "2" and len(self.dependency_issuers) != len(self.dependencies)
+            self.schema_version in {"2", "3"}
+            and len(self.dependency_issuers) != len(self.dependencies)
         ) or (self.schema_version == "1" and self.dependency_issuers):
             raise ValueError(
                 "v2 dependencies require exact issuer identities; v1 leaves them unknown"
@@ -95,6 +105,15 @@ class Capability(RecordModel):
             raise ValueError("expiry must follow creation")
         if self.subject in self.dependencies:
             raise ValueError("self dependency")
+        if self.schema_version != "3" and self.formation_inputs:
+            raise ValueError("formation inputs require capability v3")
+        keys = [(item.subject, item.issuer) for item in self.formation_inputs]
+        if len(set(keys)) != len(keys) or any(
+            item.subject == self.subject for item in self.formation_inputs
+        ):
+            raise ValueError("duplicate or self formation input")
+        if set(keys) & set(zip(self.dependencies, self.dependency_issuers, strict=False)):
+            raise ValueError("declare an input once; runtime dependency takes precedence")
         return self
 
 

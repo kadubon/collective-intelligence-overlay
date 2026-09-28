@@ -2,6 +2,14 @@
 
 ## 0.3.0 development APIs (unreleased)
 
+`Capability(schema_version="3", formation_inputs=(FormationInput(...), ...))`
+distinguishes materialized construction inputs from runtime `dependencies`. Each
+input pins `subject`, `issuer` and `binding_digest`. Keep live call dependencies in
+`dependencies` and exact callable authorization in Binding `components`; duplicate
+declarations and self inputs are rejected. `FormationSession.publish` accepts v3
+and validates its inputs against real local completed-use receipts. See
+[semantics](semantics.md) for expiry, withdrawal and requalification behavior.
+
 The external [document application](../examples/adaptive_documents.py) connects
 discovery, A2A alternatives, durable selection and actual formation. Its
 `configure_application(configs, training_text)` installs application templates and

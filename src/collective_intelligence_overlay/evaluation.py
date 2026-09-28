@@ -115,7 +115,9 @@ async def compare_network(
                 checked = await call(
                     "verifier",
                     operation="work",
-                    mode="verify-registered" if cap.get("schema_version") == "2" else "verify",
+                    mode="verify-registered"
+                    if cap.get("schema_version") in {"2", "3"}
+                    else "verify",
                     binding=binding,
                     attempt=uid(),
                     capability=cap,

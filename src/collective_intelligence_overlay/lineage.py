@@ -146,11 +146,16 @@ class FormationSession:
         if len(signed) != len(ids) or len(outcomes) != len(ids):
             raise ValueError("formation receipt is missing or has no local execution")
         dependencies = set(zip(candidate.dependencies, candidate.dependency_issuers, strict=True))
+        inputs = {
+            (item.subject, item.issuer, item.binding_digest) for item in candidate.formation_inputs
+        }
+        observed_inputs = set()
         for envelope in signed:
             event = verify(envelope, self.store.principals)
             if not isinstance(event, Event) or event.execution is None:
                 raise ValueError("legacy/unknown-scope events cannot prove observed formation")
             receipt = event.execution
+            observed_inputs.add((event.subject, receipt.capability_issuer, receipt.binding_digest))
             outcome = outcomes[event.id]
             if (
                 receipt.state != "completed"
@@ -159,9 +164,15 @@ class FormationSession:
                 or receipt.result_digest != outcome["result_digest"]
                 or receipt.binding_digest != outcome["binding_digest"]
                 or event.subject == candidate.subject
-                or (event.subject, receipt.capability_issuer) not in dependencies
+                or (
+                    (event.subject, receipt.capability_issuer) not in dependencies
+                    and (event.subject, receipt.capability_issuer, receipt.binding_digest)
+                    not in inputs
+                )
             ):
                 raise ValueError("formation lineage is cyclic, incomplete or inconsistent")
+        if not inputs.issubset(observed_inputs):
+            raise ValueError("formation input has no observed receipt")
         return Event(
             schema_version="2",
             id=self.id,

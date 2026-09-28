@@ -43,7 +43,13 @@ from a separate identity before ordinary use, and both verification and formatio
 are selected through Steps with persisted core allocations. Registered remote
 checkers require ordinary scoped qualification, not an Agent Card assertion.
 Checking retains the inner verifier lease for atomic evidence publication.
-Additional failure coverage, relation-role semantics, full metrics and matched experiments remain
+Capability v3 now distinguishes materialized formation inputs from runtime
+dependencies, evidence support and callable components. Source expiry alone does
+not invalidate a separately checked result; source withdrawal, counterexample and
+withdrawn evidence require repair/requalification, while missing information stays
+UNKNOWN. Existing v1/v2 meanings and signed payloads are preserved. Further scale,
+transport and final release checks must cover this new record version.
+Additional failure coverage, full metrics and matched experiments remain
 required, along with all final distribution and publication gates.
 Completed document checks now replay their saved evidence/probe result across
 verifier restart without calling the target or reserving more allowance. Changed

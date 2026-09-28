@@ -1,5 +1,39 @@
 {
   "$defs": {
+    "FormationInput": {
+      "additionalProperties": false,
+      "description": "Exact construction input; not a runtime call or independent proof.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/$defs/Subject"
+        },
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "binding_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Binding Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "subject",
+        "issuer",
+        "binding_digest"
+      ],
+      "title": "FormationInput",
+      "type": "object"
+    },
     "Scope": {
       "additionalProperties": false,
       "description": "Exact operational applicability; schema equality does not prove semantic fit.",
@@ -114,7 +148,8 @@
       "default": "1",
       "enum": [
         "1",
-        "2"
+        "2",
+        "3"
       ],
       "title": "Schema Version",
       "type": "string"
@@ -184,6 +219,15 @@
       },
       "maxItems": 64,
       "title": "Dependency Issuers",
+      "type": "array"
+    },
+    "formation_inputs": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/FormationInput"
+      },
+      "maxItems": 64,
+      "title": "Formation Inputs",
       "type": "array"
     },
     "evidence": {

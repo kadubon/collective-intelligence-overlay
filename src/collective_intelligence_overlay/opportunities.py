@@ -151,7 +151,12 @@ def propose(
 
 def work_kind(reasons: tuple[str, ...]) -> WorkKind:
     """Operational routing only: these reasons never grant admission."""
-    if {"known_revocation", "dependency_rejected", "in_scope_counterexample"} & set(reasons):
+    if {
+        "known_revocation",
+        "dependency_rejected",
+        "in_scope_counterexample",
+        "formation_input_requires_requalification",
+    } & set(reasons):
         return "repair"
     if {"scope_mismatch", "dependency_requires_requalification"} & set(reasons):
         return "connection"
@@ -208,7 +213,7 @@ class Opportunities:
         binding = self.registry.inspect(binding_id)
         if (
             not isinstance(candidate, Capability)
-            or candidate.schema_version != "2"
+            or candidate.schema_version not in {"2", "3"}
             or candidate.issuer != goal.request.capability_issuer
             or candidate.issuer != binding.issuer
             or candidate.subject != binding.subject

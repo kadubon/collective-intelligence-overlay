@@ -1,5 +1,14 @@
 # Compatibility and licensing
 
+The 0.3.0 development path adds Capability schema 3 and its DSSE media type
+`application/vnd.collective-intelligence-overlay.record.v3+json` for explicit
+formation inputs. Other existing record versions are unchanged. Old readers reject
+this new version; rolling interoperability is not claimed. Original v1/v2 payloads
+remain stored verbatim, and signing those versions omits the new field. Admission
+loads the new relationships through the existing bounded indexed subject closure;
+the existing reverse `dependency` query continues to mean runtime dependencies.
+This record version is distinct from package, binding, database and A2A versions.
+
 Observed 2026-09-28. `pyproject.toml` is authoritative for supported ranges;
 `uv.lock` fixes the tested resolution. Initial interpreter support is Python 3.12.
 Local checks used Windows CPython 3.12.10 and PostgreSQL 16.15 on WSL Ubuntu.

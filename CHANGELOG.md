@@ -2,6 +2,11 @@
 
 ## 0.3.0 (unreleased)
 
+Capability v3 distinguishes materialized formation inputs from runtime dependencies.
+Independent result checking remains required. Formation source withdrawal,
+counterexamples or withdrawn evidence require requalification; ordinary-use expiry
+alone does not. Old v1/v2 records preserve their original semantics and signed bytes.
+
 Bounded owner goals produce signed opportunities and authenticated peer proposals.
 Durable Steps retain alternatives and select installed builders under ordinary
 admission, finite budgets and adaptive allocation. Host target transitions preserve

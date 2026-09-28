@@ -11,23 +11,33 @@ reject contains "verification_not_granted" if {
     not object.get(input, "verification_granted", false)
 }
 reject contains "in_scope_counterexample" if { some e in input.evidence; e.applicable; e.fresh; e.authorized; e.verdict == "FAIL" }
-reject contains "authority_denied" if { some p in input.capability.scope.permissions; not p in input.settings.permissions }
+reject contains "authority_denied" if { not object.get(input, "formation_integrity_only", false); some p in input.capability.scope.permissions; not p in input.settings.permissions }
 reject contains "license_not_allowed" if { input.capability.license != null; not input.capability.license in input.settings.licenses }
 
 unknown contains "semantic_fit_unknown" if {
     input.request.semantic_fit != "confirmed"
     not object.get(input, "dependency_integrity_only", false)
 }
-unknown contains "license_unknown" if input.capability.license == null
+unknown contains "license_unknown" if { input.capability.license == null }
 unknown contains "unresolved_obligations" if count(input.capability.obligations) > 0
 unknown contains "dependency_unknown" if input.dependency_state == "UNKNOWN"
 unknown contains "ambiguous_or_missing_subject" if not input.subject_valid
 unknown contains "freshness_unknown" if not input.source_fresh
+unknown contains "formation_input_not_yet_created" if { object.get(input, "formation_integrity_only", false); not input.capability_started }
 
 requalify contains "scope_mismatch" if input.capability.scope != input.request.scope
-requalify contains "capability_expired" if not input.capability_fresh
+requalify contains "capability_expired" if { not object.get(input, "formation_integrity_only", false); not input.capability_fresh }
 requalify contains "dependency_requires_requalification" if input.dependency_state == "REQUALIFY"
 reject contains "dependency_rejected" if input.dependency_state == "REJECT"
+unknown contains "formation_input_unknown" if object.get(input, "formation_state", "ACCEPT") == "UNKNOWN"
+requalify contains "formation_input_requires_requalification" if object.get(input, "formation_state", "ACCEPT") in {"REJECT", "REQUALIFY"}
+requalify contains "formation_evidence_withdrawn" if {
+    object.get(input, "formation_integrity_only", false)
+    some e in input.evidence
+    e.applicable
+    e.authorized
+    e.withdrawn
+}
 
 valid_pass if {
     some e in input.evidence
@@ -42,6 +52,7 @@ valid_pass if {
 requalify contains "independent_evidence_required" if {
     not valid_pass
     not object.get(input, "verification_granted", false)
+    not object.get(input, "formation_integrity_only", false)
 }
 
 decision := {"outcome": "REJECT", "reasons": sort(reject)} if count(reject) > 0

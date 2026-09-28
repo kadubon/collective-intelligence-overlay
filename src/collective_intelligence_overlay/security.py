@@ -15,6 +15,7 @@ from .models import Capability, Event, Evidence, Record
 
 PAYLOAD_TYPE = "application/vnd.collective-intelligence-overlay.record.v1+json"
 PAYLOAD_TYPE_V2 = "application/vnd.collective-intelligence-overlay.record.v2+json"
+PAYLOAD_TYPE_V3 = "application/vnd.collective-intelligence-overlay.record.v3+json"
 MAX_RECORD_BYTES = 262144
 record_adapter: TypeAdapter[Record] = TypeAdapter(Record)
 
@@ -47,7 +48,11 @@ class Identity:
             exclude = {"execution", "formation"}
         if isinstance(record, Capability) and record.schema_version == "1":
             exclude.add("dependency_issuers")
-        payload_type = PAYLOAD_TYPE if record.schema_version == "1" else PAYLOAD_TYPE_V2
+        if isinstance(record, Capability) and record.schema_version != "3":
+            exclude.add("formation_inputs")
+        payload_type = {"1": PAYLOAD_TYPE, "2": PAYLOAD_TYPE_V2, "3": PAYLOAD_TYPE_V3}[
+            record.schema_version
+        ]
         envelope = Envelope(record.model_dump_json(exclude=exclude).encode(), payload_type, {})
         envelope.sign(self.signer)
         return envelope.to_dict()
@@ -57,7 +62,7 @@ def verify(envelope_data: dict[str, Any], principals: dict[str, Principal]) -> R
     if len(json.dumps(envelope_data).encode()) > MAX_RECORD_BYTES:
         raise ValueError("record too large")
     envelope = Envelope.from_dict(copy.deepcopy(envelope_data))
-    if envelope.payload_type not in {PAYLOAD_TYPE, PAYLOAD_TYPE_V2}:
+    if envelope.payload_type not in {PAYLOAD_TYPE, PAYLOAD_TYPE_V2, PAYLOAD_TYPE_V3}:
         raise ValueError("unsupported payload type")
     untrusted = json.loads(envelope.payload)
     if not isinstance(untrusted, dict) or not isinstance(untrusted.get("issuer"), str):
@@ -67,7 +72,9 @@ def verify(envelope_data: dict[str, Any], principals: dict[str, Principal]) -> R
         raise ValueError("untrusted issuer")
     envelope.verify([principal.key], 1)
     record = record_adapter.validate_json(envelope.payload)
-    expected = PAYLOAD_TYPE if record.schema_version == "1" else PAYLOAD_TYPE_V2
+    expected = {"1": PAYLOAD_TYPE, "2": PAYLOAD_TYPE_V2, "3": PAYLOAD_TYPE_V3}[
+        record.schema_version
+    ]
     if envelope.payload_type != expected:
         raise ValueError("record schema and DSSE media type differ")
     return record

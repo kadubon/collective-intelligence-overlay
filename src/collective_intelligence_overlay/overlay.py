@@ -159,6 +159,7 @@ class Overlay:
                 path: frozenset[tuple[str, str]],
                 *,
                 integrity_only: bool = False,
+                formation_only: bool = False,
             ) -> Decision:
                 nonlocal evaluations, valid_until
                 evaluations += 1
@@ -182,7 +183,8 @@ class Overlay:
                     )
                 if req.binding_digest != cap.binding_digest:
                     return self._decision(req, Outcome.REQUALIFY, ("binding_evidence_required",))
-                valid_until = min(valid_until, cap.expires_at)
+                if not formation_only:
+                    valid_until = min(valid_until, cap.expires_at)
                 child_outcomes = []
                 for index, dependency in enumerate(cap.dependencies):
                     dep_issuer = cap.dependency_issuers[index] if cap.dependency_issuers else None
@@ -199,15 +201,50 @@ class Overlay:
                             binding_digest=candidates[0].binding_digest,
                         )
                         child_outcomes.append(
-                            (await evaluate(child_req, path | {key}, integrity_only=True)).outcome
+                            (
+                                await evaluate(
+                                    child_req,
+                                    path | {key},
+                                    integrity_only=True,
+                                    formation_only=formation_only,
+                                )
+                            ).outcome
                         )
                 order = [Outcome.REJECT, Outcome.UNKNOWN, Outcome.REQUALIFY, Outcome.ACCEPT]
                 dependency_state = next((s for s in order if s in child_outcomes), Outcome.ACCEPT)
+                input_outcomes = []
+                for item in cap.formation_inputs:
+                    candidates = matching(item.subject, item.issuer)
+                    if len(candidates) != 1:
+                        input_outcomes.append(Outcome.UNKNOWN)
+                    else:
+                        input_request = UseRequest(
+                            receiver=req.receiver,
+                            subject=item.subject,
+                            scope=candidates[0].scope,
+                            capability_issuer=item.issuer,
+                            binding_digest=item.binding_digest,
+                        )
+                        input_outcomes.append(
+                            (
+                                await evaluate(
+                                    input_request,
+                                    path | {key},
+                                    integrity_only=True,
+                                    formation_only=True,
+                                )
+                            ).outcome
+                        )
+                formation_state = next((s for s in order if s in input_outcomes), Outcome.ACCEPT)
                 applicable_evidence = []
                 for e in evidence:
                     if e.subject != subject:
                         continue
-                    if e.created_at <= timestamp < e.expires_at and e.scope == req.scope:
+                    if (
+                        e.created_at <= timestamp < e.expires_at
+                        and e.scope == req.scope
+                        and (not formation_only or e.verdict == "FAIL")
+                    ):
                         valid_until = min(
                             valid_until,
                             e.expires_at,
@@ -232,6 +269,7 @@ class Overlay:
                             and (timestamp - e.created_at).total_seconds()
                             <= self.policy.settings.max_evidence_age_seconds,
                             "authorized": e.method in issuer.methods,
+                            "withdrawn": withdrawn,
                             "independent": e.issuer != cap.issuer
                             and issuer.trust_group != producer.trust_group,
                             "obligations": e.obligations,
@@ -259,11 +297,14 @@ class Overlay:
                 facts = {
                     "verification_granted": verification_granted and req.purpose == "verification",
                     "dependency_integrity_only": integrity_only,
+                    "formation_integrity_only": formation_only,
+                    "formation_state": formation_state,
                     "capability": cap.model_dump(mode="json"),
                     "request": req.model_dump(mode="json"),
                     "subject_valid": True,
                     "source_fresh": source_fresh,
                     "capability_fresh": cap.created_at <= timestamp < cap.expires_at,
+                    "capability_started": cap.created_at <= timestamp,
                     "revoked": any(
                         r.subject == subject and r.evidence_id is None and r.issuer == cap.issuer
                         for r in revocations

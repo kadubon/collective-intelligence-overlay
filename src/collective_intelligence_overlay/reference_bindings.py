@@ -39,7 +39,7 @@ def check_registered(
     )
     contract = capability(cap.issuer, cap.entrypoint, dependencies)
     if (
-        cap.schema_version != "2"
+        cap.schema_version not in {"2", "3"}
         or cap.binding_digest != binding.digest
         or cap.subject != binding.subject
         or cap.issuer != binding.issuer

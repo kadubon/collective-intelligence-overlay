@@ -2,6 +2,19 @@
 
 ## 0.3.0 development checkpoint
 
+The formation-input increment passed 54 record, admission, binding, lineage,
+opportunity, reference-registration and migration/restore tests in 79.07 seconds,
+zero skips. After distinguishing explicit evidence withdrawal from ordinary expiry,
+37 record, lineage, admission and negative-path tests passed in 40.29 seconds, zero
+skips. Tests exercise actual formation/use, exact input binding pins, v2 rejection
+of omitted dependencies, v3 DSSE media-type checks, source and PASS expiry, source
+withdrawal/counterexamples, withdrawn source evidence and missing freshness. An
+earlier run failed while the policy file was edited during execution; the stable
+rerun passed. Another preliminary run skipped restore without the WSL client setting;
+the 54-test run supplied it and passed restore. Lint, formatting, typing and generated
+schemas/documentation checks passed. New-version transport/scale and full release
+gates are still pending.
+
 The nested-allowance increment passed 48 invocation, lineage, opportunity and
 three-process adaptive application tests in 224.20 seconds, zero skips. Additional
 focused checks passed three owner/unit-context and formation-floor cases (7.53

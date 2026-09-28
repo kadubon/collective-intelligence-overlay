@@ -20,6 +20,7 @@ from collective_intelligence_overlay.lineage import FormationSession
 from collective_intelligence_overlay.models import (
     Capability,
     Evidence,
+    FormationInput,
     ReceiptRef,
     Revocation,
     Scope,
@@ -83,7 +84,7 @@ def candidate(b, dependencies=()):
     )
 
 
-def checked(store, identities, b, observed):
+def checked(store, identities, b, observed, *, seconds=3600):
     evidence = Evidence(
         schema_version="2",
         binding_digest=b.digest,
@@ -96,9 +97,10 @@ def checked(store, identities, b, observed):
         method="report-check",
         verifier_version="1",
         artifact_digest=fingerprint(observed),
-        expires_at=now() + timedelta(hours=1),
+        expires_at=now() + timedelta(seconds=seconds),
     )
     store.put(identities["verifier"].sign(evidence))
+    return evidence
 
 
 async def test_actual_maf_composition_then_calibrated_formation_and_withdrawal(overlay, identities):
@@ -219,3 +221,136 @@ async def test_missing_receipts_and_binding_change_are_not_observed_formation(ov
             {"words": 1},
             ExecutionContext(caller="receiver", environment={"reference": "1"}),
         )
+
+
+@pytest.mark.parametrize(
+    "adverse", ["revocation", "counterexample", "evidence_withdrawal", "missing_source"]
+)
+async def test_materialized_input_is_not_runtime_dependency_but_adversity_requalifies(
+    overlay, identities, monkeypatch, adverse
+):
+    import collective_intelligence_overlay.overlay as overlay_module
+    from collective_intelligence_overlay.opportunities import work_kind
+
+    store = overlay.store
+    store.set_budget("work", Decimal(20))
+    registry = Registry(overlay)
+    runner = Executor(registry, identities["receiver"], Reservation())
+    context = ExecutionContext(caller="receiver", environment={"reference": "1"})
+    source = binding("calibration-source", words, "producer")
+    registry.register_local(source, words, lambda _: True)
+    short_lived = candidate(source).model_copy(update={"expires_at": now() + timedelta(seconds=10)})
+    store.put(identities["producer"].sign(short_lived))
+    source_check = checked(store, identities, source, {"words": 3}, seconds=10)
+    async with FormationSession(registry, identities["receiver"]) as session:
+        result = await runner.invoke(
+            "calibrate-once", source.id, source.digest, {"text": "three calibration words"}, context
+        )
+        assert result["state"] == "completed"
+        value = result["result"]["words"]
+
+        async def constant(arguments):
+            return {"threshold": value}
+
+        target = binding("materialized-threshold", constant)
+        registry.register_local(target, constant, lambda _: True)
+        formed = Capability.model_validate(
+            {
+                **candidate(target).model_dump(),
+                "schema_version": "3",
+                "formation_inputs": [
+                    FormationInput(
+                        subject=source.subject, issuer=source.issuer, binding_digest=source.digest
+                    )
+                ],
+            }
+        )
+        with pytest.raises(ValueError, match="inconsistent"):
+            # v2 cannot reinterpret an omitted runtime dependency as a formation input.
+            await session.publish(target.id, candidate(target))
+        bad_pin = Capability.model_validate(
+            {
+                **formed.model_dump(),
+                "formation_inputs": [
+                    FormationInput(
+                        subject=source.subject, issuer=source.issuer, binding_digest="f" * 64
+                    )
+                ],
+            }
+        )
+        with pytest.raises(ValueError, match="inconsistent"):
+            await session.publish(target.id, bad_pin)
+        event = await session.publish(target.id, formed)
+    assert len(event.formation.receipts) == 1
+    assert formed.dependencies == () and target.components == ()
+    checked(store, identities, target, {"threshold": 3})
+    later = now() + timedelta(seconds=20)
+    monkeypatch.setattr(overlay_module, "now", lambda: later)
+    # The source's ordinary-use lifetime has ended; the materialized output's has not.
+    request = UseRequest(
+        receiver="receiver",
+        subject=target.subject,
+        scope=target.scope,
+        capability_issuer=target.issuer,
+        binding_digest=target.digest,
+        semantic_fit="confirmed",
+    )
+    assert (await overlay.qualify(request)).outcome == "ACCEPT"
+    source_request = request.model_copy(
+        update={
+            "subject": source.subject,
+            "scope": source.scope,
+            "capability_issuer": source.issuer,
+            "binding_digest": source.digest,
+        }
+    )
+    assert (await overlay.qualify(source_request)).outcome == "REQUALIFY"
+    assert (await runner.invoke("materialized-use", target.id, target.digest, {}, context))[
+        "result"
+    ] == {"threshold": 3}
+    if adverse == "revocation":
+        store.put(
+            identities["producer"].sign(
+                Revocation(issuer="producer", subject=source.subject, reason="invalid calibration")
+            )
+        )
+    elif adverse == "counterexample":
+        store.put(
+            identities["verifier"].sign(
+                Evidence(
+                    schema_version="2",
+                    binding_digest=source.digest,
+                    issuer="verifier",
+                    subject=source.subject,
+                    claim="document-contract",
+                    scope=source.scope,
+                    receivers=("receiver",),
+                    verdict="FAIL",
+                    method="report-check",
+                    verifier_version="1",
+                    artifact_digest=fingerprint({"counterexample": True}),
+                    expires_at=now() + timedelta(hours=1),
+                )
+            )
+        )
+    elif adverse == "evidence_withdrawal":
+        store.put(
+            identities["verifier"].sign(
+                Revocation(
+                    issuer="verifier",
+                    subject=source.subject,
+                    evidence_id=source_check.id,
+                    reason="calibration check withdrawn",
+                )
+            )
+        )
+    else:
+        overlay.observed_sources.pop("producer")
+    decision = await overlay.qualify(request)
+    assert decision.outcome == ("UNKNOWN" if adverse == "missing_source" else "REQUALIFY")
+    assert work_kind(decision.reasons) == (
+        "observation" if adverse == "missing_source" else "repair"
+    )
+    assert (await runner.invoke("after-origin-change", target.id, target.digest, {}, context))[
+        "state"
+    ] != "completed"

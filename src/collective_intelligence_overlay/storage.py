@@ -494,14 +494,21 @@ class Store:
                     caps.extend(batch)
                     visited.update(frontier)
                     seen.update(key for key, _ in frontier)
-                    frontier = {
-                        (
-                            subject_key(dep),
-                            cap.dependency_issuers[index] if cap.dependency_issuers else None,
-                        )
-                        for cap in batch
-                        for index, dep in enumerate(cap.dependencies)
-                    } - visited
+                    frontier = (
+                        {
+                            (
+                                subject_key(dep),
+                                cap.dependency_issuers[index] if cap.dependency_issuers else None,
+                            )
+                            for cap in batch
+                            for index, dep in enumerate(cap.dependencies)
+                        }
+                        | {
+                            (subject_key(item.subject), item.issuer)
+                            for cap in batch
+                            for item in cap.formation_inputs
+                        }
+                    ) - visited
 
                 # Scope/claim/receiver filtering happens in SQL, including the root
                 # requested scope (which can differ from the capability's scope).

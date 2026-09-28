@@ -83,3 +83,49 @@ def test_large_cost_aggregation_keeps_all_decimal_places(records):
     result = metrics([event.model_copy(update={"id": f"cost-{index}"}) for index in range(200)])
     expected = Context(prec=50).multiply(charge.quantity, Decimal(12800))
     assert Decimal(result["costs"][0]["quantity"]) == expected
+
+
+def test_capability_v3_formation_inputs_and_signed_version_boundary(
+    identities, principals, records
+):
+    import base64
+    import json
+
+    from securesystemslib.dsse import Envelope
+
+    from collective_intelligence_overlay.models import Capability, FormationInput, Subject
+    from collective_intelligence_overlay.security import PAYLOAD_TYPE_V2, PAYLOAD_TYPE_V3, verify
+
+    original = records[0]
+    source = FormationInput(
+        subject=Subject(id="source", version="1", digest="a" * 64),
+        issuer="producer",
+        binding_digest="b" * 64,
+    )
+    v2 = Capability.model_validate(
+        {**original.model_dump(), "schema_version": "2", "binding_digest": "c" * 64}
+    )
+    signed_v2 = identities[v2.issuer].sign(v2)
+    assert "formation_inputs" not in json.loads(base64.b64decode(signed_v2["payload"]))
+    with pytest.raises(ValueError, match="require capability v3"):
+        Capability.model_validate({**v2.model_dump(), "formation_inputs": [source]})
+    v3 = Capability.model_validate(
+        {**v2.model_dump(), "schema_version": "3", "formation_inputs": [source]}
+    )
+    signed = identities[v3.issuer].sign(v3)
+    assert signed["payloadType"] == PAYLOAD_TYPE_V3
+    assert verify(signed, principals) == v3
+    mismatched = Envelope(base64.b64decode(signed["payload"]), PAYLOAD_TYPE_V2, {})
+    mismatched.sign(identities[v3.issuer].signer)
+    with pytest.raises(ValueError, match="media type differ"):
+        verify(mismatched.to_dict(), principals)
+    with pytest.raises(ValueError, match="duplicate"):
+        Capability.model_validate({**v3.model_dump(), "formation_inputs": [source, source]})
+    with pytest.raises(ValueError, match="once"):
+        Capability.model_validate(
+            {
+                **v3.model_dump(),
+                "dependencies": [source.subject],
+                "dependency_issuers": [source.issuer],
+            }
+        )

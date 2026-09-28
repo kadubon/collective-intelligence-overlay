@@ -1,5 +1,32 @@
 # Evidence, admission and lifecycle
 
+## Formation inputs in capability v3 (0.3.0 development)
+
+Capability v3 adds bounded `formation_inputs`, each pinning a subject, issuer and
+binding digest. These are construction inputs whose output was materialized; they
+are not runtime dependencies or execution permission. `FormationSession` requires
+an actual completed ordinary-use receipt for every declared formation input.
+Capability v1/v2 retain their original conservative dependency semantics.
+
+The receiver still independently verifies the resulting capability. For formation
+inputs, ordinary-use expiry and absence of a current PASS do not themselves block
+the materialized result. The receiver instead checks a bounded closure of the
+source's declared relationships for known withdrawals, applicable counterexamples,
+obligations, identity consistency and current source information. License rules
+still apply. Source withdrawal or counterexample requires requalification; missing
+or stale information yields UNKNOWN. A new PASS on the result does not erase a
+known origin problem: a reviewed new derivation must identify suitable inputs.
+This conservative contract does not prove that every origin defect affects every
+result, nor infer that an input is causally responsible for success.
+
+Runtime `dependencies` still require current integrity admission. Binding
+`components` authorize exact nested calls and do not replace capability evidence.
+Evidence `evidence_dependencies` remain supporting proofs of the same scoped claim,
+with their existing validity checks. None of these relationships is converted into
+another merely because it appears in a formation receipt.
+
+## Existing execution and admission contracts
+
 0.2.1 execution allowance is distinct from measured cost. New invocation rows
 track `held`, `released` or `consumed`; migrated rows retain `legacy_unknown`.
 The standard one-work reservation is permission to make one dispatched execution,
