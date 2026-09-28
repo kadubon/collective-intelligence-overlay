@@ -74,6 +74,11 @@ Decision writes share the existing transactional publication counter so inspecti
 pages cannot skip late commits; decisions are still excluded from the shared feed.
 The counter is a local committed prefix, not a count of shared records.
 
+Migration 0008 adds a GIN-indexed dependency projection and backfills capability
+records in batches of 128. It preserves original signed bodies/envelopes and leaves
+legacy dependency issuers unknown. Apply it with peers stopped as part of the same
+forward migration procedure.
+
 The demo leaves random `cio_...` roles/databases for inspection. Remove only those
 whose names match the generated config after stopping their peers and checking that
 no retained work depends on them. It never drops unrelated databases automatically.

@@ -106,6 +106,11 @@ async def test_mixed_history_scale(total, overlay, identities, records, monkeypa
     assert sum(counts.values()) == total
     assert set(counts) == {"capability", "evidence", "revocation", "event"}
     assert set(outcomes) == {"PASS", "FAIL", "UNKNOWN"}
+    # This direct local-Store fixture has no network synchronization. Establish
+    # its trusted-host observations after bulk setup, not before a long stress
+    # load. Production persistent_sources peers still require completed sync.
+    for issuer in ("producer", "verifier"):
+        overlay.observed(issuer)
 
     statements = []
     query_rows = []
@@ -152,7 +157,7 @@ async def test_mixed_history_scale(total, overlay, identities, records, monkeypa
             elapsed = time.perf_counter() - started
             _, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
-            assert decision.outcome == "ACCEPT"
+            assert decision.outcome == "ACCEPT", decision.model_dump(mode="json")
             assert len(signature_bytes) == 4
             assert len(statements) <= 16
             assert sum(query_rows) <= 20

@@ -14,6 +14,9 @@ class RecordQuery(BaseModel):
     )
     issuer: Identifier | None = None
     subject: Subject | None = None
+    depends_on: Subject | None = None
+    dependency_issuer: Identifier | None = None
+    include_legacy_dependencies: bool = False
     scope: Scope | None = None
     policy_digest: Digest | None = None
     task_id: Identifier | None = None
@@ -23,6 +26,10 @@ class RecordQuery(BaseModel):
 
     @model_validator(mode="after")
     def interval(self) -> Self:
+        if self.depends_on is not None and self.kinds != ("capability",):
+            raise ValueError("dependency queries require capability-only pages")
+        if (self.dependency_issuer or self.include_legacy_dependencies) and self.depends_on is None:
+            raise ValueError("dependency issuer options require depends_on")
         if "decision" in self.kinds and (
             self.kinds != ("decision",) or self.task_id or self.attempt_id
         ):

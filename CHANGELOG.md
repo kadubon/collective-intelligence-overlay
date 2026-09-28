@@ -11,6 +11,8 @@ compatibility reference application (`peer --reference`).
 Admission SQL constrains explicit capability issuers throughout the dependency
 closure. Cycle detection includes issuer and artifact digest; issuer-less legacy
 references continue to reject ambiguity.
+Migration 0008 enables indexed reverse dependency filters on the existing bounded
+record pages, with explicit handling of legacy unknown-issuer edges.
 The offline `restore-state` command rotates feed generations and invalidates local
 sync freshness after database restoration without rewriting signed history or budgets.
 

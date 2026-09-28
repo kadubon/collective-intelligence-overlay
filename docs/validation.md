@@ -10,12 +10,19 @@ The new mixed signed-history harness passed its 1,000/10,000 profiles (2 tests,
 65.82 seconds). Both returned nine SELECT rows, executed nine DB statements and
 verified four signatures per qualification over five repetitions. An enum-only
 fixture correction removed serializer warnings and passed the 1,000 profile again
-(8.73 seconds). The 100,000 profile has been started but its result is not yet
-claimed. See [scale methodology](scale.md) for measurement boundaries.
+(8.73 seconds). The first 100,000 profile failed with UNKNOWN after bulk setup;
+the full three-profile run took 672.68 seconds. The fixture's source observations
+were established before setup and exceed the unchanged 300-second freshness limit
+at that scale. The harness now establishes direct local-fixture observations after
+setup and prints full decision reasons on failure; a fresh three-profile run is
+active. No successful 100,000 result is claimed. See [scale methodology](scale.md).
 Migration and restore tests subsequently passed five checks (6.77 seconds, zero
 skips), including actual PostgreSQL custom dump/restore through the WSL client
 tools, original signed 0.1.0 data, post-restore cursor/freshness invalidation and the
 offline CLI path. Full production artifact/key recovery remains operator-specific.
+Migration 0008 and exact reverse dependency filters passed 11 inspection/migration
+tests (18.70 seconds). With the new projection installed, indexed-storage and the
+1,000 profile passed another seven tests (21.83 seconds), all with zero skips.
 Ruff/format, strict mypy and documentation checks pass. Detailed scope and unfinished
 0.2.0 release gates are tracked in [implementation status](implementation-status.md).
 The release and package observations below concern 0.1.0 unless explicitly stated.

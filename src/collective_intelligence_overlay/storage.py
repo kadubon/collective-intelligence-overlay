@@ -74,6 +74,7 @@ records = Table(
     Column("attempt_id", String(160)),
     Column("occurred_at", DateTime(timezone=True)),
     Column("policy_digest", String(64)),
+    Column("dependency_refs", JSONB),
 )
 feed_state = Table(
     "feed_state",
@@ -226,6 +227,17 @@ class Store:
                 attempt_id=body.get("attempt_id"),
                 occurred_at=record.occurred_at if isinstance(record, Event) else record.created_at,
                 policy_digest=receipt.get("policy_digest"),
+                dependency_refs=[
+                    {
+                        "subject_key": subject_key(dep),
+                        "issuer": record.dependency_issuers[index]
+                        if record.dependency_issuers
+                        else None,
+                    }
+                    for index, dep in enumerate(record.dependencies)
+                ]
+                if isinstance(record, Capability)
+                else [],
             )
             .on_conflict_do_nothing()
         )
@@ -519,6 +531,16 @@ class Store:
                     if value is not None:
                         condition &= column == value
                 timestamp = decisions.c.evaluated_at if local_decisions else records.c.occurred_at
+                if query.depends_on is not None:
+                    ref: dict[str, str | None] = {"subject_key": subject_key(query.depends_on)}
+                    if query.dependency_issuer is not None:
+                        ref["issuer"] = query.dependency_issuer
+                    dependency_condition = records.c.dependency_refs.contains([ref])
+                    if query.dependency_issuer and query.include_legacy_dependencies:
+                        dependency_condition |= records.c.dependency_refs.contains(
+                            [{"subject_key": ref["subject_key"], "issuer": None}]
+                        )
+                    condition &= dependency_condition
                 if query.since:
                     condition &= timestamp >= query.since
                 if query.until:

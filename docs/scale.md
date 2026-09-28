@@ -31,6 +31,11 @@ or constant-complexity guarantees. Related evidence or deeper dependency graphs
 require more work and still have their own safety limits. The report records actual
 counts, not just the bounds. EXPLAIN ANALYZE with buffers captures every envelope
 query from the final call, using the actual bound parameters.
+The direct local-Store fixture establishes trusted-host source observations after
+bulk insertion. Setting them before a long load caused the first 100,000-record
+attempt to return UNKNOWN after the ordinary 300-second freshness window elapsed.
+The production freshness limit is unchanged; persistent peer runtimes still obtain
+observations only through completed synchronization.
 
 Measurements distinguish:
 

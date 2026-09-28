@@ -129,6 +129,16 @@ the half-open occurrence-time interval `since <= time < until`. Decision pages
 use evaluation time and must select only `kinds=("decision",)`. Their issuer filter
 means the local owner; decisions are local audit records, not shared DSSE evidence.
 Other page items are verified against their original signed envelopes.
+For forward dependencies, select the exact parent capability with `issuer` and
+`subject` and inspect its authenticated `dependencies`/`dependency_issuers` fields.
+For reverse dependencies, use `RecordQuery(kinds=("capability",), depends_on=subject,
+dependency_issuer="producer")`. The GIN-indexed projection filters full subject
+identity and known issuer in PostgreSQL before loading parent envelopes. Omitting
+`dependency_issuer` returns all issuer matches for that subject. With an issuer,
+legacy unknown-issuer edges are excluded unless `include_legacy_dependencies=True`;
+included legacy records retain empty `dependency_issuers`, never an inferred issuer.
+These are direct edges, not transitive traversal or permission to execute parents.
+The same filter is available to CLI `inspect capability --query-file PATH`.
 The fixed committed prefix, owner, generation, filter digest and snapshot anchor
 are returned with `next_cursor`. Appends, even with backdated occurrence times,
 cannot enter an existing prefix. Changed filters or restored generations require

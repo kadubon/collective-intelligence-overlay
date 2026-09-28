@@ -227,6 +227,16 @@ post-backup external effects and spending still require operator reconciliation.
 The 100,000-record stress run remains active and unreported. Reverse dependency APIs,
 reference registration cleanup, remaining docs/skills and release gates remain pending.
 
+Thirteenth checkpoint: migration 0008 backfills exact dependency references into a
+GIN-indexed projection. Existing RecordQuery pages support reverse subject/issuer
+filters and explicit inclusion of legacy unknown-issuer edges. Forward references
+come from the verified exact parent record. Eleven migration/inspection tests and
+seven indexed-storage/1,000-profile tests passed with no skips. The initial 100,000
+run ended with UNKNOWN after its fixture's pre-load freshness window expired;
+the revised harness establishes local observations after setup and is rerunning.
+No stress success is claimed. Reference registration cleanup, final docs/skills,
+distribution/security/license/CI gates and publication remain pending.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 
