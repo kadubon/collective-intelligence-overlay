@@ -2,6 +2,14 @@
 
 ## 0.3.0 development checkpoint
 
+The candidate-target increment passed 15 opportunity/step and actual A2A proposal
+tests in 31.50 seconds, zero skips. The host transition preserves the registered
+contract, rejects changed issuer/scope/logical identity and stale goal versions,
+invalidates old proposals, and rediscovers verification after configuration restore.
+Candidate selection does not create PASS. Lint, formatting, generated docs/schema
+checks and strict typing of 48 source files passed. The adaptive three-process
+application, matched experiments and final release-wide gates remain incomplete.
+
 The cooldown increment passed 19 opportunity/allocation, migration and actual
 backup/restore tests in 27.34 seconds, zero skips. A new Steps instance reads the
 saved allocation, keeps a qualified priority inside its window without renewing

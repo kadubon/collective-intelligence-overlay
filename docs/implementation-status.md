@@ -27,6 +27,13 @@ Stage B remains incomplete. The specification's A1-A4, B1-B12 and C1-C5,
 including all named adverse cases, artifacts and publication gates, remain the
 completion criteria; this plan does not replace or narrow them.
 
+The host can now select a formed candidate as a goal's exact target while preserving
+its scope, logical identity, issuer, checker and allowlists. It verifies the signed
+candidate against the installed binding, invalidates old proposals and rediscovers
+the checking deficit. Applications must persist the returned configuration; foreign
+proposal contracts still require explicit registration for changed targets. This
+does not yet connect the adaptive three-process document application end to end.
+
 The first 0.3.0 working-tree increment adds versioned Opportunity/Proposal models,
 generated schemas, bounded exact record inspection and original-payload reference
 checks. These records neither change admission revisions nor enter the existing

@@ -12,6 +12,18 @@ cause is unchanged, including concurrent discovery. Decision IDs, timestamps and
 unrelated events do not create new opportunities. Relevant evidence revisions,
 goal inputs, policy and qualification reasons can create a new observation.
 
+After an installed builder publishes an actual candidate, the trusted host can call
+`opportunities.select_target(goal_id, expected_goal_digest, binding_id, candidate_ref)`.
+It requires an exact signed v2 capability matching the installed binding, original
+issuer, logical subject ID and complete scope. Only the subject version/digest,
+binding digest and goal revision change; checker, arguments, permissions and
+allowlists remain fixed. Old proposals become inapplicable. Repeating selection of
+the current target is a no-op; a stale expected goal digest raises `Conflict`.
+Persist the returned `Goal` with application configuration and restore it on startup.
+This host configuration operation is not exposed to peers and is not a distributed
+goal store. Foreign proposal contracts remain exact and need explicit host
+registration for the changed target. Selection does not establish PASS or admission.
+
 `Store.reference(kind, issuer, record_id)` and `resolve_reference(ref)` bind records
 to original signed payload bytes; local decisions instead use the existing local
 projection digest. Neither operation grants execution or evidence authority.

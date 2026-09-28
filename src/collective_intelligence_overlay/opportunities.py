@@ -17,6 +17,7 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 from .bindings import ExecutionContext, Registry, fingerprint
 from .models import (
     BindingRef,
+    Capability,
     Cost,
     Decision,
     Event,
@@ -171,6 +172,63 @@ class Opportunities:
         if goal is None or goal.digest != self._digests[goal_id]:
             raise ValueError("unregistered or modified goal")
         return goal.model_copy(deep=True)
+
+    def select_target(
+        self,
+        goal_id: str,
+        expected_goal_digest: str,
+        binding_id: str,
+        candidate_reference: RecordRef,
+    ) -> Goal:
+        """Host-only candidate transition, preserving the registered contract.
+
+        The application persists the returned goal alongside its installed artifact
+        and restores it on startup. This changes no evidence or admission and is
+        deliberately absent from the peer protocol and proposal schema.
+        """
+        goal = self.goal(goal_id)
+        if goal.digest != expected_goal_digest:
+            raise Conflict("goal changed before candidate selection")
+        if candidate_reference.kind != "capability":
+            raise ValueError("target requires an exact signed capability reference")
+        candidate = self.registry.overlay.store.resolve_reference(candidate_reference)
+        binding = self.registry.inspect(binding_id)
+        if (
+            not isinstance(candidate, Capability)
+            or candidate.schema_version != "2"
+            or candidate.issuer != goal.request.capability_issuer
+            or candidate.issuer != binding.issuer
+            or candidate.subject != binding.subject
+            or candidate.subject.id != goal.request.subject.id
+            or candidate.binding_digest != binding.digest
+            or candidate.scope != goal.request.scope
+            or binding.scope != goal.request.scope
+        ):
+            raise ValueError("candidate does not preserve the registered target contract")
+        if (
+            goal.request.subject == candidate.subject
+            and goal.request.binding_digest == binding.digest
+        ):
+            return goal
+        request = UseRequest.model_validate(
+            {
+                **goal.request.model_dump(),
+                "subject": candidate.subject,
+                "binding_digest": binding.digest,
+            }
+        )
+        updated = Goal.model_validate(
+            {
+                **goal.model_dump(),
+                "revision": fingerprint(
+                    {"previous": goal.digest, "candidate": candidate_reference.model_dump()}
+                ),
+                "request": request,
+            }
+        )
+        self._goals[goal_id] = updated.model_copy(deep=True)
+        self._digests[goal_id] = updated.digest
+        return updated.model_copy(deep=True)
 
     async def discover(self, *, max_candidates: int = 8, start: int = 0) -> Discovery:
         if not 1 <= max_candidates <= 32 or not 0 <= start < len(self._goals):

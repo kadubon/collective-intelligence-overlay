@@ -36,6 +36,7 @@ from collective_intelligence_overlay.opportunities import (
 from collective_intelligence_overlay.queries import RecordQuery
 from collective_intelligence_overlay.security import digest
 from collective_intelligence_overlay.steps import Steps
+from collective_intelligence_overlay.storage import Conflict
 from collective_intelligence_overlay.storage import records as record_table
 
 
@@ -140,6 +141,105 @@ async def test_parallel_first_discovery_retains_one_signed_observation(
     assert sum(r.discovered for r in results) == 1
     assert sum(r.deduplicated for r in results) == 3
     assert all(r.opportunities == results[0].opportunities for r in results)
+
+
+async def test_host_candidate_transition_preserves_contract_and_invalidates_old_proposals(
+    overlay, identities, records
+):
+    host, goal, binding = setup(overlay, identities, records)
+    initial = (await host.discover()).opportunities[0]
+    reference = overlay.store.reference("opportunity", "receiver", initial.id)
+    proposal = propose(
+        initial,
+        reference,
+        identities["producer"],
+        ProposalDrafts(
+            alternatives=(
+                ProposalDraft(
+                    builder=goal.builders[0], arguments={"value": 3}, alternative="first"
+                ),
+            )
+        ),
+    )[0]
+    context = ExecutionContext(caller="receiver", environment=binding.scope.environment)
+    host.validate_proposal(identities["producer"].sign(proposal), "producer", context)
+    changed = binding.model_copy(
+        update={
+            "id": "formed",
+            "revision": "2",
+            "subject": binding.subject.model_copy(
+                update={"version": "2", "digest": digest(b"formed")}
+            ),
+        }
+    )
+    host.registry.register_local(changed, installed_builder, lambda args: True)
+    candidate = Capability.model_validate(
+        {
+            **records[0].model_dump(),
+            "schema_version": "2",
+            "issuer": "receiver",
+            "subject": changed.subject,
+            "binding_digest": changed.digest,
+        }
+    )
+    overlay.store.put(identities["receiver"].sign(candidate))
+    candidate_ref = overlay.store.reference("capability", "receiver", candidate.subject.key)
+    with pytest.raises(ValueError, match="contract"):
+        host.select_target(goal.id, goal.digest, binding.id, candidate_ref)
+    with pytest.raises(ValueError, match="capability reference"):
+        host.select_target(goal.id, goal.digest, changed.id, reference)
+    for label, changes in (
+        ("other-family", {"subject": changed.subject.model_copy(update={"id": "other-family"})}),
+        ("other-scope", {"scope": changed.scope.model_copy(update={"permissions": ("extra",)})}),
+        ("other-issuer", {"issuer": "producer"}),
+    ):
+        outside = changed.model_copy(update={"id": label, **changes})
+        # Distinct versions retain rejected observations without overwriting any candidate.
+        outside = outside.model_copy(
+            update={"subject": outside.subject.model_copy(update={"version": "3"})}
+        )
+        host.registry.register_local(outside, installed_builder, lambda args: True)
+        outside_cap = candidate.model_copy(
+            update={
+                "issuer": outside.issuer,
+                "subject": outside.subject,
+                "scope": outside.scope,
+                "binding_digest": outside.digest,
+            }
+        )
+        overlay.store.put(identities[outside.issuer].sign(outside_cap))
+        outside_ref = overlay.store.reference("capability", outside.issuer, outside.subject.key)
+        with pytest.raises(ValueError, match="contract"):
+            host.select_target(goal.id, goal.digest, outside.id, outside_ref)
+        assert host.goal(goal.id) == goal
+    updated = host.select_target(goal.id, goal.digest, changed.id, candidate_ref)
+    assert updated.request.subject == candidate.subject
+    assert updated.request.binding_digest == changed.digest
+    assert updated.digest != goal.digest
+    assert updated.model_dump(exclude={"request", "revision"}) == goal.model_dump(
+        exclude={"request", "revision"}
+    )
+    assert updated.request.model_dump(exclude={"subject", "binding_digest"}) == (
+        goal.request.model_dump(exclude={"subject", "binding_digest"})
+    )
+    assert host.select_target(goal.id, updated.digest, changed.id, candidate_ref) == updated
+    with pytest.raises(Conflict, match="goal changed"):
+        host.select_target(goal.id, goal.digest, changed.id, candidate_ref)
+    with pytest.raises(ValueError, match="registered goal"):
+        host.validate_proposal(identities["producer"].sign(proposal), "producer", context)
+    discovered = await host.discover()
+    assert discovered.satisfied == 0
+    assert discovered.opportunities[0].work_kind == "verification"
+    assert discovered.opportunities[0].id != initial.id
+    # The application persists its returned configuration; restoring it does not
+    # turn candidate registration into verification or duplicate discovery.
+    restored = Opportunities(
+        host.registry,
+        identities["receiver"],
+        (Goal.model_validate_json(updated.model_dump_json()),),
+    )
+    again = await restored.discover()
+    assert again.deduplicated == 1 and again.opportunities == discovered.opportunities
 
 
 async def test_proposal_validates_real_reference_goal_and_installed_authority(
