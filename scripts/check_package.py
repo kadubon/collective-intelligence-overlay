@@ -153,7 +153,7 @@ print(
                 p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (wheel, sdist)
             },
             "checks": (
-                "core + agents wheel outside checkout, optional model adapter, sdist rebuild/install"
+                "core + agents wheel outside checkout, model adapter, sdist rebuild/install"
             ),
         },
         indent=2,
