@@ -20,8 +20,11 @@ def uid() -> str:
     return str(uuid4())
 
 
-class Model(BaseModel):
+class RecordModel(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, str_max_length=16384)
+
+
+class Model(RecordModel):
     schema_version: Literal["1"] = "1"
 
 
@@ -58,7 +61,9 @@ class Scope(Model):
     permissions: tuple[Identifier, ...] = Field(default=(), max_length=64)
 
 
-class Capability(Model):
+class Capability(RecordModel):
+    schema_version: Literal["1", "2"] = "1"
+    binding_digest: Digest | None = None
     kind: Literal["capability"] = "capability"
     subject: Subject
     issuer: Identifier
@@ -76,6 +81,8 @@ class Capability(Model):
 
     @model_validator(mode="after")
     def valid_lifetime(self) -> Self:
+        if (self.schema_version == "2") != (self.binding_digest is not None):
+            raise ValueError("v2 capability requires binding identity; v1 cannot invent it")
         if self.expires_at <= self.created_at:
             raise ValueError("expiry must follow creation")
         if self.subject in self.dependencies:
@@ -83,7 +90,9 @@ class Capability(Model):
         return self
 
 
-class Evidence(Model):
+class Evidence(RecordModel):
+    schema_version: Literal["1", "2"] = "1"
+    binding_digest: Digest | None = None
     kind: Literal["evidence"] = "evidence"
     id: Identifier = Field(default_factory=uid)
     issuer: Identifier
@@ -105,6 +114,8 @@ class Evidence(Model):
 
     @model_validator(mode="after")
     def valid_lifetime(self) -> Self:
+        if (self.schema_version == "2") != (self.binding_digest is not None):
+            raise ValueError("v2 evidence requires checked binding identity; v1 cannot invent it")
         if self.expires_at <= self.created_at:
             raise ValueError("expiry must follow creation")
         return self
@@ -178,6 +189,9 @@ class UseRequest(Model):
     subject: Subject
     scope: Scope
     semantic_fit: Literal["confirmed", "unknown"] = "unknown"
+    capability_issuer: Identifier | None = None
+    binding_digest: Digest | None = None
+    arguments_digest: Digest | None = None
 
 
 class Decision(Model):

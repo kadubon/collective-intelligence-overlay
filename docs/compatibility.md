@@ -11,6 +11,7 @@ Local checks used Windows CPython 3.12.10 and PostgreSQL 16.15 on WSL Ubuntu.
 | a2a-sdk | 1.1.5 | Apache-2.0 | [Official Python SDK](https://github.com/a2aproject/a2a-python); protobuf v1, JSONRPC, required extension |
 | mcp | 2.2.0 | MIT | [Official SDK v2](https://github.com/modelcontextprotocol/python-sdk); Streamable HTTP client/server |
 | Pydantic | 2.13.5 | MIT | Typed records, JSON/schema; installed distribution metadata |
+| jsonschema | 4.26.0 | MIT | Direct core dependency for registered input/output contracts; [Draft 2020-12 validator](https://python-jsonschema.readthedocs.io/en/stable/validate/) |
 | SQLAlchemy / Alembic | 2.1.1 / 1.20.0 | MIT | Transactions, PostgreSQL, explicit migrations |
 | pg8000 | 1.31.5 | BSD-3-Clause | PostgreSQL driver; installed LICENSE inspected |
 | securesystemslib | 1.5.1 | MIT | DSSE Envelope and CryptoSigner; no custom canonicalization |
@@ -23,6 +24,12 @@ Local checks used Windows CPython 3.12.10 and PostgreSQL 16.15 on WSL Ubuntu.
 
 The MAF provider moved to a separate distribution and A2A/MCP changed their public
 APIs in the tested release lines. Old import paths are deliberately not supported.
+
+0.2.0 development promotes the already resolved `jsonschema` package to a direct
+core dependency; it does not update the existing SDK versions. This reuses JSON
+Schema validation for MCP and application contracts instead of creating a schema
+interpreter or compiling JSON Schema into new Pydantic types. External `$ref`
+resolution is disabled. Contract shape does not establish semantic applicability.
 No private SDK methods are patched. Different compatible patch releases still need
 the same integration suite; a schema match alone does not prove semantic compatibility.
 

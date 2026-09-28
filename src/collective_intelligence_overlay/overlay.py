@@ -67,8 +67,12 @@ class Overlay:
                     <= self.policy.settings.max_source_age_seconds
                 )
 
-            def matching(subject: Subject) -> list[Capability]:
-                return [c for c in caps if c.subject == subject]
+            def matching(subject: Subject, issuer: str | None = None) -> list[Capability]:
+                return [
+                    c
+                    for c in caps
+                    if c.subject == subject and (issuer is None or c.issuer == issuer)
+                ]
 
             def evidence_supported(e: Evidence, path: frozenset[str]) -> bool:
                 nonlocal support_steps
@@ -92,6 +96,7 @@ class Overlay:
                         or support.scope != e.scope
                         or support.subject != e.subject
                         or support.claim != e.claim
+                        or support.binding_digest != e.binding_digest
                         or not set(e.receivers).issubset(support.receivers)
                         or support.method not in self.store.principals[support.issuer].methods
                         or any(
@@ -108,7 +113,7 @@ class Overlay:
                 subject = req.subject
                 key = subject.key
                 visited.add(key)
-                matches = matching(subject)
+                matches = matching(subject, req.capability_issuer)
                 if (
                     key in path
                     or len(visited) > self.max_graph_nodes
@@ -120,6 +125,8 @@ class Overlay:
                         req, Outcome.UNKNOWN, ("missing_ambiguous_or_cyclic_dependency",)
                     )
                 cap = matches[0]
+                if req.binding_digest != cap.binding_digest:
+                    return self._decision(req, Outcome.REQUALIFY, ("binding_evidence_required",))
                 valid_until = min(valid_until, cap.expires_at)
                 child_outcomes = []
                 for dependency in cap.dependencies:
@@ -157,6 +164,7 @@ class Overlay:
                             "id": e.id,
                             "verdict": e.verdict,
                             "applicable": e.scope == req.scope
+                            and e.binding_digest == req.binding_digest
                             and e.claim == cap.claim
                             and req.receiver in e.receivers,
                             "fresh": e.created_at <= timestamp < e.expires_at

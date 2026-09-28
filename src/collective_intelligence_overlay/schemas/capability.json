@@ -111,10 +111,26 @@
   "additionalProperties": false,
   "properties": {
     "schema_version": {
-      "const": "1",
       "default": "1",
+      "enum": [
+        "1",
+        "2"
+      ],
       "title": "Schema Version",
       "type": "string"
+    },
+    "binding_digest": {
+      "anyOf": [
+        {
+          "pattern": "^[a-f0-9]{64}$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Binding Digest"
     },
     "kind": {
       "const": "capability",

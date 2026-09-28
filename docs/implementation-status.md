@@ -1,5 +1,43 @@
 # Implementation status
 
+## 0.2.0 work in progress
+
+The authoritative request is the 0.2.0 incremental specification supplied on
+2026-09-28. This is not a claim that 0.2.0 has been released or completed.
+Baseline: clean `main` at `99cd3e4`; existing `v0.1.0` remains at `7e4f119`.
+Fresh baseline run on Windows Python 3.12.10 against PostgreSQL 16.15 on WSL
+and OPA 1.21.0: **43 passed, zero skipped, 30.96 seconds**.
+
+Required completion evidence, tracked without narrowing the original scope:
+
+- [ ] A: typed local/MCP/A2A bindings, actual argument/resource/issuer enforcement,
+  provider-local remote authorization, generic peer, application registration.
+- [ ] B: indexed subject/claim/scope/dependency queries, bounded DB work and
+  offload, relevant revisions, resumable scope-bound snapshot/delta sync with
+  commit-order-safe prefixes and completion-bound freshness.
+- [ ] C: persistent idempotent invocation/result/cancel, uncertain effects,
+  reservations separated from consumption, actual C1/C2/C3/C4 formation with
+  checked receipts, scoped metrics and cost attribution.
+- [ ] D: preserved 0.1.0 signed payloads and migration/recovery tests; real-service
+  negative cases and three-process E2E; 1k/10k scale measurements and selectable
+  100k profile; all named documentation, CLI, skill, clean distribution checks,
+  CI and OIDC release with actual PyPI post-install verification.
+
+These groups are a navigation aid, not a replacement for the numbered
+requirements and invariants in the specification. Release requires every item,
+including adversarial and crash/restart cases, to have direct test or runtime evidence.
+
+First checkpoint: operator-owned `Registry`, immutable copied binding manifests,
+exact argument/resource/issuer/environment checks, local callable identity,
+real MAF bound tool and real MCP contract observation are implemented. Seven new
+binding tests pass against actual PostgreSQL/OPA/MCP. v2 capability/evidence bind
+their checked registration digest; legacy v1 records retain their original DSSE
+bytes and cannot supply missing binding checks. These are partial A/D results;
+A2A invocation, indexing/sync, durable execution and formation lineage remain work
+in progress. The initial full run after these changes had 49 passes and one test
+expectation failure for the MCP SDK's nested ExceptionGroup; the corrected targeted
+run passed all seven. A full updated run remains required.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

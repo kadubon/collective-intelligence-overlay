@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import base64
+import json
 from datetime import timedelta
 from decimal import Decimal
 from typing import Any
@@ -96,7 +98,9 @@ class Store:
     @staticmethod
     def _insert(conn: Connection, record: Record, envelope: dict[str, Any]) -> bool:
         key = record.subject.key if isinstance(record, Capability) else record.id
-        body = record.model_dump(mode="json")
+        # The authenticated payload remains the source of truth. Do not rewrite
+        # v1 data by serializing the current model's new defaults into it.
+        body = json.loads(base64.b64decode(envelope["payload"]))
         selector = (
             (records.c.kind == record.kind)
             & (records.c.issuer == record.issuer)

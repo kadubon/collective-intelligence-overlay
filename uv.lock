@@ -258,11 +258,12 @@ wheels = [
 
 [[package]]
 name = "collective-intelligence-overlay"
-version = "0.1.0"
+version = "0.2.0"
 source = { editable = "." }
 dependencies = [
     { name = "alembic" },
     { name = "httpx" },
+    { name = "jsonschema" },
     { name = "pg8000" },
     { name = "pydantic" },
     { name = "pyjwt", extra = ["crypto"] },
@@ -305,6 +306,7 @@ requires-dist = [
     { name = "alembic", specifier = ">=1.20,<2" },
     { name = "httpx", specifier = ">=0.28.1,<1" },
     { name = "httpx2", marker = "extra == 'agents'", specifier = ">=2,<3" },
+    { name = "jsonschema", specifier = ">=4.26,<5" },
     { name = "mcp", marker = "extra == 'agents'", specifier = ">=2.2,<2.3" },
     { name = "pg8000", specifier = ">=1.31,<2" },
     { name = "pydantic", specifier = ">=2.13.5,<3" },
