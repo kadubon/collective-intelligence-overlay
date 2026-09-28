@@ -3,9 +3,11 @@
 Requested destination: `kadubon/collective-intelligence-overlay`, initial version
 `0.1.0`, PyPI distribution `collective-intelligence-overlay`.
 
-Current checkpoint: repository created; local tests/build checks performed.
-GitHub CI, tag, Release and PyPI publication are pending until explicitly recorded
-below. No successful publication is inferred from the Pending Publisher configuration.
+Current checkpoint: GitHub main CI passed for commit `29d5279`:
+[verified run](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36361806108).
+The `pypi` GitHub environment exists. Final hardening is being checked before tagging;
+tag, GitHub Release and PyPI publication are not yet confirmed. No publication is
+inferred from a Pending Publisher configuration.
 
 The only publication workflow is `.github/workflows/workflow.yml`. It requires
 successful Linux integration/E2E/package/security/docs checks and Windows unit/package

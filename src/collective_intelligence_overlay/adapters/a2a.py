@@ -39,6 +39,7 @@ from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.requests import HTTPConnection
 
+from .. import __version__
 from ..config import Config
 from ..models import now, uid
 from ..security import MAX_RECORD_BYTES, Identity, allowed_url
@@ -132,7 +133,7 @@ def application(config: Config, handler: Handler) -> Starlette:
     card = AgentCard(
         name=config.owner,
         description="Local evidence admission peer",
-        version="0.1.0",
+        version=__version__,
         supported_interfaces=[
             AgentInterface(url=config.url, protocol_binding="JSONRPC", protocol_version="1.0")
         ],

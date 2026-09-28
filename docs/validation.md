@@ -2,7 +2,7 @@
 
 Local observations before release:
 
-- 41 tests passed against real PostgreSQL and OPA, including the three-process A2A
+- 43 tests passed against real PostgreSQL and OPA, including the three-process A2A
   lifecycle, actual MAF Agent/tool execution and workflow composition, MCP HTTP,
   provider adapter with mock HTTP, signature/identity/expiry failures, graph cycles,
   evidence withdrawal, lease competition and stale-worker result rejection.
@@ -28,3 +28,8 @@ No production SLO or universal commercial-readiness claim is made.
 Linux job provides both services and executes the complete suite. Its Windows job
 checks portable unit/package behavior; it does not claim a Windows-hosted PostgreSQL
 production deployment. Local Windows-to-WSL full tests are separately reported.
+
+GitHub main CI succeeded for 300c300 and 29d5279, including Linux service tests,
+clean artifact tests, license/security/SBOM checks and Windows checks. The earlier
+e710c59 Linux startup-readiness failure was fixed with a regression test. Final
+release-tag verification remains separately recorded in releasing.md.

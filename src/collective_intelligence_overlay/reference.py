@@ -58,6 +58,15 @@ def capability(owner: str, name: str, dependencies: tuple[Subject, ...] = ()) ->
     }
     if name not in operations:
         raise ValueError("unregistered reference operation")
+    if name == "csv-report":
+        required = (
+            capability(owner, "csv-sum").subject,
+            capability(owner, "render-report").subject,
+        )
+        if set(dependencies) != set(required) or len(dependencies) != 2:
+            raise ValueError("composite requires its exact installed aggregate and renderer")
+    elif dependencies:
+        raise ValueError("reference primitive has no capability dependencies")
     contract = "csv.category-amount.v1" if name != "render-report" else "summary.v1"
     output = "summary.v1" if name == "csv-sum" else "html-report.v1"
     artifact = inspect.getsource(operations[name]).encode()
@@ -81,6 +90,15 @@ def capability(owner: str, name: str, dependencies: tuple[Subject, ...] = ()) ->
 
 
 def check(owner: str, cap: Capability, source: str, result: Any, receiver: str) -> Evidence:
+    try:
+        expected = capability(cap.issuer, cap.entrypoint, cap.dependencies)
+        supported = (
+            expected.subject == cap.subject
+            and expected.scope == cap.scope
+            and expected.claim == cap.claim
+        )
+    except ValueError:
+        supported = False
     valid = False
     if cap.entrypoint == "csv-sum":
         valid = verify_csv(source, result)
@@ -102,7 +120,8 @@ def check(owner: str, cap: Capability, source: str, result: Any, receiver: str) 
         claim=cap.claim,
         scope=cap.scope,
         receivers=(receiver,),
-        verdict=Verdict.PASS if valid else Verdict.FAIL,
+        verdict=(Verdict.PASS if valid else Verdict.FAIL) if supported else Verdict.UNKNOWN,
+        obligations=() if supported else ("unsupported reference artifact or scope",),
         method="reference-check",
         verifier_version="1",
         artifact_digest=digest(json.dumps(result).encode()),
