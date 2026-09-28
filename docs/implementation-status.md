@@ -36,7 +36,31 @@ bytes and cannot supply missing binding checks. These are partial A/D results;
 A2A invocation, indexing/sync, durable execution and formation lineage remain work
 in progress. The initial full run after these changes had 49 passes and one test
 expectation failure for the MCP SDK's nested ExceptionGroup; the corrected targeted
-run passed all seven. A full updated run remains required.
+run passed all seven.
+
+Second checkpoint: qualification now uses indexed subject/scope/claim/receiver
+queries within a repeatable-read dependency snapshot. Subject revisions replace
+global COUNT invalidation; the synchronous database work is offloaded with bounded
+pool, statement and lock timeouts. A transactional feed counter serializes writers
+before sequence allocation. A 1,001-unrelated-capability regression checks that
+only the two relevant signatures are read. This is not the required full scale
+measurement report, which remains pending.
+
+Migration 0002 retains the immutable 0001 revision and backfills in batches of
+256 in a maintenance transaction. `tests/fixtures/v010_database.json` was exported
+from an actual database created using the published 0.1.0 wheel (SHA recorded in
+the fixture), containing only test public keys and signed records. Tests preserve
+original envelopes/payloads, colliding issuer identities, PASS/FAIL/UNKNOWN,
+withdrawals, reservations, budgets and lease states. An injected interruption
+rolls the upgrade back to 0001 and retry succeeds. Operational backup/restore
+and larger backfill profiles remain pending.
+
+Fresh full run after both checkpoints: **56 passed, zero skipped, 47.00 seconds**.
+Ruff and strict mypy pass. PyPI 0.2.0 returned HTTP 404 on 2026-09-28; no 0.2.0
+tag, release or publication has been attempted. Remaining requirements include
+A2A bindings/provider execution, generic peer registration, durable invocation,
+pagination/sync/freshness, actual C3/C4 lineage and metrics, complete scale
+profiles, documentation/skills, clean artifacts and release gates.
 
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.

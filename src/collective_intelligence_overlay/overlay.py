@@ -39,18 +39,24 @@ class Overlay:
                 return await self._qualify(request)
         except TimeoutError:
             decision = self._decision(request, Outcome.UNKNOWN, ("qualification_timeout",))
-            self.store.save_decision(decision)
+            await asyncio.to_thread(self.store.save_decision, decision)
             return decision
 
     async def _qualify(self, request: UseRequest) -> Decision:
         if request.receiver != self.store.owner:
             raise ValueError("admission is local")
-        epoch = self.store.record_count()
+        revisions: dict[str, int] = {}
         valid_until = now() + timedelta(seconds=self.policy.settings.max_source_age_seconds)
         try:
-            caps = self.store.capabilities()
-            evidence = self.store.evidence()
-            revocations = self.store.revocations()
+            snapshot = await asyncio.to_thread(
+                self.store.admission_snapshot, request, self.max_graph_nodes
+            )
+            caps, evidence, revocations = (
+                snapshot.capabilities,
+                snapshot.evidence,
+                snapshot.revocations,
+            )
+            revisions = snapshot.revisions
             timestamp = now()
             visited: set[str] = set()
             evaluations = 0
@@ -216,14 +222,15 @@ class Overlay:
             decision = await evaluate(request, frozenset())
         except (ValueError, RecursionError):
             decision = self._decision(request, Outcome.UNKNOWN, ("invalid_or_excessive_records",))
-        decision = decision.model_copy(update={"record_count": epoch, "valid_until": valid_until})
+        decision = decision.model_copy(update={"revisions": revisions, "valid_until": valid_until})
         if decision.outcome == Outcome.ACCEPT and (
-            self.store.record_count() != epoch or now() >= valid_until
+            await asyncio.to_thread(self.store.revisions, set(revisions)) != revisions
+            or now() >= valid_until
         ):
             decision = decision.model_copy(
                 update={"outcome": Outcome.UNKNOWN, "reasons": ("state_changed_during_check",)}
             )
-        self.store.save_decision(decision)
+        await asyncio.to_thread(self.store.save_decision, decision)
         return decision
 
     def _decision(
@@ -254,12 +261,16 @@ class Overlay:
         async with asyncio.timeout(deadline_seconds):
             decision = await self.qualify(request)
             if decision.outcome == Outcome.ACCEPT and (
-                self.store.record_count() != decision.record_count or now() >= decision.valid_until
+                await asyncio.to_thread(self.store.revisions, set(decision.revisions))
+                != decision.revisions
+                or now() >= decision.valid_until
             ):
                 decision = decision.model_copy(
                     update={"outcome": Outcome.UNKNOWN, "reasons": ("state_changed_before_use",)}
                 )
-                self.store.save_decision(decision.model_copy(update={"id": uid()}))
+                await asyncio.to_thread(
+                    self.store.save_decision, decision.model_copy(update={"id": uid()})
+                )
             if decision.outcome != Outcome.ACCEPT:
                 raise AdmissionDenied(decision)
             return await operation()

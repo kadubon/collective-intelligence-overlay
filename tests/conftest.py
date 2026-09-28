@@ -31,7 +31,7 @@ def principals(identities):
 
 
 @pytest.fixture
-def store(principals):
+def unmigrated_store(principals):
     url = os.environ.get("CIO_TEST_DATABASE_URL")
     if not url:
         pytest.skip("CIO_TEST_DATABASE_URL required: real PostgreSQL tests not run")
@@ -40,12 +40,17 @@ def store(principals):
     with admin.connect() as conn:
         conn.execute(text(f'CREATE DATABASE "{db}"'))
     store = Store(url.rsplit("/", 1)[0] + "/" + db, "receiver", principals)
-    migrate(store.engine)
     yield store
     store.close()
     with admin.connect() as conn:
         conn.execute(text(f'DROP DATABASE "{db}" WITH (FORCE)'))
     admin.dispose()
+
+
+@pytest.fixture
+def store(unmigrated_store):
+    migrate(unmigrated_store.engine)
+    return unmigrated_store
 
 
 @pytest.fixture

@@ -203,6 +203,7 @@ class Decision(Model):
     evaluated_at: AwareDatetime = Field(default_factory=now)
     evidence_ids: tuple[str, ...] = ()
     record_count: int = Field(default=0, ge=0)
+    revisions: dict[str, int] = Field(default_factory=dict, max_length=2048)
     valid_until: AwareDatetime = Field(default_factory=now)
 
 
