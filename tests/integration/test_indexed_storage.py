@@ -16,6 +16,86 @@ def request(cap):
     )
 
 
+def test_exact_issuer_closure_excludes_other_issuers(store, identities, records, monkeypatch):
+    import collective_intelligence_overlay.storage as storage
+
+    cap, _ = records
+    child = cap.model_copy(update={"schema_version": "2", "binding_digest": "a" * 64})
+    root = child.model_copy(
+        update={
+            "subject": Subject(id="composite", version="1", digest="b" * 64),
+            "dependencies": (child.subject,),
+            "dependency_issuers": ("producer",),
+        }
+    )
+    for record in (root, child):
+        store.put(identities["producer"].sign(record))
+        collision = record.model_copy(update={"issuer": "other"})
+        store.put(identities["other"].sign(collision))
+    verified = []
+    original = storage.verify
+
+    def counted(envelope, principals):
+        record = original(envelope, principals)
+        verified.append(record)
+        return record
+
+    monkeypatch.setattr(storage, "verify", counted)
+    exact = request(root).model_copy(update={"capability_issuer": "producer"})
+    snapshot = store.admission_snapshot(exact, max_nodes=2)
+    assert {(c.issuer, c.subject.id) for c in snapshot.capabilities} == {
+        ("producer", "composite"),
+        ("producer", cap.subject.id),
+    }
+    assert len(verified) == 2
+
+    # An issuer-less legacy request must retain collisions for the admission
+    # layer to reject ambiguity. It cannot silently select the first issuer.
+    legacy = store.admission_snapshot(request(root), max_nodes=4)
+    assert {c.issuer for c in legacy.capabilities if c.subject == root.subject} == {
+        "producer",
+        "other",
+    }
+
+
+async def test_distinct_issuer_and_digest_are_not_a_dependency_cycle(
+    store, policy, identities, records
+):
+    from collective_intelligence_overlay.overlay import Overlay
+
+    cap, evidence = records
+    child = cap.model_copy(
+        update={"issuer": "other", "schema_version": "2", "binding_digest": "a" * 64}
+    )
+    root = cap.model_copy(
+        update={
+            "schema_version": "2",
+            "binding_digest": "b" * 64,
+            "subject": cap.subject.model_copy(update={"digest": "b" * 64}),
+            "dependencies": (child.subject,),
+            "dependency_issuers": ("other",),
+        }
+    )
+    for index, record in enumerate((root, child)):
+        store.put(identities[record.issuer].sign(record))
+        checked = evidence.model_copy(
+            update={
+                "id": f"checked-{index}",
+                "schema_version": "2",
+                "binding_digest": record.binding_digest,
+                "subject": record.subject,
+            }
+        )
+        store.put(identities["verifier"].sign(checked))
+    overlay = Overlay(store, policy, max_graph_nodes=2)
+    for issuer in ("producer", "other", "verifier"):
+        overlay.observed(issuer)
+    exact = request(root).model_copy(
+        update={"capability_issuer": "producer", "binding_digest": root.binding_digest}
+    )
+    assert (await overlay.qualify(exact)).outcome == "ACCEPT"
+
+
 async def test_unrelated_history_does_not_load_or_verify_all_records(
     overlay,
     identities,

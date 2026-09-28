@@ -197,6 +197,16 @@ compatibility reference registration cleanup, mixed-record scale/restore profile
 remaining docs/skills, distribution/security/license/CI gates and 0.2.0 publication
 remain pending. No new release/tag/publication has been attempted.
 
+Tenth checkpoint: dependency closure SQL now applies exact issuer predicates at
+the root and each v2 edge. Legacy issuer-less references still load collisions for
+ambiguity rejection. Cycle detection includes issuer and full subject digest so
+distinct capabilities sharing a name/version are not mistaken for a cycle. Tests
+assert only the two relevant capability signatures are verified despite competing
+issuers, and exercise real admission of a same-name/version dependency. The indexed
+storage and negative-path suites passed **17 tests, zero skips, 19.82 seconds**;
+Ruff/format and strict mypy pass. Mixed-record scale measurements and the previously
+listed release requirements remain pending.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

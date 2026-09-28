@@ -8,6 +8,9 @@ and formation receipts preserve observed use without asserting verification or
 functional novelty. Exact component bindings and separate child applicability
 checks protect composed execution. The generic peer is separated from the bundled
 compatibility reference application (`peer --reference`).
+Admission SQL constrains explicit capability issuers throughout the dependency
+closure. Cycle detection includes issuer and artifact digest; issuer-less legacy
+references continue to reject ambiguity.
 
 An external document application exercises three independent peer processes:
 remote C1 use, MAF C3 composition, C3-based C4 calibration, separate checking,

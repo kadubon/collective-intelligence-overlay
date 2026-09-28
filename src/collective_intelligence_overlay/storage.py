@@ -330,7 +330,8 @@ class Store:
         evidence: list[Evidence] = []
         revocations: list[Revocation] = []
         seen: set[str] = set()
-        frontier = {subject_key(request.subject)}
+        visited: set[tuple[str, str | None]] = set()
+        frontier = {(subject_key(request.subject), request.capability_issuer)}
         with self.engine.connect().execution_options(isolation_level="REPEATABLE READ") as conn:
             with conn.begin():
 
@@ -345,18 +346,35 @@ class Store:
                     return [verify(row, self.principals) for row in rows]
 
                 while frontier:
-                    if len(seen | frontier) > max_nodes:
+                    if len(visited | frontier) > max_nodes:
                         raise ValueError("dependency closure safety bound exceeded")
                     found = fetch(
-                        (records.c.kind == "capability") & records.c.subject_key.in_(frontier),
+                        (records.c.kind == "capability")
+                        & or_(
+                            *(
+                                and_(
+                                    records.c.subject_key == key,
+                                    records.c.issuer == issuer,
+                                )
+                                if issuer is not None
+                                else records.c.subject_key == key
+                                for key, issuer in frontier
+                            )
+                        ),
                         max_nodes * 2,
                     )
                     batch = [record for record in found if isinstance(record, Capability)]
                     caps.extend(batch)
-                    seen.update(frontier)
+                    visited.update(frontier)
+                    seen.update(key for key, _ in frontier)
                     frontier = {
-                        subject_key(dep) for cap in batch for dep in cap.dependencies
-                    } - seen
+                        (
+                            subject_key(dep),
+                            cap.dependency_issuers[index] if cap.dependency_issuers else None,
+                        )
+                        for cap in batch
+                        for index, dep in enumerate(cap.dependencies)
+                    } - visited
 
                 # Scope/claim/receiver filtering happens in SQL, including the root
                 # requested scope (which can differ from the capability's scope).

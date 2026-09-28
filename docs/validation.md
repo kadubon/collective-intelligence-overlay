@@ -4,6 +4,8 @@
 with zero skips (179.25 seconds), including the external three-process C1–C4
 document application. Subsequent numeric/formation-cost checks passed 5 focused
 tests, and the final MAF proposal-tool version of that E2E passed in 39.19 seconds.
+The subsequent exact-issuer dependency-query and cycle-identity fixes passed 17
+indexed-storage/negative-path tests with real PostgreSQL/OPA (19.82 seconds, no skips).
 Ruff/format, strict mypy and documentation checks pass. Detailed scope and unfinished
 0.2.0 release gates are tracked in [implementation status](implementation-status.md).
 The release and package observations below concern 0.1.0 unless explicitly stated.

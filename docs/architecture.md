@@ -9,6 +9,13 @@ Decision is a receiver-local record. PostgreSQL keeps record content, DSSE envel
 receipt time, dependency edges, local decisions, budgets and leases. JSON Schemas
 are generated from Pydantic models, not independently maintained definitions.
 
+Admission loads a bounded dependency closure in one repeatable-read transaction.
+Capability queries constrain the full subject digest and requested issuer in SQL;
+v2 dependencies carry exact issuers. Legacy references without an issuer retain
+collisions so qualification can reject ambiguity. Cycle detection uses issuer plus
+the full subject identity, rather than treating equal names and versions as equal
+capabilities. Evidence and revocation queries remain bounded and preserve dissent.
+
 The host validates types, signatures, references and bounded lineage. Rego is the
 only implementation of operational admission rules. OPA runs as a subprocess with
 a five-second deadline: one service fewer than a REST deployment, at the cost of
@@ -17,10 +24,12 @@ per-call process overhead. The policy bytes and settings are hashed in every dec
 MAF owns tool loops and workflow execution. A2A owns discovery-card serialization,
 JSON-RPC and transport lifecycle. MCP owns tool discovery/calls and its HTTP protocol.
 Overlay data is carried by the required extension URI
-`https://github.com/kadubon/collective-intelligence-overlay/extensions/v1`.
+`https://github.com/kadubon/collective-intelligence-overlay/extensions/v2`.
 This URI is an identifier, not a claim that an external registry approved the extension.
 
-`reference.py` and `peer.py` provide the installed deterministic business functions.
+`reference.py` and `reference_peer.py` provide the compatibility business application;
+`peer.py` provides the generic peer. `examples/document_application.py` registers
+an external application through the binding API.
 Generic capability admission has no CSV-specific branch. The reference peers only
 execute known local functions after digest comparison; received Python is never run.
 An application's own trusted actuator must enforce its input contract and permissions.

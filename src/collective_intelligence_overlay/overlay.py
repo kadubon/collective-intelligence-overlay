@@ -88,7 +88,7 @@ class Overlay:
                     Receiver(self.store).observations, set(revisions)
                 )
             timestamp = now()
-            visited: set[str] = set()
+            visited: set[tuple[str, str]] = set()
             evaluations = 0
             support_steps = 0
 
@@ -155,25 +155,31 @@ class Overlay:
                 return True
 
             async def evaluate(
-                req: UseRequest, path: frozenset[str], *, integrity_only: bool = False
+                req: UseRequest,
+                path: frozenset[tuple[str, str]],
+                *,
+                integrity_only: bool = False,
             ) -> Decision:
                 nonlocal evaluations, valid_until
                 evaluations += 1
                 subject = req.subject
-                key = subject.key
-                visited.add(key)
                 matches = matching(subject, req.capability_issuer)
+                if len(matches) != 1:
+                    return self._decision(
+                        req, Outcome.UNKNOWN, ("missing_ambiguous_or_cyclic_dependency",)
+                    )
+                cap = matches[0]
+                key = (cap.issuer, subject_key(subject))
+                visited.add(key)
                 if (
                     key in path
                     or len(visited) > self.max_graph_nodes
-                    or len(matches) != 1
                     or evaluations > self.max_graph_nodes * 4
                     or len(path) > 64
                 ):
                     return self._decision(
                         req, Outcome.UNKNOWN, ("missing_ambiguous_or_cyclic_dependency",)
                     )
-                cap = matches[0]
                 if req.binding_digest != cap.binding_digest:
                     return self._decision(req, Outcome.REQUALIFY, ("binding_evidence_required",))
                 valid_until = min(valid_until, cap.expires_at)
