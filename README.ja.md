@@ -29,8 +29,9 @@ C3を合成・検証し、その出力からC4を形成して、再起動と元�
 
 ## 最短の確認
 
-0.2.0を有効化したPython 3.12環境へ導入するコマンドは次のとおりです。
-公開の成否と検証結果は上記のrelease記録を参照してください。
+[PyPI 0.2.0](https://pypi.org/project/collective-intelligence-overlay/0.2.0/)を公開済みです。
+有効化したPython 3.12環境へ次のコマンドで導入できます。
+配布物のハッシュ一致と公開後E2Eの結果は上記のrelease記録に記載しています。
 
 ```sh
 uv pip install 'collective-intelligence-overlay[agents]==0.2.0'

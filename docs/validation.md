@@ -1,5 +1,13 @@
 # Validation status
 
+The [v0.2.0 release workflow](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36379126931)
+passed on `394ba59`: 108 Linux source tests, 107 clean agents tests plus one
+separately installed model check, and Windows unit/package tests. OIDC publication
+succeeded. Both actual PyPI files matched CI hashes; a cache-disabled fresh PyPI
+installation passed version/import/CLI and both E2Es (2 passed, zero skips,
+68.97 seconds). Full artifact provenance and the initial index propagation delay
+are recorded in [releasing](releasing.md).
+
 Observed on 2026-09-28 with Windows CPython 3.12.10, PostgreSQL 16.15 on WSL
 Ubuntu, OPA 1.21.0 and the frozen dependency set in `uv.lock`.
 
@@ -17,10 +25,9 @@ Ubuntu, OPA 1.21.0 and the frozen dependency set in `uv.lock`.
 | CycloneDX 1.6 | 133 components generated |
 
 The clean distribution run covers the full 108-test implementation (107 agents
-checks plus one separately installed model check). Subsequent documentation-only
-changes are checked again by release CI. These local observations do not by
-themselves establish publication; exact-commit CI and actual PyPI installation
-are recorded in [releasing](releasing.md).
+checks plus one separately installed model check). Release CI subsequently checked
+the final documentation and distributions on the exact tagged commit. These local
+observations are separate from the release and post-install evidence above.
 
 The standalone evaluation command completed the three-process registered-A2A path:
 ACCEPT, held-out total 117.00, changed environment REQUALIFY, dependency withdrawal

@@ -3,9 +3,9 @@
 ## 0.2.0 implementation and validation
 
 The 0.2.0 incremental specification was supplied on 2026-09-28. Implementation
-and local service validation are complete; final release CI, OIDC publication and
-actual PyPI post-install verification are tracked in [releasing](releasing.md).
-This distinction is material: a local build is not a published release.
+and validation are complete. Release CI, OIDC publication and actual PyPI
+post-install verification succeeded; exact commits, hashes and observations are
+recorded in [releasing](releasing.md).
 
 - [x] Typed local/MCP/A2A bindings, actual argument/resource/issuer enforcement,
   provider-local authorization, generic peer and application-side registration.
@@ -23,7 +23,8 @@ This distinction is material: a local build is not a published release.
   external document applications; 1k/10k/100k mixed signed-history measurements.
 - [x] CLI, API, deployment/recovery, research mapping, dependency review and skill
   documentation. No paid model calls are needed for these checks.
-- [ ] Final exact-commit CI, OIDC release and clean installation from actual PyPI.
+- [x] Final exact-commit CI, OIDC release and clean installation from actual PyPI,
+  followed by both three-process E2Es (2 passed, zero skips, 68.97 seconds).
 
 The default CSV application uses explicit registrations, independently checked
 provider and receiver-imported bindings, and persistent A2A execution. It installs

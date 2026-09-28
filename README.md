@@ -62,7 +62,8 @@ Expected fields: `processes: 3`, `admission: ACCEPT`, report total `117.00`,
 Timings vary. The command preserves owner-local artifacts and databases and stops
 its child processes. Use a new output directory for another run.
 
-The 0.2.0 installation command for an activated Python 3.12 environment is:
+[Version 0.2.0 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.2.0/).
+To install into an activated Python 3.12 environment:
 
 ```sh
 uv pip install 'collective-intelligence-overlay[agents]==0.2.0'

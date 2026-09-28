@@ -1,17 +1,41 @@
 # Release procedure and current state
 
-Requested destination: `kadubon/collective-intelligence-overlay`, next version
-`0.2.0`, PyPI distribution `collective-intelligence-overlay`. Version 0.2.0 is in
-development on main: no release tag or PyPI success is claimed. The completed
-publication below describes 0.1.0 only.
+## 0.2.0 published and verified on 2026-09-28
 
-The development commit `e88a5f60a7cba01b3f8bc8a27d9fe59e4a94a829` passed
-[main CI run 36376792432](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36376792432):
-Linux 105 tests, installed agents artifact 104 tests plus one model test, and Windows
-unit/package checks. Publishing was correctly skipped for this ordinary branch push.
-Later local work must pass the final release gates again before creating v0.2.0.
+- Release commit: `394ba59aa6ec9e95b4f725862747f5198826cf9b`; annotated tag `v0.2.0`.
+- [Main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36378773155)
+  passed before tagging. The [tag workflow](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36379126931)
+  then passed Linux validation, Windows checks and official PyPA OIDC publication.
+- Linux: 108 source tests (176.18 seconds), 107 clean agents tests (117.30 seconds)
+  and one separately installed model adapter test (1.09 seconds), with no mandatory
+  skips. Windows: 22 source unit tests, 22 clean unit tests and one model test.
+  Docs, build, strict metadata, dependency audit, 128-distribution Linux license
+  review and CycloneDX generation passed.
+- [PyPI 0.2.0](https://pypi.org/project/collective-intelligence-overlay/0.2.0/)
+  contains the exact tested wheel and sdist. Both actual downloaded hashes match
+  the CI distributions artifact; the publish job did not rebuild them.
+- A fresh Python 3.12 environment outside the checkout installed
+  `collective-intelligence-overlay[agents]==0.2.0` from the actual PyPI index with
+  cache disabled. Distribution/import/CLI and both three-process E2Es passed:
+  **2 passed, zero skips, 68.97 seconds**. These cover registered CSV execution and
+  C3-to-C4 document formation, independent checking, restart and withdrawal.
+- The first installation immediately after publication could not yet resolve
+  0.2.0. The index subsequently listed it and an ordinary retry succeeded;
+  no artifact substitution or release overwrite was used.
+- [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.2.0)
+  attaches those distributions, CI licenses/SBOM, hash verification, E2E output and
+  both installed-application result records. No publication blocker remains.
 
-Published and verified on 2026-09-28:
+Published SHA-256 values:
+
+```text
+e9fe99ed6073995483eadffcab3e6dd0e0266c0bb69ec2c1666f1e34baa61d0b  collective_intelligence_overlay-0.2.0-py3-none-any.whl
+f4e6a98098fc612f746b35952cb8a3d8663ea19dfdb8a1577b9e06e7a5ffcb71  collective_intelligence_overlay-0.2.0.tar.gz
+```
+
+## Historical 0.1.0 publication
+
+Published and verified on 2026-09-28, before 0.2.0:
 
 - Release commit: `7e4f1191aaf7e9bca8a6091e1758204e189cb924`; annotated tag `v0.1.0`.
 - [Tag workflow](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36362453372)
