@@ -249,7 +249,9 @@ binding registration example, including actual MAF composition with individually
 checked child calls. Its real-service test passed in 3.65 seconds. Compatibility
 demo conversion remains pending. The revised scale run passed all three profiles
 (1,000/10,000/100,000 records) in 673.69 seconds; full measurements are linked from
-the scale document. A full-suite run remains active.
+the scale document. The full-service run finished with **96 passed, zero skipped,
+244.02 seconds**; the new registration-example test passed separately because it
+was added after that run's collection. No test processes from these runs remain.
 
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.

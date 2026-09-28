@@ -1,5 +1,11 @@
 # Validation status
 
+Latest full-service checkpoint: **96 passed, zero skipped, 244.02 seconds**, with
+PostgreSQL/OPA, real dump/restore, migrations through 0008 and A2A response limits.
+The CSV registration example added after collection passed separately (**1 passed,
+3.65 seconds**). The separate stress run passed 1,000/10,000/100,000 profiles; see
+[scale observations](scale.md). These local checks do not establish CI/publication.
+
 0.2.0 development: the latest full local PostgreSQL/OPA/SDK run passed 84 tests
 with zero skips (179.25 seconds), including the external three-process C1–C4
 document application. Subsequent numeric/formation-cost checks passed 5 focused
