@@ -24,6 +24,7 @@ from sqlalchemy import (
     create_engine,
     func,
     insert,
+    literal,
     or_,
     select,
     update,
@@ -46,6 +47,7 @@ from .models import (
     UseRequest,
     now,
 )
+from .queries import RecordCursor, RecordPage, RecordQuery
 from .security import Principal, verify
 
 metadata = MetaData()
@@ -70,6 +72,7 @@ records = Table(
     Column("task_id", String(160)),
     Column("attempt_id", String(160)),
     Column("occurred_at", DateTime(timezone=True)),
+    Column("policy_digest", String(64)),
 )
 feed_state = Table(
     "feed_state",
@@ -101,6 +104,11 @@ decisions = Table(
     metadata,
     Column("id", String(160), primary_key=True),
     Column("body", JSON, nullable=False),
+    Column("sequence", BigInteger, nullable=False),
+    Column("subject_key", String(64), nullable=False),
+    Column("scope_digest", String(64), nullable=False),
+    Column("policy_digest", String(64), nullable=False),
+    Column("evaluated_at", DateTime(timezone=True), nullable=False),
 )
 leases = Table(
     "leases",
@@ -193,7 +201,8 @@ class Store:
         ).scalar_one()
         subject = record.subject
         skey = subject_key(subject)
-        scope = body.get("scope")
+        receipt = body.get("execution") or body.get("formation") or {}
+        scope = body.get("scope") or receipt.get("scope")
         result = conn.execute(
             pg_insert(records)
             .values(
@@ -215,6 +224,7 @@ class Store:
                 task_id=body.get("task_id"),
                 attempt_id=body.get("attempt_id"),
                 occurred_at=record.occurred_at if isinstance(record, Event) else record.created_at,
+                policy_digest=receipt.get("policy_digest"),
             )
             .on_conflict_do_nothing()
         )
@@ -401,6 +411,102 @@ class Store:
                 revisions = self._revisions(conn, seen)
         return AdmissionSnapshot(caps, evidence, revocations, revisions)
 
+    def record_page(
+        self,
+        query: RecordQuery,
+        *,
+        cursor: RecordCursor | None = None,
+        limit: int = 128,
+        byte_limit: int = 196608,
+    ) -> RecordPage:
+        """Verified records in a stable committed prefix; no OFFSET or silent truncation.
+
+        Local cursors are inspectable state, not signed authorization. The caller
+        must already have owner-level inspection access. Use Feed for peer sharing.
+        """
+        if not 1 <= limit <= 256 or not 1024 <= byte_limit <= 1048576:
+            raise ValueError("invalid inspection page bound")
+        query_digest = projection_digest(query.model_dump(mode="json"))
+        local_decisions = query.kinds == ("decision",)
+        table = decisions if local_decisions else records
+        with self.engine.connect().execution_options(isolation_level="REPEATABLE READ") as conn:
+            with conn.begin():
+                state = conn.execute(select(feed_state)).mappings().one()
+                if cursor is None:
+                    cursor = RecordCursor(
+                        owner=self.owner,
+                        generation=state["generation"],
+                        query_digest=query_digest,
+                        anchor=now(),
+                        after=0,
+                        upper=state["sequence"],
+                    )
+                elif (
+                    cursor.owner != self.owner
+                    or cursor.generation != state["generation"]
+                    or cursor.query_digest != query_digest
+                    or cursor.upper > state["sequence"]
+                ):
+                    raise ValueError(
+                        "inspection cursor owner, filter or restored generation mismatch"
+                    )
+                condition = (table.c.sequence > cursor.after) & (table.c.sequence <= cursor.upper)
+                if not local_decisions:
+                    condition &= records.c.kind.in_(query.kinds)
+                for column, value in (
+                    (literal(self.owner) if local_decisions else records.c.issuer, query.issuer),
+                    (table.c.subject_key, subject_key(query.subject) if query.subject else None),
+                    (
+                        table.c.scope_digest,
+                        projection_digest(query.scope.model_dump(mode="json"))
+                        if query.scope
+                        else None,
+                    ),
+                    (table.c.policy_digest, query.policy_digest),
+                    (literal(None) if local_decisions else records.c.task_id, query.task_id),
+                    (literal(None) if local_decisions else records.c.attempt_id, query.attempt_id),
+                ):
+                    if value is not None:
+                        condition &= column == value
+                timestamp = decisions.c.evaluated_at if local_decisions else records.c.occurred_at
+                if query.since:
+                    condition &= timestamp >= query.since
+                if query.until:
+                    condition &= timestamp < query.until
+                rows: Any = conn.execute(
+                    select(
+                        table.c.sequence,
+                        decisions.c.body if local_decisions else records.c.envelope,
+                    )
+                    .where(condition)
+                    .order_by(table.c.sequence)
+                    .limit(limit + 1)
+                ).all()
+        items: list[Record | Decision] = []
+        used, through = 0, cursor.after
+        for sequence, envelope in rows[:limit]:
+            item = (
+                Decision.model_validate(envelope)
+                if local_decisions
+                else verify(envelope, self.principals)
+            )
+            size = len(item.model_dump_json().encode())
+            if size > byte_limit:
+                raise ValueError("one inspection record exceeds byte bound; it cannot be skipped")
+            if used + size > byte_limit:
+                break
+            items.append(item)
+            used += size
+            through = int(sequence)
+        complete = len(items) == len(rows)
+        progress = cursor.model_copy(update={"after": cursor.upper if complete else through})
+        return RecordPage(
+            items=tuple(items),
+            snapshot=progress,
+            next_cursor=None if complete else progress,
+            encoded_bytes=used,
+        )
+
     def read_records(self, kind: str, limit: int = 1000) -> list[Record]:
         if not 1 <= limit <= 10000:
             raise ValueError("invalid result limit")
@@ -416,7 +522,7 @@ class Store:
                 .all()
             )
         if len(rows) > limit:
-            raise ValueError("record limit exceeded; narrow or archive the local store")
+            raise ValueError("record limit exceeded; use record_page with an explicit cursor")
         return [verify(row, self.principals) for row in rows]
 
     def capabilities(self) -> list[Capability]:
@@ -435,13 +541,32 @@ class Store:
         if decision.request.receiver != self.owner:
             raise ValueError("cannot decide for another owner")
         with self.engine.begin() as conn:
+            prefix: int = conn.execute(
+                select(feed_state.c.sequence).where(feed_state.c.id == 1).with_for_update()
+            ).scalar_one()
             conn.execute(
-                insert(decisions).values(id=decision.id, body=decision.model_dump(mode="json"))
+                insert(decisions).values(
+                    id=decision.id,
+                    body=decision.model_dump(mode="json"),
+                    sequence=prefix + 1,
+                    subject_key=subject_key(decision.request.subject),
+                    scope_digest=projection_digest(decision.request.scope.model_dump(mode="json")),
+                    policy_digest=decision.policy_digest,
+                    evaluated_at=decision.evaluated_at,
+                )
             )
+            conn.execute(update(feed_state).where(feed_state.c.id == 1).values(sequence=prefix + 1))
 
     def decision_records(self) -> list[dict[str, Any]]:
         with self.engine.connect() as conn:
-            return list(conn.execute(select(decisions.c.body)).scalars())
+            rows: list[dict[str, Any]] = list(
+                conn.execute(
+                    select(decisions.c.body).order_by(decisions.c.sequence).limit(1001)
+                ).scalars()
+            )
+        if len(rows) > 1000:
+            raise ValueError("decision limit exceeded; use record_page with decision kind")
+        return rows
 
     def set_budget(self, unit: str, amount: Decimal) -> None:
         """Operator-only initialization. No agent-accessible top-up API."""

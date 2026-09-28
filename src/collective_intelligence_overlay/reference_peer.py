@@ -119,7 +119,7 @@ class ReferencePeerService(PeerService):
                         else "use",
                         status="measured",
                         quantity=elapsed,
-                        unit="seconds",
+                        unit="wall_seconds",
                     ),
                     Cost(category="overhead", status="unavailable", quantity=None, unit="USD"),
                 ),
@@ -145,7 +145,7 @@ class ReferencePeerService(PeerService):
                                 category="failure",
                                 status="measured",
                                 quantity=Decimal(str(round(time.perf_counter() - started, 9))),
-                                unit="seconds",
+                                unit="wall_seconds",
                             ),
                         ),
                     )

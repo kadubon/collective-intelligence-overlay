@@ -10,6 +10,10 @@ checks protect composed execution. The generic peer is separated from the bundle
 compatibility reference application (`peer --reference`).
 
 Record v2 and migrations 0002–0006 preserve historical v1 signed payloads.
+Migration 0007 adds scoped history and decision projections. Inspection and event
+metrics now expose bounded cursor pages, including histories beyond 1,000 events.
+Current target assessment distinguishes historical independent PASS, local ACCEPT,
+obligations and observed receipt delays without inventing scope for legacy events.
 The `/extensions/v2` A2A boundary requires coordinated peer upgrades. These changes
 remain under development; see `docs/implementation-status.md` for completed checks
 and outstanding release requirements. No 0.2.0 publication is claimed.

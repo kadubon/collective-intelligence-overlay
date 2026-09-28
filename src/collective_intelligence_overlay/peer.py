@@ -7,11 +7,12 @@ from typing import Any
 
 from jsonschema import ValidationError as SchemaError  # type: ignore[import-untyped]
 
-from .accounting import metrics
+from .accounting import capability_metrics, metrics_page
 from .bindings import ExecutionContext, Registry
 from .config import Config
 from .invocations import Executor, Reservation
 from .models import Event, Revocation, Subject, UseRequest, uid
+from .queries import RecordCursor, RecordQuery
 from .security import verify
 from .storage import Conflict
 from .synchronization import Feed, FeedFilter, ResnapshotRequired
@@ -106,8 +107,22 @@ class PeerService:
                 "decision": decision.model_dump(mode="json"),
                 "next_work": self.overlay.recommend(decision),
             }
+        if operation == "capability_metrics":
+            requests = data.get("requests")
+            if not isinstance(requests, list) or not 1 <= len(requests) <= 32:
+                raise ValueError("expected 1 to 32 explicit use requests")
+            return await capability_metrics(
+                self.overlay, tuple(UseRequest.model_validate(request) for request in requests)
+            )
         if operation == "metrics":
-            return metrics(self.overlay.store.events())
+            return await asyncio.to_thread(
+                metrics_page,
+                self.overlay.store,
+                RecordQuery.model_validate(data.get("query", {"kinds": ["event"]})),
+                cursor=RecordCursor.model_validate(data["cursor"]) if data.get("cursor") else None,
+                limit=int(data.get("limit", 128)),
+                byte_limit=32768,
+            )
         if operation == "revoke":
             subject = Subject.model_validate(data["subject"])
             if not any(
@@ -142,7 +157,7 @@ class PeerService:
                         "category": category,
                         "status": "measured",
                         "quantity": str(round(time.perf_counter() - started, 9)),
-                        "unit": "seconds",
+                        "unit": "wall_seconds",
                     }
                 ],
             }

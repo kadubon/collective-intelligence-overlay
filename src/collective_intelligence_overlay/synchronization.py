@@ -394,7 +394,7 @@ class Receiver:
                             category="transfer",
                             status="measured",
                             quantity=network_seconds,
-                            unit="seconds",
+                            unit="wall_seconds",
                         ),
                     ),
                 )

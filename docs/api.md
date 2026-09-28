@@ -103,6 +103,48 @@ raises `Conflict`. Invalid signatures and unsupported schemas are rejected. Reco
 are not updated in place. `read_records`, `capabilities`, `evidence`, `events` and
 `decision_records` inspect persisted state without granting execution rights.
 
+Use `Store.record_page(RecordQuery(...), cursor=..., limit=128)` for larger history.
+`RecordQuery` filters exact issuer, subject, scope, policy digest, task/attempt and
+the half-open occurrence-time interval `since <= time < until`. Decision pages
+use evaluation time and must select only `kinds=("decision",)`. Their issuer filter
+means the local owner; decisions are local audit records, not shared DSSE evidence.
+Other page items are verified against their original signed envelopes.
+The fixed committed prefix, owner, generation, filter digest and snapshot anchor
+are returned with `next_cursor`. Appends, even with backdated occurrence times,
+cannot enter an existing prefix. Changed filters or restored generations require
+a new scan. The count limit is 1–256, and the default item byte budget is 196608;
+an oversized single item fails rather than being skipped. These local cursors do
+not grant access and are not a substitute for the signed peer synchronization feed.
+
+`inspect` now returns a page object rather than an unbounded list. Both `inspect`
+and event `metrics` accept `--query-file`, `--cursor-file` and `--page-size`. Save
+the returned `next_cursor` object as JSON, pass that file to resume, and retain the
+same query. Exit 3 indicates more pages; exit 0 indicates the prefix is complete.
+Legacy list helpers explicitly fail above their limits and direct users to paging.
+
+`accounting.metrics_page(store, query, cursor=...)` reports **this page only**:
+typed owner costs, per-issuer attribution, event/action/outcome counts, daily
+history, observed transport/execution states and formation receipt links. A
+complete last page is not a cumulative total. Sum each page once; persist a
+consumer's accumulator with its cursor or deduplicate page intervals on replay.
+Scope/policy filters exclude old events where those facts were never recorded.
+Unfiltered pages expose `scope_unobserved` rather than inventing scope for them.
+Top-level costs belong only to `cost_owner`; per-issuer observations are not an
+additional set of charges to add to that total.
+
+For current capability assessment, supply 1–32 explicit `UseRequest` values to
+`await accounting.capability_metrics(overlay, requests)`, or a JSON list to
+`metrics --requests-file PATH`. This reports historical independent PASS records
+separately from current local decisions, their scope/policy/evaluation times,
+declared unresolved obligations, and first local verification/reuse receipt lags.
+The verification backlog counts decisions explicitly requiring independent
+evidence; other UNKNOWN/REJECT reasons remain available for separate work planning.
+Missing or out-of-order observation times are null, not zero. Each target is
+evaluated at its own current time; this is not an atomic historical replay. Input
+applicability must be assessed by the caller; metrics never infer `semantic_fit`
+from a schema or grant execution authority. Concurrently inconsistent targets are
+reported and excluded from the currently accepted count.
+
 `await overlay.qualify(UseRequest(...))` records a local `Decision`. The request binds
 receiver, exact subject/version/digest, scope, environment and semantic assessment.
 `await overlay.execute(request, operation, deadline_seconds=30)` requalifies and calls

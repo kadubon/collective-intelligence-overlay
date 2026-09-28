@@ -1,4 +1,4 @@
-from decimal import Decimal
+from decimal import Context, Decimal
 
 import pytest
 from hypothesis import given
@@ -65,3 +65,21 @@ def test_unavailable_cost_and_dedupe(records):
 def test_url_boundary(url):
     with pytest.raises(ValueError):
         allowed_url(url, frozenset({url}))
+
+
+def test_large_cost_aggregation_keeps_all_decimal_places(records):
+    charge = Cost(
+        category="use", status="measured", unit="USD", quantity=Decimal("999999999999999.999999999")
+    )
+    event = Event(
+        issuer="producer",
+        subject=records[0].subject,
+        action="reuse",
+        task_id="task",
+        attempt_id="attempt",
+        correlation_id="costs",
+        costs=(charge,) * 64,
+    )
+    result = metrics([event.model_copy(update={"id": f"cost-{index}"}) for index in range(200)])
+    expected = Context(prec=50).multiply(charge.quantity, Decimal(12800))
+    assert Decimal(result["costs"][0]["quantity"]) == expected

@@ -1,5 +1,21 @@
 # Evaluation and metrics
 
+0.2.0 adds bounded history pages and current assessment of an explicit target set;
+the [API reference](api.md) defines filters, cursors and aggregation rules. Historical
+independent PASS reports are counted separately from current ACCEPT decisions.
+Distinct capability counts use issuer/subject/binding identity; multiple use requests
+for the same capability are also reported as targets, without asserting multiple new
+capabilities. Historical PASS does not imply a currently valid support chain, lack of
+counterevidence, current installation or universal correctness. Keep each request's
+scope, applicability assessment and evaluation time alongside its result.
+
+First verification and reuse delays use local record receipt times. They measure
+local observation lag, not provider computation time or cross-organization clocks.
+Missing, legacy or out-of-order observations remain null. New wall-time observations
+and legacy undifferentiated `seconds` are not additive resource consumption.
+Historical measurements retain their original units as observations; they are not
+retroactively reclassified as invoices or measured API charges.
+
 The three-process demo measures real interoperability and lifecycle enforcement.
 Its formation input differs from the held-out CSV used by the receiver. Separate
 checks validate row count and decimal aggregate consistency; composite output is

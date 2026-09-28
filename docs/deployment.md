@@ -44,6 +44,12 @@ forward Alembic revisions explicitly, and requalify changed dependencies. Destru
 downgrades are unsupported; restore a verified backup instead. Test recovery against
 your own data/identity infrastructure before production use.
 
+Migration 0007 adds scoped history projections and bounded backfills of local
+decisions. Original signed bodies/envelopes and decision bodies are preserved.
+Decision writes share the existing transactional publication counter so inspection
+pages cannot skip late commits; decisions are still excluded from the shared feed.
+The counter is a local committed prefix, not a count of shared records.
+
 The demo leaves random `cio_...` roles/databases for inspection. Remove only those
 whose names match the generated config after stopping their peers and checking that
 no retained work depends on them. It never drops unrelated databases automatically.

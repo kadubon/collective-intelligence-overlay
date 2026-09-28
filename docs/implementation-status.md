@@ -146,6 +146,31 @@ lifecycle, scoped paged metrics, scale and restore profiles, complete documentat
 clean distribution tests, CI and 0.2.0 publishing remain pending. Changes are local;
 no new tag, release or PyPI publication has been attempted.
 
+Eighth checkpoint: migration 0007 adds scoped event and decision history projections
+with bounded backfills. `RecordQuery`/`record_page` provide count/byte-bounded,
+committed-prefix inspection with exact filters and local continuation state.
+Decision writes share the commit-order counter without changing subject revisions
+or entering the shared evidence feed. CLI inspection and event metrics expose page
+continuations and exit 3 for unfinished prefixes. A 1,105-event regression covers
+complete paging, typed totals, replay deduplication and exclusion of late backdated
+appends; it is not the required mixed-record performance profile.
+
+`capability_metrics` evaluates up to 32 explicit use requests and distinguishes
+historical independent PASS reports from current local ACCEPT, target/capability
+identity counts, declared obligations, policy reasons requiring verification and
+first local receipt delays. Unknown applicability and withdrawals remain barriers
+to current acceptance. Event pages expose receipt links, not an independent proof
+of remote receipt references. Page totals are explicitly partial; costs are
+attributed to owners and wall/legacy undifferentiated seconds remain observations.
+
+Full service run: **80 passed, zero skipped, 109.39 seconds**. A subsequent exact
+decimal aggregation correction passed **9 unit tests**, including its new large
+quantity regression. Ruff/format, strict mypy and documentation checks pass.
+Migration tests cover 0.1 signed records and pre-0007 execution/decision history.
+The external application and three-process C1–C4 lifecycle, full scale/restore
+profiles, remaining documentation/skills, distribution tests, CI and publication
+remain incomplete. No 0.2.0 tag or publication has been attempted.
+
 See [validation](validation.md) for current checks and [release state](releasing.md)
 for publication. Historical development checkpoints are in Git history.
 

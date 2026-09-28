@@ -10,8 +10,10 @@ from typing import Any
 from urllib.parse import urlsplit
 
 from . import __version__
-from .accounting import metrics
+from .accounting import capability_metrics, metrics_page
 from .config import load_config
+from .models import UseRequest
+from .queries import RecordCursor, RecordQuery
 from .storage import migrate
 
 
@@ -26,6 +28,14 @@ def main() -> int:
     for name in ("check-config", "migrate", "peer", "inspect", "metrics", "doctor", "sync"):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
+        if name in {"inspect", "metrics"}:
+            cmd.add_argument("--query-file", type=Path)
+            cmd.add_argument("--cursor-file", type=Path)
+            cmd.add_argument("--page-size", type=int, default=128)
+        if name == "metrics":
+            cmd.add_argument(
+                "--requests-file", type=Path, help="evaluate up to 32 explicit UseRequests"
+            )
         if name == "peer":
             cmd.add_argument(
                 "--reference",
@@ -111,13 +121,31 @@ def main() -> int:
                     service.overlay.store.close()
                 return 0
             elif args.command == "inspect":
-                result = (
-                    overlay.store.decision_records()
-                    if args.kind == "decision"
-                    else [r.model_dump(mode="json") for r in overlay.store.read_records(args.kind)]
-                )
+                query, cursor = _inspection(args, args.kind)
+                result = overlay.store.record_page(
+                    query, cursor=cursor, limit=args.page_size
+                ).model_dump(mode="json")
             elif args.command == "metrics":
-                result = metrics(overlay.store.events())
+                if args.requests_file:
+                    if (
+                        args.query_file
+                        or args.cursor_file
+                        or args.requests_file.stat().st_size > 65536
+                    ):
+                        raise ValueError(
+                            "request metrics cannot combine history filters or exceed byte bound"
+                        )
+                    requests = json.loads(args.requests_file.read_text(encoding="utf-8"))
+                    if not isinstance(requests, list) or not 1 <= len(requests) <= 32:
+                        raise ValueError("expected 1 to 32 explicit use requests")
+                    result = asyncio.run(
+                        capability_metrics(
+                            overlay, tuple(UseRequest.model_validate(r) for r in requests)
+                        )
+                    )
+                else:
+                    query, cursor = _inspection(args, "event")
+                    result = metrics_page(overlay.store, query, cursor=cursor, limit=args.page_size)
             else:
                 import shutil
 
@@ -137,6 +165,12 @@ def main() -> int:
                     return 2
         print(json.dumps(result, ensure_ascii=False, default=str))
         if args.command == "sync" and not result["complete"]:
+            return 3
+        if (
+            args.command in {"inspect", "metrics"}
+            and isinstance(result, dict)
+            and result.get("next_cursor")
+        ):
             return 3
         return 0
     except Exception as exc:
@@ -169,6 +203,21 @@ def main() -> int:
     finally:
         if overlay is not None:
             overlay.store.close()
+
+
+def _inspection(args: argparse.Namespace, kind: str) -> tuple[RecordQuery, RecordCursor | None]:
+    def read(path: Path) -> Any:
+        if path.stat().st_size > 65536:
+            raise ValueError("inspection argument file exceeds byte bound")
+        return json.loads(path.read_text(encoding="utf-8"))
+
+    query = RecordQuery.model_validate(
+        read(args.query_file) if args.query_file else {"kinds": [kind]}
+    )
+    if query.kinds != (kind,):
+        raise ValueError("inspection query kind differs from command")
+    cursor = RecordCursor.model_validate(read(args.cursor_file)) if args.cursor_file else None
+    return query, cursor
 
 
 if __name__ == "__main__":
