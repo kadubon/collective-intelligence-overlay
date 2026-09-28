@@ -2,6 +2,15 @@
 
 ## 0.3.0 development checkpoint
 
+Allocation deferral instrumentation passed 34 opportunity, record and inspection
+tests in 46.08 seconds, zero skips. The tests retain eligible ranks and both checker
+unavailability and unverified-queue deferrals, with five batches referencing exactly
+five shared overhead events. A fault injected after inserting the shared cost but
+before the scoped observation passed the additional atomicity test (2.01 seconds):
+the transaction leaves neither a partial observation nor an orphan cost. Lint,
+formatting, typing and generated docs/schema checks passed. Complete checked-outcome
+aggregation, matched experiments and final release gates remain unfinished.
+
 Persisted work-attempt observations passed 41 record, opportunity, inspection and
 feed tests in 50.39 seconds, zero skips. A focused owner-local sharing check then
 passed in 3.47 seconds: work events do not enter the shared feed and generic remote

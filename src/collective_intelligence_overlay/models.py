@@ -13,6 +13,9 @@ Digest = Annotated[str, Field(pattern=r"^[a-f0-9]{64}$")]
 RecordId = Annotated[str, Field(min_length=1, max_length=330, pattern=r"^[a-zA-Z0-9_.:@/-]+$")]
 
 
+WorkKind = Literal["formation", "connection", "verification", "observation", "repair"]
+
+
 def now() -> datetime:
     return datetime.now(UTC)
 
@@ -227,9 +230,13 @@ class WorkObservation(Model):
     goal_id: Identifier
     goal_digest: Digest
     opportunity_id: Identifier | None = None
-    stage: Literal["discovery", "selection"]
+    work_kind: WorkKind | None = None
+    stage: Literal["discovery", "selection", "allocation"]
     result: Identifier
     proposals_received: int | None = Field(default=None, ge=0, le=128)
+    rule_digest: Digest | None = None
+    reasons: tuple[Identifier, ...] = Field(default=(), max_length=16)
+    rank: int | None = Field(default=None, ge=0, le=31)
 
     @model_validator(mode="after")
     def valid_stage(self) -> Self:
@@ -241,8 +248,21 @@ class WorkObservation(Model):
                 "interrupted",
             }:
                 raise ValueError("invalid discovery observation")
+        elif self.stage == "allocation":
+            if (
+                self.opportunity_id is None
+                or self.rule_digest is None
+                or self.result not in {"eligible", "deferred"}
+                or (self.result == "eligible") != (self.rank is not None)
+                or self.proposals_received is not None
+            ):
+                raise ValueError("invalid allocation observation")
         elif self.opportunity_id is None or self.proposals_received is None:
             raise ValueError("selection observation requires opportunity and received count")
+        if self.stage != "allocation" and (
+            self.rule_digest or self.reasons or self.rank is not None
+        ):
+            raise ValueError("allocation fields require allocation stage")
         return self
 
 
@@ -345,9 +365,6 @@ class BindingRef(Model):
     issuer: Identifier
     id: Identifier
     digest: Digest
-
-
-WorkKind = Literal["formation", "connection", "verification", "observation", "repair"]
 
 
 class Opportunity(Model):

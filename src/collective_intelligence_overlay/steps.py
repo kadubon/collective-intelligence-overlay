@@ -275,6 +275,7 @@ class Steps:
                     goal_id=opportunity.goal_id,
                     goal_digest=opportunity.goal_digest,
                     opportunity_id=opportunity.id,
+                    work_kind=opportunity.work_kind,
                     stage="selection",
                     result=observation_result,
                     proposals_received=len(envelopes),

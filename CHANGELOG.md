@@ -2,6 +2,10 @@
 
 ## 0.3.0 (unreleased)
 
+Allocation observations retain each opportunity's eligible rank or deferral reason
+and rule digest. Scoped observations reference one shared overhead event, committed
+in the same transaction, without duplicating its cost per opportunity.
+
 Local Event v3 observations retain discovery, deduplication and fresh selection
 attempts with their original scope/policy and measured overhead. Existing event
 metrics expose their stage/result counts separately from durable opportunity counts.

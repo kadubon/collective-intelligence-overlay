@@ -604,6 +604,43 @@ async def test_allocation_reacts_to_backlog_but_does_not_trust_unqualified_check
     assert not unavailable.qualified_checkers and not unavailable.ordered
     assert unavailable.deferred[page.opportunities[1].id] == "checker_unavailable"
 
+    from collective_intelligence_overlay.accounting import metrics_page
+    from collective_intelligence_overlay.queries import RecordQuery
+
+    query = RecordQuery(
+        kinds=("event",),
+        issuer="receiver",
+        scope=formation.request.scope,
+        policy_digest=overlay.policy.digest,
+    )
+    report = metrics_page(overlay.store, query)
+    allocations = [item for item in report["work_observations"] if item["stage"] == "allocation"]
+    assert len(allocations) == 10  # five bounded batches, two observed opportunities each
+    assert any(
+        item["result"] == "deferred"
+        and item["reasons"] == ["checker_unavailable"]
+        and item["work_kind"] == "verification"
+        for item in allocations
+    )
+    assert any(
+        item["result"] == "deferred"
+        and item["reasons"] == ["unverified_queue_limit"]
+        and item["work_kind"] == "formation"
+        for item in allocations
+    )
+    assert all(item["rank"] is None for item in allocations if item["result"] == "deferred")
+    cost_ids = {item["shared_cost_event"] for item in allocations}
+    assert len(cost_ids) == 5 and None not in cost_ids
+    for identifier in cost_ids:
+        batch_cost = overlay.store.record_page(
+            RecordQuery(kinds=("event",), issuer="receiver", record_id=identifier)
+        ).items[0]
+        assert batch_cost.work is None and len(batch_cost.costs) == 2
+    # Scoped per-opportunity observations do not duplicate the shared batch cost.
+    for item in overlay.store.record_page(query).items:
+        if item.work and item.work.stage == "allocation":
+            assert item.costs == ()
+
 
 async def test_cooldown_uses_persisted_choice_and_does_not_renew_forever(
     overlay, identities, records
@@ -843,3 +880,30 @@ async def test_scoped_attempt_events_retain_discovery_deduplication_and_deferral
             "receiver",
             {"operation": "submit", "envelope": identities["receiver"].sign(work_event)},
         )
+
+
+async def test_allocation_observation_and_shared_cost_commit_atomically(
+    overlay, identities, records, monkeypatch
+):
+    steps, opportunity, _ = await configured_steps(overlay, identities, records)
+    store = overlay.store
+    before = store.record_count()
+    original = store._insert
+
+    def interrupted(conn, record, envelope):
+        if getattr(record, "work", None) and record.work.stage == "allocation":
+            raise RuntimeError("observation write interrupted after shared cost insert")
+        return original(conn, record, envelope)
+
+    with monkeypatch.context() as patch:
+        patch.setattr(store, "_insert", interrupted)
+        with pytest.raises(RuntimeError, match="write interrupted"):
+            await allocate(
+                steps.opportunities, steps.context, (opportunity,), AllocationPolicy(mode="static")
+            )
+    assert store.record_count() == before
+    result = await allocate(
+        steps.opportunities, steps.context, (opportunity,), AllocationPolicy(mode="static")
+    )
+    assert result.ordered == (opportunity.id,)
+    assert store.record_count() == before + 2

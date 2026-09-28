@@ -464,10 +464,30 @@
           "default": null,
           "title": "Opportunity Id"
         },
+        "work_kind": {
+          "anyOf": [
+            {
+              "enum": [
+                "formation",
+                "connection",
+                "verification",
+                "observation",
+                "repair"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Work Kind"
+        },
         "stage": {
           "enum": [
             "discovery",
-            "selection"
+            "selection",
+            "allocation"
           ],
           "title": "Stage",
           "type": "string"
@@ -492,6 +512,45 @@
           ],
           "default": null,
           "title": "Proposals Received"
+        },
+        "rule_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rule Digest"
+        },
+        "reasons": {
+          "default": [],
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.:/-]+$",
+            "type": "string"
+          },
+          "maxItems": 16,
+          "title": "Reasons",
+          "type": "array"
+        },
+        "rank": {
+          "anyOf": [
+            {
+              "maximum": 31,
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Rank"
         }
       },
       "required": [

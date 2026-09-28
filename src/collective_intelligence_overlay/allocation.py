@@ -20,6 +20,7 @@ from .models import (
     Outcome,
     RecordRef,
     WorkKind,
+    WorkObservation,
     now,
     uid,
 )
@@ -67,8 +68,10 @@ async def allocate(
     if not 1 <= len(observations) <= 32:
         raise ValueError("allocation requires a bounded observation page")
     started = time.perf_counter()
+    result = None
     try:
-        return await _allocate(host, context, observations, policy, previous)
+        result = await _allocate(host, context, observations, policy, previous)
+        return result
     finally:
         event = Event(
             issuer=host.identity.name,
@@ -87,9 +90,47 @@ async def allocate(
                 Cost(category="overhead", status="unavailable", unit="USD", quantity=None),
             ),
         )
-        await asyncio.shield(
-            asyncio.to_thread(host.registry.overlay.store.put, host.identity.sign(event))
-        )
+        events = [event]
+        if result is not None:
+            ranks = {key: rank for rank, key in enumerate(result.ordered)}
+            for observation in observations:
+                deferred = result.deferred.get(observation.id)
+                events.append(
+                    Event(
+                        schema_version="3",
+                        issuer=host.identity.name,
+                        subject=observation.subject,
+                        action="recommendation",
+                        task_id=observation.id,
+                        attempt_id=uid(),
+                        correlation_id=event.id,
+                        causation_id=event.id,
+                        work=WorkObservation(
+                            receiver=host.identity.name,
+                            scope=observation.scope,
+                            policy_digest=result.policy_digest,
+                            goal_id=observation.goal_id,
+                            goal_digest=observation.goal_digest,
+                            opportunity_id=observation.id,
+                            work_kind=observation.work_kind,
+                            stage="allocation",
+                            result="deferred" if deferred else "eligible",
+                            rule_digest=result.rule_digest,
+                            reasons=(deferred,) if deferred else result.reasons,
+                            rank=ranks.get(observation.id),
+                        ),
+                    )
+                )
+        await asyncio.shield(asyncio.to_thread(_save_events, host, events))
+
+
+def _save_events(host: Opportunities, events: list[Event]) -> None:
+    # One bounded transaction retains the shared cost and every scoped result.
+    signed = [(event, host.identity.sign(event)) for event in events]
+    store = host.registry.overlay.store
+    with store.engine.begin() as conn:
+        for event, envelope in signed:
+            store._insert(conn, event, envelope)
 
 
 async def _allocate(

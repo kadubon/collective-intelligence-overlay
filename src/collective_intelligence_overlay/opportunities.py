@@ -261,6 +261,7 @@ class Opportunities:
             started = time.perf_counter()
             observed_result = "interrupted"
             observed_id = None
+            observed_kind = None
             try:
                 decision = await self.registry.overlay.qualify(goal.request)
                 if decision.outcome == Outcome.ACCEPT:
@@ -288,6 +289,7 @@ class Opportunities:
                     if not isinstance(item, Opportunity) or item.observation_digest != observation:
                         raise Conflict("opportunity identity does not match observation")
                     found.append(item)
+                    observed_kind = item.work_kind
                     observed_result = "deduplicated"
                     deduplicated += 1
                     continue
@@ -343,6 +345,7 @@ class Opportunities:
                     ):
                         raise
                     item, inserted = existing, False
+                observed_kind = item.work_kind
                 observed_result = "discovered" if inserted else "deduplicated"
                 discovered += int(inserted)
                 deduplicated += int(not inserted)
@@ -357,6 +360,7 @@ class Opportunities:
                         goal_id=goal.id,
                         goal_digest=goal.digest,
                         opportunity_id=observed_id,
+                        work_kind=observed_kind,
                         stage="discovery",
                         result=observed_result,
                     ),

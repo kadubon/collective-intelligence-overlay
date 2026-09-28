@@ -118,6 +118,7 @@ def metrics_page(
         "work_observations": [
             {
                 "event": event.id,
+                "shared_cost_event": event.causation_id,
                 "occurred_at": event.occurred_at.isoformat(),
                 **event.work.model_dump(mode="json"),
             }

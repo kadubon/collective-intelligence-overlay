@@ -13,8 +13,13 @@ elapsed time now covers qualification and opportunity persistence. Hard failure
 before observation commit can leave a gap, so these are not an exhaustive request
 audit. Work observations grant no execution or PASS and stay local: the shared
 feed excludes events, and generic remote submission rejects work observations.
-Allocator-only deferrals and independent result verification still need additional
-instrumentation for the complete matched experiment report.
+Allocation now adds a scoped observation for each eligible/deferred opportunity,
+including work kind, rule digest, reasons and eligible rank. All observations from
+one allocation and its shared overhead Event commit together. Their
+`shared_cost_event` points to that one unscoped batch cost; per-opportunity records
+carry no duplicated charge. Include the referenced batch cost once when accounting
+for a scoped workload. Independent result verification still needs aggregation
+with the complete matched experiment report.
 
 `accounting.work_metrics_page(store, query, cursor=None, limit=128)` reports a
 bounded cohort of locally issued opportunities with durable selection and current
