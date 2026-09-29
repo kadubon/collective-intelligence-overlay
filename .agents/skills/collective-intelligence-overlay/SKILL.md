@@ -1,6 +1,6 @@
 ---
 name: collective-intelligence-overlay
-description: Use Collective Intelligence Overlay to synchronize evidence, execute registered capabilities, inspect durable results and handle withdrawal. Applies to this package's configured peers and SDK, not generic multi-agent orchestration.
+description: Use Collective Intelligence Overlay for configured-peer evidence, qualified capability reuse, bounded owner goals and formation, durable result recovery and withdrawal. Applies to this package's SDK and registered applications, not generic multi-agent orchestration.
 ---
 
 Use the supplied owner's identity, policy and budget. Evidence is shared; admission
@@ -57,6 +57,30 @@ For bounded formation, use `FormationSession` with the registered Executor path.
 Receipts record observed completed reuse, not novelty, proof or cost savings.
 Inspect scoped metrics using the API's explicit request set or event pages; page
 totals are not whole-history totals. Keep unavailable costs and units distinct.
+
+For 0.3.0 owner goals, read the [registration tutorial](../../../docs/quickstart.md)
+and API. The host fixes the exact target, builder/checker bindings, checker inputs,
+proposal peers and allowance. `Opportunities.discover` returns bounded actual
+qualification deficits. `Steps.step` records one durable choice; `Steps.run`
+connects finite discovery/allocation to the same Executor. Proposals are inputs
+to installed builders, not permission to load received code, change a goal or
+weaken a checker. Configure each foreign proposal contract explicitly; retain
+unavailable peers and alternative signed hypotheses. Inspect opportunities,
+proposals, selection reasons and the original invocation ID before another attempt.
+Host materialization and `select_target` persist actual bindings; they create no
+PASS. Obtain independent scoped checks before ordinary use. Unverified backlog,
+checker unavailability, protected allowance, no progress and deadlines can defer
+or stop the finite loop. A lost reply/UNKNOWN must not start a fresh-ID retry.
+
+Use `metrics --work --query-file PATH` for a local scope/policy/creation-period
+cohort, event pages for attempt/owner resource observations and explicit request
+assessment for current admission. Their periods/states differ. Receipt-context
+costs are references, not additional charges; never add inclusive parent/child
+wall time. Generic invocation completion has no inferred independently checked
+business outcome. Formation inputs are not automatically live runtime dependencies;
+apply the documented conservative withdrawal/requalification rules. Interpret
+matched experiments from their complete raw report, including censored/negative
+results and missing resources; there is no demonstrated general adaptive advantage.
 
 On UNKNOWN retain reasons and propose the indicated observation or verification.
 On REQUALIFY obtain new scoped evidence; on REJECT or known withdrawal stop that

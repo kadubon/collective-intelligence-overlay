@@ -2,6 +2,14 @@
 
 ## 0.3.0 (unreleased)
 
+Work metrics resolve original signed invocation receipts and expose resources by
+selected work kind. Event pages distinguish qualified reuse, remote A2A use,
+replication and import, with explicit unavailable installation facts. Formation
+links expose authenticated receipt context and follow-on delay without duplicating
+charges. Generic completion still does not establish a checked business outcome.
+New 1k/10k signed-work discovery profiles run by default; saved 100k stress
+measurements retain source hashes, bounded-work assertions and diagnostic timings.
+
 Capability metrics now expose original local receipt times and ages for candidates,
 active obligations and UNKNOWN evidence. Replays retain those times, withdrawn
 evidence leaves active counts, and first-reuse latency is restricted to the report's
@@ -11,7 +19,8 @@ An isolated document comparison command records predeclared assignments, fresh
 owner stores, setup/run timings, signed observations, allowance and negative/censored
 outcomes. Initial pilots show equal checked outcome counts and no allowance saving;
 the current protocol also includes a matched input-contract connection condition.
-Complete experiment accounting and release gates remain pending.
+Original estimates, reservations, owner costs and missing resources are retained.
+Release gates remain pending.
 
 The external document application adds a fixed-order verified-reuse control. It
 shares builders, checkers and materialization with the adaptive path but does not
@@ -48,7 +57,7 @@ rejection versus UNKNOWN, and replay that preserves original evidence expiry.
 Protected checking allowance is retained across same-owner, same-unit child
 Executor calls and formation-session start reservations; independent checking can
 use that allowance after the formation context ends.
-Matched experiments, remaining semantics and release-wide validation are incomplete;
+Matched pilots and relationship semantics are implemented; final release validation is pending;
 see `docs/implementation-status.md` and `docs/validation.md`.
 
 ## 0.2.1

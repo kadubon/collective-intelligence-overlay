@@ -6,6 +6,17 @@ before protobuf parsing, including chunked responses; compressed responses are
 rejected. Redirects, environment proxies and transport retries are disabled.
 This bounds application buffering, not the operating system's socket buffers.
 
+0.3.0 proposals cannot change registered goals, checkers, allowlists, permissions,
+trust groups or allowance. Generic submit/feed does not authorize work exchange:
+each proposer needs a registered public contract and named owner. Only configured
+peers receive an opportunity. Private checker arguments are omitted; hashes are
+commitments, not encryption. Exclude credentials, personal data, internal paths
+and held-out answers from shared inputs. Schema/byte/alternative bounds and finite
+repair apply to MAF output before host validation. The structured proposer has no
+tools. An unverified checker has no ordinary acceptance authority; calibration
+probes cannot certify themselves. Materialized artifacts contain data for installed
+factories, never received imports, shell commands or a workflow language.
+
 The trusted computing base is the participant's host, DB administrator, installed
 code/checkers, OPA binary/policy, key registry and clock. Agents, model output, remote
 records and tool output are untrusted. This is not a trustless database/network system.

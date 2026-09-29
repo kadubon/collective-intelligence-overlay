@@ -64,6 +64,121 @@ test driver, not an autonomous global planner. [Configuration](configuration.md)
 describes bounded controls and ownership. [Troubleshooting](troubleshooting.md)
 explains common failures.
 
+## Register goals and run finite formation (0.3.0 candidate)
+
+With the same services and a fresh directory, the complete external application
+can be exercised without model credentials:
+
+```sh
+uv run python examples/evaluate_documents.py --directory .local/document-comparison --opa "$CIO_OPA" --seed 0
+```
+
+In PowerShell use `--opa "$env:CIO_OPA"`. This runs six isolated fixed/adaptive
+arms, creating three peer identities/processes/databases for each arm. See
+[evaluation](evaluation.md) for the signed raw pilot, inclusive costs, failed
+checking-constrained arms and interpretation. Exit zero means collection completed,
+not that every held-out contract passed. The data directory and private configs
+remain local; publish only the explicit public export, never generated keys/configs.
+
+The minimal application registration is in
+[`configure_application`](../examples/adaptive_documents.py): it installs a word
+counter and renderer, pins an independent checker, and registers two `Goal` values
+with exact `UseRequest`, builder references, fixed checker inputs and allowed
+proposal peers. The report builder consumes actual word counts; its output
+parameterizes a persisted classifier. Checker calibration and ordinary-use denial
+before PASS are part of the [three-process E2E](../tests/e2e/test_adaptive_documents.py).
+To add your own tool, use `Registry.register_local(binding, operation, assess)`;
+parameterized saved procedures use `register_artifact` with an installed factory.
+The [registration example](../examples/reference_registration.py) shows actual
+bindings and meaningful input assessments; the checker registration in
+`AdaptiveDocuments.__init__` uses the same public interface. Do not load received
+Python or let generated arguments replace the host's checker or permissions.
+
+After registering bindings and obtaining their independent evidence, an existing
+async host wires the public APIs as follows. `goals`, `registry`, `identity`,
+`executor`, `owner_context` and `config` are the application's trusted registrations,
+not values accepted from an agent. The external application supplies these and
+persists target transitions; it is the runnable implementation of this wiring.
+
+```python
+from collective_intelligence_overlay.opportunities import Opportunities
+from collective_intelligence_overlay.proposal_exchange import collect
+from collective_intelligence_overlay.steps import Steps
+
+opportunities = Opportunities(registry, identity, goals)
+steps = Steps(opportunities, executor, owner_context, max_concurrent=4)
+
+
+async def proposals(opportunity):
+    goal = opportunities.goal(opportunity.goal_id)
+    collection = await collect(config, registry.overlay.store, identity, goal, opportunity.id)
+    return collection.replies
+
+
+# One owner-controlled observation and step; handle an empty page explicitly.
+page = await opportunities.discover(max_candidates=8)
+if page.opportunities:
+    opportunity = page.opportunities[0]
+    result = await steps.step(opportunity.id, await proposals(opportunity))
+
+# Or a finite host loop over the same durable choices and Executor.
+run = await steps.run(proposals, max_steps=8, max_candidates=8, seconds=120)
+```
+
+Single-step use lets the host review one choice or materialize its output before
+updating the target. The finite loop performs bounded discovery/allocation and stops
+on no progress, allowance, deadline or step limit; it does not install returned code
+or establish PASS. The document host surrounds actual construction with
+`FormationSession`, publishes its signed candidate, persists `select_target`, and
+then discovers the new verification deficit. Use that host pattern when your
+builder needs materialization, rather than assuming `Steps.run` invents a procedure.
+
+Inspect `opportunity`, `proposal`, `event` and `decision` with the existing CLI.
+`metrics --work --query-file QUERY.json` requires local issuer, scope, policy digest
+and creation period; ordinary event metrics describe the event period. Follow
+`next_cursor` without summing repeated pages. Invocation lookup supplies durable
+results after restart. For UNKNOWN reconcile the original ID; for unavailable
+checking or shortage defer work; for withdrawal stop/requalify. The [API](api.md)
+defines complete signatures, reasons, resource attribution and exit codes.
+
+For a new host, the goal declaration fixes the target and independent checker
+before proposals arrive. This is the declaration pattern in the tested document
+setup; `target`, `checker` and `builder` are installed Binding objects, and
+`readiness_arguments` are fixed operator checker inputs:
+
+```python
+from collective_intelligence_overlay.models import BindingRef, UseRequest
+from collective_intelligence_overlay.opportunities import Goal
+
+
+def ref(binding):
+    return BindingRef(issuer=binding.issuer, id=binding.id, digest=binding.digest)
+
+
+goal = Goal(
+    id="report",
+    revision="1",
+    request=UseRequest(
+        receiver=identity.name,
+        capability_issuer=target.issuer,
+        subject=target.subject,
+        binding_digest=target.digest,
+        scope=target.scope,
+        semantic_fit="confirmed",
+    ),
+    checker=ref(checker),
+    checker_arguments=readiness_arguments,
+    builders=(ref(builder), ref(checker)),
+    peers=("producer", "verifier"),
+)
+```
+
+Confirm semantic fit only after the application's actual input/domain assessment.
+The host installs the checker/builder, establishes their scoped evidence and
+explicit grants, and supplies an existing owner allowance separately. Proposal
+peers see the public commitment, not private checker inputs. Use [API](api.md)
+for schemas, target persistence and `ProposalContract` registration.
+
 ## Registered document application (0.2.0 source checkout)
 
 With the same dedicated PostgreSQL/OPA environment and a new output directory:

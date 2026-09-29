@@ -42,3 +42,21 @@ implement the declared extension and configure compatible trust/policy locally.
 Trust in agents and trust in infrastructure differ: peers' generated statements are
 untrusted, while each participant trusts its host, DB administrator, OPA executable,
 key registry and installed checker. This boundary is detailed in [security](security.md).
+
+0.3.0 adds operator `Goal` configuration, signed `Opportunity`/`Proposal` records
+and one durable owner-local `Selection` per opportunity. Discovery uses the same
+bounded qualification snapshots; allocation describes a finite goal window and
+creates no grants. Steps supplies installed-builder inputs to Executor, whose
+invocation, lease and allowance rows remain the only execution lifecycle. The
+host materializes results through an installed factory, publishes observed
+FormationSession receipts and persists its goal's exact new target. Independent
+checking then creates evidence. No distributed goal store, background queue or
+scheduler is introduced.
+
+Binding schema 2 pins saved parameters/source/environment/components; Capability
+schema 3 distinguishes construction inputs from live runtime dependencies.
+Local work Event schema 3 carries observations without a receipt or verdict.
+Original older signed bytes remain immutable. [Semantics](semantics.md) and
+[compatibility](compatibility.md) define versions and conservative failure rules.
+Owner event pages, target assessments and opportunity cohorts use existing
+accounting and distinguish their observation times.

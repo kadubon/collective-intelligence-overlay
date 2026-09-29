@@ -55,3 +55,16 @@ Publish only through `.github/workflows/workflow.yml`, environment `pypi`, using
 Trusted Publishing. Release only after required checks and artifact installation
 tests pass. Preserve environment protections and existing history. Report genuine
 blockers and unverified cases. Never disguise a failed release with skip-existing.
+
+For 0.3.0, Goal is trusted host configuration, Opportunity/Proposal are untrusted
+signed inputs, and Selection records only an owner choice. Keep execution/retry/
+budget lifecycle in Executor and existing transactions. Use bounded exact causes
+and the complete finite goal window; do not scan all work history at every step.
+Retain alternatives, checker readiness, protected allowance and uncertain results.
+Materialize only through installed factories and persist target transitions before
+restart. Runtime dependencies, formation inputs, evidence supports and binding
+components have different withdrawal rules; preserve old v1/v2 signed bytes.
+Keep work-cohort, event-period and current-admission metrics separate. Receipt
+context is not an additional charge, and inclusive wall observations are not summed.
+Keep every matched arm isolated and retain negative/censored outcomes; improvement
+is not a release gate. See `docs/implementation-status.md` for the requirement audit.

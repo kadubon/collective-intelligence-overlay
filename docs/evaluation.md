@@ -9,8 +9,7 @@ Two calibration inputs are tested in separate databases and processes, producing
 different thresholds. These are integration cases, not independent statistical
 evidence of an adaptive benefit. The application now uses the core allocator and
 checks its checker bindings through independent finite contract tests before reuse.
-The isolated pilot below supplies initial matched observations. Complete workload
-coverage and cost reporting remain work in progress; do not infer cost savings from
+The isolated pilot below supplies initial matched observations. The declared finite workload retains costs and explicit missing resources; do not infer cost savings from
 integration-test duration or the number of candidates.
 
 The fixed document control is exposed as the owner-only `static-run` operation in
@@ -116,8 +115,8 @@ It also binds reported checker evidence to signed records. This is consistency
 checking of operator-produced observations, not an external audit or universal
 correctness proof. Raw reports separate original estimates, elapsed observations,
 reservations, missing CPU/token/currency costs and unreached tasks. Missing costs
-are not zero. Pilot 3 adds input-connection conditions; finer stage accounting and
-final release-wide experiment coverage remain required. Positive benefit is not a gate.
+are not zero. Pilot 3 adds input-connection conditions and retains each stage's signed owner
+costs. Final artifact/CI gates remain separate. Positive benefit is not a gate.
 
 The [mixed-history scale harness](scale.md) measures indexed qualification at
 1,000/10,000 records and offers a selectable 100,000-record stress profile.
@@ -172,6 +171,27 @@ verification, transfer, use, failure, maintenance and other categories when supp
 Unobserved categories are not zero-valued observations. Receiver decisions and
 recommendations identify verification, connection, observation or repair work for
 subsequent attempts; recommendations cannot create permissions or budget.
+
+Work reports join selected invocations to original signed local execution receipts
+and label resource observations by formation/connection/verification/observation/
+repair kind. They preserve original selection estimates and current reservation/
+UNKNOWN state. Scoped event pages supply attempt/deferral counts and owner costs
+for children, remote work, failures and maintenance. Shared allocation overhead is
+referenced once, not charged to every opportunity. This is not another ledger.
+The [API](api.md) explains the opportunity cohort versus event period, fixed cursors
+and finite receipt-reference budget. Use the isolated application's contract report
+for independently checked business outputs and unreached/censored tasks; generic
+completion has no inferred checked outcome. Unobserved future maintenance is
+unavailable, not a zero lifetime cost. Keep owner quantities separate and use
+inclusive elapsed time for time-to-success without adding parent/child timings.
+
+Lineage pages expose exact authenticated execution links and use-to-formation
+timestamp differences; missing/out-of-order observations are null. These are
+follow-on construction delays, not a global first-formation statistic or causal
+acceleration. Completed reuse and its remote A2A subset are distinguished from
+replication/import events. An import cannot prove code installation; the document
+host independently persists/reconstructs and checks installed parameters. These
+classifications do not count functionally new capacity.
 
 No aggregate intelligence score, ASI probability, general endogenous-growth proof,
 statistical independence or production SLO is emitted. Longitudinal resource-matched

@@ -22,6 +22,16 @@ The tested combinations are in [compatibility](compatibility.md). Install the `a
 extra for MAF/A2A/MCP, and additionally `model` for the optional provider example.
 Core imports do not load these SDKs.
 
+For finite owner goals and installed builders, use the
+[document registration and host loop](quickstart.md#register-goals-and-run-finite-formation-030-candidate).
+`examples/adaptive_documents.py` is outside the package and registers goals,
+checker bindings, public proposal contracts and parameterized factories through
+public APIs. Two authenticated A2A proposers return retained alternatives; the
+receiver selects against its current permissions and budget.
+`adapters.maf.propose_structured` uses a public Agent with typed output, bounded
+repair and no tools. Its deterministic client tests verify SDK behavior, not
+model discovery superiority. [API](api.md) defines bounds and signatures.
+
 ## Microsoft Agent Framework
 
 `AdmissionMiddleware(overlay, {tool_name: request})` uses public `FunctionMiddleware`

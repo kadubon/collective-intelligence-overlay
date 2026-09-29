@@ -1,128 +1,57 @@
 # Implementation status
 
-## 0.2.1 then 0.3.0 work in progress
+## Two-stage delivery
 
-Baseline: clean main `bb24512`, published v0.2.0 at `394ba59`; actual GitHub CI
-and PyPI confirm 0.2.0, with neither target release present at task start.
+Stage A, 0.2.1, is published and verified at `3026c39`. Stage B, 0.3.0, is a
+source candidate: implementation and local mechanism/experiment checks are present,
+but final source/distribution checks, exact-commit CI and publication remain gates.
+See [validation](validation.md) and [actual release state](releasing.md). The full
+A1–A4, B1–B12 and C1–C5 specification remains the completion criterion.
 
-Stage A: reproduce pre-dispatch allowance retention against PostgreSQL/OPA;
-implement an atomic fenced, idempotent release only for durably proven undispatched
-work, preserve uncertain effects and measured inspection overhead; test cancellation,
-expiry, dispatch, delayed DB-thread commits, old workers and migration. Run every
-existing distribution/security/service gate and publish/verify 0.2.1 separately.
+| Requirement | Implementation and evidence | Boundary / remaining gate |
+| --- | --- | --- |
+| A1–A3 reservation safety | invocations/storage; real 0.2.0 reproductions, `test_invocations.py`, `test_concurrency.py`, staged migration | Proven undispatched work refunded once after fencing; uncertain effects retained |
+| A4 patch release | 0.2.1 exact CI artifacts, OIDC, actual-PyPI 34-test regression | Complete; tag/artifacts unchanged |
+| B1–B2 thin finite integration | Registry/Executor, FormationSession, MAF/A2A/MCP; three-process E2Es | No second lifecycle, runtime or mandatory manager |
+| B3 scoped opportunities | models/opportunities, original payload references; `test_opportunity_storage.py`, `test_opportunities.py` | Semantic cause deduplication; goals and grants remain operator configuration |
+| B4 discovery and alternatives | Actual indexed qualification, MAF typed drafts, authenticated A2A; `test_proposal_maf.py`, `test_proposal_exchange.py` | Deterministic client tests do not demonstrate LLM discovery superiority |
+| B5 local bottleneck allocation | allocation/steps; checker qualification, full goal window, protected allowance, capacity, persistent cooldown tests | Bounded local diagnostics, no network-wide optimum or remote capacity grant |
+| B6 finite execution | Durable choices reuse existing invocation IDs; restart, races, shortage, UNKNOWN, bounded loop tests | UNKNOWN needs reconciliation; no automatic fresh-ID retry |
+| B7 real materialization and feedback | Content-addressed parameters, installed factory; `test_persisted_bindings.py`, adaptive document C3→C4 E2E | Actual observed-use formation, no received code or functional-novelty claim |
+| B8 checking and relationship roles | Independently calibrated checker, v3 formation inputs, runtime dependencies; `test_lineage.py`, document E2Es | Unchecked checker cannot grant PASS; source problems conservatively require requalification |
+| B9 measurements | Existing owner event pages, work receipt resources, capability ages/checks, exact lineage links and isolated business reports | Missing CPU/tokens/currency remain unavailable; inclusive elapsed observations are not summed |
+| B10 matched experiments | Fixed/adaptive normal, checking-constrained and connection arms; public protocol/source/raw archives, `test_document_experiment.py` | Equal checked outcomes and allowance; higher adaptive elapsed observations in one pilot, no superiority claim |
+| B11 integration/failures | Full regression plus named schema, grant, concurrency, restart, checker, withdrawal, cost/isolation cases | Final current-source and clean-artifact suite must pass without service skips |
+| B12 bounded scale/security | Existing indexed snapshots/feed and new signed-work profiles at 1k/10k/100k; HTTP limits/redaction tests | Saved stress reports have completed assertions; terminal stress exit status not retained; no SLO |
+| C1 compatibility/recovery | Original 0.1/0.2/0.2.1 fixtures, migrations 0009–0012, actual dump/restore tests | Stop old workers; no rolling interoperability claim |
+| C2 docs/skill | README EN/JA and canonical API/semantics/deployment/evaluation/skill | Current source candidate; publication facts added only after verification |
+| C3 artifacts/dependencies | Frozen uv resolution, existing package/audit/license/SBOM gates | Final candidate artifacts and audit remain to run |
+| C4 two-stage publication | Existing workflow.yml / pypi OIDC with tested-artifact transfer | 0.2.1 complete; 0.3.0 CI/tag/PyPI/post-install pending |
+| C5 completion report | Separate version evidence and explicit limitations | Goal remains open until all release gates and actual-index checks complete |
 
-Stage B starts only after Stage A safety gates pass. Add bounded typed opportunities
-and peer proposals, owner-local explainable selection and finite steps using the
-existing Executor/MAF/A2A/Store. Persist actual builder artifacts and C3-to-C4 use;
-retain independent checking, receiver admission and conservative withdrawal.
-Run isolated static-versus-adaptive matched experiments for verification and
-connection/environment bottlenecks, including failures, costs and censoring.
-Validate migration, restart/concurrency, bounded discovery/scale, docs/skill and
-clean distributions; publish/verify 0.3.0 after 0.2.1. No positive effect is assumed.
+Test filenames refer to [integration tests](../tests/integration) and
+[E2E tests](../tests/e2e); records, application sources and exact measurement limits
+are linked from their canonical docs. Chronological intermediate checkpoints are
+preserved in Git history, rather than treated as current missing implementations.
 
-Stage A is complete: v0.2.1 at `3026c39` passed full CI, OIDC publication,
-artifact hash comparison and 34 actual-PyPI allowance/migration/restore/E2E checks
-(105.58 seconds, zero skips). Its release artifacts and records are preserved.
-Stage B remains incomplete. The specification's A1-A4, B1-B12 and C1-C5,
-including all named adverse cases, artifacts and publication gates, remain the
-completion criteria; this plan does not replace or narrow them.
+The B11 adverse-case audit uses these existing behavioral tests; release approval
+also requires their current-source and installed-artifact runs:
 
-The external document comparison now covers normal, checking-constrained and
-input-contract connection conditions with six isolated arms. Both policies use
-the same installed adapter and checker; observed scope mismatch routes adaptive
-work to connection before fresh verification and downstream formation. Pilot 3
-retains all outcomes and 858 signed records from 18 databases. It shows equal
-checked outcomes/allowance consumption and higher adaptive elapsed observations,
-without a statistical effect claim. Detailed metrics, the new-history scale audit,
-full migration/regression/distribution checks and 0.3.0 publication remain pending.
-
-The host can now select a formed candidate as a goal's exact target while preserving
-its scope, logical identity, issuer, checker and allowlists. It verifies the signed
-candidate against the installed binding, invalidates old proposals and rediscovers
-the checking deficit. Applications must persist the returned configuration. Foreign
-proposers can explicitly opt into candidate versions within an approved public
-contract; neither collection nor that exported configuration contains private
-checker inputs.
-
-The external document application now connects actual observations to two peer
-alternatives, stable Steps invocations, FormationSession publication, independent
-checking and subsequent C3-to-C4 use in three processes. It persists target goals
-and reconstructs callables from existing manifests. Checker calibration now runs
-from a separate identity before ordinary use, and both verification and formation
-are selected through Steps with persisted core allocations. Registered remote
-checkers require ordinary scoped qualification, not an Agent Card assertion.
-Checking retains the inner verifier lease for atomic evidence publication.
-Capability v3 now distinguishes materialized formation inputs from runtime
-dependencies, evidence support and callable components. Source expiry alone does
-not invalidate a separately checked result; source withdrawal, counterexample and
-withdrawn evidence require repair/requalification, while missing information stays
-UNKNOWN. Existing v1/v2 meanings and signed payloads are preserved. Further scale,
-transport and final release checks must cover this new record version.
-Additional failure coverage, full metrics and matched experiments remain
-required, along with all final distribution and publication gates.
-The external application now also has a fixed `static-run` control using the same
-installed materialization and checker code without opportunity discovery, proposal
-collection or adaptive allocation. Its three-process lifecycle path is tested,
-including cache/restart and withdrawal. It is a functional control, not yet an
-isolated matched experiment or evidence of improved performance.
-Completed document checks now replay their saved evidence/probe result across
-verifier restart without calling the target or reserving more allowance. Changed
-requests conflict, and interrupted checks do not reclaim an uncertain expired lease.
-This closes a replay gap in the checker path and is retained under durable local
-selection and adaptive allocation.
-
-The first 0.3.0 working-tree increment adds versioned Opportunity/Proposal models,
-generated schemas, bounded exact record inspection and original-payload reference
-checks. These records neither change admission revisions nor enter the existing
-evidence synchronization feed. Generic peer submission refuses them until a
-registered goal exchange validates them. This increment does not yet implement
-the full selection/step loop, adaptive experiments or the 0.3.0 release.
-The next increment adds bounded operator goal discovery using actual qualification,
-stable semantic IDs, concurrent deduplication, retained alternative proposals and
-host checks against changed observations and installed bindings. The optional MAF
-adapter uses actual structured-output Agent calls with bounded repair and no tools;
-tests use a deterministic local client and do not demonstrate model superiority.
-An owner-local single-step API now persists one immutable choice and connects it
-to the existing Executor using stable invocation identity. It retains alternatives,
-checks allowance before choosing, and reuses running/completed/UNKNOWN state on
-replay. Tests cover concurrent replies in different orders, restart between choice
-and claim, insufficient allowance and a response lost after the actual operation.
-This is still a static choice rule; bounded adaptive allocation and the complete
-multi-peer formation cycle remain to be implemented and evaluated.
-Persisted binding v2 now binds installed builder configuration, parameters,
-environment and components to the subject digest. A separate Python process
-restores the saved manifest and executes after actual PostgreSQL/OPA admission.
-Changed calibration values with identical callable source get different identities
-and cannot reuse old evidence. The existing v1 binding digest is retained.
-Explicitly registered foreign-goal contracts now support signed proposal replies
-over existing A2A authentication and HTTP limits. Two real HTTP endpoints produce
-different retained alternatives; disabling one endpoint's proposal authority leaves
-the other reply and records the disabled peer as unavailable. This transport test
-runs services in one process and is not the required three-process adaptive E2E.
-The finite host loop now connects bounded discovery and a registered proposal
-callback to durable steps. It stops on no progress, deadline, allowance shortage
-or round limit and avoids reproposing saved work after restart. Discovery emits
-measured qualification overhead without affecting opportunity novelty. Target
-ordering remains static; adaptive allocation and per-owner cross-worker capacity
-enforcement are not yet complete.
-The loop now applies small configurable adaptive rules and retains allocation
-observations with its local choices. Real Registry/OPA readiness checks gate
-verification priority; checker withdrawal removes that readiness. An unverified
-page limit suppresses formation, and a static mode preserves the comparison rule.
-These are bounded page observations. Persistent cooldown, reserved allowance,
-cross-worker capacity and a complete cross-page backlog bound still need work.
-Subsequent work completes all registered-goal pages before allocation and enforces
-same-unit protected allowance plus owner-local concurrency in the existing claim
-transaction. Migration 0011 adds a bounded owner/state index. Steps supplies a
-concurrency bound; legacy host executors require explicit consistent configuration.
-Tests exercise claims racing across different budget units, retained checking
-allowance, ordinary release and later-page verification backlog. Cooldown remains
-incomplete, as do the adaptive formation application and release-wide gates.
-Persistent cooldown is now connected to the latest owner-local choice through
-an indexed lookup. Stable priority retains its original start time, and repair or
-loss of checker eligibility is not blocked by hysteresis. Formation/application,
-lineage-role distinctions, full metrics/experiments, scale and publication gates
-remain incomplete.
+| B11 case | Test evidence |
+| --- | --- |
+| 1–2 duplicate cause / relevant changes | `test_real_deficit_stable_ids_concurrency_and_evidence_change`, concurrent first discovery and candidate-transition cases |
+| 3 independent alternatives | `test_authenticated_a2a_alternative_proposers_and_unavailable_peer`, deterministic alternative/replay case |
+| 4–5 authority / tampering / unknown schema | `test_proposal_validates_real_reference_goal_and_installed_authority`, opportunity storage and DSSE record tests |
+| 6 racing execution/reservation | `test_step_concurrency_replay_and_one_allowance`, invocation capacity/claim/cancel concurrency cases |
+| 7 restart / UNKNOWN | `test_restart_after_choice_uses_original_alternative`, `test_step_unknown_is_not_reexecuted`, process-death invocation tests |
+| 8 bounded backlog / budget stop | allocation readiness/unverified queue, full-goal-window, protected floor, finite deadline/allowance cases |
+| 9 untrusted model / repeated proposals | actual MAF structured-output bounded repair and invalid authority fields, finite no-progress loop |
+| 10 unchecked checker | Adaptive document E2E normal-use denial before calibration and insufficient-calibration UNKNOWN/replay |
+| 11 C3→C4 | real document and adaptive document three-process E2Es plus actual MAF composition/lineage test |
+| 12–13 saved actual parameters / changes | persisted-binding separate-interpreter restart, changed calibration/factory/component evidence rejection |
+| 14 withdrawal / counterexample | materialized-input adversity, ordinary dependency withdrawal, all document descendant cases |
+| 15 cost gaps / negative outcome | accounting properties, work receipt metrics, saved raw pilot budget/censored-result checks |
+| 16 experiment isolation | fresh owner keys/databases/allowances, existing directory preservation and tampered outcome/budget rejection |
 
 ## 0.2.0 implementation and validation
 

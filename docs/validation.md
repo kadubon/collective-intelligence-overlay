@@ -1,242 +1,51 @@
 # Validation status
 
-## 0.3.0 development checkpoint
+## 0.3.0 source candidate
 
-The staged-upgrade regression explicitly checks the 0.2.0 fixture at migration
-0009 before applying the 0.3.0 revisions. A new fixture was generated in isolated
-Python mode using the previously verified actual-PyPI 0.2.1 installation (release
-`3026c39`), not the current checkout. It retains seven original signed records,
-five invocation lifecycle states and public verification keys; private keys are
-not retained. It is a low-level lifecycle/migration fixture, not a business-quality
-demonstration. Tests compare complete signed-record, budget, lease and invocation
-rows before/after migration and real PostgreSQL dump/restore, then check result
-lookup, unknown retention and idempotent release. Old 0.1.0/0.2.0 regression and
-generation/freshness restoration checks remain included. This does not establish
-rolling compatibility with old running workers.
-The final migration/restore run passed seven tests in 9.59 seconds, zero skips;
-lint, formatting, typing and documentation checks also passed.
+The release-wide current-source suite is running; candidate artifact/audit/CI and
+actual-index validation remain separate gates. Historical local checkpoints are
+evidence for their exact source, not substitutes for that final run.
 
-The complete source suite at `5034100` passed **185 tests in 792.81 seconds, zero
-skips**, on Windows/Python 3.12.10 with PostgreSQL 16.15 through WSL, the configured
-OPA binary, and real MAF/A2A/MCP paths. The command was `uv run pytest
---cov=collective_intelligence_overlay --cov-report=term-missing`, with
-`CIO_TEST_DATABASE_URL`, `CIO_OPA` and `CIO_PG_TOOL_PREFIX` configured. This includes
-three-process applications, invocation/lineage failures, migration/restore and
-the existing 1,000/10,000 mixed-history profiles. Each of five qualifications in
-each profile retained four signature checks, nine DB statements and nine returned
-SELECT rows. These profiles do not yet measure growing Opportunity/Proposal
-history. Full source success is not distribution installation, release CI, security
-audit, the explicit staged-upgrade audit or publication success; those remaining
-0.3.0 gates are tracked separately.
+| Completed observation | Result and scope |
+| --- | --- |
+| Full source at `5034100` | 185 passed, zero skips, 792.81 seconds; Windows CPython 3.12.10, real PostgreSQL 16.15 in WSL/OPA, MAF/A2A/MCP |
+| Staged migration/restore at `7e9a50f` | 7 passed, zero skips, 9.59 seconds; original 0.1/0.2/actual-PyPI 0.2.1 signed records and budget/invocation rows |
+| New signed-work 1k/10k discovery | 2 passed, zero skips, 57.08 seconds; fresh/deduplication bounded-query assertions |
+| 100k mixed/work stress | Both raw reports saved after profile assertions; terminal footer/exit status unavailable after interrupted session |
+| Resource/lineage metrics increment | 4 passed, zero skips, 14.70 seconds; no receipt-context double charge or invented checking/installation |
+| Connection/application/experiment increment | 11 passed, zero skips, 369.44 seconds; same installed adapter and checker, real three-process E2E |
+| Saved experiment archive consistency | 5 passed, zero skips, 10.24 seconds; both pilot archives plus tampered budget/outcome rejection |
 
-Capability observation-age and policy-scoped reuse metrics passed 18 record and
-inspection tests in 14.54 seconds, zero skips. Tests preserve original receipt
-times on delivery replay, remove withdrawn UNKNOWN evidence/obligations from active
-counts and exclude another policy's completed reuse from first-reuse latency.
-Reported ages are local observation ages, not inferred verification-gap onset.
-Lint, formatting, typing and generated docs/schema checks passed.
+The first attempts at the current metrics tests failed to connect to a stopped
+test PostgreSQL. Its existing data directory recovered normally after restart;
+the focused suite then passed. These infrastructure failures are not counted as
+passing tests or hidden as skips. The final source log is retained locally.
 
-The input-contract connection increment passed 11 document-application and experiment
-tests in 369.44 seconds, zero skips, using real PostgreSQL, OPA, MAF and three-process
-A2A. Both fixed and adaptive paths reject the initial mismatched report contract,
-materialize the same installed adapter, independently check its new binding and
-reuse it in downstream formation. Adaptive history records `connection_backlog`.
-Restart/replay and transitive withdrawal remain covered. The original document E2E,
-checker-calibration shortage and report isolation/tamper checks also passed. Lint,
-114-file formatting, 48-module typing and generated docs/schema checks passed.
-These tests are functional observations, not performance comparisons or release-wide
-validation.
+Migration tests explicitly inspect 0.2.0 at 0009 before advancing to head. The
+0.2.1 fixture comes from isolated Python execution against the verified actual-PyPI
+installation, retains seven signed records and five lifecycle states, and contains
+public keys only. Tests compare complete record/budget/lease/invocation rows across
+migration and real pg_dump/pg_restore. Unknown consumption, original envelopes,
+result lookup and release-once behavior persist. This is lifecycle compatibility,
+not rolling support with old live workers or a business-quality proof.
 
-Pilot 3 completed six fresh assignments, including both input-contract mismatch
-arms. Each normal/connection arm passed both formation checks and all three
-business outputs; each checking-constrained arm stopped after one checked formation.
-Its public archive passed validation of 858 signed records, 18 separate databases,
-key separation, allowance conservation and result counts. No outcome or allowance
-advantage was observed; all adaptive elapsed observations were higher in this
-single-run comparison. Failed/censored success times remain null. See
-[evaluation](evaluation.md) for exact conditions, timings and source snapshots.
-The expanded archive/isolation suite passed five tests in 10.24 seconds, zero skips,
-including rejection of altered balances and outcome counts in both pilot 2 and 3.
+The six isolated [matched pilot arms](evaluation.md) retain 858 signed records,
+18 databases, original source/protocol and all failures/censored outcomes. Normal
+and connection arms each check two formations and pass three held-out business
+tasks; checking-constrained arms check one formation and do not reach those tasks.
+There is no observed outcome or allowance benefit, and adaptive elapsed time is
+higher in each single-run pair. CPU/tokens/currency are unavailable; local identities
+are not independent organizations. [Scale methodology and raw data](scale.md)
+distinguish old qualification from new discovery profiles.
 
-The isolated comparison pilot completed four assignments using 12 fresh databases
-and separate keys/artifacts. Normal-budget arms each passed three held-out business
-outputs; verifier-budget-14 arms each checked one formed target and stopped before
-the remaining three business tasks. The earlier budget-10 calibration failures are
-retained in a separate archive. Pilot 2's 550 signed records, arm isolation,
-allowance conservation and outcome counts passed report validation. Four additional
-tests passed in 8.57 seconds, zero skips: fresh database/key/budget isolation,
-invalid initialization, existing-directory preservation, and detection of changed
-budget/outcome counts in the saved real reports. See [evaluation](evaluation.md)
-for raw archives, timings and missing resources. Pilot 3 adds the connection scenario.
-
-The fixed document-control path and shared materialization refactor passed all four
-three-process E2E cases in 213.00 seconds, zero skips. The new control uses the same
-installed builder/checker contracts and verifies formation, independent checking,
-ordinary-use denial before checking, restart/replay and dependency withdrawal.
-Its database contains no Opportunity/Proposal records. The three existing adaptive
-cases, including insufficient checker-calibration allowance, also passed. These
-are functional cases, not matched performance results; isolated arms, connection
-bottlenecks and full experiment accounting remain required. Lint, formatting,
-package typing and documentation checks passed.
-
-Allocation deferral instrumentation passed 34 opportunity, record and inspection
-tests in 46.08 seconds, zero skips. The tests retain eligible ranks and both checker
-unavailability and unverified-queue deferrals, with five batches referencing exactly
-five shared overhead events. A fault injected after inserting the shared cost but
-before the scoped observation passed the additional atomicity test (2.01 seconds):
-the transaction leaves neither a partial observation nor an orphan cost. Lint,
-formatting, typing and generated docs/schema checks passed. Complete checked-outcome
-aggregation, matched experiments and final release gates remain unfinished.
-
-Persisted work-attempt observations passed 41 record, opportunity, inspection and
-feed tests in 50.39 seconds, zero skips. A focused owner-local sharing check then
-passed in 3.47 seconds: work events do not enter the shared feed and generic remote
-submission rejects them. Tests distinguish discovery from deduplication, retain
-no-alternative selection attempts, and avoid counting invocation replay as another
-selection. Event v3 rejects execution/truth claims and legacy signatures omit the
-new field. Lint, formatting, typing and generated schemas/docs checks passed.
-Allocator-only deferrals, complete checked-outcome aggregation and release-wide
-gates remain unfinished.
-
-The scoped work-metrics increment passed 22 opportunity and existing inspection
-tests in 42.20 seconds, zero skips. Two additional real-database CLI/report cases
-passed in 4.57 seconds, zero skips, including JSON output and exit code 3 for a
-remaining page. Reports retain completed versus UNKNOWN execution, selected
-alternatives, original estimates and held/consumed allowance. They do not infer
-independent PASS, zero missing costs or unrecorded attempt counts. A fixed opportunity
-prefix excludes later appends while explicitly observing current execution state.
-Full attempt/deferral instrumentation and matched outcome aggregation remain needed.
-
-The formation-input increment passed 54 record, admission, binding, lineage,
-opportunity, reference-registration and migration/restore tests in 79.07 seconds,
-zero skips. After distinguishing explicit evidence withdrawal from ordinary expiry,
-37 record, lineage, admission and negative-path tests passed in 40.29 seconds, zero
-skips. Tests exercise actual formation/use, exact input binding pins, v2 rejection
-of omitted dependencies, v3 DSSE media-type checks, source and PASS expiry, source
-withdrawal/counterexamples, withdrawn source evidence and missing freshness. An
-earlier run failed while the policy file was edited during execution; the stable
-rerun passed. Another preliminary run skipped restore without the WSL client setting;
-the 54-test run supplied it and passed restore. Lint, formatting, typing and generated
-schemas/documentation checks passed. New-version transport/scale and full release
-gates are still pending.
-
-The nested-allowance increment passed 48 invocation, lineage, opportunity and
-three-process adaptive application tests in 224.20 seconds, zero skips. Additional
-focused checks passed three owner/unit-context and formation-floor cases (7.53
-seconds) and one four-worker atomic formation-start race (2.68 seconds), zero skips.
-A permitted child cannot consume the same owner's protected unit even when it
-requests a zero floor. Independent checking and a different budget unit remain
-usable. Formation overhead cannot consume the retained balance. Existing uncertain
-effect, cancellation, replay, lineage and three-process calibration paths passed.
-Lint, formatting, package typing and generated documentation checks passed. This
-does not replace the remaining release-wide gates or matched experiments.
-
-The checker-calibration and allocation integration passed 18 opportunity and
-three-process document tests in 238.63 seconds, zero skips. After replay/expiry
-hardening, all three adaptive application cases passed again in 151.91 seconds,
-zero skips. The low-budget case leaves the checker UNKNOWN when only one contract
-probe completes; replay preserves the original evidence and exhausted balance.
-Successful calibration is replayable with the target offline and retains original
-timestamps. Formation and checking now both use proposals, Steps and the core
-allocator. These are deterministic functional checks, not matched performance
-experiments. The subsequent increment above protects reserved checking allowance
-across nested formation calls and formation-session overhead.
-
-The checker-replay increment passed 34 lease-concurrency, invocation and three-process
-document E2E tests in 178.23 seconds, zero skips. After the verifier restarts with the
-target process stopped, replay returns the original evidence and probe result without
-another reservation. Changed target digests conflict. Concurrent retries of an
-expired uncertain check keep its original worker, fence and allowance. The existing
-0.2.1 invocation regressions and original document E2E passed in the same run. Lint,
-formatting, package typing and documentation checks passed. The newer increment
-above wraps the existing verifier lease path with Steps and adaptive allocation.
-
-The external observation-driven document application passed both three-process
-E2E cases in 97.17 seconds, zero skips, with actual PostgreSQL, OPA, A2A HTTP and
-MAF composition. Separate calibration inputs produced thresholds 2 and 4. Each
-case retained two peer alternatives, rejected ordinary use of unverified C3,
-restarted before checking C3, continued through independent checking and C4
-formation with real receipts, replayed the saved business result after another
-restart, and stopped after dependency withdrawal. The existing document E2E also
-passed in the preceding combined three-test run (133.33 seconds); its implementation
-was unchanged. Lint, formatting, package typing and generated documentation checks
-passed. This is a deterministic application with a fixed domain priority, not a
-completed adaptive allocation experiment or a 0.3.0 release gate.
-
-The public proposal-contract increment passed 21 record, opportunity/step and real
-A2A HTTP tests in 27.42 seconds, zero skips. The transport test exports only public
-contract configuration, observes actual outgoing requests, and confirms private
-checker input is absent. Exact targets remain the default; an explicit proposer
-opt-in permits candidate versions while rejecting changed contract commitments,
-scopes, checkers and output contracts. This tests authenticated assertions and local
-constraints, not the truth of a foreign private decision. Lint, formatting, strict
-typing (48 files) and generated schema/documentation checks passed. The full
-three-process adaptive application and publication gates remain outstanding.
-
-The candidate-target increment passed 15 opportunity/step and actual A2A proposal
-tests in 31.50 seconds, zero skips. The host transition preserves the registered
-contract, rejects changed issuer/scope/logical identity and stale goal versions,
-invalidates old proposals, and rediscovers verification after configuration restore.
-Candidate selection does not create PASS. Lint, formatting, generated docs/schema
-checks and strict typing of 48 source files passed. The adaptive three-process
-application, matched experiments and final release-wide gates remain incomplete.
-
-The cooldown increment passed 19 opportunity/allocation, migration and actual
-backup/restore tests in 27.34 seconds, zero skips. A new Steps instance reads the
-saved allocation, keeps a qualified priority inside its window without renewing
-that window, switches after expiry, and lets withdrawal-triggered repair override
-cooldown. Strict typing covers 48 source files; release-wide validation is pending.
-
-The claim-capacity increment passed 39 opportunity/allocation and invocation tests
-in 59.75 seconds, zero skips, including the 0.2.1 allowance/cancellation/crash
-regressions. A subsequent extended cross-page/reserved-allowance case passed in
-the 12-test opportunity set (19.47 seconds). Concurrent claims in two budget units
-admit only one at a configured capacity of one. Generated work cannot consume its
-protected remainder; an explicitly configured checking claim can use that unit.
-All checks are owner-local; they do not constrain trusted host code that elects to
-use a different operator contract. Strict typing covers 47 source files.
-
-The allocation increment passed 13 opportunity/allocation/step and real A2A tests
-in 27.61 seconds, zero skips. Actual Registry/OPA checks cause verification work
-to precede formation when a checker qualifies; withdrawal removes that priority
-and cannot bypass the unverified-page limit. Static ordering remains available.
-Lint, formatting and strict typing (46 source files) passed. Cooldown, reserved
-capacity and cross-page backlog enforcement are not covered as completed features.
-
-The finite-loop increment passed 12 opportunity/step and real A2A proposal tests
-in 22.94 seconds, zero skips. Added cases cover no-progress termination, restart
-without reproposal, zero allowance and a one-second deadline. This does not prove
-adaptive allocation or concurrent capacity control across different opportunities.
-
-The A2A proposal increment passed 15 proposal exchange, authentication, HTTP limit
-and opportunity/step tests in 17.61 seconds, zero skips. Two real HTTP endpoints
-returned different signed alternatives and stable replay IDs. Disabling one
-peer's proposal authority preserved the other response and marked the disabled
-peer unavailable. Foreign-goal substitutions and authenticated-issuer mismatch
-were refused. These endpoints ran in one test process; this is transport evidence,
-not the future three-process adaptive formation demonstration.
-
-The persisted-binding increment passed 20 focused binding, reconstruction and
-opportunity/step tests in 26.74 seconds, zero skips. Reconstruction includes a
-separate interpreter loading the saved manifest, verifying stored evidence in
-PostgreSQL and executing through OPA admission. Equal source with changed
-parameters cannot reuse prior evidence. Lint, formatting, strict typing and
-generated schemas passed. This does not yet verify the full adaptive application.
-
-The subsequent single-step increment passed 15 focused opportunity, concurrent
-choice, restart, UNKNOWN, migration and actual backup/restore tests in 18.54 seconds,
-zero skips. Strict mypy covers 44 source files. This is incremental evidence, not
-a replacement for the final full distribution and service release gates.
-
-The first opportunity/proposal increment passed all 144 source tests in 296.21
-seconds with zero skips, using actual PostgreSQL, OPA, MAF, A2A and MCP, including
-the existing three-process applications, migration/restore and 1k/10k profiles.
-Ruff, formatting, strict mypy (42 source files) and generated-schema/documentation
-checks passed. The focused opportunity, reference, MAF and feed set passed 22
-tests in 22.69 seconds. MAF proposal tests use deterministic local responses;
-there were no paid model calls. This is not a 0.3.0 release gate: local selection,
-durable steps, new formation experiments and clean 0.3.0 distributions remain
-incomplete. The following 0.2.1 observations remain historical release evidence.
+Critical branches cover duplicate causes, stale/altered references, unknown schemas,
+independent alternatives, unavailable peers, untrusted MAF output, denied checker,
+capacity/budget races, durable choice replay, delayed DB-thread cancellation,
+uncertain effects, parameter/component changes, source withdrawal, bounded sync and
+exact policy/scope/time filtering. The [completion matrix](implementation-status.md)
+maps requirements to code and tests. Coverage is a development diagnostic, not a
+business-quality or security certificate. Paid model inference, external audit,
+long-term operation and multi-organization superiority remain untested.
 
 ## 0.2.1
 
@@ -255,8 +64,7 @@ reservation and was not treated as a newly discovered defect.
 The current implementation passed 23 focused invocation tests (34.05 seconds),
 including late DB-thread dispatch/claim completion, child refusal after a parent
 effect, concurrent claim/cancel/dispatch/finish/cleanup, separate-unit conservation,
-rollback and old-worker ownership. Subsequent ownership-read hardening is awaiting
-its final run. Six migration/restore checks passed (8.43 seconds), including a
+rollback and old-worker ownership. Subsequent ownership-read hardening was included in the final release suite. Six migration/restore checks passed (8.43 seconds), including a
 fixture generated by the actual published 0.2.0 package with original signed
 payloads, PASS/FAIL/UNKNOWN, withdrawal and reserved/dispatched/completed histories.
 Old reservations remain legacy unknown without changing balances.
