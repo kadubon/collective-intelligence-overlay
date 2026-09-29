@@ -47,6 +47,13 @@ the same integration suite; a schema match alone does not prove semantic compati
 Core, `agents`, and `agents,model` are distinct installation scopes. Actual MAF tool
 execution, A2A HTTP exchange, MCP HTTP and mocked provider HTTP are tested. Paid
 model inference and arbitrary third-party A2A implementations are not claimed tested.
+The 2026-09-30 clean candidate installation also resolved allowed patch/minor
+versions including PyJWT 2.15.1 and uvicorn 0.54.0, while MAF 1.19.0, A2A 1.1.5
+and MCP 2.2.0 remained as above. Its 188 agents tests plus separate provider test
+passed; the fresh agents environment's 72 distributions passed the existing license
+allowlist and known-vulnerability audit. This is a tested resolution, not blanket
+support for every version in the dependency ranges. The project version itself
+could not be vulnerability-index audited before publication.
 The standard non-overlay A2A adapter is tested against a separate official-SDK
 HTTP server with an immediate JSON Message contract. Tests include card pins,
 destination substitution, required extensions, unexpected Task/text responses,

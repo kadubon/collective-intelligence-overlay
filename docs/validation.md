@@ -2,9 +2,31 @@
 
 ## 0.3.0 source candidate
 
-The release-wide current-source suite is running; candidate artifact/audit/CI and
-actual-index validation remain separate gates. Historical local checkpoints are
-evidence for their exact source, not substitutes for that final run.
+The release-wide source suite for the code at `e94ce84` passed **189 tests in
+910.96 seconds, zero skips**, on Windows CPython 3.12.10 with real PostgreSQL
+16.15 in WSL, OPA 1.21.0 and MAF/A2A/MCP. It includes both mixed-history and
+signed-work 1k/10k profiles. Coverage is 85%; subprocess coverage is not aggregated.
+Ruff/format/mypy, schema/docs links and canonical skill validation passed.
+`pip-audit` found no known vulnerabilities in auditable dependencies; it explicitly
+could not audit the unpublished project 0.3.0 against PyPI. The existing license
+allowlist accepted 129 installed distributions; CycloneDX 1.6 contains 133 components.
+Wheel/sdist build and strict twine checks passed. The clean installed-artifact suite
+passed 188 agents tests (874.19 seconds) plus one model adapter test (2.56 seconds),
+zero skips, outside the checkout; core import/CLI, packaged resources and sdist
+rebuild/reinstall also passed. Those artifacts contain the code at `e94ce84`.
+The final lineage delay guard retains UNKNOWN/probe/foreign-owner observations but
+does not assign them completed-use delays; four focused real-service tests passed
+in 14.30 seconds after that change. The final exact-commit CI and actual-index
+validation remain separate gates.
+Historical checkpoints below apply to their source and are not substitutes for
+the final installed-artifact/release checks.
+
+[Candidate CI at e94ce84](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36635267408)
+passed Linux source 189 tests (399.08 seconds), clean agents 188 tests (270.68
+seconds), model one test (0.94 seconds), all audit/license/build/docs gates and
+Windows source/installed unit 30/30 tests plus model/package checks. These are
+pre-publication observations, not evidence that 0.3.0 is on PyPI. The final guard
+must also pass the exact release CI's source and clean-artifact gates.
 
 | Completed observation | Result and scope |
 | --- | --- |

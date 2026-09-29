@@ -52,7 +52,9 @@ remains unavailable without application observations. Each formation's
 references per page; reduce page size if exceeded). Missing references stay null.
 `use_to_formation_seconds` is a nonnegative occurrence-time difference for that
 link, not a global first-formation latency or causal improvement. References may
-lie outside the page period/prefix; their costs are context and are excluded from
+include uncertain attempts, but only a completed ordinary-use receipt from the
+same owner gets a delay; UNKNOWN/probe/foreign-owner references remain null.
+References may lie outside the page period/prefix; their costs are context and are excluded from
 page totals. Signatures authenticate observations; they do not establish the
 formation's correctness, current admission or functional novelty.
 
@@ -116,7 +118,8 @@ and persists the allocation with the selected work. The application uses explici
 thresholds of one for its two-goal demonstration; operator `allocation` settings in
 `application.json` can change them. A checking operation still retains the existing
 inner verifier lease for atomic evidence publication. Parent/child wall times must
-not be added as separate resource consumption. Matched experiments remain incomplete.
+not be added as separate resource consumption. The isolated matched pilots and
+their limitations are reported in [evaluation](evaluation.md).
 
 `Executor.invoke(..., minimum_remaining=...)` protects the remaining allowance
 through nested Executor calls for the same owner and unit. A child cannot lower

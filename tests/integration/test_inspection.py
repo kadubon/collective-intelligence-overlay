@@ -139,6 +139,17 @@ def test_lineage_reference_context_does_not_duplicate_costs_or_claim_installatio
         update={"execution": use.execution.model_copy(update={"transport": "a2a"})}
     )
     store.put(identities["receiver"].sign(use))
+    uncertain = use.model_copy(
+        update={
+            "id": "uncertain-use",
+            "action": "failure",
+            "execution": use.execution.model_copy(
+                update={"state": "unknown", "result_digest": None}
+            ),
+            "costs": (Cost(category="failure", status="unavailable", quantity=None, unit="USD"),),
+        }
+    )
+    store.put(identities["receiver"].sign(uncertain))
     formed = Event(
         schema_version="2",
         id="later-formation",
@@ -152,6 +163,7 @@ def test_lineage_reference_context_does_not_duplicate_costs_or_claim_installatio
             receipts=(
                 ReceiptRef(issuer="receiver", id=use.id),
                 ReceiptRef(issuer="receiver", id="missing"),
+                ReceiptRef(issuer="receiver", id=uncertain.id),
             ),
             scope=cap.scope,
             binding_digest=digest(b"formed-binding"),
@@ -175,6 +187,8 @@ def test_lineage_reference_context_does_not_duplicate_costs_or_claim_installatio
     assert links[0]["observation"]["execution"]["transport"] == "a2a"
     assert links[0]["use_to_formation_seconds"] >= 0
     assert links[1]["observation"] is None and links[1]["use_to_formation_seconds"] is None
+    assert links[2]["observation"]["execution"]["state"] == "unknown"
+    assert links[2]["use_to_formation_seconds"] is None
     whole = metrics_page(store, scoped.model_copy(update={"since": use.occurred_at}))
     assert whole["costs"][0]["quantity"] == "0.125"
     assert whole["use_classifications"]["completed_qualified_reuse_receipts"] == 1

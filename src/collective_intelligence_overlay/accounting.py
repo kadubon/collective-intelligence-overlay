@@ -183,6 +183,9 @@ def metrics_page(
                             - datetime.fromisoformat(receipts[ref.issuer, ref.id]["occurred_at"])
                         ).total_seconds()
                         if (ref.issuer, ref.id) in receipts
+                        and ref.issuer == event.issuer
+                        and receipts[ref.issuer, ref.id]["execution"]["state"] == "completed"
+                        and receipts[ref.issuer, ref.id]["execution"]["purpose"] == "reuse"
                         and datetime.fromisoformat(receipts[ref.issuer, ref.id]["occurred_at"])
                         <= event.occurred_at
                         else None,

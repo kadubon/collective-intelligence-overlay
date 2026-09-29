@@ -128,10 +128,12 @@ If name ownership conflicts, OIDC is rejected or environment approval is require
 stop that operation and record the exact error here. Never rename the project,
 disable protections, request an API token or overwrite an existing distribution.
 
-Verified installation (activate a Python 3.12 virtual environment first):
+After verifying publication, activate a fresh Python 3.12 environment and substitute
+the version just published (for example the already verified 0.2.1). The historical
+0.1.0 hashes above are not the version selector for a future release:
 
 ```sh
-uv pip install --index-url https://pypi.org/simple 'collective-intelligence-overlay[agents]==0.1.0'
+uv pip install --index-url https://pypi.org/simple 'collective-intelligence-overlay[agents]==0.2.1'
 ```
 
 The optional `model` extra supplies the provider adapter; actual paid calls remain
