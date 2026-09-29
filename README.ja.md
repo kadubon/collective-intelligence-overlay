@@ -16,6 +16,14 @@
 旧履歴は保持します。[移行・復旧](docs/deployment.md)と[公開状態](docs/releasing.md)を
 確認してください。
 
+**0.3.0開発候補**では、ownerのgoal、署名付きの機会・peerの提案、局所的な
+仕事選択を追加しています。hostが用途・導入済みbuilder・独立検証済みcheckerを
+登録すると、観測に応じて形成・接続・検証を既存Executor上で有限に進めます。
+証拠不足、checker不在、予算不足、実行結果不明は停止理由として保持します。
+この追加機能はソースcheckoutにあり、公開済み0.2.1のwheelには含まれません。
+[API](docs/api.md)、[外部アプリの登録例](examples/adaptive_documents.py)、
+[残る検証項目](docs/implementation-status.md)を参照してください。
+
 署名付きの能力・証拠を保存し、受け手・用途・環境版・権限・期限に基づいてOPAで
 再利用を判定します。UNKNOWNや異論は消さず、既知の依存失効を実行前に検査します。
 PostgreSQLで重複、費用、leaseと古いworkerの結果を管理します。
@@ -61,6 +69,19 @@ uv run collective-intelligence-overlay demo --directory .local/demo
 
 期待する結果は、受入`ACCEPT`、評価用CSVの合計`117.00`、環境版変更後`REQUALIFY`、
 依存失効後`REJECT`です。実行後もDBとartifactを保持します。
+
+開発候補の文書処理で静的方式と適応方式を比較する場合は、同じサービス設定と
+新しい出力先を使います。
+
+```sh
+uv run python examples/evaluate_documents.py --directory .local/document-comparison --opa "$CIO_OPA" --seed 0
+```
+
+PowerShellでは`--opa "$env:CIO_OPA"`を指定します。有料モデルを呼ばず、
+6つの分離された3-peer実験を実行します。記録済みの単回比較では、通常・入力接続
+条件は両方式とも後続課題3件に合格し、検証資源不足では課題到達前に停止しました。
+成果数とallowance消費の改善はなく、適応方式の実測時間は長くなりました。
+[生データと限界](docs/evaluation.md)に、機能検証と効果の測定を分けて記載しています。
 
 ## 既存agentへの追加
 

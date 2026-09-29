@@ -5,6 +5,7 @@ Setup uses bounded transactions and verifies every signed record before insertio
 """
 
 import asyncio
+import base64
 import json
 import os
 import platform
@@ -214,6 +215,263 @@ async def test_mixed_history_scale(total, overlay, identities, records, monkeypa
         await asyncio.to_thread(output.mkdir, parents=True, exist_ok=True)
         await asyncio.to_thread(
             (output / f"scale-{total}.json").write_text,
+            json.dumps(report, indent=2),
+            encoding="utf-8",
+        )
+
+
+@pytest.mark.parametrize("total", COUNTS)
+async def test_work_history_discovery_scale(total, overlay, identities, records, monkeypatch):
+    """Synthetic signed work history is data volume, never verified business output."""
+    from test_opportunities import setup
+
+    import collective_intelligence_overlay.storage as storage
+    from collective_intelligence_overlay.models import (
+        Capability,
+        Proposal,
+        RecordRef,
+        WorkObservation,
+    )
+    from collective_intelligence_overlay.opportunities import Opportunities
+    from collective_intelligence_overlay.security import digest
+
+    opportunities, goal, binding = setup(overlay, identities, records)
+    store = overlay.store
+    candidate = Capability.model_validate(
+        {
+            **records[0].model_dump(),
+            "schema_version": "2",
+            "issuer": "receiver",
+            "subject": goal.request.subject,
+            "binding_digest": binding.digest,
+        }
+    )
+    store.put(identities["receiver"].sign(candidate))
+    initial = (await opportunities.discover()).opportunities[0]
+    assert initial.work_kind == "verification"
+
+    async def sample(coordinator=opportunities, expected=initial):
+        statements, returned, database_seconds = [], [], []
+        signatures, signing, opa = [], [], []
+        query_start = {}
+        original_verify = storage.verify
+        original_sign = identities["receiver"].sign
+        original_decide = overlay.policy.decide
+
+        def measured_verify(envelope, principals):
+            started = time.perf_counter()
+            try:
+                return original_verify(envelope, principals)
+            finally:
+                signatures.append(time.perf_counter() - started)
+
+        def measured_sign(record):
+            started = time.perf_counter()
+            try:
+                return original_sign(record)
+            finally:
+                signing.append(time.perf_counter() - started)
+
+        async def measured_decide(facts):
+            started = time.perf_counter()
+            try:
+                return await original_decide(facts)
+            finally:
+                opa.append(time.perf_counter() - started)
+
+        def before_query(conn, cursor, statement, parameters, context, executemany):
+            query_start[id(context)] = time.perf_counter()
+
+        def after_query(conn, cursor, statement, parameters, context, executemany):
+            database_seconds.append(time.perf_counter() - query_start.pop(id(context)))
+            statements.append((statement, parameters))
+            if statement.lstrip().upper().startswith("SELECT"):
+                returned.append(max(0, cursor.rowcount))
+
+        event.listen(store.engine, "before_cursor_execute", before_query)
+        event.listen(store.engine, "after_cursor_execute", after_query)
+        try:
+            with monkeypatch.context() as patch:
+                patch.setattr(storage, "verify", measured_verify)
+                patch.setattr(identities["receiver"], "sign", measured_sign)
+                patch.setattr(overlay.policy, "decide", measured_decide)
+                tracemalloc.start()
+                started = time.perf_counter()
+                result = await coordinator.discover()
+                elapsed = time.perf_counter() - started
+                _, peak = tracemalloc.get_traced_memory()
+            if expected is None:
+                assert result.discovered == 1 and result.deduplicated == 0
+                assert result.opportunities[0].work_kind == "verification"
+            else:
+                assert result.deduplicated == 1 and result.discovered == 0
+                assert result.opportunities == (expected,)
+        finally:
+            event.remove(store.engine, "before_cursor_execute", before_query)
+            event.remove(store.engine, "after_cursor_execute", after_query)
+            tracemalloc.stop()
+        return {
+            "latency_seconds": elapsed,
+            "db_statements": len(statements),
+            "select_returned_rows": sum(returned),
+            "db_cursor_seconds": database_seconds,
+            "verification_seconds": signatures,
+            "signing_seconds": signing,
+            "opa_calls_seconds": opa,
+            "python_traced_peak_bytes": peak,
+        }, statements
+
+    baseline, _ = await sample()
+    fresh_baseline, _ = await sample(
+        Opportunities(
+            opportunities.registry,
+            identities["receiver"],
+            (goal.model_copy(update={"revision": "fresh-baseline"}),),
+        ),
+        None,
+    )
+    setup_started = time.perf_counter()
+    inserted, pending = 0, []
+    # Include both same-subject and unrelated work. Exact opportunity identity,
+    # not a scan of all opportunities for the subject, must locate the live cause.
+    for index in range((total + 2) // 3):
+        subject = (
+            initial.subject
+            if index % 2
+            else Subject(id=f"work-history-{index}", version="1", digest=f"{index:064x}")
+        )
+        opportunity = initial.model_copy(update={"id": f"synthetic-op-{index}", "subject": subject})
+        op_envelope = identities["receiver"].sign(opportunity)
+        reference = RecordRef(
+            kind="opportunity",
+            issuer="receiver",
+            id=opportunity.id,
+            payload_digest=digest(base64.b64decode(op_envelope["payload"])),
+        )
+        proposal = Proposal(
+            id=f"synthetic-proposal-{index}",
+            issuer="producer",
+            subject=subject,
+            scope=goal.request.scope,
+            receivers=("receiver",),
+            goal_id=goal.id,
+            goal_digest=goal.digest,
+            opportunity=reference,
+            builder=goal.builders[0],
+            arguments={"value": index},
+            alternative="synthetic-history",
+            expires_at=initial.expires_at,
+        )
+        observation = Event(
+            schema_version="3",
+            id=f"synthetic-work-{index}",
+            issuer="receiver",
+            subject=subject,
+            action="recommendation",
+            task_id=goal.id,
+            attempt_id=f"history-{index}",
+            correlation_id=goal.id,
+            work=WorkObservation(
+                receiver="receiver",
+                scope=goal.request.scope,
+                policy_digest=overlay.policy.digest,
+                goal_id=goal.id,
+                goal_digest=goal.digest,
+                opportunity_id=opportunity.id,
+                work_kind="verification",
+                stage="discovery",
+                result="discovered",
+            ),
+        )
+        for record in (opportunity, proposal, observation):
+            if inserted == total:
+                break
+            envelope = (
+                op_envelope if record is opportunity else identities[record.issuer].sign(record)
+            )
+            pending.append((verify(envelope, store.principals), envelope))
+            inserted += 1
+        if len(pending) >= 100 or inserted == total:
+            with store.engine.begin() as conn:
+                for record, envelope in pending:
+                    store._insert(conn, record, envelope)
+            pending.clear()
+    setup_seconds = time.perf_counter() - setup_started
+    with store.engine.begin() as conn:
+        conn.execute(text("ANALYZE records"))
+        counts = dict(
+            conn.execute(
+                select(record_table.c.kind, func.count()).group_by(record_table.c.kind)
+            ).all()
+        )
+        database_version = conn.execute(text("SELECT version()")).scalar_one()
+    measurements = []
+
+    def same_work(measurement, before):
+        for key in ("db_statements", "select_returned_rows"):
+            assert measurement[key] == before[key]
+        assert len(measurement["verification_seconds"]) == len(before["verification_seconds"])
+        assert len(measurement["opa_calls_seconds"]) == len(before["opa_calls_seconds"]) > 0
+
+    fresh_after_load, _ = await sample(
+        Opportunities(
+            opportunities.registry,
+            identities["receiver"],
+            (goal.model_copy(update={"revision": "fresh-after-load"}),),
+        ),
+        None,
+    )
+    same_work(fresh_after_load, fresh_baseline)
+    for _ in range(5):
+        measurement, statements = await sample()
+        same_work(measurement, baseline)
+        measurements.append(measurement)
+    plans = []
+    with store.engine.connect() as conn:
+        for statement, parameters in statements:
+            if statement.startswith("SELECT records.envelope"):
+                plans.append(
+                    conn.exec_driver_sql(
+                        "EXPLAIN (ANALYZE, BUFFERS, FORMAT JSON) " + statement, parameters
+                    ).scalar_one()
+                )
+    assert plans and inserted == total
+    report = {
+        "profile": "work-history-discovery.v1",
+        "background_work_records": total,
+        "counts_before_measurement": counts,
+        "setup_seconds": setup_seconds,
+        "baseline": baseline,
+        "fresh_baseline": fresh_baseline,
+        "fresh_after_load": fresh_after_load,
+        "measurements": measurements,
+        "query_plans": plans,
+        "harness_sha256": digest(await asyncio.to_thread(Path(__file__).read_bytes)),
+        "conditions": {
+            "python": platform.python_version(),
+            "os": platform.platform(),
+            "cpu": platform.processor(),
+            "logical_cpu_count": os.cpu_count(),
+            "postgresql": database_version,
+            "opa": await asyncio.to_thread(
+                subprocess.check_output, [overlay.policy.binary, "version"], text=True
+            ),
+            "target": "one unchanged verification deficit; one local registered goal",
+            "history": "synthetic signed Opportunity/Proposal/Event v3; not business success",
+            "timing": "one baseline then five sequential calls after load; tracing enabled",
+            "db_timing": "cursor execution only; excludes pool wait and result decoding",
+            "memory": "Python tracemalloc; excludes PostgreSQL/OPA/native heaps",
+            "unmeasured": ["CPU_seconds", "tokens", "USD"],
+            "not_exercised": ["LLM", "network proposal collection", "selection", "execution"],
+            "no_latency_slo": True,
+        },
+    }
+    directory = os.environ.get("CIO_SCALE_REPORT_DIR")
+    if directory:
+        output = Path(directory)
+        await asyncio.to_thread(output.mkdir, parents=True, exist_ok=True)
+        await asyncio.to_thread(
+            (output / f"work-scale-{total}.json").write_text,
             json.dumps(report, indent=2),
             encoding="utf-8",
         )

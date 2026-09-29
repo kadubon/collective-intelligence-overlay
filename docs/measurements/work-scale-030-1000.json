@@ -1,0 +1,524 @@
+{
+  "profile": "work-history-discovery.v1",
+  "background_work_records": 1000,
+  "counts_before_measurement": {
+    "capability": 2,
+    "event": 336,
+    "opportunity": 336,
+    "proposal": 333,
+    "evidence": 1
+  },
+  "setup_seconds": 4.56005809999624,
+  "baseline": {
+    "latency_seconds": 0.13615520000166725,
+    "db_statements": 12,
+    "select_returned_rows": 6,
+    "db_cursor_seconds": [
+      0.001891699997941032,
+      0.001302099997701589,
+      0.001163000000815373,
+      0.0011858000070787966,
+      0.0013803000038024038,
+      0.001295199996093288,
+      0.0011481999972602352,
+      0.0006283000038820319,
+      0.0013249000039650127,
+      0.001498800003901124,
+      0.002666999993380159,
+      0.0012162999992142431
+    ],
+    "verification_seconds": [
+      0.0008646999995107763,
+      0.0006068000002414919,
+      0.0006280000015976839
+    ],
+    "signing_seconds": [
+      0.0001534000039100647
+    ],
+    "opa_calls_seconds": [
+      0.052196500000718515
+    ],
+    "python_traced_peak_bytes": 291282
+  },
+  "fresh_baseline": {
+    "latency_seconds": 0.1463930000027176,
+    "db_statements": 15,
+    "select_returned_rows": 6,
+    "db_cursor_seconds": [
+      0.0015512999962083995,
+      0.0013332000016816892,
+      0.0009910000007948838,
+      0.0009838000041781925,
+      0.0014217999996617436,
+      0.001516500000434462,
+      0.0009798000028240494,
+      0.0009723000039230101,
+      0.001693999998678919,
+      0.0014106000016909093,
+      0.0020688000004156493,
+      0.0009298000004491769,
+      0.0015002000000094995,
+      0.0022496000019600615,
+      0.0010264000011375174
+    ],
+    "verification_seconds": [
+      0.0007623999990755692,
+      0.0009067999999388121,
+      0.0013612000038847327
+    ],
+    "signing_seconds": [
+      0.00029939999512862414,
+      0.0003284999984316528
+    ],
+    "opa_calls_seconds": [
+      0.052428800001507625
+    ],
+    "python_traced_peak_bytes": 251149
+  },
+  "fresh_after_load": {
+    "latency_seconds": 0.11617250000563217,
+    "db_statements": 15,
+    "select_returned_rows": 6,
+    "db_cursor_seconds": [
+      0.0022189000010257587,
+      0.0014198999997461215,
+      0.0011643999969237484,
+      0.0009441000001970679,
+      0.0014946000010240823,
+      0.0016685999944456853,
+      0.0011655999987851828,
+      0.0007782999964547344,
+      0.0015156000008573756,
+      0.001830600005632732,
+      0.0023438999996869825,
+      0.0011977000031038187,
+      0.0015705999976489693,
+      0.001937499997438863,
+      0.0010036000021500513
+    ],
+    "verification_seconds": [
+      0.0009365000005345792,
+      0.0010293000013916753,
+      0.0010231999985990115
+    ],
+    "signing_seconds": [
+      0.0002538999979151413,
+      0.0002806999982567504
+    ],
+    "opa_calls_seconds": [
+      0.048296799999661744
+    ],
+    "python_traced_peak_bytes": 274038
+  },
+  "measurements": [
+    {
+      "latency_seconds": 0.08954529999755323,
+      "db_statements": 12,
+      "select_returned_rows": 6,
+      "db_cursor_seconds": [
+        0.001898400005302392,
+        0.001178099999378901,
+        0.0011578999983612448,
+        0.001083499999367632,
+        0.0013105999969411641,
+        0.0013439000031212345,
+        0.0009139000030700117,
+        0.0009300000019720756,
+        0.001771399998688139,
+        0.0014027999932295643,
+        0.0022305000020423904,
+        0.0013548999995691702
+      ],
+      "verification_seconds": [
+        0.0006227000048966147,
+        0.0009324999991804361,
+        0.0007189999960246496
+      ],
+      "signing_seconds": [
+        0.00020709999807877466
+      ],
+      "opa_calls_seconds": [
+        0.04262320000270847
+      ],
+      "python_traced_peak_bytes": 197176
+    },
+    {
+      "latency_seconds": 0.09864419999939855,
+      "db_statements": 12,
+      "select_returned_rows": 6,
+      "db_cursor_seconds": [
+        0.0019879999963450246,
+        0.0012843000004068017,
+        0.001105199997255113,
+        0.0013939999989815988,
+        0.001340999995591119,
+        0.0013102000011713244,
+        0.00120489999972051,
+        0.0009873000017250888,
+        0.0019007999944733456,
+        0.0013069999986328185,
+        0.002474500004609581,
+        0.0009896000046865083
+      ],
+      "verification_seconds": [
+        0.0008152000009431504,
+        0.000599599996348843,
+        0.0009330000029876828
+      ],
+      "signing_seconds": [
+        0.0001970999946934171
+      ],
+      "opa_calls_seconds": [
+        0.04975379999814322
+      ],
+      "python_traced_peak_bytes": 266611
+    },
+    {
+      "latency_seconds": 0.09650329999567475,
+      "db_statements": 12,
+      "select_returned_rows": 6,
+      "db_cursor_seconds": [
+        0.0020345000011730008,
+        0.0014401000007637776,
+        0.0009955999994417652,
+        0.0011236999998800457,
+        0.001495600001362618,
+        0.001568200001202058,
+        0.001280899996345397,
+        0.0009901000012177974,
+        0.002024200002779253,
+        0.0010309999997843988,
+        0.0019320999999763444,
+        0.0010117999991052784
+      ],
+      "verification_seconds": [
+        0.0008290000041597523,
+        0.0010803999975905754,
+        0.0008398999998462386
+      ],
+      "signing_seconds": [
+        0.0002345000029890798
+      ],
+      "opa_calls_seconds": [
+        0.047202699999616016
+      ],
+      "python_traced_peak_bytes": 241657
+    },
+    {
+      "latency_seconds": 0.10089680000237422,
+      "db_statements": 12,
+      "select_returned_rows": 6,
+      "db_cursor_seconds": [
+        0.0019000999964191578,
+        0.0013938999982201494,
+        0.0009795000005397014,
+        0.0012395000012475066,
+        0.001370199999655597,
+        0.0013251999989734031,
+        0.0009614000009605661,
+        0.0006935999990673736,
+        0.0020438999999896623,
+        0.0011901999969268218,
+        0.0022430000026361085,
+        0.0010231999985990115
+      ],
+      "verification_seconds": [
+        0.0008491000044159591,
+        0.000985999999102205,
+        0.0008388999995077029
+      ],
+      "signing_seconds": [
+        0.00026649999927030876
+      ],
+      "opa_calls_seconds": [
+        0.051676600000064354
+      ],
+      "python_traced_peak_bytes": 265778
+    },
+    {
+      "latency_seconds": 0.1006379000027664,
+      "db_statements": 12,
+      "select_returned_rows": 6,
+      "db_cursor_seconds": [
+        0.0017633000024943613,
+        0.0014003000032971613,
+        0.000989699998172,
+        0.001193199997942429,
+        0.001300999996601604,
+        0.0011134000014862977,
+        0.0011134000014862977,
+        0.0007779000006848946,
+        0.0017642000020714477,
+        0.0014246999999159016,
+        0.0024316999988514,
+        0.001251800000318326
+      ],
+      "verification_seconds": [
+        0.0008453999980702065,
+        0.0009950999956345186,
+        0.0012528999941423535
+      ],
+      "signing_seconds": [
+        0.00026029999571619555
+      ],
+      "opa_calls_seconds": [
+        0.05103009999584174
+      ],
+      "python_traced_peak_bytes": 233193
+    }
+  ],
+  "query_plans": [
+    [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0.28,
+          "Total Cost": 8.3,
+          "Plan Rows": 1,
+          "Plan Width": 19,
+          "Actual Startup Time": 0.031,
+          "Actual Total Time": 0.032,
+          "Actual Rows": 1,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 3,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Scan Direction": "Forward",
+              "Index Name": "ix_records_subject",
+              "Relation Name": "records",
+              "Alias": "records",
+              "Startup Cost": 0.28,
+              "Total Cost": 8.3,
+              "Plan Rows": 1,
+              "Plan Width": 19,
+              "Actual Startup Time": 0.03,
+              "Actual Total Time": 0.031,
+              "Actual Rows": 1,
+              "Actual Loops": 1,
+              "Index Cond": "(((subject_key)::text = '4469c7bd355c1fc7e67c78f0888f9f1cab65d69399dc262495e3e9fe87838ffd'::text) AND ((kind)::text = 'capability'::text) AND ((issuer)::text = 'receiver'::text))",
+              "Rows Removed by Index Recheck": 0,
+              "Shared Hit Blocks": 3,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.133,
+        "Triggers": [],
+        "Execution Time": 0.045
+      }
+    ],
+    [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0.28,
+          "Total Cost": 8.3,
+          "Plan Rows": 1,
+          "Plan Width": 19,
+          "Actual Startup Time": 0.012,
+          "Actual Total Time": 0.012,
+          "Actual Rows": 0,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 3,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Scan Direction": "Forward",
+              "Index Name": "ix_record_scope_history",
+              "Relation Name": "records",
+              "Alias": "records",
+              "Startup Cost": 0.28,
+              "Total Cost": 8.3,
+              "Plan Rows": 1,
+              "Plan Width": 19,
+              "Actual Startup Time": 0.012,
+              "Actual Total Time": 0.012,
+              "Actual Rows": 0,
+              "Actual Loops": 1,
+              "Index Cond": "(((kind)::text = 'evidence'::text) AND ((scope_digest)::text = '4a7661a0eec347256c7bcbe76422b3a9a0a9fa1adedc10bca2b6b9531221265a'::text))",
+              "Rows Removed by Index Recheck": 0,
+              "Filter": "((receivers @> '[\"receiver\"]'::jsonb) AND ((subject_key)::text = '4469c7bd355c1fc7e67c78f0888f9f1cab65d69399dc262495e3e9fe87838ffd'::text) AND ((claim)::text = 'conserves-total'::text))",
+              "Rows Removed by Filter": 1,
+              "Shared Hit Blocks": 3,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 1,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.056,
+        "Triggers": [],
+        "Execution Time": 0.016
+      }
+    ],
+    [
+      {
+        "Plan": {
+          "Node Type": "Limit",
+          "Parallel Aware": false,
+          "Async Capable": false,
+          "Startup Cost": 0.28,
+          "Total Cost": 8.29,
+          "Plan Rows": 1,
+          "Plan Width": 19,
+          "Actual Startup Time": 0.007,
+          "Actual Total Time": 0.007,
+          "Actual Rows": 0,
+          "Actual Loops": 1,
+          "Shared Hit Blocks": 2,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0,
+          "Plans": [
+            {
+              "Node Type": "Index Scan",
+              "Parent Relationship": "Outer",
+              "Parallel Aware": false,
+              "Async Capable": false,
+              "Scan Direction": "Forward",
+              "Index Name": "ix_record_scope_history",
+              "Relation Name": "records",
+              "Alias": "records",
+              "Startup Cost": 0.28,
+              "Total Cost": 8.29,
+              "Plan Rows": 1,
+              "Plan Width": 19,
+              "Actual Startup Time": 0.007,
+              "Actual Total Time": 0.007,
+              "Actual Rows": 0,
+              "Actual Loops": 1,
+              "Index Cond": "((kind)::text = 'revocation'::text)",
+              "Rows Removed by Index Recheck": 0,
+              "Filter": "((subject_key)::text = '4469c7bd355c1fc7e67c78f0888f9f1cab65d69399dc262495e3e9fe87838ffd'::text)",
+              "Rows Removed by Filter": 0,
+              "Shared Hit Blocks": 2,
+              "Shared Read Blocks": 0,
+              "Shared Dirtied Blocks": 0,
+              "Shared Written Blocks": 0,
+              "Local Hit Blocks": 0,
+              "Local Read Blocks": 0,
+              "Local Dirtied Blocks": 0,
+              "Local Written Blocks": 0,
+              "Temp Read Blocks": 0,
+              "Temp Written Blocks": 0
+            }
+          ]
+        },
+        "Planning": {
+          "Shared Hit Blocks": 0,
+          "Shared Read Blocks": 0,
+          "Shared Dirtied Blocks": 0,
+          "Shared Written Blocks": 0,
+          "Local Hit Blocks": 0,
+          "Local Read Blocks": 0,
+          "Local Dirtied Blocks": 0,
+          "Local Written Blocks": 0,
+          "Temp Read Blocks": 0,
+          "Temp Written Blocks": 0
+        },
+        "Planning Time": 0.035,
+        "Triggers": [],
+        "Execution Time": 0.011
+      }
+    ]
+  ],
+  "harness_sha256": "998f70d25af6f0ad7c64fdcc5a71f3d3033b13bb5a5a81dd6e390f635235412d",
+  "conditions": {
+    "python": "3.12.10",
+    "os": "Windows-11-10.0.26200-SP0",
+    "cpu": "AMD64 Family 25 Model 117 Stepping 2, AuthenticAMD",
+    "logical_cpu_count": 16,
+    "postgresql": "PostgreSQL 16.15 (Ubuntu 16.15-0ubuntu0.24.04.1) on x86_64-pc-linux-gnu, compiled by gcc (Ubuntu 13.3.0-6ubuntu2~24.04.1) 13.3.0, 64-bit",
+    "opa": "Version: 1.21.0\nBuild Commit: dc6269f2c648bbbece4b76fa1fc3dbb7b61cc7b6-dirty\nBuild Timestamp: 2026-09-24T13:11:11Z\nBuild Hostname: \nGo Version: go1.27.1\nPlatform: windows/amd64\nRego Version: v1\nWebAssembly: available\n",
+    "target": "one unchanged verification deficit; one local registered goal",
+    "history": "synthetic signed Opportunity/Proposal/Event v3; not business success",
+    "timing": "one baseline then five sequential calls after load; tracing enabled",
+    "db_timing": "cursor execution only; excludes pool wait and result decoding",
+    "memory": "Python tracemalloc; excludes PostgreSQL/OPA/native heaps",
+    "unmeasured": [
+      "CPU_seconds",
+      "tokens",
+      "USD"
+    ],
+    "not_exercised": [
+      "LLM",
+      "network proposal collection",
+      "selection",
+      "execution"
+    ],
+    "no_latency_slo": true
+  }
+}
