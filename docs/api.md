@@ -33,7 +33,28 @@ cohort cutoff. Re-reading a page must replace its previous observations rather t
 adding them again. Reservations remain separate from measured costs; completion
 does not establish independent verification. Selected alternatives and estimates
 are retained, while unrecorded discovery, deduplication, deferral and total proposal
-attempts are explicitly unavailable. Full work-effect measurement remains incomplete.
+attempts are explicitly unavailable in this opportunity cohort. Event-period attempt
+counts come from `metrics_page`, rather than silently mixing the two cohorts.
+`execution_receipt` and `resource_observation` resolve the selected invocation's
+original signed local receipt. `resource_observations` labels those observations by
+work kind without converting allowance into measured consumption. Root elapsed time
+includes contained calls; retain it as an observation instead of adding children.
+For child, remote-owner and maintenance costs, complete the corresponding owner
+event pages. An unknown/missing receipt remains unavailable. Arbitrary builder output
+cannot establish `checked_outcome`; independent Evidence/current qualification and
+the application's held-out contract report remain separate.
+
+Event metrics distinguish completed qualified reuse receipts, their A2A remote-use
+subset, replication and import events. These overlapping observations are not
+four disjoint totals. Import does not prove local executable installation, which
+remains unavailable without application observations. Each formation's
+`execution_links` resolves its exact signed receipt references (at most 256 distinct
+references per page; reduce page size if exceeded). Missing references stay null.
+`use_to_formation_seconds` is a nonnegative occurrence-time difference for that
+link, not a global first-formation latency or causal improvement. References may
+lie outside the page period/prefix; their costs are context and are excluded from
+page totals. Signatures authenticate observations; they do not establish the
+formation's correctness, current admission or functional novelty.
 
 `Capability(schema_version="3", formation_inputs=(FormationInput(...), ...))`
 distinguishes materialized construction inputs from runtime `dependencies`. Each
@@ -120,7 +141,7 @@ goal inputs, policy and qualification reasons can create a new observation.
 
 After an installed builder publishes an actual candidate, the trusted host can call
 `opportunities.select_target(goal_id, expected_goal_digest, binding_id, candidate_ref)`.
-It requires an exact signed v2 capability matching the installed binding, original
+It requires an exact signed v2/v3 capability matching the installed binding, original
 issuer, logical subject ID and complete scope. Only the subject version/digest,
 binding digest and goal revision change; checker, arguments, permissions and
 allowlists remain fixed. Old proposals become inapplicable. Repeating selection of
@@ -188,8 +209,8 @@ An UNKNOWN execution is never automatically retried with a fresh ID. A crash
 after choice but before claim resumes the same choice, with current grant and
 observation checks. Selection overhead is recorded separately before execution.
 Migration `0010` adds only the local choice table and preserves all existing signed
-records, reservations and invocation states. The full adaptive bounded loop and
-the 0.3.0 release contract remain in development.
+records, reservations and invocation states. The finite loop is described below;
+the release state is recorded separately in [releasing](releasing.md).
 
 `await steps.run(proposal_callback, max_steps=16, max_candidates=8, seconds=120)`
 connects discovery to the same durable step, one operation at a time within this

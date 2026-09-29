@@ -11,6 +11,7 @@ from sqlalchemy import and_, func, or_, select
 from .models import Capability, Event, Evidence, UseRequest, now
 from .overlay import Overlay
 from .queries import RecordCursor, RecordQuery
+from .security import verify
 from .storage import Conflict, Store, projection_digest, records, subject_key
 
 
@@ -84,6 +85,10 @@ def metrics_page(
     events = [event for event in page.items if isinstance(event, Event)]
     owners = sorted({event.issuer for event in events})
     timeline = Counter((event.occurred_at.date().isoformat(), event.action) for event in events)
+    references = {
+        (ref.issuer, ref.id) for e in events if e.formation for ref in e.formation.receipts
+    }
+    receipts = _execution_observations(store, references)
     return {
         **metrics(events),
         "costs": metrics([event for event in events if event.issuer == store.owner])["costs"],
@@ -114,6 +119,28 @@ def metrics_page(
         "transport_observations": dict(
             Counter(event.execution.transport for event in events if event.execution)
         ),
+        "use_classifications": {
+            "completed_qualified_reuse_receipts": sum(
+                bool(
+                    e.execution
+                    and e.execution.state == "completed"
+                    and e.execution.purpose == "reuse"
+                )
+                for e in events
+            ),
+            "remote_service_use_subset": sum(
+                bool(
+                    e.execution
+                    and e.execution.state == "completed"
+                    and e.execution.purpose == "reuse"
+                    and e.execution.transport == "a2a"
+                )
+                for e in events
+            ),
+            "replication_events": sum(e.action == "replication" for e in events),
+            "import_events": sum(e.action == "import" for e in events),
+            "local_installation": "unavailable; an import/receipt is not proof of installed code",
+        },
         "scope_unobserved": sum(event.schema_version == "1" for event in events),
         "work_observations": [
             {
@@ -146,12 +173,68 @@ def metrics_page(
                 "event": event.id,
                 "subject": event.subject.model_dump(mode="json"),
                 "formation": event.formation.model_dump(mode="json"),
-                "verification_status": "signature verified; references not checked by this page",
+                "execution_links": [
+                    {
+                        "issuer": ref.issuer,
+                        "event": ref.id,
+                        "observation": receipts.get((ref.issuer, ref.id)),
+                        "use_to_formation_seconds": (
+                            event.occurred_at
+                            - datetime.fromisoformat(receipts[ref.issuer, ref.id]["occurred_at"])
+                        ).total_seconds()
+                        if (ref.issuer, ref.id) in receipts
+                        and datetime.fromisoformat(receipts[ref.issuer, ref.id]["occurred_at"])
+                        <= event.occurred_at
+                        else None,
+                    }
+                    for ref in event.formation.receipts
+                ],
+                "verification_status": (
+                    "authenticated receipt observations; not causal or business proof"
+                ),
             }
             for event in events
             if event.formation
         ],
     }
+
+
+def _execution_observations(
+    store: Store, references: set[tuple[str, str]]
+) -> dict[tuple[str, str], dict[str, Any]]:
+    """Exact receipt lookups, with a finite reference budget and original signatures.
+
+    Referenced observations may lie outside the page's period/prefix. They are
+    context, never additional events or charges in that page's totals.
+    """
+    if len(references) > 256:
+        raise ValueError("receipt reference budget exceeded; reduce the metric page size")
+    if not references:
+        return {}
+    with store.engine.connect() as conn:
+        rows = conn.execute(
+            select(records.c.envelope, records.c.received_at).where(
+                (records.c.kind == "event")
+                & or_(
+                    *[
+                        and_(records.c.issuer == issuer, records.c.record_id == identifier)
+                        for issuer, identifier in sorted(references)
+                    ]
+                )
+            )
+        ).all()
+    observations = {}
+    for row in rows:
+        event = verify(row.envelope, store.principals)
+        if isinstance(event, Event) and event.execution:
+            observations[event.issuer, event.id] = {
+                "subject": event.subject.model_dump(mode="json"),
+                "execution": event.execution.model_dump(mode="json"),
+                "occurred_at": event.occurred_at.isoformat(),
+                "received_at": row.received_at.isoformat(),
+                "resources": metrics([event]),
+            }
+    return observations
 
 
 async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...]) -> dict[str, Any]:
@@ -170,7 +253,7 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
         raise ValueError("duplicate metric target")
     started = now()
     policy = overlay.policy.digest
-    items = []
+    items: list[dict[str, Any]] = []
     async with asyncio.timeout(60):
         for request in requests:
             decision = await overlay.qualify(request)
@@ -441,7 +524,7 @@ def work_metrics_page(
     page = store.record_page(query, cursor=cursor, limit=limit, byte_limit=byte_limit)
     opportunities = [item for item in page.items if isinstance(item, Opportunity)]
     ids = [item.id for item in opportunities]
-    items = []
+    items: list[dict[str, Any]] = []
     totals: dict[tuple[str, str, str], Decimal] = defaultdict(Decimal)
     arithmetic = Context(prec=40)
     with store.engine.connect().execution_options(isolation_level="REPEATABLE READ") as conn:
@@ -522,8 +605,28 @@ def work_metrics_page(
                         if execution and state == "unknown"
                         else None,
                         "checked_outcome": None,
+                        "execution_receipt": {"issuer": store.owner, "id": execution["receipt_id"]}
+                        if execution and execution["receipt_id"]
+                        else None,
                     }
                 )
+    receipts = _execution_observations(
+        store, {(store.owner, e["receipt_id"]) for e in executions.values() if e["receipt_id"]}
+    )
+    resources = []
+    for item in items:
+        reference = item["execution_receipt"]
+        observation = receipts.get((reference["issuer"], reference["id"])) if reference else None
+        item["resource_observation"] = observation
+        if observation:
+            resources.append(
+                {
+                    "work_kind": item["work_kind"],
+                    "opportunity": item["opportunity"],
+                    "receipt": reference,
+                    "resources": observation["resources"],
+                }
+            )
     return {
         "receiver": store.owner,
         "query": query.model_dump(mode="json"),
@@ -542,6 +645,11 @@ def work_metrics_page(
             for (kind, unit, state), amount in sorted(totals.items())
         ],
         "allowance_basis": "contractual reservation amounts; not measured resource consumption",
+        "resource_observations": resources,
+        "resource_basis": (
+            "selected invocation receipt only; inclusive wall observations are not additive; "
+            "child/remote/maintenance costs require owner event pages"
+        ),
         "unavailable": [
             "discovery_attempts",
             "deduplicated_attempts",

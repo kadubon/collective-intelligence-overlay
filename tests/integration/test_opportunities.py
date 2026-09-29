@@ -777,6 +777,13 @@ async def test_work_metrics_page_tracks_durable_selection_without_inventing_pass
     detail = after["items"][0]
     assert detail["alternatives_at_selection"] == len(envelopes)
     assert detail["checked_outcome"] is None
+    assert detail["execution_receipt"]["issuer"] == "receiver"
+    resource = detail["resource_observation"]
+    assert resource["execution"]["state"] == expected
+    assert resource["resources"]["elapsed_observations"]
+    assert resource["resources"]["costs"] == []  # inclusive wall time is not additive
+    assert resource["resources"]["unavailable"][0]["unit"] == "USD"
+    assert after["resource_observations"][0]["work_kind"] == opportunity.work_kind
     assert (
         detail["selection"]["estimates"] == executed.selection.model_dump(mode="json")["estimates"]
     )

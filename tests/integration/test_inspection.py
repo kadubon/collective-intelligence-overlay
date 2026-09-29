@@ -12,6 +12,8 @@ from collective_intelligence_overlay.models import (
     Decision,
     Event,
     ExecutionReceipt,
+    FormationReceipt,
+    ReceiptRef,
     Revocation,
     UseRequest,
     Verdict,
@@ -125,6 +127,63 @@ def test_scoped_policy_task_time_queries_and_cursor_misuse(store, identities, re
         conn.execute(update(feed_state).values(generation="restored"))
     with pytest.raises(ValueError, match="restored"):
         store.record_page(query, cursor=page.next_cursor)
+
+
+def test_lineage_reference_context_does_not_duplicate_costs_or_claim_installation(
+    store, identities, records
+):
+    cap = records[0]
+    policy = digest(b"lineage-policy")
+    use = execution(cap, 25, policy)
+    use = use.model_copy(
+        update={"execution": use.execution.model_copy(update={"transport": "a2a"})}
+    )
+    store.put(identities["receiver"].sign(use))
+    formed = Event(
+        schema_version="2",
+        id="later-formation",
+        issuer="receiver",
+        subject=cap.subject,
+        action="formation",
+        task_id="formation",
+        attempt_id="formation",
+        correlation_id="formation",
+        formation=FormationReceipt(
+            receipts=(
+                ReceiptRef(issuer="receiver", id=use.id),
+                ReceiptRef(issuer="receiver", id="missing"),
+            ),
+            scope=cap.scope,
+            binding_digest=digest(b"formed-binding"),
+            policy_digest=policy,
+            relationship="observed-use",
+        ),
+        costs=(Cost(category="formation", status="unavailable", quantity=None, unit="USD"),),
+    )
+    store.put(identities["receiver"].sign(formed))
+    scoped = RecordQuery(
+        kinds=("event",),
+        issuer="receiver",
+        scope=cap.scope,
+        policy_digest=policy,
+        since=formed.occurred_at,
+        until=now() + timedelta(seconds=1),
+    )
+    report = metrics_page(store, scoped)
+    assert report["events"] == 1 and report["costs"] == []
+    links = report["lineage"][0]["execution_links"]
+    assert links[0]["observation"]["execution"]["transport"] == "a2a"
+    assert links[0]["use_to_formation_seconds"] >= 0
+    assert links[1]["observation"] is None and links[1]["use_to_formation_seconds"] is None
+    whole = metrics_page(store, scoped.model_copy(update={"since": use.occurred_at}))
+    assert whole["costs"][0]["quantity"] == "0.125"
+    assert whole["use_classifications"]["completed_qualified_reuse_receipts"] == 1
+    assert whole["use_classifications"]["remote_service_use_subset"] == 1
+    assert whole["use_classifications"]["local_installation"].startswith("unavailable")
+    with pytest.raises(ValueError, match="reference budget"):
+        from collective_intelligence_overlay.accounting import _execution_observations
+
+        _execution_observations(store, {("receiver", str(i)) for i in range(257)})
 
 
 async def test_historical_check_is_not_current_acceptance_and_receipt_latency(
