@@ -1,6 +1,6 @@
 # Evidence, admission and lifecycle
 
-## Formation inputs in capability v3 (0.3.0 development)
+## Formation inputs in capability v3 (0.3.0)
 
 Capability v3 adds bounded `formation_inputs`, each pinning a subject, issuer and
 binding digest. These are construction inputs whose output was materialized; they
@@ -97,7 +97,7 @@ Revocation is a retained tombstone. It does not undo past execution, physically 
 artifacts or unlearn model weights. Artifact copying, import, declared formation and
 scope qualification are separate classifications; a new hash does not prove a new function.
 
-In the 0.3.0 development path, persisted local binding v2 identifies both installed
+In 0.3.0, persisted local binding v2 identifies both installed
 code and a content-addressed reconstruction manifest. Equal callable source text
 with different calibration parameters gives different subject/binding identities.
 Existing evidence does not qualify that different identity. Reconstructing a saved

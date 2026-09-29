@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.0 (unreleased)
+## 0.3.0
 
 Work metrics resolve original signed invocation receipts and expose resources by
 selected work kind. Event pages distinguish qualified reuse, remote A2A use,
@@ -20,7 +20,8 @@ owner stores, setup/run timings, signed observations, allowance and negative/cen
 outcomes. Initial pilots show equal checked outcome counts and no allowance saving;
 the current protocol also includes a matched input-contract connection condition.
 Original estimates, reservations, owner costs and missing resources are retained.
-Release gates remain pending.
+Exact-commit release gates and actual-PyPI install/regressions passed;
+see `docs/releasing.md` for immutable artifact provenance.
 
 The external document application adds a fixed-order verified-reuse control. It
 shares builders, checkers and materialization with the adaptive path but does not
@@ -57,8 +58,8 @@ rejection versus UNKNOWN, and replay that preserves original evidence expiry.
 Protected checking allowance is retained across same-owner, same-unit child
 Executor calls and formation-session start reservations; independent checking can
 use that allowance after the formation context ends.
-Matched pilots and relationship semantics are implemented; final release validation is pending;
-see `docs/implementation-status.md` and `docs/validation.md`.
+Matched pilots and relationship semantics are implemented and release validation
+passed; see `docs/implementation-status.md` and `docs/validation.md`.
 
 ## 0.2.1
 

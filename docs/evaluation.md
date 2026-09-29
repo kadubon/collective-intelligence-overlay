@@ -1,6 +1,6 @@
 # Evaluation and metrics
 
-The unreleased `examples/adaptive_documents.py` application now has a three-process
+The 0.3.0 `examples/adaptive_documents.py` application now has a three-process
 integration path where the harness supplies checked initial primitives, then the
 receiver discovers deficits and selects authenticated alternatives itself. It
 materializes a report workflow from observed component use, checks it independently,

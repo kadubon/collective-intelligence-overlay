@@ -1,6 +1,28 @@
 # Validation status
 
-## 0.3.0 source candidate
+## 0.3.0 released artifacts
+
+The exact release commit `a2fc32b` passed [main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36637949588)
+and [tag CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36639581573); the existing OIDC workflow published those tested files.
+Tag CI: 189 passed in 427.35 seconds; clean agents 188 passed in 299.24 seconds; separate
+model adapter 1 passed in 1.10 seconds. Windows source/installed unit tests and the
+mock provider, core import/CLI/resources, sdist rebuild/reinstall, lint/type/docs,
+security/license/SBOM/build gates passed. No mandatory-service skips or paid calls.
+Linux used CPython 3.12.3 and Windows used 3.12.10. Source coverage was 85%;
+subprocess coverage is not aggregated.
+The actual-index environment's 72 distributions also passed the existing license
+allowlist and a known-vulnerability audit with no project-version index skip.
+
+An actual-PyPI, cache-disabled fresh Python 3.12.10 installation outside checkout
+passed **89 tests in 532.69 seconds**, zero failures/errors/skips, including all eight
+three-process E2E cases and migration/restore/UNKNOWN/allowance regressions. Installed
+MAF 1.19.0, A2A 1.1.5 and MCP 2.2.0 used their public APIs with real
+PostgreSQL 16.15/OPA 1.21.0.
+Actual downloaded wheel/sdist SHA-256 match tag CI. See [release facts](releasing.md)
+and its public sanitized install report. These checks verify the declared finite
+integration; they do not establish adaptive benefit, external independence or audit.
+
+## 0.3.0 source checkpoints
 
 The release-wide source suite for the code at `e94ce84` passed **189 tests in
 910.96 seconds, zero skips**, on Windows CPython 3.12.10 with real PostgreSQL
@@ -16,8 +38,8 @@ zero skips, outside the checkout; core import/CLI, packaged resources and sdist
 rebuild/reinstall also passed. Those artifacts contain the code at `e94ce84`.
 The final lineage delay guard retains UNKNOWN/probe/foreign-owner observations but
 does not assign them completed-use delays; four focused real-service tests passed
-in 14.30 seconds after that change. The final exact-commit CI and actual-index
-validation remain separate gates.
+in 14.30 seconds after that change. The exact-commit CI and actual-index
+validation subsequently passed as recorded above.
 Historical checkpoints below apply to their source and are not substitutes for
 the final installed-artifact/release checks.
 
@@ -25,8 +47,8 @@ the final installed-artifact/release checks.
 passed Linux source 189 tests (399.08 seconds), clean agents 188 tests (270.68
 seconds), model one test (0.94 seconds), all audit/license/build/docs gates and
 Windows source/installed unit 30/30 tests plus model/package checks. These are
-pre-publication observations, not evidence that 0.3.0 is on PyPI. The final guard
-must also pass the exact release CI's source and clean-artifact gates.
+pre-publication checkpoints. The final guard subsequently passed the exact
+release CI's source and clean-artifact gates and actual-index regression above.
 
 | Completed observation | Result and scope |
 | --- | --- |

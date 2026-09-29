@@ -1,5 +1,44 @@
 # Release procedure and current state
 
+## 0.3.0 published and verified on 2026-09-30
+
+- Release commit `a2fc32b5511b3c3cec4f2e15fcd6375eb9540c67`, annotated tag `v0.3.0`.
+- [Main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36637949588)
+  passed before tagging: 189 Linux source tests (381.67 seconds), clean agents
+  188 tests (242.96 seconds), one model adapter test (0.82 seconds), and Windows
+  source/installed unit 30/30 plus model checks. No mandatory-service skips.
+- [Tag CI and official PyPA OIDC publication](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36639581573) passed on the same commit:
+  Linux source: 189 passed in 427.35 seconds; clean agents: 188 in 299.24 seconds;
+  model adapter: one in 1.10 seconds. Windows source: 30 in 5.36 seconds; clean
+  unit: 30 in 3.58 seconds; model adapter: one in 2.61 seconds.
+  Linux used CPython 3.12.3; Windows used 3.12.10.
+  Lint/format/type, real PostgreSQL/OPA/MAF/A2A/MCP, docs, audit, 128-distribution
+  license review, CycloneDX, wheel/sdist build, strict twine and clean package gates
+  passed. Core import/CLI/resources and sdist rebuild/reinstall passed outside checkout.
+  Required tests had zero failures and zero skips; the provider test used mock HTTP.
+- [PyPI 0.3.0](https://pypi.org/project/collective-intelligence-overlay/0.3.0/) wheel/sdist match the exact tag CI files, by both index
+  metadata and actual downloaded SHA-256. The publish job transferred tested artifacts
+  without rebuilding them; no API token, overwrite or skip-existing was used.
+- A cache-disabled actual-index install in a fresh Python 3.12.10 environment
+  outside checkout passed distribution/import/path/CLI and **89 tests in 532.69 seconds**,
+  zero failures/errors/skips. This includes all eight three-process E2E cases,
+  opportunities, peer alternatives, checking/lineage/metrics, invocation reservation,
+  real migration/backup/restore and saved experiment consistency.
+- The actual-index environment's 72 distributions, including published 0.3.0,
+  passed known-vulnerability audit without an index skip and the existing license
+  allowlist. Public audit and license reports accompany the release evidence.
+- [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.0) attaches those distributions, CI SBOM/licenses,
+  sanitized post-install verification and the six-arm raw experiment archive.
+  No publication or authentication blocker remains. Stop all old workers and back up
+  database, keys and saved artifacts before migrations 0009–0012; rolling old-peer
+  interoperability is untested. Local signing identities do not establish independent
+  organizations. Paid inference, external audit and long-term operation are untested.
+
+```text
+c482e567f44c4336014885b58fc625654345fffd5753225285aca70369934497  collective_intelligence_overlay-0.3.0-py3-none-any.whl
+9f83afad28d0ab18a82d34469dd7d400c8f0f761f0f265e5d5f40eb7532eea11  collective_intelligence_overlay-0.3.0.tar.gz
+```
+
 ## 0.2.1 published and verified on 2026-09-28
 
 - Release commit `3026c39b7cb3a4808e4b1eaf45332b1b81f4df8a`, annotated tag `v0.2.1`.
@@ -24,8 +63,8 @@
 988c71482d60430e5cc57bd48eba0f269528d3a1ba2a41b473d1e23fc4a62750  collective_intelligence_overlay-0.2.1.tar.gz
 ```
 
-0.3.0 remains separate work in progress and is not published. The existing 0.2.0
-publication record below was already accurate at the start of this two-stage work.
+The 0.2.1 artifacts remain unchanged. The 0.2.0 publication record below was
+already accurate at the start of this two-stage work.
 
 ## 0.2.0 published and verified on 2026-09-28
 
@@ -129,11 +168,11 @@ stop that operation and record the exact error here. Never rename the project,
 disable protections, request an API token or overwrite an existing distribution.
 
 After verifying publication, activate a fresh Python 3.12 environment and substitute
-the version just published (for example the already verified 0.2.1). The historical
+the version just published (for example the verified 0.3.0). The historical
 0.1.0 hashes above are not the version selector for a future release:
 
 ```sh
-uv pip install --index-url https://pypi.org/simple 'collective-intelligence-overlay[agents]==0.2.1'
+uv pip install --index-url https://pypi.org/simple 'collective-intelligence-overlay[agents]==0.3.0'
 ```
 
 The optional `model` extra supplies the provider adapter; actual paid calls remain

@@ -1,6 +1,6 @@
 # Python API and CLI
 
-## 0.3.0 development APIs (unreleased)
+## 0.3.0 APIs
 
 Discovery and fresh selection attempts now emit `Event(schema_version="3",
 work=WorkObservation(...))` with owner, scope, policy, goal and stage/result. Existing
@@ -381,7 +381,7 @@ actual arguments and environment. Parent semantic applicability is not inherited
 Nested execution `wall_seconds` observations are reported separately rather than
 summed as resource costs because their intervals may overlap.
 
-0.2.0 development adds receiver-persisted paged synchronization:
+0.2.0 adds receiver-persisted paged synchronization:
 
 ```sh
 collective-intelligence-overlay sync --config receiver.json --peer producer --page-size 32 --max-pages 16

@@ -23,7 +23,7 @@ extra for MAF/A2A/MCP, and additionally `model` for the optional provider exampl
 Core imports do not load these SDKs.
 
 For finite owner goals and installed builders, use the
-[document registration and host loop](quickstart.md#register-goals-and-run-finite-formation-030-candidate).
+[document registration and host loop](quickstart.md#register-goals-and-run-finite-formation-030).
 `examples/adaptive_documents.py` is outside the package and registers goals,
 checker bindings, public proposal contracts and parameterized factories through
 public APIs. Two authenticated A2A proposers return retained alternatives; the

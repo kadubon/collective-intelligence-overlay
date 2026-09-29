@@ -64,7 +64,7 @@ test driver, not an autonomous global planner. [Configuration](configuration.md)
 describes bounded controls and ownership. [Troubleshooting](troubleshooting.md)
 explains common failures.
 
-## Register goals and run finite formation (0.3.0 candidate)
+## Register goals and run finite formation (0.3.0)
 
 With the same services and a fresh directory, the complete external application
 can be exercised without model credentials:

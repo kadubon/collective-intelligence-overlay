@@ -16,13 +16,13 @@
 旧履歴は保持します。[移行・復旧](docs/deployment.md)と[公開状態](docs/releasing.md)を
 確認してください。
 
-**0.3.0開発候補**では、ownerのgoal、署名付きの機会・peerの提案、局所的な
+**0.3.0**では、ownerのgoal、署名付きの機会・peerの提案、局所的な
 仕事選択を追加しています。hostが用途・導入済みbuilder・独立検証済みcheckerを
 登録すると、観測に応じて形成・接続・検証を既存Executor上で有限に進めます。
 証拠不足、checker不在、予算不足、実行結果不明は停止理由として保持します。
-この追加機能はソースcheckoutにあり、公開済み0.2.1のwheelには含まれません。
+この追加機能を含む0.3.0のwheelとsdistを公開し、実PyPIからの導入も検証済みです。
 [API](docs/api.md)、[外部アプリの登録例](examples/adaptive_documents.py)、
-[残る検証項目](docs/implementation-status.md)を参照してください。
+[実装と検証範囲](docs/implementation-status.md)を参照してください。
 
 署名付きの能力・証拠を保存し、受け手・用途・環境版・権限・期限に基づいてOPAで
 再利用を判定します。UNKNOWNや異論は消さず、既知の依存失効を実行前に検査します。
@@ -42,12 +42,12 @@ C3を合成・検証し、その出力からC4を形成して、再起動と元�
 
 ## 最短の確認
 
-[PyPI 0.2.1](https://pypi.org/project/collective-intelligence-overlay/0.2.1/)を公開済みです。
+[PyPI 0.3.0](https://pypi.org/project/collective-intelligence-overlay/0.3.0/)を公開済みです。
 有効化したPython 3.12環境へ次のコマンドで導入できます。
 配布物のハッシュ一致と公開後E2Eの結果は上記のrelease記録に記載しています。
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.2.1'
+uv pip install 'collective-intelligence-overlay[agents]==0.3.0'
 collective-intelligence-overlay --version
 ```
 
@@ -70,7 +70,7 @@ uv run collective-intelligence-overlay demo --directory .local/demo
 期待する結果は、受入`ACCEPT`、評価用CSVの合計`117.00`、環境版変更後`REQUALIFY`、
 依存失効後`REJECT`です。実行後もDBとartifactを保持します。
 
-開発候補の文書処理で静的方式と適応方式を比較する場合は、同じサービス設定と
+文書処理で静的方式と適応方式を比較する場合は、同じサービス設定と
 新しい出力先を使います。
 
 ```sh

@@ -1,6 +1,6 @@
 # Compatibility and licensing
 
-The 0.3.0 development path adds Capability schema 3 and its DSSE media type
+Version 0.3.0 adds Capability schema 3 and its DSSE media type
 `application/vnd.collective-intelligence-overlay.record.v3+json` for explicit
 formation inputs. Event schema 3 uses the same media type for local work
 observations, with no execution/formation receipt or truth verdict. Existing record
@@ -53,7 +53,10 @@ and MCP 2.2.0 remained as above. Its 188 agents tests plus separate provider tes
 passed; the fresh agents environment's 72 distributions passed the existing license
 allowlist and known-vulnerability audit. This is a tested resolution, not blanket
 support for every version in the dependency ranges. The project version itself
-could not be vulnerability-index audited before publication.
+could not be vulnerability-index audited before publication. The published
+0.3.0 actual-index environment subsequently passed the existing license
+allowlist and known-vulnerability audit for all 72 distributions, including
+the project, with no index skip. Public reports accompany the GitHub Release.
 The standard non-overlay A2A adapter is tested against a separate official-SDK
 HTTP server with an immediate JSON Message contract. Tests include card pins,
 destination substitution, required extensions, unexpected Task/text responses,

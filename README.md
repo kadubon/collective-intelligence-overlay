@@ -18,15 +18,15 @@ cancellation only when the database proves no dispatch and fences further dispat
 Inspection costs remain recorded; uncertain effects and old reservations stay held.
 See [upgrade/recovery](docs/deployment.md) and [release state](docs/releasing.md).
 
-The **0.3.0 development candidate** adds bounded owner goals, signed opportunities,
+Version **0.3.0** adds bounded owner goals, signed opportunities,
 peer proposals and local work selection. The host registers the intended use,
 installed builders and an independently qualified checker; observations then guide
 finite formation, connection or verification work through the existing Executor.
 Insufficient evidence, unavailable checkers, allowance shortage and uncertain
-execution remain explicit stopping conditions. These additions are in the source
-checkout and are not part of the published 0.2.1 wheel. See the [API](docs/api.md),
+execution remain explicit stopping conditions. The tested release is available on
+[PyPI](https://pypi.org/project/collective-intelligence-overlay/0.3.0/). See the [API](docs/api.md),
 [external registration example](examples/adaptive_documents.py) and
-[development gates](docs/implementation-status.md).
+[implementation and validation](docs/implementation-status.md).
 
 ## What works
 
@@ -77,7 +77,7 @@ Expected fields: `processes: 3`, `admission: ACCEPT`, report total `117.00`,
 Timings vary. The command preserves owner-local artifacts and databases and stops
 its child processes. Use a new output directory for another run.
 
-For the candidate's isolated fixed-versus-adaptive document comparison, use the
+For the isolated fixed-versus-adaptive document comparison, use the
 same service configuration and a fresh directory:
 
 ```sh
@@ -91,11 +91,11 @@ stopped before those tasks. Adaptation showed no outcome or allowance advantage
 and had higher elapsed observations in that single run. [Raw results and limits](docs/evaluation.md)
 distinguish working integration from demonstrated benefit.
 
-[Version 0.2.1 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.2.1/).
+[Version 0.3.0 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.3.0/).
 To install into an activated Python 3.12 environment:
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.2.1'
+uv pip install 'collective-intelligence-overlay[agents]==0.3.0'
 collective-intelligence-overlay --version
 ```
 

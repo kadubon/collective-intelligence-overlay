@@ -70,7 +70,7 @@ rewriting signed records, leases, results or balances. Existing rows are marked
 refunded. Reconcile them using external evidence. Do not run old workers against
 the upgraded database; rolling-upgrade safety has not been established.
 
-The 0.3.0 candidate follows migration 0009 with 0010 (durable local work
+Version 0.3.0 follows migration 0009 with 0010 (durable local work
 selections), 0011 (owner/state invocation index), and 0012 (owner/creation selection
 index). These changes preserve existing invocation dispositions, lease fences,
 results, balances and original signed records. Stop all old workers, retain keys

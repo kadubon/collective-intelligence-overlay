@@ -2,15 +2,14 @@
 
 ## Two-stage delivery
 
-Stage A, 0.2.1, is published and verified at `3026c39`. Stage B, 0.3.0, is a
-source candidate: implementation, 189-test zero-skip source regression and local
-mechanism/experiment/audit checks passed. Candidate clean artifacts and CI passed;
-the last lineage delay guard has focused tests, and its exact release CI plus
-publication/actual-index validation remain gates.
-See [validation](validation.md) and [actual release state](releasing.md). The full
-A1–A4, B1–B12 and C1–C5 specification remains the completion criterion.
+Stage A, 0.2.1, is published and verified at `3026c39`. Stage B, 0.3.0, is
+published and verified at `a2fc32b`: exact-commit source and clean-artifact CI,
+OIDC publication and an actual-PyPI fresh installation (89 tests, zero
+failures/errors/skips) passed. Both releases retain their own immutable artifacts.
+See [validation](validation.md) and [actual release state](releasing.md). The matrix
+below maps the completed A1–A4, B1–B12 and C1–C5 requirements and their limits.
 
-| Requirement | Implementation and evidence | Boundary / remaining gate |
+| Requirement | Implementation and evidence | Validation boundary |
 | --- | --- | --- |
 | A1–A3 reservation safety | invocations/storage; real 0.2.0 reproductions, `test_invocations.py`, `test_concurrency.py`, staged migration | Proven undispatched work refunded once after fencing; uncertain effects retained |
 | A4 patch release | 0.2.1 exact CI artifacts, OIDC, actual-PyPI 34-test regression | Complete; tag/artifacts unchanged |
@@ -23,21 +22,21 @@ A1–A4, B1–B12 and C1–C5 specification remains the completion criterion.
 | B8 checking and relationship roles | Independently calibrated checker, v3 formation inputs, runtime dependencies; `test_lineage.py`, document E2Es | Unchecked checker cannot grant PASS; source problems conservatively require requalification |
 | B9 measurements | Existing owner event pages, work receipt resources, capability ages/checks, exact lineage links and isolated business reports | Missing CPU/tokens/currency remain unavailable; inclusive elapsed observations are not summed |
 | B10 matched experiments | Fixed/adaptive normal, checking-constrained and connection arms; public protocol/source/raw archives, `test_document_experiment.py` | Equal checked outcomes and allowance; higher adaptive elapsed observations in one pilot, no superiority claim |
-| B11 integration/failures | 189-test source regression plus named schema, grant, concurrency, restart, checker, withdrawal, cost/isolation cases | Clean-artifact suite must pass without service skips |
+| B11 integration/failures | 189-test source regression plus named schema, grant, concurrency, restart, checker, withdrawal, cost/isolation cases | Source and clean-artifact suites passed without service skips |
 | B12 bounded scale/security | Existing indexed snapshots/feed and new signed-work profiles at 1k/10k/100k; HTTP limits/redaction tests | Saved stress reports have completed assertions; terminal stress exit status not retained; no SLO |
 | C1 compatibility/recovery | Original 0.1/0.2/0.2.1 fixtures, migrations 0009–0012, actual dump/restore tests | Stop old workers; no rolling interoperability claim |
-| C2 docs/skill | README EN/JA and canonical API/semantics/deployment/evaluation/skill | Current source candidate; publication facts added only after verification |
-| C3 artifacts/dependencies | Frozen uv resolution, lint/type/docs/skill, build/twine, audit/license/SBOM and candidate clean artifacts passed | Final guard requires exact release CI artifact regression |
-| C4 two-stage publication | Existing workflow.yml / pypi OIDC with tested-artifact transfer | 0.2.1 complete; 0.3.0 CI/tag/PyPI/post-install pending |
-| C5 completion report | Separate version evidence and explicit limitations | Goal remains open until all release gates and actual-index checks complete |
+| C2 docs/skill | README EN/JA and canonical API/semantics/deployment/evaluation/skill | Published; main documentation records verified release facts |
+| C3 artifacts/dependencies | Frozen uv resolution, lint/type/docs/skill, build/twine, audit/license/SBOM and clean artifacts passed | Exact final guard source, clean artifacts and actual-index regressions passed |
+| C4 two-stage publication | Existing workflow.yml / pypi OIDC with tested-artifact transfer | Both versions complete: exact CI/tag/PyPI/post-install and GitHub Release |
+| C5 completion report | Separate version evidence and explicit limitations | Release gates and actual-index checks complete; documented empirical limits remain |
 
 Test filenames refer to [integration tests](../tests/integration) and
 [E2E tests](../tests/e2e); records, application sources and exact measurement limits
 are linked from their canonical docs. Chronological intermediate checkpoints are
 preserved in Git history, rather than treated as current missing implementations.
 
-The B11 adverse-case audit uses these existing behavioral tests; release approval
-also requires their current-source and installed-artifact runs:
+The B11 adverse-case audit uses these behavioral tests, included in successful
+current-source and installed-artifact runs:
 
 | B11 case | Test evidence |
 | --- | --- |
