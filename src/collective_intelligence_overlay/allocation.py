@@ -10,6 +10,7 @@ from jsonschema import ValidationError as SchemaError  # type: ignore[import-unt
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field
 
 from .bindings import ExecutionContext, fingerprint
+from .blocking import run_blocking
 from .models import (
     BindingRef,
     Cost,
@@ -121,7 +122,7 @@ async def allocate(
                         ),
                     )
                 )
-        await asyncio.shield(asyncio.to_thread(_save_events, host, events))
+        await asyncio.shield(run_blocking(_save_events, host, events))
 
 
 def _save_events(host: Opportunities, events: list[Event]) -> None:
@@ -152,8 +153,8 @@ async def _allocate(
     priority_since = None
     store = host.registry.overlay.store
     for observation in observations:
-        ref = await asyncio.to_thread(store.reference, "opportunity", store.owner, observation.id)
-        actual = await asyncio.to_thread(store.resolve_reference, ref)
+        ref = await run_blocking(store.reference, "opportunity", store.owner, observation.id)
+        actual = await run_blocking(store.resolve_reference, ref)
         if actual != observation:
             raise ValueError("allocation observation differs from its signed record")
         refs.append(ref)
@@ -174,7 +175,7 @@ async def _allocate(
                 continue
             decision = await host.registry.overlay.qualify(prepared.request)
             check_decisions.append(
-                await asyncio.to_thread(store.reference, "decision", store.owner, decision.id)
+                await run_blocking(store.reference, "decision", store.owner, decision.id)
             )
             if decision.outcome == Outcome.ACCEPT:
                 deferred.pop(observation.id, None)

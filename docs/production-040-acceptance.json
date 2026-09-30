@@ -29,40 +29,41 @@
     {
       "id": "P03",
       "requirement": "Thin host composes existing Registry/Executor/Overlay/Store/Steps; no replacement runtime, budget or protocol",
-      "implementation": [],
-      "test": "Public factory registration and arbitrary application contracts",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/application.py"
       ],
-      "status": "pending"
+      "test": "Public factory registration and arbitrary application contracts",
+      "observed": "Installed factory connects existing Registry/Executor; stable probe result and generated status survive restart",
+      "remaining": [
+        "full arbitrary goal/builder/checker path and 3-peer loop"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P04",
       "requirement": "Installed core/agents/model onboarding, secrets/public metadata, no overwrite, explicit OPA and actual interpreter selection",
-      "implementation": [],
-      "test": "Clean installed CLI setup and packaged starter outside checkout on all native profiles",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests",
-        "docs"
+      "implementation": [
+        "src/collective_intelligence_overlay/setup.py"
       ],
-      "status": "pending"
+      "test": "Clean installed CLI setup and packaged starter outside checkout on all native profiles",
+      "observed": "Separate secret/public files, relative paths, no overwrite and inert packaged resources passed local focused tests",
+      "remaining": [
+        "all native clean-wheel commands, actual child interpreters and OS permissions"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P05",
       "requirement": "Bootstrap DDL role separated from restricted per-owner runtime; no developer superuser requirement",
-      "implementation": [],
-      "test": "Runtime DML succeeds; DDL/foreign-owner boundary denied; backup role explicit",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "real PostgreSQL tests",
-        "docs"
+      "implementation": [
+        "src/collective_intelligence_overlay/setup.py"
       ],
-      "status": "pending"
+      "test": "Runtime DML succeeds; DDL/foreign-owner boundary denied; backup role explicit",
+      "observed": "Actual dedicated runtime role: DML/production readiness passed; DDL and Alembic version updates denied",
+      "remaining": [
+        "cross-owner denial, upgrade/backup-role and all-native validation"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P06",
@@ -105,26 +106,28 @@
     {
       "id": "P09",
       "requirement": "Starting/ready/degraded/draining/stopped; real dependency readiness distinct from business UNKNOWN",
-      "implementation": [],
-      "test": "DB/schema/OPA/key/config failures and recovery; authorized health privacy",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "fault tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/operations.py"
       ],
-      "status": "pending"
+      "test": "DB/schema/OPA/key/config failures and recovery; authorized health privacy",
+      "observed": "Real PostgreSQL schema/role and OPA readiness; DB lock loss stays degraded",
+      "remaining": [
+        "policy/key faults, native service lifecycle and full operation-state acceptance"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P10",
       "requirement": "Drain closes new effects while query/revoke/cleanup work; bounded tracked physical tasks, DB commits and shutdown",
-      "implementation": [],
-      "test": "Delayed DB commit, owner kill/restart and drain new call; no false stopped/completed claim",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "fault tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/blocking.py"
       ],
-      "status": "pending"
+      "test": "Delayed DB commit, owner kill/restart and drain new call; no false stopped/completed claim",
+      "observed": "Cancelled await retains physical work and capacity; shutdown stays draining/UNKNOWN until work returns",
+      "remaining": [
+        "bounded daemon exit, remaining children/commit/fault cases and all-native checks"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P11",
@@ -166,14 +169,15 @@
     {
       "id": "P14",
       "requirement": "Duplicate owner boot denied; coherent DB/artifacts/config/key/goals/version/feed backup and standard restore",
-      "implementation": [],
-      "test": "Two processes; interrupted pg_dump/snapshot; integrity and owned-resource handling",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "real backup tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/operations.py"
       ],
-      "status": "pending"
+      "test": "Two processes; interrupted pg_dump/snapshot; integrity and owned-resource handling",
+      "observed": "Second actual Python process cannot start for the same DB/owner",
+      "remaining": [
+        "coherent backup, interruption, restore and post-backup effects"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P15",
@@ -216,15 +220,15 @@
     {
       "id": "P18",
       "requirement": "Official MCP auth/client injection without token passthrough or credential manifests",
-      "implementation": [],
-      "test": "Real authenticated MCP through injected public client; no upstream identity inheritance",
-      "observed": null,
-      "remaining": [
-        "primary API review",
-        "implementation",
-        "tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/adapters/mcp.py"
       ],
-      "status": "pending"
+      "test": "Real authenticated MCP through injected public client; no upstream identity inheritance",
+      "observed": "One real official MCP token-verifier server and authenticated injected-client test passed; default client denied",
+      "remaining": [
+        "TLS/installed profile, documentation and optional auth integration limits"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P19",
@@ -280,14 +284,15 @@
     {
       "id": "P23",
       "requirement": "All old safety regressions plus required real-service faults and DB clock checks",
-      "implementation": [],
-      "test": "Profile fault_protocol and all existing 0.3.0-0.3.2 tests; zero mandatory skips",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "native short production gates"
+      "implementation": [
+        "src/collective_intelligence_overlay/storage.py"
       ],
-      "status": "pending"
+      "test": "Profile fault_protocol and all existing 0.3.0-0.3.2 tests; zero mandatory skips",
+      "observed": "DB-clock lease creation/reclaim/finish passed with Python clock offsets of +/-30 days; focused cleanup/concurrency 25 passed",
+      "remaining": [
+        "all old regressions, required fault protocol and native matrix"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P24",

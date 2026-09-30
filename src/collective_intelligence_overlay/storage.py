@@ -6,7 +6,7 @@ import base64
 import hashlib
 import json
 from dataclasses import dataclass
-from datetime import timedelta
+from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import Any
 
@@ -795,7 +795,10 @@ class Store:
             .mappings()
             .one_or_none()
         )
-        if old and (not reclaim_expired or old["state"] != "active" or old["expires_at"] > now()):
+        observed: datetime = conn.execute(select(func.clock_timestamp())).scalar_one()
+        if old and (
+            not reclaim_expired or old["state"] != "active" or old["expires_at"] > observed
+        ):
             raise Conflict("task already owned or terminal")
         if old and old["unit"] != unit:
             raise Conflict("lease unit cannot change")
@@ -806,7 +809,7 @@ class Store:
         values = dict(
             worker=worker,
             fence=fence,
-            expires_at=now() + timedelta(seconds=seconds),
+            expires_at=observed + timedelta(seconds=seconds),
             state="active",
             reservation=reservation,
             unit=unit,
@@ -829,7 +832,7 @@ class Store:
                     & (leases.c.worker == worker)
                     & (leases.c.fence == fence)
                     & (leases.c.state == "active")
-                    & (leases.c.expires_at > now())
+                    & (leases.c.expires_at > func.clock_timestamp())
                 )
                 .values(state="cancelled" if cancelled else "complete")
             )

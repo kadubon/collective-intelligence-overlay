@@ -31,6 +31,18 @@ def main() -> int:
     binding_check.add_argument("--manifest", type=Path, required=True)
     opa_install = commands.add_parser("opa-install", help="explicitly install reviewed native OPA")
     opa_install.add_argument("--target", type=Path, required=True)
+    setup = commands.add_parser("setup", help="create a production owner home; no DB or download")
+    setup.add_argument("--directory", type=Path, required=True)
+    setup.add_argument("--owner", required=True)
+    setup.add_argument("--url", required=True)
+    setup.add_argument("--database-url-env", default="CIO_RUNTIME_DATABASE_URL")
+    setup.add_argument("--opa", required=True)
+    setup.add_argument("--application")
+    setup.add_argument("--listen-port", type=int, default=8000)
+    starter_cmd = commands.add_parser(
+        "starter", help="generate installed application and TLS assets"
+    )
+    starter_cmd.add_argument("--directory", type=Path, required=True)
     for name in (
         "check-config",
         "migrate",
@@ -45,9 +57,31 @@ def main() -> int:
         "cancel-invocation",
         "invocation-cleanup",
         "reobserve",
+        "status",
+        "drain",
+        "resume",
+        "goals",
+        "opportunities",
+        "step",
+        "run",
+        "database-bootstrap",
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
+        if name == "database-bootstrap":
+            cmd.add_argument("--database-url-env", default="CIO_BOOTSTRAP_DATABASE_URL")
+            cmd.add_argument("--allowance-work", required=True)
+        if name in {"status", "drain", "resume", "goals", "opportunities", "step", "run"}:
+            cmd.add_argument("--peer", help="configured destination; defaults to the owner")
+        if name in {"opportunities", "run"}:
+            cmd.add_argument("--max-candidates", type=int, default=8)
+        if name == "opportunities":
+            cmd.add_argument("--start", type=int, default=0)
+        if name == "step":
+            cmd.add_argument("--opportunity-id", required=True)
+        if name == "run":
+            cmd.add_argument("--max-steps", type=int, default=20)
+            cmd.add_argument("--seconds", type=int, default=120)
         if name == "invocation-cleanup":
             cmd.add_argument("--limit", type=int, default=32)
             cmd.add_argument("--seconds", type=int, default=5)
@@ -76,10 +110,16 @@ def main() -> int:
                 "--requests-file", type=Path, help="evaluate up to 32 explicit UseRequests"
             )
         if name == "peer":
+            cmd.add_argument("--application", help="explicit installed module:factory")
             cmd.add_argument(
                 "--reference",
                 action="store_true",
                 help="enable the bundled compatibility reference application",
+            )
+        if name == "migrate":
+            cmd.add_argument(
+                "--database-url-env",
+                help="separate operator bootstrap DSN; not runtime credentials",
             )
         if name == "inspect":
             cmd.add_argument(
@@ -118,6 +158,31 @@ def main() -> int:
                 "binding": binding.model_dump(mode="json"),
                 "registered": False,
             }
+        elif args.command == "setup":
+            from .setup import initialize as initialize_owner
+
+            database_url = os.environ.get(args.database_url_env)
+            if not database_url:
+                raise ValueError("runtime database URL environment variable is required")
+            result = {
+                "config": str(
+                    initialize_owner(
+                        args.directory,
+                        owner=args.owner,
+                        url=args.url,
+                        database_url=database_url,
+                        opa=args.opa,
+                        application=args.application,
+                        listen_port=args.listen_port,
+                    )
+                ),
+                "database_created": False,
+                "ready": False,
+            }
+        elif args.command == "starter":
+            from .setup import starter
+
+            result = starter(args.directory)
         elif args.command == "demo":
             from .demo import initialize, run_demo
 
@@ -132,8 +197,29 @@ def main() -> int:
             identity, overlay = config.runtime()
             if args.command == "check-config":
                 result = {"valid": True, "owner": config.owner}
+            elif args.command == "database-bootstrap":
+                from decimal import Decimal
+
+                from .setup import bootstrap_database
+
+                operator_url = os.environ.get(args.database_url_env)
+                if not operator_url:
+                    raise ValueError("operator bootstrap URL environment variable is required")
+                result = bootstrap_database(config, operator_url, Decimal(args.allowance_work))
             elif args.command == "migrate":
-                migrate(overlay.store.engine)
+                if args.database_url_env:
+                    from .storage import Store
+
+                    bootstrap_url = os.environ.get(args.database_url_env)
+                    if not bootstrap_url:
+                        raise ValueError("bootstrap database URL environment variable is required")
+                    bootstrap = Store(bootstrap_url, config.owner, overlay.store.principals)
+                    try:
+                        migrate(bootstrap.engine)
+                    finally:
+                        bootstrap.close()
+                else:
+                    migrate(overlay.store.engine)
                 result = {"migration": "head"}
             elif args.command == "restore-state":
                 result = {
@@ -165,6 +251,25 @@ def main() -> int:
                         new_attempt=args.new_attempt,
                     )
                 ).model_dump(mode="json")
+            elif args.command in {
+                "status",
+                "drain",
+                "resume",
+                "goals",
+                "opportunities",
+                "step",
+                "run",
+            }:
+                from .adapters.a2a import send
+
+                operation = {"operation": args.command}
+                for name in ("max_candidates", "start", "opportunity_id", "max_steps", "seconds"):
+                    if hasattr(args, name):
+                        operation[name] = getattr(args, name)
+                result = asyncio.run(send(config, identity, args.peer or config.owner, operation))
+                if result.get("error"):
+                    print(json.dumps(result))
+                    return 2
             elif args.command in {"invoke", "invocation", "cancel-invocation"}:
                 from .adapters.a2a import send
 
@@ -209,26 +314,44 @@ def main() -> int:
                 from .adapters.a2a import application
                 from .peer import PeerService
 
-                service = PeerService(config)
+                service: PeerService
+                if args.reference and (args.application or config.application):
+                    raise ValueError("reference and explicit application modes cannot be combined")
+                if args.application or config.application:
+                    from .application import load_application
+
+                    service = load_application(config, args.application)
+                elif not args.reference and not config.local_development:
+                    raise ValueError("production peer requires an explicit installed application")
+                else:
+                    service = PeerService(config)
                 if args.reference:
                     from .reference_peer import ReferencePeerService
 
                     service.overlay.store.close()
                     service = ReferencePeerService(config)
                 url = urlsplit(config.url)
+                lifecycle = getattr(service, "operations", None)
                 try:
                     # Production TLS terminates at the operator's authenticated reverse proxy.
                     uvicorn.run(
-                        application(config, service.handle),
+                        application(
+                            config,
+                            lifecycle.handle if lifecycle is not None else service.handle,
+                            lifespan=lifecycle.lifespan if lifecycle is not None else None,
+                        ),
                         host="127.0.0.1",
-                        port=url.port or 8000,
+                        port=config.listen_port or url.port or 8000,
                         access_log=False,
                         log_level="warning",
                         limit_concurrency=config.max_concurrency + 8,
-                        timeout_graceful_shutdown=10,
+                        timeout_graceful_shutdown=30,
                     )
                 finally:
-                    service.overlay.store.close()
+                    if lifecycle is not None:
+                        service.close()
+                    else:
+                        service.overlay.store.close()
                 return 0
             elif args.command == "inspect":
                 query, cursor = _inspection(args, args.kind)

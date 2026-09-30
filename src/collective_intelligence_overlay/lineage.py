@@ -12,6 +12,7 @@ from typing import Any
 from sqlalchemy import select
 
 from .bindings import Registry, formation_receipts, formation_steps
+from .blocking import run_blocking
 from .invocations import Reservation, _allowance_floors, invocations
 from .models import Capability, Cost, Event, FormationReceipt, ReceiptRef, Verdict, uid
 from .security import Identity, verify
@@ -56,7 +57,7 @@ class FormationSession:
         floor = max(
             self.minimum_remaining, (_allowance_floors.get() or {}).get(floor_key, Decimal(0))
         )
-        self.fence = await asyncio.to_thread(
+        self.fence = await run_blocking(
             self.store.acquire,
             self.id,
             self.identity.name,
@@ -88,7 +89,7 @@ class FormationSession:
         if not self.published:
             with contextlib.suppress(Conflict):
                 await asyncio.shield(
-                    asyncio.to_thread(
+                    run_blocking(
                         self.store.finish, self.id, self.identity.name, self.fence, cancelled=True
                     )
                 )
@@ -108,8 +109,8 @@ class FormationSession:
             or binding.target.kind != "local"
         ):
             raise ValueError("candidate must identify the actual locally installed binding")
-        event = await asyncio.to_thread(self._validate, candidate)
-        await asyncio.to_thread(
+        event = await run_blocking(self._validate, candidate)
+        await run_blocking(
             self.store.commit_work,
             self.id,
             self.identity.name,

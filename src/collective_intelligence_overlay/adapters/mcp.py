@@ -1,5 +1,6 @@
 """Official MCP client, restricted to operator registered endpoints and tool names."""
 
+from collections.abc import Callable
 from typing import Any
 
 import httpx2
@@ -13,12 +14,25 @@ from ..security import allowed_url
 
 
 async def invoke_registered(
-    endpoint: str, name: str, interface_digest: str, arguments: dict[str, Any]
+    endpoint: str,
+    name: str,
+    interface_digest: str,
+    arguments: dict[str, Any],
+    *,
+    http_client_factory: Callable[[], httpx2.AsyncClient] | None = None,
 ) -> Any:
     """Registry-only actuator. Observe the pinned tool contract on every call."""
     from ..bindings import fingerprint
 
-    async with httpx2.AsyncClient(timeout=20, follow_redirects=False, trust_env=False) as http:
+    http = (
+        http_client_factory()
+        if http_client_factory is not None
+        else httpx2.AsyncClient(timeout=20, follow_redirects=False, trust_env=False)
+    )
+    if http.follow_redirects:
+        await http.aclose()
+        raise ValueError("registered MCP client must not follow redirects")
+    async with http:
         transport = streamable_http_client(endpoint, http_client=http)
         async with Client(transport, read_timeout_seconds=20) as client:
             cursor = None

@@ -19,6 +19,7 @@ from sqlalchemy.dialects.postgresql import insert
 
 from .allocation import AllocationObservation, AllocationPolicy, allocate
 from .bindings import ExecutionContext, fingerprint
+from .blocking import run_blocking
 from .invocations import Executor, invocation_request, invocations
 from .models import (
     Cost,
@@ -168,7 +169,7 @@ class Steps:
                             self.context,
                             tuple(observed),
                             allocation_policy or AllocationPolicy(),
-                            await asyncio.to_thread(self.last_allocation),
+                            await run_blocking(self.last_allocation),
                         )
                         allocations.append(allocation)
                     by_id = {item.id: item for item in observed}
@@ -182,11 +183,11 @@ class Steps:
                         break
                     opportunity = pending[0]
                     seen.add(opportunity.id)
-                    choice = await asyncio.to_thread(self._choice, opportunity.id)
+                    choice = await run_blocking(self._choice, opportunity.id)
                     old = (
                         None
                         if choice is None
-                        else await asyncio.to_thread(
+                        else await run_blocking(
                             self.executor.store.get, self.context.caller, choice.invocation_id
                         )
                     )
@@ -418,17 +419,17 @@ class Steps:
             raise ValueError("expected a bounded proposal batch")
         if len(replies) > 128:
             raise ValueError("proposal batch exceeds bound")
-        choice = await asyncio.to_thread(self._choice, opportunity_id)
+        choice = await run_blocking(self._choice, opportunity_id)
         if choice is not None:
-            old = await asyncio.to_thread(
+            old = await run_blocking(
                 self.executor.store.get, self.context.caller, choice.invocation_id
             )
             if old is not None:
                 return StepResult(reason="existing_invocation", selection=choice, invocation=old)
-        reference = await asyncio.to_thread(
+        reference = await run_blocking(
             self.store.reference, "opportunity", self.store.owner, opportunity_id
         )
-        opportunity = await asyncio.to_thread(self.store.resolve_reference, reference)
+        opportunity = await run_blocking(self.store.resolve_reference, reference)
         if not isinstance(opportunity, Opportunity):
             raise ValueError("expected a local opportunity")
         started = time.perf_counter()
@@ -492,9 +493,7 @@ class Steps:
                     Cost(category="overhead", status="unavailable", unit="USD", quantity=None),
                 ),
             )
-            await asyncio.shield(
-                asyncio.to_thread(self.store.put, self.executor.identity.sign(event))
-            )
+            await asyncio.shield(run_blocking(self.store.put, self.executor.identity.sign(event)))
         if result.reason == "selected" and result.selection is not None:
             executed = await self._execute(result.selection)
             return executed.model_copy(
@@ -520,7 +519,7 @@ class Steps:
             rejected: list[tuple[str, RejectionCategory]] = []
             for caller, envelope in envelopes:
                 try:
-                    proposal = await asyncio.to_thread(
+                    proposal = await run_blocking(
                         self.opportunities.validate_proposal, envelope, caller, self.context
                     )
                     if proposal.opportunity != reference:
@@ -545,7 +544,7 @@ class Steps:
                 candidates[key], signed[key] = proposal, envelope
             for key in tuple(candidates):
                 try:
-                    await asyncio.to_thread(self.store.put, signed[key])
+                    await run_blocking(self.store.put, signed[key])
                 except Conflict:
                     # Store.put raises this only for an immutable record ID clash.
                     # SQL/migration/verification faults remain visible.
@@ -553,19 +552,19 @@ class Steps:
                     candidates.pop(key)
             rejections = summarize_rejections(rejected)
             if rejections:
-                await asyncio.to_thread(
+                await run_blocking(
                     record_rejections, self.store, self.executor.identity, opportunity, rejections
                 )
             if not candidates:
                 return StepResult(reason="no_valid_alternatives", rejections=rejections)
-            if not await asyncio.to_thread(self._available):
+            if not await run_blocking(self._available):
                 return StepResult(reason="insufficient_allowance", rejections=rejections)
             order = {ref.digest: i for i, ref in enumerate(goal.builders)}
             ranked = sorted(
                 candidates.values(), key=lambda p: (order[p.builder.digest], p.issuer, p.id)
             )
             selected = ranked[0]
-            proposal_ref = await asyncio.to_thread(
+            proposal_ref = await run_blocking(
                 self.store.reference, "proposal", selected.issuer, selected.id
             )
             proposed = Selection(
@@ -579,12 +578,12 @@ class Steps:
                 allocation=allocation,
             )
             try:
-                choice = await asyncio.to_thread(self._choice, opportunity.id, proposed)
+                choice = await run_blocking(self._choice, opportunity.id, proposed)
             except AttemptBlocked as exc:
                 return StepResult(reason=exc.reason, rejections=rejections)
             assert choice is not None
             if choice.opportunity.id != opportunity.id:
-                old = await asyncio.to_thread(
+                old = await run_blocking(
                     self.executor.store.get, self.context.caller, choice.invocation_id
                 )
                 return StepResult(
@@ -597,15 +596,13 @@ class Steps:
         return StepResult(reason="selected", selection=choice)
 
     async def _execute(self, choice: Selection) -> StepResult:
-        selected_record = await asyncio.to_thread(self.store.resolve_reference, choice.proposal)
+        selected_record = await run_blocking(self.store.resolve_reference, choice.proposal)
         if not isinstance(selected_record, Proposal):
             raise ValueError("stored selection is not a proposal")
-        old = await asyncio.to_thread(
-            self.executor.store.get, self.context.caller, choice.invocation_id
-        )
+        old = await run_blocking(self.executor.store.get, self.context.caller, choice.invocation_id)
         if old is not None:
             return StepResult(reason="existing_invocation", selection=choice, invocation=old)
-        await asyncio.to_thread(
+        await run_blocking(
             self.opportunities._validate_proposal,
             selected_record,
             selected_record.issuer,
@@ -619,7 +616,7 @@ class Steps:
             selected_record.arguments,
             self.context,
         )
-        opportunity = await asyncio.to_thread(self.store.resolve_reference, choice.opportunity)
+        opportunity = await run_blocking(self.store.resolve_reference, choice.opportunity)
         reserve = self.executor.allowance.minimum_remaining
         if (
             isinstance(opportunity, Opportunity)
@@ -639,7 +636,7 @@ class Steps:
                 minimum_remaining=reserve,
             )
         except Conflict:
-            old = await asyncio.to_thread(
+            old = await run_blocking(
                 self.executor.store.get, self.context.caller, choice.invocation_id
             )
             if old is None:

@@ -34,6 +34,7 @@ from .bindings import (
     formation_receipts,
     formation_steps,
 )
+from .blocking import run_blocking
 from .models import Cost, Event, ExecutionReceipt, Identifier, Model, ReceiptRef, Verdict, now, uid
 from .overlay import AdmissionDenied
 from .security import Identity
@@ -656,7 +657,7 @@ class Executor:
         request = invocation_request(
             self.identity.name, binding_id, binding_digest, arguments, context
         )
-        old = await asyncio.to_thread(self.store.get, context.caller, invocation_id)
+        old = await run_blocking(self.store.get, context.caller, invocation_id)
         if old:
             if old["fingerprint"] != fingerprint(request):
                 raise Conflict("invocation ID reused with different request")
@@ -713,7 +714,7 @@ class Executor:
             )
 
         claiming = asyncio.create_task(
-            asyncio.to_thread(
+            run_blocking(
                 self.store.claim,
                 context.caller,
                 invocation_id,
@@ -733,7 +734,7 @@ class Executor:
                 with contextlib.suppress(Exception):
                     delayed_claim, is_fresh = await claiming
                     if is_fresh:
-                        await asyncio.to_thread(
+                        await run_blocking(
                             self.store.finish,
                             delayed_claim,
                             None,
@@ -759,7 +760,7 @@ class Executor:
         )
 
         async def boundary() -> None:
-            await asyncio.to_thread(self.store.dispatched, claim)
+            await run_blocking(self.store.dispatched, claim)
 
         try:
             async with asyncio.timeout(self.allowance.seconds):
@@ -772,14 +773,12 @@ class Executor:
                     call_id=invocation_id,
                 )
                 completed_event = event(claim, False, result)
-                await asyncio.to_thread(
-                    self.store.finish, claim, result, self.identity, completed_event
-                )
+                await run_blocking(self.store.finish, claim, result, self.identity, completed_event)
         except BaseException as exc:
             reason = "admission_denied" if isinstance(exc, AdmissionDenied) else "execution_unknown"
             with contextlib.suppress(Conflict):
                 await asyncio.shield(
-                    asyncio.to_thread(
+                    run_blocking(
                         self.store.finish,
                         claim,
                         None,
@@ -793,7 +792,7 @@ class Executor:
         finally:
             _allowance_floors.reset(floor_token)
             active_invocation.reset(invocation_token)
-        result_record = await asyncio.to_thread(self.store.get, context.caller, invocation_id)
+        result_record = await run_blocking(self.store.get, context.caller, invocation_id)
         assert result_record is not None
         self._observe(result_record)
         return result_record

@@ -17,7 +17,15 @@ the WSL test client). The default suite runs 1,000/10,000-record scale profiles;
 assertions on bounded rows, signature checks and query counts. See `docs/scale.md`.
 Check generated schemas/docs with `uv run python scripts/check_docs.py`, and clean
 artifacts with `uv run python scripts/check_package.py` after `uv build`.
-The 0.3.2 metadata is >=3.12; explicitly select the runtime for nonminimum checks.
+The metadata remains >=3.12; explicitly select the runtime for nonminimum checks.
+Main's 0.4.0 is an unreleased candidate. Preserve the preimplementation declaration
+at `docs/profiles/production-040.json` and its requirement register; do not relax
+numeric gates after measurements or publish before the complete profile passes.
+Application registration stays operator-owned. Track physical blocking futures
+after await cancellation, retain the owner session lock until physical work ends,
+and keep restored intake closed until verification/sync/reconciliation. Runtime DB
+roles have DML privileges and no DDL or database ownership. DDL uses a separate
+explicit operator connection. Preserve old signed bytes and uncertain allowances.
 Keep source frozen resolution separate from normal installed-artifact resolution.
 All stable Linux/Windows and native Mac Intel/arm64 jobs use `scripts/ci_validate.py`, with the same fixed
 candidate hashes, actual child/build interpreter reports and zero mandatory skips.

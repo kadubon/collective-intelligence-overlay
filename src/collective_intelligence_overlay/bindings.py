@@ -19,12 +19,14 @@ from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 from .artifacts import Artifacts
+from .blocking import run_blocking
 from .models import Digest, Identifier, ReceiptRef, Scope, Subject, UseRequest
 from .overlay import Overlay
 from .security import Identity, allowed_url, digest
 
 if TYPE_CHECKING:
     import httpx
+    import httpx2
 
     from .calls import RemoteCall
     from .config import Config
@@ -426,7 +428,7 @@ class Registry:
                 # They do not acquire a remote identity or an idempotency claim.
             else:
                 assert frame is not None
-                await asyncio.to_thread(RemoteCalls(self.overlay.store).check, frame)
+                await run_blocking(RemoteCalls(self.overlay.store).check, frame)
         entry = self._entry(binding_id)
         if entry.remote_identity and identity_missing:
             raise MissingCallIdentity(
@@ -472,7 +474,14 @@ class Registry:
             prepared.request, operation, verification_granted=context.purpose == "verification"
         )
 
-    def register_mcp(self, binding: Binding, assess: Assessment, *, local: bool = False) -> None:
+    def register_mcp(
+        self,
+        binding: Binding,
+        assess: Assessment,
+        *,
+        local: bool = False,
+        http_client_factory: Callable[[], httpx2.AsyncClient] | None = None,
+    ) -> None:
         if binding.target.kind != "mcp" or binding.target.endpoint is None:
             raise ValueError("MCP registration requires an MCP target")
         endpoint = allowed_url(
@@ -484,7 +493,11 @@ class Registry:
             from .adapters.mcp import invoke_registered
 
             return await invoke_registered(
-                endpoint, target.name, target.interface_digest, arguments
+                endpoint,
+                target.name,
+                target.interface_digest,
+                arguments,
+                http_client_factory=http_client_factory,
             )
 
         self._register(binding, operation, assess)
@@ -517,9 +530,7 @@ class Registry:
                     "A2A call has no stable host context; provide call_id and call_scope"
                 )
             saving = asyncio.create_task(
-                asyncio.to_thread(
-                    RemoteCalls(self.overlay.store).bind, instance, pinned_binding, target
-                )
+                run_blocking(RemoteCalls(self.overlay.store).bind, instance, pinned_binding, target)
             )
             try:
                 saved = await asyncio.shield(saving)
@@ -584,9 +595,7 @@ class Registry:
 
         if identity.name != self.overlay.store.owner or config.owner != identity.name:
             raise ValueError("remote lookup requires the local owner")
-        saved = await asyncio.to_thread(
-            RemoteCalls(self.overlay.store).get, context.caller, call_key
-        )
+        saved = await run_blocking(RemoteCalls(self.overlay.store).get, context.caller, call_key)
         if saved is None:
             return None
         peer = next((peer for peer in config.peers if peer.identity == saved.provider), None)

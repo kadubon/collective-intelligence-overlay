@@ -5,6 +5,7 @@ from collections.abc import Awaitable, Callable
 from datetime import datetime, timedelta
 from typing import TypeVar
 
+from .blocking import run_blocking
 from .models import Capability, Decision, Evidence, Outcome, Subject, UseRequest, now, uid
 from .policy import Policy
 from .storage import Store, subject_key
@@ -48,7 +49,7 @@ class Overlay:
             return True
         from .synchronization import Receiver
 
-        current = await asyncio.to_thread(
+        current = await run_blocking(
             Receiver(self.store).observations, {key.rsplit(":", 1)[1] for key in observed}
         )
         return all(current.get(key) == anchor for key, anchor in observed.items())
@@ -59,7 +60,7 @@ class Overlay:
                 return await self._qualify(request, verification_granted=verification_granted)
         except TimeoutError:
             decision = self._decision(request, Outcome.UNKNOWN, ("qualification_timeout",))
-            await asyncio.to_thread(self.store.save_decision, decision)
+            await run_blocking(self.store.save_decision, decision)
             return decision
 
     async def _qualify(
@@ -71,7 +72,7 @@ class Overlay:
         used_sources: dict[str, datetime | None] = {}
         valid_until = now() + timedelta(seconds=self.policy.settings.max_source_age_seconds)
         try:
-            snapshot = await asyncio.to_thread(
+            snapshot = await run_blocking(
                 self.store.admission_snapshot, request, self.max_graph_nodes
             )
             caps, evidence, revocations = (
@@ -84,9 +85,7 @@ class Overlay:
             if self.persistent_sources:
                 from .synchronization import Receiver
 
-                observations = await asyncio.to_thread(
-                    Receiver(self.store).observations, set(revisions)
-                )
+                observations = await run_blocking(Receiver(self.store).observations, set(revisions))
             timestamp = now()
             visited: set[tuple[str, str]] = set()
             evaluations = 0
@@ -328,14 +327,14 @@ class Overlay:
             }
         )
         if decision.outcome == Outcome.ACCEPT and (
-            await asyncio.to_thread(self.store.revisions, set(revisions)) != revisions
+            await run_blocking(self.store.revisions, set(revisions)) != revisions
             or now() >= valid_until
             or not await self._sources_unchanged(used_sources)
         ):
             decision = decision.model_copy(
                 update={"outcome": Outcome.UNKNOWN, "reasons": ("state_changed_during_check",)}
             )
-        await asyncio.to_thread(self.store.save_decision, decision)
+        await run_blocking(self.store.save_decision, decision)
         return decision
 
     def _decision(
@@ -367,7 +366,7 @@ class Overlay:
         async with asyncio.timeout(deadline_seconds):
             decision = await self.qualify(request, verification_granted=verification_granted)
             if decision.outcome == Outcome.ACCEPT and (
-                await asyncio.to_thread(self.store.revisions, set(decision.revisions))
+                await run_blocking(self.store.revisions, set(decision.revisions))
                 != decision.revisions
                 or now() >= decision.valid_until
                 or not await self._sources_unchanged(decision.source_observations)
@@ -375,7 +374,7 @@ class Overlay:
                 decision = decision.model_copy(
                     update={"outcome": Outcome.UNKNOWN, "reasons": ("state_changed_before_use",)}
                 )
-                await asyncio.to_thread(
+                await run_blocking(
                     self.store.save_decision, decision.model_copy(update={"id": uid()})
                 )
             if decision.outcome != Outcome.ACCEPT:

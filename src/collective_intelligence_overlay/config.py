@@ -1,6 +1,7 @@
 """Operator-owned configuration; credentials are referenced by local path."""
 
 import json
+import ssl
 from pathlib import Path
 from typing import Any
 
@@ -46,6 +47,14 @@ class Config(Model):
     max_rechecks: int = Field(default=2, ge=0, le=10)
     max_seconds: int = Field(default=120, ge=1, le=3600)
     execution_environment: dict[Identifier, Identifier] = Field(default_factory=dict, max_length=64)
+    application: str | None = Field(default=None, max_length=256)
+    application_settings: Path | None = None
+    listen_port: int | None = Field(default=None, ge=1024, le=65535)
+    tls_ca_certificate: Path | None = None
+
+    def tls_context(self) -> ssl.SSLContext:
+        """System trust or an explicit operator CA; hostname verification stays on."""
+        return ssl.create_default_context(cafile=self.tls_ca_certificate)
 
     def runtime(self) -> tuple[Identity, Overlay]:
         allowed_url(self.url, frozenset({self.url}), local=self.local_development)
@@ -74,4 +83,25 @@ class Config(Model):
 def load_config(path: Path) -> Config:
     if path.stat().st_size > 262144:
         raise ValueError("configuration too large")
-    return Config.model_validate(json.loads(path.read_text(encoding="utf-8")))
+    data = json.loads(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise ValueError("configuration must be an object")
+    # The installed setup writes public metadata separately from its secret DSN.
+    # Legacy single-file configurations continue to work. No environment expansion
+    # or remote secret loading is implicit.
+    secret_path = data.pop("database_url_file", None)
+    if secret_path is not None:
+        if "database_url" in data or not isinstance(secret_path, str):
+            raise ValueError("ambiguous database credential source")
+        source = Path(secret_path)
+        if not source.is_absolute():
+            source = path.resolve().parent / source
+        if source.stat().st_size > 8192:
+            raise ValueError("database credential file too large")
+        data["database_url"] = source.read_text(encoding="utf-8").strip()
+    for name in ("private_key", "artifact_directory", "application_settings", "tls_ca_certificate"):
+        if data.get(name) is not None:
+            value = Path(data[name])
+            if not value.is_absolute():
+                data[name] = path.resolve().parent / value
+    return Config.model_validate(data)

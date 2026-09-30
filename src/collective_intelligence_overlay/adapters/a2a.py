@@ -40,8 +40,10 @@ from starlette.authentication import (
 from starlette.middleware import Middleware
 from starlette.middleware.authentication import AuthenticationMiddleware
 from starlette.requests import HTTPConnection
+from starlette.types import Lifespan
 
 from .. import __version__
+from ..blocking import run_blocking
 from ..config import Config
 from ..models import now, uid
 from ..security import MAX_RECORD_BYTES, Identity, allowed_url
@@ -137,9 +139,10 @@ class PeerAuthentication(AuthenticationBackend):
 
 
 class ExtensionExecutor(AgentExecutor):
-    def __init__(self, handler: Handler, limit: int) -> None:
+    def __init__(self, handler: Handler, limit: int, run_seconds: int = 120) -> None:
         self.handler = handler
         self.semaphore = asyncio.Semaphore(limit)
+        self.run_seconds = min(run_seconds, 300)
 
     async def execute(self, context: RequestContext, event_queue: EventQueue) -> None:
         message = context.message
@@ -154,7 +157,8 @@ class ExtensionExecutor(AgentExecutor):
         if not principal.is_authenticated:
             raise ValueError("unauthenticated peer")
         data = read_extension_data(message.parts[0].data)
-        async with asyncio.timeout(30):
+        seconds = self.run_seconds + 5 if data.get("operation") == "run" else 30
+        async with asyncio.timeout(seconds):
             async with self.semaphore:
                 result = await self.handler(principal.user_name, data)
         if len(json.dumps(result).encode()) > MAX_RECORD_BYTES:
@@ -179,7 +183,9 @@ class ExtensionExecutor(AgentExecutor):
         )
 
 
-def application(config: Config, handler: Handler) -> Starlette:
+def application(
+    config: Config, handler: Handler, *, lifespan: Lifespan[Starlette] | None = None
+) -> Starlette:
     card = AgentCard(
         name=config.owner,
         description="Local evidence admission peer",
@@ -206,11 +212,14 @@ def application(config: Config, handler: Handler) -> Starlette:
         ],
     )
     request_handler = DefaultRequestHandler(
-        ExtensionExecutor(handler, config.max_concurrency), InMemoryTaskStore(), card
+        ExtensionExecutor(handler, config.max_concurrency, config.max_seconds),
+        InMemoryTaskStore(),
+        card,
     )
     routes = create_agent_card_routes(card) + create_jsonrpc_routes(request_handler, "/")
     return Starlette(
         routes=routes,
+        lifespan=lifespan,
         middleware=[
             Middleware(BodyLimit),
             Middleware(AuthenticationMiddleware, backend=PeerAuthentication(config)),
@@ -244,8 +253,10 @@ async def send(
     from .http_limits import BoundedA2ATransport
 
     async with httpx.AsyncClient(
-        transport=BoundedA2ATransport(url, response_validator=validate_peer_response),
-        timeout=30,
+        transport=BoundedA2ATransport(
+            url, response_validator=validate_peer_response, tls_context=config.tls_context()
+        ),
+        timeout=min(config.max_seconds, 300) + 5 if data.get("operation") == "run" else 30,
         follow_redirects=False,
         trust_env=False,
         headers={"Authorization": f"Bearer {token}", "A2A-Extensions": EXTENSION},
@@ -307,12 +318,12 @@ async def synchronize(
     filter = FeedFilter.model_validate(filter_data or {})
     receiver = Receiver(store)
     if restart:
-        await asyncio.to_thread(receiver.restart, source, filter)
-    await asyncio.to_thread(receiver.begin, source, filter)
+        await run_blocking(receiver.restart, source, filter)
+    await run_blocking(receiver.begin, source, filter)
     received = 0
     async with asyncio.timeout(config.max_seconds):
         for index in range(max_pages):
-            state = await asyncio.to_thread(receiver.checkpoint, source, filter)
+            state = await run_blocking(receiver.checkpoint, source, filter)
             assert state is not None
             started = time.perf_counter()
             response = await send(
@@ -331,7 +342,7 @@ async def synchronize(
             if response.get("error") == "RESNAPSHOT_REQUIRED":
                 raise ResnapshotRequired("source requires explicit snapshot restart")
             page = FeedPage.model_validate(response)
-            inserted = await asyncio.to_thread(
+            inserted = await run_blocking(
                 receiver.apply,
                 source,
                 filter,
@@ -341,7 +352,7 @@ async def synchronize(
             )
             if inserted:
                 received += len(page.records)
-            state = await asyncio.to_thread(receiver.checkpoint, source, filter)
+            state = await run_blocking(receiver.checkpoint, source, filter)
             assert state is not None
             if state["complete"]:
                 return {

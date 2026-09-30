@@ -1,6 +1,7 @@
 """Bound untrusted HTTP input before SDK parsing; retain ordinary ASGI semantics."""
 
 from collections.abc import Callable
+from ssl import CERT_REQUIRED, SSLContext
 
 import httpx
 from starlette.responses import JSONResponse
@@ -50,13 +51,23 @@ class BoundedA2ATransport(httpx.AsyncBaseTransport):
     """Restrict SDK HTTP requests and bound response bytes before protobuf parsing."""
 
     def __init__(
-        self, endpoint: str, *, response_validator: Callable[[str, bytes], None] | None = None
+        self,
+        endpoint: str,
+        *,
+        response_validator: Callable[[str, bytes], None] | None = None,
+        tls_context: SSLContext | None = None,
     ) -> None:
         self.allowed = {
             ("POST", endpoint),
             ("GET", endpoint.rstrip("/") + "/.well-known/agent-card.json"),
         }
-        self.transport = httpx.AsyncHTTPTransport(retries=0, trust_env=False)
+        if tls_context is not None and (
+            not tls_context.check_hostname or tls_context.verify_mode != CERT_REQUIRED
+        ):
+            raise ValueError("verified TLS context required")
+        self.transport = httpx.AsyncHTTPTransport(
+            retries=0, trust_env=False, verify=tls_context if tls_context is not None else True
+        )
         self.response_validator = response_validator
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:

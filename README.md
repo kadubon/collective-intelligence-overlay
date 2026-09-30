@@ -13,6 +13,10 @@ the overlay records evidence, qualifies reuse and stops known-invalid dependenci
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [Architecture](docs/architecture.md)
 
+The published release is **0.3.2**. Main is developing **0.4.0** against a
+[predeclared production profile](docs/production-040.md); its acceptance and
+publication are pending.
+
 Version **0.3.2** adds bounded owner invocation cleanup and reviewed
 native OPA setup for Intel/Apple Silicon macOS. It fences stale workers and releases
 only positively undispatched reservations; dispatched effects stay UNKNOWN/held.

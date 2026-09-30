@@ -1,0 +1,21 @@
+{
+    admin off
+    auto_https off
+}
+
+{$CIO_PUBLIC_ADDRESS} {
+    tls {$CIO_TLS_CERTIFICATE} {$CIO_TLS_PRIVATE_KEY}
+    request_body {
+        max_size 256KB
+    }
+    reverse_proxy 127.0.0.1:{$CIO_LISTEN_PORT} {
+        # No proxy retries of potentially effectful POST requests.
+        stream_timeout 180s
+        transport http {
+            dial_timeout 5s
+            response_header_timeout 180s
+            read_timeout 180s
+            write_timeout 180s
+        }
+    }
+}

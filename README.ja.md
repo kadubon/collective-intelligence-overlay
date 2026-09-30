@@ -9,6 +9,9 @@
 実行はMicrosoft Agent Framework（MAF）、通信はA2A、tool接続はMCPを利用します。
 集団全体を管理するagentや独自workflow engineは必要ありません。
 
+公開版は**0.3.2**です。mainでは、[事前定義した本番profile](docs/production-040.md)に
+沿って**0.4.0**を開発しています。受入検査と公開は未完了です。
+
 **0.3.2**では、ownerに限定した有限のinvocation整理と、Intel／Apple Silicon
 Mac向けOPA導入を追加しています。旧workerをfenceし、未dispatchを正に確認できた予約だけを
 解放します。dispatch済みの作用はUNKNOWN・予算拘束として残ります。

@@ -8,6 +8,7 @@ from typing import Any
 
 from sqlalchemy import and_, func, or_, select
 
+from .blocking import run_blocking
 from .models import Capability, Event, Evidence, UseRequest, now
 from .overlay import Overlay
 from .queries import RecordCursor, RecordQuery
@@ -260,7 +261,7 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
     async with asyncio.timeout(60):
         for request in requests:
             decision = await overlay.qualify(request)
-            snapshot = await asyncio.to_thread(
+            snapshot = await run_blocking(
                 overlay.store.admission_snapshot, request, overlay.max_graph_nodes
             )
             caps = [
@@ -309,7 +310,7 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
                     for e in applicable
                     if e.created_at <= started < e.expires_at and (e.issuer, e.id) not in withdrawn
                 ]
-                observed = await asyncio.to_thread(
+                observed = await run_blocking(
                     _record_observations, overlay.store, cap, applicable, started
                 )
                 obligations = [
@@ -351,7 +352,7 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
                             for e in active
                             if e.verdict == "UNKNOWN"
                         ],
-                        **await asyncio.to_thread(
+                        **await run_blocking(
                             _first_observations, overlay.store, cap, passed, request, policy
                         ),
                     }
@@ -361,7 +362,7 @@ async def capability_metrics(overlay: Overlay, requests: tuple[UseRequest, ...])
                 detail["consistent"] = False
             else:
                 detail["consistent"] = (
-                    await asyncio.to_thread(overlay.store.revisions, set(snapshot.revisions))
+                    await run_blocking(overlay.store.revisions, set(snapshot.revisions))
                     == snapshot.revisions
                 )
             items.append(detail)

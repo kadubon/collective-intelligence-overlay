@@ -9,6 +9,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from .blocking import run_blocking
 from .config import Config
 from .models import (
     BindingRef,
@@ -99,15 +100,13 @@ async def collect(
     configured = {peer.identity for peer in config.peers}
     if not set(goal.peers) <= configured:
         raise ValueError("goal includes a peer without a configured destination")
-    reference = await asyncio.to_thread(
-        store.reference, "opportunity", identity.name, opportunity_id
-    )
-    opportunity = await asyncio.to_thread(store.resolve_reference, reference)
+    reference = await run_blocking(store.reference, "opportunity", identity.name, opportunity_id)
+    opportunity = await run_blocking(store.resolve_reference, reference)
     if not isinstance(opportunity, Opportunity) or opportunity.goal_digest != goal.digest:
         raise ValueError("opportunity does not match the registered goal")
     if not set(goal.peers) <= set(opportunity.receivers) or opportunity.expires_at <= now():
         raise ValueError("opportunity is not shared with these peers or has expired")
-    envelope = await asyncio.to_thread(store.signed_record, reference)
+    envelope = await run_blocking(store.signed_record, reference)
     limit = asyncio.Semaphore(min(config.max_concurrency, 16))
 
     async def ask(
@@ -164,7 +163,7 @@ async def collect(
                         Cost(category="transfer", status="unavailable", unit="USD", quantity=None),
                     ),
                 )
-                await asyncio.shield(asyncio.to_thread(store.put, identity.sign(event)))
+                await asyncio.shield(run_blocking(store.put, identity.sign(event)))
 
     tasks = [asyncio.create_task(ask(peer)) for peer in goal.peers]
     try:
@@ -179,7 +178,7 @@ async def collect(
         await asyncio.gather(*tasks, return_exceptions=True)
     rejections = tuple(rejection for _, _, rejected in results for rejection in rejected)
     if rejections:
-        await asyncio.to_thread(record_rejections, store, identity, opportunity, rejections)
+        await run_blocking(record_rejections, store, identity, opportunity, rejections)
     return CollectedProposals(
         replies=tuple(
             (peer, item) for peer, items, _ in results if items is not None for item in items
@@ -254,8 +253,8 @@ class ProposalExchange:
         # builder allowlist; the owner validates its exact live goal before use.
         started = time.perf_counter()
         try:
-            await asyncio.to_thread(self.store.put, envelope)
-            reference = await asyncio.to_thread(
+            await run_blocking(self.store.put, envelope)
+            reference = await run_blocking(
                 self.store.reference, "opportunity", caller, opportunity.id
             )
             async with asyncio.timeout(self.seconds):
@@ -269,7 +268,7 @@ class ProposalExchange:
             if len(json.dumps(response).encode()) > 196608:
                 raise ValueError("proposal reply exceeds byte bound")
             for item in signed:
-                await asyncio.to_thread(self.store.put, item)
+                await run_blocking(self.store.put, item)
             return response
         finally:
             event = Event(
@@ -289,4 +288,4 @@ class ProposalExchange:
                     Cost(category="overhead", status="unavailable", unit="USD", quantity=None),
                 ),
             )
-            await asyncio.shield(asyncio.to_thread(self.store.put, self.identity.sign(event)))
+            await asyncio.shield(run_blocking(self.store.put, self.identity.sign(event)))

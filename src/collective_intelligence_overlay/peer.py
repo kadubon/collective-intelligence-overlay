@@ -1,6 +1,5 @@
 """Peer service binds configured runtime resources to the public overlay API."""
 
-import asyncio
 import time
 from collections.abc import Callable
 from typing import Any
@@ -9,6 +8,7 @@ from jsonschema import ValidationError as SchemaError  # type: ignore[import-unt
 
 from .accounting import capability_metrics, metrics_page
 from .bindings import ExecutionContext, Registry
+from .blocking import run_blocking
 from .config import Config
 from .invocations import Executor, Reservation, UnresolvedEffectsLimit
 from .models import Event, Revocation, Subject, UseRequest, uid
@@ -20,6 +20,9 @@ from .synchronization import Feed, FeedFilter, ResnapshotRequired
 
 
 class PeerService:
+    def close(self) -> None:
+        self.overlay.store.close()
+
     def __init__(self, config: Config, configure: Callable[[Registry], None] | None = None) -> None:
         self.config = config
         self.identity, self.overlay = config.runtime()
@@ -53,7 +56,7 @@ class PeerService:
             }:
                 raise ValueError("peer not authorized for evidence exchange")
             try:
-                page = await asyncio.to_thread(
+                page = await run_blocking(
                     Feed(self.overlay.store, self.identity).page,
                     caller,
                     FeedFilter.model_validate(data.get("filter", {})),
@@ -105,9 +108,7 @@ class PeerService:
                 if operation == "cancel_invocation"
                 else self.executor.store.get
             )
-            return {
-                "invocation": await asyncio.to_thread(lookup, caller, str(data["invocation_id"]))
-            }
+            return {"invocation": await run_blocking(lookup, caller, str(data["invocation_id"]))}
         if caller != self.config.owner:
             raise ValueError("owner operation; delegation is not configured")
         if operation == "sync":
@@ -140,7 +141,7 @@ class PeerService:
                 self.overlay, tuple(UseRequest.model_validate(request) for request in requests)
             )
         if operation == "metrics":
-            return await asyncio.to_thread(
+            return await run_blocking(
                 metrics_page,
                 self.overlay.store,
                 RecordQuery.model_validate(data.get("query", {"kinds": ["event"]})),
@@ -150,7 +151,7 @@ class PeerService:
             )
         if operation == "revoke":
             subject = Subject.model_validate(data["subject"])
-            return await asyncio.to_thread(self._revoke, subject, str(data["reason"]), started)
+            return await run_blocking(self._revoke, subject, str(data["reason"]), started)
         raise ValueError("unknown operation")
 
     def _revoke(self, subject: Subject, reason: str, started: float) -> dict[str, Any]:

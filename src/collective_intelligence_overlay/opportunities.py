@@ -19,6 +19,7 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, TypeAdapter, model
 from securesystemslib.exceptions import FormatError, VerificationError
 
 from .bindings import ExecutionContext, InvalidArguments, Registry, fingerprint
+from .blocking import run_blocking
 from .models import (
     BindingRef,
     Capability,
@@ -386,7 +387,7 @@ class Opportunities:
         )
         kind = work_kind(decision.reasons)
         if "missing_ambiguous_or_cyclic_dependency" in decision.reasons:
-            target = await asyncio.to_thread(
+            target = await run_blocking(
                 self.registry.overlay.store.record_page,
                 RecordQuery(
                     kinds=("capability",),
@@ -450,12 +451,12 @@ class Opportunities:
                 "new_attempt": new_attempt,
             }
         )
-        replay = await asyncio.to_thread(self.observations.replay, request_id, command)
+        replay = await run_blocking(self.observations.replay, request_id, command)
         if replay is not None:
             return replay
         store = self.registry.overlay.store
-        reference = await asyncio.to_thread(store.reference, "opportunity", caller, opportunity_id)
-        previous = await asyncio.to_thread(store.resolve_reference, reference)
+        reference = await run_blocking(store.reference, "opportunity", caller, opportunity_id)
+        previous = await run_blocking(store.resolve_reference, reference)
         if not isinstance(previous, Opportunity) or previous.issuer != caller:
             raise ValueError("reobservation requires an exact local opportunity")
         goal = self.goal(previous.goal_id)
@@ -471,7 +472,7 @@ class Opportunities:
         # Host mutation and concurrent evidence changes must not publish stale observations.
         if self.goal(goal.id).digest != goal.digest:
             raise Conflict("goal changed before reobservation")
-        return await asyncio.to_thread(
+        return await run_blocking(
             self.observations.renew,
             candidate,
             previous,
@@ -507,7 +508,7 @@ class Opportunities:
                     continue
                 if self.goal(goal.id).digest != goal.digest:
                     raise Conflict("goal changed before observation")
-                item, inserted, old = await asyncio.to_thread(
+                item, inserted, old = await run_blocking(
                     self.observations.publish,
                     candidate,
                     cause_id(self.identity.name, goal.id),
@@ -558,7 +559,7 @@ class Opportunities:
                     ),
                 )
                 await asyncio.shield(
-                    asyncio.to_thread(self.registry.overlay.store.put, self.identity.sign(event))
+                    run_blocking(self.registry.overlay.store.put, self.identity.sign(event))
                 )
         return Discovery(
             opportunities=tuple(found),
