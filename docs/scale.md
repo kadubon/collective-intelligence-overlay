@@ -93,6 +93,12 @@ CPU consumption, tokens and currency remain unavailable. Network collection,
 selection, model inference and execution are not exercised by this profile; their
 integration coverage must not be inferred from these discovery measurements.
 
+The 0.3.1 profile uses distinct Goal IDs for the two fresh scenarios. The original
+0.3.0 measurements below used revisions; under 0.3.1's stable owner/Goal cause
+contract, changing that original Goal revision supersedes its older instance.
+Distinct fresh Goal causes keep the unchanged original instance available for the
+same bounded deduplication comparison. Historical measurements are retained.
+
 Recorded on Windows/Python 3.12.10 with PostgreSQL 16.15 in WSL and OPA 1.21.0:
 
 | Background records | Setup seconds | Fresh discovery seconds | Deduplication seconds, five calls |

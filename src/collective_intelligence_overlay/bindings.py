@@ -538,7 +538,10 @@ class Registry:
                     "binding_id": target.name,
                     "binding_digest": target.interface_digest,
                     "arguments": arguments,
-                    "purpose": instance.purpose,
+                    # Checking a local proxy still reuses an independently
+                    # admitted provider binding. Local verification grants are
+                    # not delegated to the authenticated remote resource owner.
+                    "purpose": "reuse",
                 },
             )
             if response.get("state") != "completed":

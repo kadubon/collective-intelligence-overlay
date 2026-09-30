@@ -119,6 +119,11 @@ Migration 0014 persists `RemoteCall` references before RPC: remote invocation ID
 provider/endpoint, exact local/provider bindings, parent and invocation context, and
 content fingerprints. It stores no business result or execution/lease state.
 Provider Executor remains authoritative for retry, allowance and completion.
+Local proxy verification retains its local verification grant and purpose-bound
+fingerprint. Its remote request reuses the independently admitted provider;
+it does not delegate verification authority to that resource owner. The provider
+still requires ordinary reuse admission, evidence, freshness and allowance. A
+direct remote verification request separately requires the provider's grant.
 For a nested call after uncertain delivery or a host restart:
 
 ```python

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 from contextvars import ContextVar
-from typing import Any, Literal
+from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 from sqlalchemy import Column, DateTime, String, Table, select
@@ -50,7 +50,6 @@ class CallInstance(BaseModel):
     invocation_context: Digest | None
     request_fingerprint: Digest
     lineage_fingerprint: Digest
-    purpose: Literal["reuse", "verification"]
     depth: int = Field(ge=1, le=16)
 
     @property
@@ -97,7 +96,6 @@ def call_instance(
         invocation_context=invocation_context,
         request_fingerprint=content,
         lineage_fingerprint=fingerprint([parent.lineage_fingerprint if parent else None, content]),
-        purpose=request["purpose"],
         depth=parent.depth + 1 if parent else 1,
     )
 

@@ -101,3 +101,8 @@ permission: actual purpose, caller authentication, local admission and allowance
 remain provider-owned. Same-ID content changes conflict. Result queries use the
 saved destination and original provider ID, scoped to the trusted local caller;
 old unknown mappings are never reconstructed as fresh operations.
+
+Verification of a local A2A proxy uses the already-qualified provider's ordinary
+reuse contract. A local verification grant does not create a remote verification
+grant or bypass the provider's independent PASS/freshness requirement. Direct
+provider verification requests retain their separate read-only grant check.

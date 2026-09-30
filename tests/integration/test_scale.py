@@ -326,7 +326,7 @@ async def test_work_history_discovery_scale(total, overlay, identities, records,
         Opportunities(
             opportunities.registry,
             identities["receiver"],
-            (goal.model_copy(update={"revision": "fresh-baseline"}),),
+            (goal.model_copy(update={"id": "fresh-baseline"}),),
         ),
         None,
     )
@@ -417,7 +417,7 @@ async def test_work_history_discovery_scale(total, overlay, identities, records,
         Opportunities(
             opportunities.registry,
             identities["receiver"],
-            (goal.model_copy(update={"revision": "fresh-after-load"}),),
+            (goal.model_copy(update={"id": "fresh-after-load"}),),
         ),
         None,
     )

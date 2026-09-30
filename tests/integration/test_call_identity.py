@@ -80,7 +80,7 @@ async def ready(url, identity, *, process=None):
 async def stop(process):
     if process.returncode is None:
         process.terminate()
-    await asyncio.wait_for(process.wait(), 10)
+    await asyncio.wait_for(process.communicate(), 10)
 
 
 @pytest.fixture
@@ -360,7 +360,7 @@ async def test_parent_namespaces_and_changed_parent_content_do_not_escape_confli
     assert count(peers) == 2
 
 
-async def test_remote_verification_purpose_cannot_acquire_provider_grant(serving):
+async def test_local_proxy_verification_keeps_provider_reuse_admission(serving):
     peers = serving
     proxy = peers.proxy.model_copy(
         update={
@@ -371,8 +371,9 @@ async def test_remote_verification_purpose_cannot_acquire_provider_grant(serving
     )
     peers.registry.register_a2a(proxy, lambda _: True, peers.configs["receiver"], peers.identity)
     admit(peers.registry.overlay, peers.identity, proxy, peers.configs["verifier"])
-    # Local permission to check does not create the provider's verification grant.
-    with pytest.raises(ValueError, match="incomplete or unknown"):
+    # A local proxy probe reuses the qualified provider, preserving the original
+    # contract. It does not grant that resource owner remote verification rights.
+    assert (
         await peers.registry.execute(
             proxy.id,
             proxy.digest,
@@ -381,25 +382,57 @@ async def test_remote_verification_purpose_cannot_acquire_provider_grant(serving
             call_id="probe",
             call_scope="purpose-session",
         )
-    assert count(peers) == 0
-    ref = peers.registry.remote_calls(peers.context, call_scope="purpose-session")[0]
-    assert (
-        await peers.registry.query_remote_call(
-            ref.call_key, peers.context, peers.configs["receiver"], peers.identity
-        )
-        is None
+        == 1
     )
-    assert (
+    ref = peers.registry.remote_calls(peers.context, call_scope="purpose-session")[0]
+    actual = await peers.registry.query_remote_call(
+        ref.call_key, peers.context, peers.configs["receiver"], peers.identity
+    )
+    assert actual["purpose"] == "reuse" and actual["result"] == 1
+    provider = provider_binding()
+    denied = await send(
+        peers.configs["receiver"],
+        peers.identity,
+        "producer",
+        {
+            "operation": "invoke",
+            "invocation_id": "ungranted-provider-probe",
+            "binding_id": provider.id,
+            "binding_digest": provider.digest,
+            "arguments": {"value": 7},
+            "purpose": "verification",
+        },
+    )
+    assert denied["state"] == "rejected" and count(peers) == 1
+    # Nor can local verification bypass the provider's required independent PASS.
+    from collective_intelligence_overlay.models import Revocation
+
+    verifier, verifier_overlay = peers.configs["verifier"].runtime()
+    try:
+        evidence = next(
+            item
+            for item in peers.provider.store.evidence()
+            if item.issuer == "verifier" and item.binding_digest == provider.digest
+        )
+        revocation = Revocation(
+            issuer="verifier",
+            subject=evidence.subject,
+            evidence_id=evidence.id,
+            reason="withdrawn",
+        )
+        peers.provider.store.put(verifier.sign(revocation))
+    finally:
+        verifier_overlay.store.close()
+    with pytest.raises(ValueError, match="incomplete or unknown"):
         await peers.registry.execute(
             proxy.id,
             proxy.digest,
             {"value": 7},
-            peers.context,
-            call_id="ordinary",
+            peers.context.model_copy(update={"purpose": "verification"}),
+            call_id="after-withdrawal",
             call_scope="purpose-session",
         )
-        == 1
-    )
+    assert count(peers) == 1
 
 
 async def test_cancellation_joins_persisted_mapping_thread_before_store_cleanup(
