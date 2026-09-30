@@ -31,7 +31,9 @@ def test_setup_separates_secret_and_resolves_paths_without_overwrite(tmp_path, m
     assert config.local_development is False
     assert config.identities.keys() == {"analyst"}
     assert "private-test-value" not in repr(config)
-    bounded = config.model_copy(update={"artifact_capacity_bytes": 1048576, "artifact_max_files": 1})
+    bounded = config.model_copy(
+        update={"artifact_capacity_bytes": 1048576, "artifact_max_files": 1}
+    )
     cas = bounded.artifacts()
     original_object = cas.put(b"owner input")
     assert bounded.artifacts().put(b"owner input") == original_object
