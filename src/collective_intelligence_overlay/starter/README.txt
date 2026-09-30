@@ -7,6 +7,17 @@ Select the installed copy with application factory
 `collective_intelligence_overlay.starter.application:configure`, or adapt it inside
 your own explicitly installed and reviewed application package.
 
+The same wheel also contains the document formation application at
+collective_intelligence_overlay.starter.adaptive_documents:configure. Its trusted
+configure_application SDK setup prepares public proposal contracts, private owner
+settings and exact installed binding pins for the existing three configured owners.
+Run it with standard peer --config PATH and owner run, with explicitly granted
+app.* business operations. It uses existing MAF/Steps/Executor, independent checks
+and receiver admission. A producer's explicitly pinned HTTPS MCP counter can supply
+the registered primitive; keep its dedicated token in private application settings,
+never in a public binding or artifact. See the API's document application section
+for fields, limits and the still unfinished complete production acceptance profile.
+
 Production setup uses an existing restricted PostgreSQL runtime role, an explicitly
 installed OPA binary, and an operator-supplied HTTPS certificate/private key. Never
 give the runtime role database ownership or DDL rights. Migration uses a separate

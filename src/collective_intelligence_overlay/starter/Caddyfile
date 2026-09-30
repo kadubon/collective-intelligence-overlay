@@ -1,6 +1,9 @@
 {
     admin off
     auto_https off
+    servers {
+        protocols h1 h2
+    }
 }
 
 {$CIO_PUBLIC_ADDRESS} {

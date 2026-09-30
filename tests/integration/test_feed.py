@@ -1,11 +1,15 @@
+from dataclasses import replace
 from uuid import uuid4
 
 import jwt
 import pytest
+from securesystemslib.exceptions import VerificationError
+from securesystemslib.signer import CryptoSigner
 from sqlalchemy import create_engine, event, text, update
 
 from collective_intelligence_overlay.models import Revocation, UseRequest
 from collective_intelligence_overlay.overlay import Overlay
+from collective_intelligence_overlay.security import Identity, Principal
 from collective_intelligence_overlay.storage import Store, feed_state, migrate, projection_digest
 from collective_intelligence_overlay.synchronization import (
     Feed,
@@ -35,6 +39,52 @@ def source_store(store):
         with admin.connect() as conn:
             conn.execute(text(f'DROP DATABASE "{name}" WITH (FORCE)'))
         admin.dispose()
+
+
+@pytest.mark.parametrize("compromised", [False, True])
+async def test_current_feed_retains_historical_origin_without_granting_authority(
+    source_store, store, identities, records, policy, compromised
+):
+    cap, evidence = records
+    old = identities["producer"]
+    original = old.sign(cap)
+    source_store.put(original)
+    store.put(identities["verifier"].sign(evidence))
+    new = Identity("producer", CryptoSigner.generate_ed25519())
+    principal = Principal(
+        new.signer.public_key, "producer", historical_keys=(old.signer.public_key,)
+    )
+    if compromised:
+        principal = replace(principal, compromised_keyids=frozenset({old.signer.public_key.keyid}))
+    store.principals["producer"] = principal
+    source_store.principals["producer"] = principal
+    receiver = Receiver(store)
+    filter = FeedFilter()
+    outdated = Feed(source_store, old).page("receiver", filter)
+    with pytest.raises(ValueError, match="current uncompromised key"):
+        receiver.apply("producer", filter, outdated)
+    assert receiver.checkpoint("producer", filter) is None
+    page = Feed(source_store, new).page("receiver", filter)
+    assert receiver.apply("producer", filter, page)
+    assert receiver.freshness("producer", filter) is not None
+    reference = store.reference("capability", "producer", cap.subject.key)
+    assert store.signed_record(reference) == original
+    assert store.capabilities() == [cap]
+    assert receiver.apply("producer", filter, page) is False
+    if compromised:
+        with pytest.raises(VerificationError):
+            store.put(original)
+    overlay = Overlay(store, policy)
+    overlay.observed("producer")
+    overlay.observed("verifier")
+    request = UseRequest(
+        receiver="receiver",
+        capability_issuer="producer",
+        subject=cap.subject,
+        scope=cap.scope,
+        semantic_fit="confirmed",
+    )
+    assert (await overlay.qualify(request)).outcome == ("UNKNOWN" if compromised else "ACCEPT")
 
 
 def prepare(store, identities, records):

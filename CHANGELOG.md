@@ -9,6 +9,13 @@
   same implementation. Explicitly granted `app.*` operations and a bounded owner
   runner connect its actual MAF formation/check/reuse loop to standard host intake.
   Exact installed pins restore without scanning unrelated retained history.
+- The same reference host supports an explicitly pinned authenticated HTTPS MCP
+  counter with a dedicated client. Its credential stays in protected application
+  settings included in owner backup, outside public bindings and artifacts.
+  Native three-owner tests exercise restricted roles, actual MAF/A2A/MCP/TLS and
+  original UNKNOWN replay after provider restart without another tool call/refund.
+- The reference Caddy listener uses standard HTTP/1.1 and HTTP/2, avoiding an
+  observed native Windows HTTP/3 UDP bind refusal without changing TLS or gates.
 - Native CAS publication locks before initializing an empty lock file, preventing
   the observed Windows concurrent-creator failure. A deterministic process test
   retains the originally empty locked file until its holder releases it.
@@ -23,6 +30,8 @@
   restart; full post-restore sync and an explicitly registered external-state
   query precede a separately authorized, unchanged-state resume.
 - Routine/compromised keyrings separate historical origin from current authority.
+  Current uncompromised feed receipts can carry unchanged known historical origins;
+  direct submissions and admission keep strict signature authority checks.
   Standard redacted rotating logs, owner-only metrics and configured atomic CAS
   quotas retain uncertain mappings, signed history and unavailable costs.
 - The official Caddy binary failed vulnerability review. An explicit pinned

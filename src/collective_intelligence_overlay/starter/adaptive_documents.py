@@ -76,6 +76,7 @@ def binding_ref(binding: Any) -> BindingRef:
 def write_json(path: Path, value: Any) -> None:
     temporary = path.with_suffix(".tmp")
     temporary.write_text(json.dumps(value, indent=2), encoding="utf-8")
+    os.chmod(temporary, 0o600)
     temporary.replace(path)
 
 
@@ -919,9 +920,16 @@ def configure_application(
         )
         public = [ProposalContract.from_goal(goal).model_dump(mode="json") for goal in goals]
         for name, config in configs.items():
+            settings = config.application_settings or config.private_key.parent / "application.json"
+            previous: dict[str, Any] = {}
+            if settings.exists():
+                if settings.stat().st_size > 262144:
+                    raise ValueError("application settings exceed byte bound")
+                previous = json.loads(settings.read_text(encoding="utf-8"))
             write_json(
-                config.private_key.parent / "application.json",
+                settings,
                 {
+                    **previous,
                     "training_text": training_text,
                     "report_input": "document" if connection_mismatch else "text",
                     "contracts": public,

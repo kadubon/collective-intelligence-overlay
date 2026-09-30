@@ -79,6 +79,35 @@ Windows/CPython 3.12 development observations are partial evidence:
   14 original signed records and one original remote mapping. Fresh PostgreSQL
   dump/restore and ordinary/interrupted migration passed two tests in 8.23 seconds.
   That fixture regression does not establish the full live three-peer upgrade.
+- Frozen source `58874b3` passed all 329 tests in 1242.10 seconds, with zero failures,
+  errors or skips. Its fixed wheel/sdist passed normal clean core import/CLI,
+  54 agents unit tests, one model adapter test and 55 tests after rebuilding the
+  sdist with the observed native CPython 3.12.14. This checkpoint preceded the
+  later three-peer HTTPS/MCP reference integration.
+- The later three-owner standard CLI path uses installed setup, separate secrets,
+  restricted runtime roles, HTTPS Caddy and an explicitly registered authenticated
+  official MCP counter. Actual MAF composition uses A2A to this counter; independent
+  checks, scoped reuse, subsequent formation, restart and withdrawal remain active.
+  A four-test native group passed in 166.82 seconds, including at least 120 seconds
+  of actual continued service observations in the normal case. MCP stop/restart
+  leaves the original request UNKNOWN/held; its ready-service replay makes no new
+  external tool call and no refund, verified with a private test call oracle.
+  Known credential and held-out input strings were absent from service logs.
+  The full required fault protocol and all native installed profiles remain open.
+- The positive MCP-binding/call assertions and normal/bottleneck host cases passed
+  two tests in 152.21 seconds. Eleven PostgreSQL/OPA feed/key regressions passed in
+  20.55 seconds: current receipts transport unchanged known historical signatures,
+  while old feed keys, direct compromised submissions and compromised admission
+  remain denied/UNKNOWN. Neither an anchor nor an old timestamp grants authority.
+
+The preceding development reports remain retained: two successful HTTPS business
+cases with one 5-second administrative teardown timeout; two MCP manifest failures
+from noncompact JSON in the test setup; and a run with a reused wrong test binding
+digest plus an HTTP/3 UDP bind refusal on Windows. Administrative cleanup now uses
+its separate finite operator connection; runtime limits stay unchanged. Manifest
+encoding and the test's exact binding reference were corrected. The packaged
+listener explicitly uses standard HTTP/1.1 and HTTP/2, the TCP transports required
+by this profile. These fixes do not lower the acceptance targets.
 
 These groups overlap and are not an additional complete-suite count. Local tests
 do not establish all native installed profiles, networked three-peer recovery,

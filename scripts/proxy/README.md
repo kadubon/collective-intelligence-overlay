@@ -21,6 +21,13 @@ install this exact toolchain. The executable is `.local/proxy-build/caddy`
 (`caddy.exe` on Windows); use it with the packaged Caddyfile. Build tools and the
 proxy remain separate from the Python wheel and its runtime dependencies.
 
+The packaged listener explicitly enables HTTP/1.1 and HTTP/2 using the standard
+[Caddy server protocols option](https://caddyserver.com/docs/caddyfile/options#protocols).
+The declared A2A/MCP profile uses these TCP transports. A native Windows test found
+an HTTP/3 UDP listener bind refused for a dynamically chosen port; HTTP/3 is not
+required by the profile. The configuration avoids that additional listener without
+changing TLS verification, authentication, operation bounds or acceptance targets.
+
 ## Security review
 
 `govulncheck` 1.8.0 must return zero affecting/package findings. The only reviewed

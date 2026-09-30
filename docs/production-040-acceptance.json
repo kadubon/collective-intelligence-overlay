@@ -35,10 +35,10 @@
         "src/collective_intelligence_overlay/starter/adaptive_documents.py"
       ],
       "test": "Public factory registration and arbitrary application contracts",
-      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile.",
+      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile. Later actual native Windows 3.12 group uses installed setup, separate secrets, restricted runtime DB roles, HTTPS and authenticated official MCP counter through MAF/A2A composition. Four tests passed 166.82 seconds; normal case retained at least 120 seconds of actual service observations. Provider restart preserves original UNKNOWN/held and budget; a private external call oracle proves no replay call. Failed setup/teardown/binding/UDP reports retained and corrected.",
       "remaining": [
-        "complete HTTPS/restricted-role/native/MCP production protocol",
-        "clean installed wheel application and complete operational/cost/lineage acceptance"
+        "all 12 native installed complete required-fault protocols",
+        "complete operational/cost/lineage/promotion acceptance, soak and matched experiment"
       ],
       "status": "partial; complete acceptance pending"
     },
@@ -62,7 +62,7 @@
         "src/collective_intelligence_overlay/setup.py"
       ],
       "test": "Runtime DML succeeds; DDL/foreign-owner boundary denied; backup role explicit",
-      "observed": "Actual dedicated runtime role: DML/production readiness passed; DDL and Alembic version updates denied",
+      "observed": "Actual dedicated runtime role: DML/production readiness passed; DDL and Alembic version updates denied Three-owner HTTPS reference setup also verifies each runtime lacks public-schema CREATE, Alembic UPDATE and CONNECT to the other two owner databases.",
       "remaining": [
         "cross-owner denial, upgrade/backup-role and all-native validation"
       ],
@@ -77,10 +77,10 @@
         "src/collective_intelligence_overlay/starter/adaptive_documents.py"
       ],
       "test": "Two differing application contracts through same public API; no registry-only empty production host",
-      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile.",
+      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile. Later actual native Windows 3.12 group uses installed setup, separate secrets, restricted runtime DB roles, HTTPS and authenticated official MCP counter through MAF/A2A composition. Four tests passed 166.82 seconds; normal case retained at least 120 seconds of actual service observations. Provider restart preserves original UNKNOWN/held and budget; a private external call oracle proves no replay call. Failed setup/teardown/binding/UDP reports retained and corrected.",
       "remaining": [
-        "complete HTTPS/restricted-role/native/MCP production protocol",
-        "clean installed wheel application and complete operational/cost/lineage acceptance"
+        "all 12 native installed complete required-fault protocols",
+        "complete operational/cost/lineage/promotion acceptance, soak and matched experiment"
       ],
       "status": "partial; complete acceptance pending"
     },
@@ -93,10 +93,10 @@
         "src/collective_intelligence_overlay/starter/adaptive_documents.py"
       ],
       "test": "Changed inputs and checker bottleneck alter bounded choices; valid siblings continue",
-      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile.",
+      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile. Later actual native Windows 3.12 group uses installed setup, separate secrets, restricted runtime DB roles, HTTPS and authenticated official MCP counter through MAF/A2A composition. Four tests passed 166.82 seconds; normal case retained at least 120 seconds of actual service observations. Provider restart preserves original UNKNOWN/held and budget; a private external call oracle proves no replay call. Failed setup/teardown/binding/UDP reports retained and corrected.",
       "remaining": [
-        "complete HTTPS/restricted-role/native/MCP production protocol",
-        "clean installed wheel application and complete operational/cost/lineage acceptance"
+        "all 12 native installed complete required-fault protocols",
+        "complete operational/cost/lineage/promotion acceptance, soak and matched experiment"
       ],
       "status": "partial; complete acceptance pending"
     },
@@ -109,10 +109,10 @@
         "src/collective_intelligence_overlay/starter/adaptive_documents.py"
       ],
       "test": "Production public 8-step loop with observed-use receipts, no fixed core IDs/results",
-      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile.",
+      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile. Later actual native Windows 3.12 group uses installed setup, separate secrets, restricted runtime DB roles, HTTPS and authenticated official MCP counter through MAF/A2A composition. Four tests passed 166.82 seconds; normal case retained at least 120 seconds of actual service observations. Provider restart preserves original UNKNOWN/held and budget; a private external call oracle proves no replay call. Failed setup/teardown/binding/UDP reports retained and corrected.",
       "remaining": [
-        "complete HTTPS/restricted-role/native/MCP production protocol",
-        "clean installed wheel application and complete operational/cost/lineage acceptance"
+        "all 12 native installed complete required-fault protocols",
+        "complete operational/cost/lineage/promotion acceptance, soak and matched experiment"
       ],
       "status": "partial; complete acceptance pending"
     },
@@ -246,7 +246,7 @@
         "src/collective_intelligence_overlay/adapters/mcp.py"
       ],
       "test": "Real authenticated MCP through injected public client; no upstream identity inheritance",
-      "observed": "One real official MCP token-verifier server and authenticated injected-client test passed; default client denied",
+      "observed": "One real official MCP token-verifier server and authenticated injected-client test passed; default client denied Three actual HTTPS peers and an authenticated MCP endpoint compose the same business loop with explicit token/CA/interface pin; secret and raw-input log checks pass. The reference listener uses standard TCP HTTP/1.1 and HTTP/2.",
       "remaining": [
         "TLS/installed profile, documentation and optional auth integration limits"
       ],
@@ -261,7 +261,7 @@
         "src/collective_intelligence_overlay/setup.py"
       ],
       "test": "Both peers restart with current and historical pins; original receipts/maps/budget survive; compromised evidence rechecks",
-      "observed": "Routine/compromised key plus withdrawal group: 5 passed; old bytes retained, old HTTP authority denied, compromised admission UNKNOWN, offline rotation does not overwrite",
+      "observed": "Routine/compromised key plus withdrawal group: 5 passed; old bytes retained, old HTTP authority denied, compromised admission UNKNOWN, offline rotation does not overwrite Eleven actual PostgreSQL/OPA feed/key tests passed 20.55 seconds. Current uncompromised receipt authenticates exact historical feed pages; known old origins retain original DSSE bytes, while old feed keys/direct compromised submission/compromised admission stay denied or UNKNOWN. No timestamp exemption or re-signing is used.",
       "remaining": [
         "both real peer processes rotate/restart/recover with TLS and native incident commands"
       ],

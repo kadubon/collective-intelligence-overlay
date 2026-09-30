@@ -377,7 +377,14 @@ class Receiver:
         if principal is None:
             raise ValueError("untrusted synchronization source")
         claims = verify_page(page, principal, source, self.store.owner, filter)
-        checked = [(verify(envelope, self.store.principals), envelope) for envelope in page.records]
+        # The current uncompromised receipt above authenticates this exact page.
+        # Keep known historical DSSE origins, including compromised ones, as
+        # inspection history. Admission still verifies current authority, and
+        # direct Store.put never accepts a compromised signature.
+        checked = [
+            (verify(envelope, self.store.principals, require_authority=False), envelope)
+            for envelope in page.records
+        ]
         keys = {subject_key(subject) for subject in filter.subjects}
         for record, _ in checked:
             if record.issuer != source:

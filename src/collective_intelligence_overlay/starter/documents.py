@@ -19,6 +19,7 @@ from pathlib import Path
 from typing import Any, Literal
 from urllib.parse import urlsplit
 
+import httpx2
 import uvicorn
 from agent_framework import WorkflowBuilder, WorkflowContext, tool
 from agent_framework import executor as maf_executor
@@ -139,18 +140,69 @@ class DocumentService(PeerService):
             self.proposal_exchange = host.proposal_exchange
         self.artifacts = config.artifacts()
         self.installed: dict[str, Binding] = {}
+        settings = config.application_settings or config.private_key.parent / "application.json"
+        data: dict[str, Any] = {}
+        if settings.exists():
+            if settings.stat().st_size > 262144:
+                raise ValueError("application settings exceed byte bound")
+            data = json.loads(settings.read_text(encoding="utf-8"))
         if config.owner == "producer":
-            binding = self.install("words", word_count)
-            self.publish(binding)
+            if "counter" in data:
+                binding = Binding.model_validate(data["counter"])
+                if (
+                    binding.id != "words"
+                    or binding.issuer != config.owner
+                    or binding.registrar != config.owner
+                    or binding.target.kind != "mcp"
+                    or binding.effects != "read-only"
+                    or binding.scope
+                    != Scope(
+                        task="words",
+                        input_contract="words.in.v1",
+                        output_contract="words.out.v1",
+                        environment=ENVIRONMENT,
+                    )
+                ):
+                    raise ValueError(
+                        "counter must pin the installed read-only MCP document contract"
+                    )
+                # Application settings are a protected private file, already
+                # included in coherent owner backup. Public Binding/CAS metadata
+                # never contains this credential or inherits an A2A token.
+                token = data["counter_token"]
+                if (
+                    not isinstance(token, str)
+                    or not 1 <= len(token) <= 8192
+                    or "\n" in token
+                    or "\r" in token
+                ):
+                    raise ValueError("invalid explicit MCP credential")
+
+                def client() -> httpx2.AsyncClient:
+                    return httpx2.AsyncClient(
+                        verify=config.tls_context(),
+                        headers={"Authorization": "Bearer " + token},
+                        timeout=20,
+                        follow_redirects=False,
+                        trust_env=False,
+                    )
+
+                self.registry.register_mcp(
+                    binding,
+                    lambda args: (
+                        isinstance(args.get("text"), str)
+                        and bool(args["text"].strip())
+                        and len(args["text"]) <= 4096
+                    ),
+                    http_client_factory=client,
+                )
+                self.installed["words"] = binding
+            else:
+                binding = self.install("words", word_count)
+            self.publish(binding, imported=binding.target.kind == "mcp")
         elif config.owner == "receiver":
             binding = self.install("render", render_count)
             self.publish(binding)
-            settings = config.application_settings or config.private_key.parent / "application.json"
-            data: dict[str, Any] = {}
-            if settings.exists():
-                if settings.stat().st_size > 262144:
-                    raise ValueError("application settings exceed byte bound")
-                data = json.loads(settings.read_text(encoding="utf-8"))
             pins = data.get("installed")
             existing: dict[str, Binding | Capability]
             if pins is not None:
@@ -298,7 +350,7 @@ class DocumentService(PeerService):
         if (
             provider.id != "words"
             or provider.issuer != "producer"
-            or provider.target.kind != "local"
+            or provider.target.kind not in {"local", "mcp"}
         ):
             raise ValueError("application only imports the configured document counter")
         binding = self.make_binding(

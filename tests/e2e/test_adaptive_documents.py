@@ -1,6 +1,8 @@
 import asyncio
 import os
+import subprocess
 import sys
+import time
 from decimal import Decimal
 from pathlib import Path
 
@@ -32,6 +34,7 @@ from collective_intelligence_overlay.storage import budgets
 )
 async def test_peer_selected_document_formation_restart_and_withdrawal(
     tmp_path,
+    request,
     policy,
     monkeypatch,
     training_text,
@@ -53,9 +56,25 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
     )
 
     opa = await asyncio.to_thread(os.path.abspath, policy.binary)
-    configs = await asyncio.to_thread(
-        initialize, tmp_path / "application", url, opa, work_allowance=Decimal(work_allowance)
-    )
+    mesh = None
+    if host_mode:
+        from production_mesh import ProductionMesh
+
+        assert os.environ.get("CIO_CADDY"), "actual native audited Caddy required"
+        mesh = await asyncio.to_thread(
+            ProductionMesh,
+            tmp_path / "application",
+            url,
+            opa,
+            os.environ["CIO_CADDY"],
+            work_allowance,
+        )
+        request.addfinalizer(mesh.close)
+        configs = mesh.configs
+    else:
+        configs = await asyncio.to_thread(
+            initialize, tmp_path / "application", url, opa, work_allowance=Decimal(work_allowance)
+        )
     for name, original in configs.items():
         config = original.model_copy(
             update={
@@ -68,9 +87,14 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             }
         )
         configs[name] = config
-        data = config.model_dump(mode="json")
-        data["database_url"] = config.database_url.get_secret_value()
+        data = config.model_dump(mode="json", exclude={"database_url"} if host_mode else set())
+        if host_mode:
+            data["database_url_file"] = "secrets/database-url"
+        else:
+            data["database_url"] = config.database_url.get_secret_value()
         write_json(config.private_key.parent / "config.json", data)
+    if mesh is not None:
+        await mesh.configure_mcp(configs["producer"])
     configure_application(configs, training_text, connection_mismatch=connection_mismatch)
     identities = {}
     for name, config in configs.items():
@@ -93,15 +117,18 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
         log_path = config.private_key.parent / "adaptive.log"
         log = log_path.open("ab")
         logs.append(log)
-        process = await asyncio.create_subprocess_exec(
-            sys.executable,
-            *(
-                ["-m", "collective_intelligence_overlay.cli", "peer"]
-                if host_mode
-                else [str(examples / "adaptive_documents.py")]
-            ),
-            "--config",
-            str(config.private_key.parent / "config.json"),
+        process = await asyncio.to_thread(
+            subprocess.Popen,
+            [
+                sys.executable,
+                *(
+                    ["-m", "collective_intelligence_overlay.cli", "peer"]
+                    if host_mode
+                    else [str(examples / "adaptive_documents.py")]
+                ),
+                "--config",
+                str(config.private_key.parent / "config.json"),
+            ],
             cwd=tmp_path,
             stdout=log,
             stderr=log,
@@ -109,7 +136,7 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
         processes[name] = process
         async with asyncio.timeout(25):
             while True:
-                if process.returncode is not None:
+                if process.poll() is not None:
                     raise AssertionError(log_path.read_text(encoding="utf-8"))
                 try:
                     observed = await call(name, operation="status" if host_mode else "metrics")
@@ -121,14 +148,10 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     await asyncio.sleep(0.1)
 
     async def stop(name):
+        from production_mesh import stop_process
+
         process = processes[name]
-        if process.returncode is None:
-            process.terminate()
-        try:
-            await asyncio.wait_for(process.wait(), 10)
-        except TimeoutError:
-            process.kill()
-            await process.wait()
+        await asyncio.to_thread(stop_process, process)
 
     async def sync(owner, source):
         assert (await call(owner, operation="sync", peer=source, page_size=4))["complete"]
@@ -144,13 +167,18 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             overlay.store.close()
 
     try:
-        async with asyncio.timeout(180):
+        if mesh is not None:
+            await asyncio.to_thread(mesh.start_proxies)
+        started = time.monotonic()
+        async with asyncio.timeout(600 if host_mode else 180):
             for name in configs:
                 await start(name)
             assert len({process.pid for process in processes.values()}) == 3
             # Initial checked primitives are fixtures. No later work, candidate,
             # calibration alternative or verification order is selected here.
             words = await call("producer", operation="describe", name="words")
+            if mesh is not None:
+                assert words["binding"]["target"]["kind"] == "mcp"
             checked = await call(
                 "verifier",
                 operation="verify",
@@ -160,6 +188,8 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 arguments={"text": "initial primitive check"},
             )
             assert checked["evidence"]["verdict"] == "PASS"
+            if mesh is not None:
+                assert mesh.mcp_audit.read_bytes() == b"call\n"
             await sync("producer", "verifier")
             await sync("receiver", "producer")
             await sync("receiver", "verifier")
@@ -361,6 +391,48 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             outcome = await call("receiver", **request)
             assert outcome["state"] == "completed"
             assert outcome["result"] == {"long": True, "threshold": len(training_text.split())}
+            if mesh is not None:
+                from production_mesh import stop_process
+
+                await asyncio.to_thread(stop_process, mesh.workers[-1])
+                uncertain_request = {
+                    "operation": "invoke",
+                    "invocation_id": "mcp-unavailable-original",
+                    "binding_id": words["binding"]["id"],
+                    "binding_digest": Binding.model_validate(words["binding"]).digest,
+                    "arguments": {"text": "uncertain original MCP request"},
+                }
+                uncertain = await call("producer", **uncertain_request)
+                assert uncertain["state"] == "unknown"
+                assert uncertain["reservation_state"] == "held"
+                remaining = await asyncio.to_thread(balance, "producer")
+                await asyncio.to_thread(mesh.restart_mcp)
+                assert await call("producer", **uncertain_request) == uncertain
+                assert await asyncio.to_thread(balance, "producer") == remaining
+                async with httpx.AsyncClient(
+                    verify=configs["producer"].tls_context(), trust_env=False
+                ) as public:
+                    async with asyncio.timeout(25):
+                        while True:
+                            response = await public.get(mesh.mcp_endpoint)
+                            if response.status_code == 401:
+                                break
+                            assert response.status_code in {502, 503}
+                            await asyncio.sleep(0.1)
+                calls_before = mesh.mcp_audit.read_bytes()
+                assert await call("producer", **uncertain_request) == uncertain
+                assert mesh.mcp_audit.read_bytes() == calls_before
+                assert await asyncio.to_thread(balance, "producer") == remaining
+                fresh = await call(
+                    "producer",
+                    **{
+                        **uncertain_request,
+                        "invocation_id": "mcp-after-explicit-restart",
+                        "arguments": {"text": "別の checked input"},
+                    },
+                )
+                assert fresh["state"] == "completed" and fresh["result"] == {"words": 3}
+                assert mesh.mcp_audit.read_bytes() == calls_before + b"call\n"
             old_pid = processes["receiver"].pid
             await stop("receiver")
             # Replay a completed checker result after checker restart while the
@@ -423,6 +495,18 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             assert stopped["reason"] == "requires_repair" and not stopped["history"]
             denied = await call("receiver", **{**request, "invocation_id": "after-withdrawal"})
             assert denied["state"] == "unknown"
+            if mesh is not None:
+                # Actual continued service observations, not a synthetic duration.
+                while time.monotonic() - started < 120:
+                    for owner in configs:
+                        observed = await call(owner, operation="operational_metrics")
+                        assert observed["operations"]["state"] == "ready"
+                    await asyncio.sleep(2)
+                assert time.monotonic() - started < 600
+                for path in tmp_path.rglob("*.log"):
+                    content = path.read_text(encoding="utf-8", errors="replace")
+                    assert mesh.mcp_token not in content
+                    assert "This evaluation input was unavailable" not in content
     finally:
         for name in processes:
             await stop(name)

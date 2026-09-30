@@ -301,6 +301,26 @@ requalification. Pins grant no PASS or admission. Legacy settings without pins
 retain their bounded compatibility lookup and refuse oversized history rather
 than silently choose an incomplete page. Upgrade those settings by explicitly
 reviewing and recording the intended installed bindings.
+
+The producer may instead install an actual MCP counter through private application
+settings: `counter` is the complete explicit read-only Binding JSON with owner/
+registrar `producer`, ID `words`, the document count scope, an HTTPS MCP endpoint
+and the observed tool schema/interface digest. `counter_token` is that service's
+explicit credential in the same protected private settings file. Do not put this
+credential in the public Binding, CAS manifest, shared contracts or logs. The
+factory validates the installed contract and registers it with the existing MCP
+adapter using verified TLS and a dedicated HTTP client. No A2A token is inherited.
+Every call rechecks the actual MCP interface; the independent document checker
+still establishes only its finite business cases. Interface delivery is not PASS
+or code attestation. Ordinary use still requires receiver qualification.
+
+`configure_application` preserves these operator-supplied settings while writing
+the public proposer contracts and owner pins, with private file permissions. That
+private settings file is already included in owner backup and its recovery state
+digest. Use existing OS permissions on Windows as described in deployment; POSIX
+mode bits do not establish Windows ACL isolation. An unavailable MCP service leaves
+the original dispatched invocation UNKNOWN/held. Its identical replay, including
+after service restart, returns the original result without a new MCP call or refund.
 The owner-only `static-run` operation accepts the same finite bounds and uses
 the fixed control order described in [evaluation](evaluation.md). Its history
 contains actual invocations, formation receipts and checker evidence, without
@@ -946,6 +966,13 @@ and fresh feed tokens. `historical_keys` maps exact key IDs to public key object
 `compromised_keyids` explicitly marks known compromised pins. Backdated payload
 timestamps never exempt a compromised key. Such history remains inspectable but
 cannot authorize admission: qualify returns UNKNOWN pending new checks/version.
+An exact page receipt signed by the current uncompromised source key can transport
+known historical DSSE origins, including compromised ones, for inspection. The
+original envelopes remain unchanged. The receiver verifies the current receipt,
+record-set digest, original issuer and historical signature before atomic import.
+Unknown keys, bad signatures, altered pages and third-party relays are refused.
+Direct submission and admission still require signature authority; a fresh source
+checkpoint cannot turn a compromised capability or evidence into an ACCEPT.
 Rotation retains the database, artifacts, original call IDs and budgets. It does
 not automatically distribute trust, requalify an old scope or undo external effects.
 
