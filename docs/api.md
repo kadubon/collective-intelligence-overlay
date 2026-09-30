@@ -8,17 +8,67 @@ issuers' same-subject records and other versions/digests do not establish owners
 From the operator's configured SDK session:
 
 ```python
-result = await send(config, identity, config.owner, {
-    "operation": "revoke",
-    "subject": subject.model_dump(mode="json"),
-    "reason": "withdrawn",
-})
+result = await send(
+    config,
+    identity,
+    config.owner,
+    {
+        "operation": "revoke",
+        "subject": subject.model_dump(mode="json"),
+        "reason": "withdrawn",
+    },
+)
 ```
 
 `send` is the existing `adapters.a2a.send`. The returned signed revocation remains
 an immutable tombstone. Receivers must complete their configured synchronization
 before relying on the withdrawal; existing source freshness and dependent
 requalification rules apply. This candidate is not yet a published release.
+
+## 0.3.1 candidate: rejected alternatives
+
+`Opportunities.validate_proposal` raises `ProposalRejected` for expected external
+input rejection. Its `category` is one of `format`, `authentication`, `authorization`,
+`scope`, `expired`, `reference` or `arguments`. `Steps.step` additionally classifies
+immutable-ID `conflict`. Database failures, corrupt stored records, mutated host
+configuration, assessment errors and cancellation propagate. The pure DSSE and
+wire parsers convert only their expected input failures; no catch covers storage
+or arbitrary host execution.
+
+`collect` returns `CollectedProposals(replies, unavailable, rejections)`. Keep that
+object through selection to retain the distinction between peer unavailability
+and rejected alternatives:
+
+```python
+batch = await collect(config, store, identity, goal, opportunity.id)
+result = await steps.step(opportunity.id, batch)
+print(result.reason, result.rejections, result.unavailable)
+```
+
+The existing tuple API remains supported. A finite `Steps.run` callback may return
+either tuple replies or the complete `CollectedProposals` object. All unavailable
+configured proposers produce `peers_unavailable`; rejected alternatives with no
+remaining candidate produce `no_valid_alternatives`. `insufficient_allowance` still
+means a valid alternative exists but no execution allowance is available. None is
+verification FAIL. If an invocation already exists, replay returns its stored state.
+
+Rejections are bounded `(peer, category, count)` summaries. Selection validates
+every individual input, including validly signed unauthorized builders. A safely
+interpretable response retains valid siblings; an oversized or malformed whole
+response is rejected for that peer. Conflicting contents for the same issuer/ID in
+one batch exclude both before persistence. A clash with an existing immutable record
+excludes that incoming alternative. Valid candidates retain the original builder,
+issuer and proposal-ID ranking. No rejected raw record is inserted into Store.
+
+Owner-local Event v3 observations use `work.result="rejected_CATEGORY"` with no raw
+peer errors/arguments or new cost charge. Their zero input count avoids counting
+the enclosing selection's inspected proposals twice. They stay outside shared feeds.
+Read them with the existing event inspection operation and a query such as
+`{"kinds":["event"],"issuer":"receiver","task_id":"OPPORTUNITY_ID"}`:
+
+```sh
+collective-intelligence-overlay inspect --config receiver.json event --query-file query.json
+```
 
 ## 0.3.0 APIs
 
@@ -214,7 +264,7 @@ answers outside exported goal configuration. Observations without the new digest
 can use exact contracts but cannot request candidate transitions.
 `await proposal_exchange.collect(config, store, identity, goal, opportunity_id)`
 uses existing authenticated A2A destinations to obtain each peer's signed reply.
-It returns `replies` for `Steps.step` and a separate `unavailable` peer list. A peer
+It returns `replies` for `Steps.step`, `unavailable` peers and categorical rejections. A peer
 failure does not erase another peer's alternatives or count as verification FAIL.
 Each reply has at most eight proposals; request concurrency follows configuration,
 the complete collection has at most 60 seconds (or the lower configured limit),
@@ -222,7 +272,8 @@ and failed requests are not retried. Signed payload references and each origin a
 checked before returning. Host goal/builder/permission checks still run in the step.
 
 `steps.Steps(opportunities, executor, owner_context).step(opportunity_id, replies)`
-accepts at most 128 `(authenticated_caller, signed_proposal)` replies. It retains
+accepts at most 128 `(authenticated_caller, signed_proposal)` replies or a complete
+`CollectedProposals` result. It retains
 the alternatives and atomically stores one immutable owner-local choice. The
 current rule follows registered builder order, then stable issuer/proposal order;
 it does not rank claimed prices or treat votes as truth. The chosen operation uses

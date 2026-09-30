@@ -13,9 +13,28 @@ subject rejection, retained revocation, actual receiver synchronization and
 rejection of the target and its dependent after sync. `CIO_REVOKE_COUNTS=100000`
 selects optional stress; that new revoke stress has not been run.
 
+CIO-030-02's signed unauthorized builder aborted both proposal orders before the
+fix. The category/reverse-order regression set passed 18 tests in 32.22 seconds.
+Real hostile A2A fixtures exercise normal candidates, reversed mixed same-peer
+siblings, multiple peers, bad signatures, substituted references, oversized/malformed
+containers, malformed JSON/RPC/card responses, all rejected candidates and unavailable
+peers. A targeted source gate covering these cases, unit tests, existing exchange,
+HTTP/authentication and revoke passed 84 tests in 113.73 seconds, with the known
+CIO-030-03 expiry regression explicitly deselected. Database connection refusal,
+immutable external conflicts, host assessment failures and cancellation remain
+observable. This is local Windows CPython 3.12.10 evidence, not a released artifact.
+
+After cancellation cleanup was added, the broader existing source regression passed
+**222 tests in 992.87 seconds**, zero failures/errors/skips. The two still-failing
+new reproductions for CIO-030-03 expiry and CIO-030-04 nested call identity were
+explicitly deselected for this interim gate; it is not the final complete suite.
+This run includes actual PostgreSQL/OPA/A2A/MCP/MAF, three-process applications,
+backup/restore, invocation/allowance/cancellation and the default signed-history
+profiles. Ruff, format, strict typing and generated-schema/doc-link checks passed.
+
 These local observations do not establish the new multi-Python, installed-artifact
-or release gates. The other three audit items and Python support extension remain
-under development. Existing released-version facts below are historical evidence.
+or release gates. CIO-030-03/04 and Python support extension remain under development.
+Existing released-version facts below are historical evidence.
 
 ## 0.3.0 released artifacts
 

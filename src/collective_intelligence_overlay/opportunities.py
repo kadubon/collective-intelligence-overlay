@@ -7,14 +7,18 @@ allowlists; qualification remains with Overlay and actuation with Registry/Execu
 from __future__ import annotations
 
 import asyncio
+import json
 import time
+from collections import Counter
 from datetime import timedelta
 from decimal import Decimal
-from typing import Any, Self
+from typing import Any, Literal, Self
 
+from jsonschema import ValidationError as SchemaError  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
+from securesystemslib.exceptions import FormatError, VerificationError
 
-from .bindings import ExecutionContext, Registry, fingerprint
+from .bindings import ExecutionContext, InvalidArguments, Registry, fingerprint
 from .models import (
     BindingRef,
     Capability,
@@ -33,8 +37,111 @@ from .models import (
     uid,
 )
 from .queries import RecordQuery
-from .security import Identity, verify
-from .storage import Conflict, projection_digest
+from .security import MAX_RECORD_BYTES, Identity, Principal, verify
+from .storage import Conflict, Store, projection_digest
+
+RejectionCategory = Literal[
+    "format",
+    "authentication",
+    "authorization",
+    "scope",
+    "expired",
+    "reference",
+    "arguments",
+    "conflict",
+]
+
+
+class ProposalRejected(ValueError):
+    """Expected rejection of one untrusted alternative; never a storage failure."""
+
+    def __init__(self, category: RejectionCategory, message: str) -> None:
+        self.category = category
+        super().__init__(message)
+
+
+class ProposalRejection(BaseModel):
+    """Bounded categorical owner observation, without peer text or raw arguments."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    peer: Identifier
+    category: RejectionCategory
+    count: int = Field(ge=1, le=128)
+
+
+def authenticate_proposal(envelope: Any, caller: str, principals: dict[str, Principal]) -> Proposal:
+    """Convert errors only at the pure untrusted DSSE/type validation boundary."""
+    if (
+        not isinstance(envelope, dict)
+        or not isinstance(envelope.get("payload"), str)
+        or not isinstance(envelope.get("payloadType"), str)
+        or not isinstance(envelope.get("signatures"), list)
+        or any(
+            not isinstance(s, dict)
+            or not isinstance(s.get("keyid"), str)
+            or not isinstance(s.get("sig"), str)
+            for s in envelope["signatures"]
+        )
+    ):
+        raise ProposalRejected("format", "invalid proposal envelope")
+    try:
+        size = len(json.dumps(envelope).encode())
+    except (TypeError, ValueError, RecursionError) as exc:
+        raise ProposalRejected("format", "invalid proposal JSON") from exc
+    if size > MAX_RECORD_BYTES:
+        raise ProposalRejected("format", "proposal envelope exceeds byte bound")
+    try:
+        record = verify(envelope, principals)
+    except (ValueError, TypeError, KeyError, RecursionError, FormatError, VerificationError) as exc:
+        raise ProposalRejected("authentication", "proposal authentication or type failed") from exc
+    if not isinstance(record, Proposal):
+        raise ProposalRejected("format", "expected a proposal")
+    if record.issuer != caller:
+        raise ProposalRejected("authentication", "proposal issuer must match authenticated peer")
+    return record
+
+
+def summarize_rejections(
+    rejected: list[tuple[str, RejectionCategory]],
+) -> tuple[ProposalRejection, ...]:
+    return tuple(
+        ProposalRejection(peer=peer, category=category, count=count)
+        for (peer, category), count in sorted(Counter(rejected).items())
+    )
+
+
+def record_rejections(
+    store: Store,
+    identity: Identity,
+    opportunity: Opportunity,
+    rejected: tuple[ProposalRejection, ...],
+) -> None:
+    """At most one local event per peer/category, with no additional cost charge."""
+    for rejection in rejected:
+        event = Event(
+            schema_version="3",
+            issuer=identity.name,
+            subject=opportunity.subject,
+            action="recommendation",
+            task_id=opportunity.id,
+            attempt_id=uid(),
+            correlation_id=opportunity.id,
+            work=WorkObservation(
+                receiver=identity.name,
+                scope=opportunity.scope,
+                policy_digest=opportunity.policy_digest,
+                goal_id=opportunity.goal_id,
+                goal_digest=opportunity.goal_digest,
+                opportunity_id=opportunity.id,
+                work_kind=opportunity.work_kind,
+                stage="selection",
+                result="rejected_" + rejection.category,
+                # The enclosing collection/selection records the input count.
+                # Categories must not double-count inspected proposals in metrics.
+                proposals_received=0,
+            ),
+        )
+        store.put(identity.sign(event))
 
 
 class Goal(BaseModel):
@@ -396,9 +503,7 @@ class Opportunities:
     ) -> Proposal:
         """Check authenticated input against host constraints, without executing it."""
         store = self.registry.overlay.store
-        proposal = verify(envelope, store.principals)
-        if not isinstance(proposal, Proposal) or proposal.issuer != caller:
-            raise ValueError("proposal issuer must match authenticated peer")
+        proposal = authenticate_proposal(envelope, caller, store.principals)
         return self._validate_proposal(proposal, caller, context)
 
     def _validate_proposal(
@@ -406,15 +511,35 @@ class Opportunities:
     ) -> Proposal:
         """Only for records already authenticated by verify or Store resolution."""
         store = self.registry.overlay.store
+        if context.caller != self.identity.name or context.purpose != "reuse":
+            raise ValueError("proposal selection requires owner execution context")
+        if proposal.goal_id not in self._goals:
+            raise ProposalRejected("authorization", "proposal names an unregistered goal")
         goal = self.goal(proposal.goal_id)
         if caller not in {self.identity.name, *goal.peers}:
-            raise ValueError("peer not authorized for this goal")
+            raise ProposalRejected("authorization", "peer not authorized for this goal")
         if proposal.goal_digest != goal.digest or proposal.scope != goal.request.scope:
-            raise ValueError("proposal changes the registered goal or scope")
+            raise ProposalRejected("scope", "proposal changes the registered goal or scope")
         if proposal.subject != goal.request.subject or self.identity.name not in proposal.receivers:
-            raise ValueError("proposal target or receiver mismatch")
+            raise ProposalRejected("scope", "proposal target or receiver mismatch")
         if proposal.expires_at <= now():
-            raise ValueError("proposal expired")
+            raise ProposalRejected("expired", "proposal expired")
+        if (
+            proposal.opportunity.kind != "opportunity"
+            or proposal.opportunity.issuer != self.identity.name
+        ):
+            raise ProposalRejected("reference", "proposal does not reference a local opportunity")
+        page = store.record_page(
+            RecordQuery(
+                kinds=("opportunity",), issuer=self.identity.name, record_id=proposal.opportunity.id
+            ),
+            limit=1,
+        )
+        if not page.items:
+            raise ProposalRejected("reference", "proposal references a missing opportunity")
+        exact = store.reference("opportunity", self.identity.name, proposal.opportunity.id)
+        if exact != proposal.opportunity:
+            raise ProposalRejected("reference", "proposal changes the opportunity reference")
         opportunity = store.resolve_reference(proposal.opportunity)
         if not isinstance(opportunity, Opportunity) or (
             opportunity.issuer != self.identity.name
@@ -426,9 +551,9 @@ class Opportunities:
             or opportunity.expires_at <= now()
             or opportunity.policy_digest != self.registry.overlay.policy.digest
         ):
-            raise ValueError("proposal refers to an inapplicable opportunity")
+            raise ProposalRejected("reference", "proposal refers to an inapplicable opportunity")
         if proposal.expires_at > opportunity.expires_at:
-            raise ValueError("proposal cannot extend its observation lifetime")
+            raise ProposalRejected("expired", "proposal cannot extend its observation lifetime")
         for reference in opportunity.basis:
             basis = store.resolve_reference(reference)
             if isinstance(basis, Decision) and (
@@ -436,13 +561,18 @@ class Opportunities:
                 or basis.policy_digest != opportunity.policy_digest
                 or basis.revisions != store.revisions(set(basis.revisions))
             ):
-                raise ValueError("opportunity observation changed; rediscovery required")
+                raise ProposalRejected(
+                    "reference", "opportunity observation changed; rediscovery required"
+                )
         if proposal.builder not in goal.builders:
-            raise ValueError("builder is not authorized for this goal")
+            raise ProposalRejected("authorization", "builder is not authorized for this goal")
         binding = self.registry.inspect(proposal.builder.id)
         if binding.issuer != proposal.builder.issuer or binding.digest != proposal.builder.digest:
-            raise ValueError("installed builder identity changed")
-        if context.caller != self.identity.name or context.purpose != "reuse":
-            raise ValueError("proposal selection requires owner execution context")
-        self.registry.prepare(binding.id, binding.digest, proposal.arguments, context)
+            raise ProposalRejected("reference", "installed builder identity changed")
+        try:
+            self.registry.prepare(binding.id, binding.digest, proposal.arguments, context)
+        except (InvalidArguments, SchemaError) as exc:
+            raise ProposalRejected(
+                "arguments", "proposal arguments violate the builder contract"
+            ) from exc
         return proposal

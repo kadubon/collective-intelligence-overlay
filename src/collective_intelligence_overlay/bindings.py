@@ -177,6 +177,10 @@ Operation = Callable[[dict[str, Any]], Awaitable[Any]]
 Assessment = Callable[[dict[str, Any]], bool]
 
 
+class InvalidArguments(ValueError):
+    """An input violates a host-installed argument bound or resource allowlist."""
+
+
 @dataclass(frozen=True)
 class _Registration:
     binding: Binding
@@ -206,7 +210,7 @@ def _pointer(arguments: dict[str, Any], pointer: str) -> Any:
             key = key.replace("~1", "/").replace("~0", "~")
             value = value[int(key)] if isinstance(value, list) else value[key]
     except (KeyError, IndexError, ValueError, TypeError) as exc:
-        raise ValueError("required resource argument missing") from exc
+        raise InvalidArguments("required resource argument missing") from exc
     return value
 
 
@@ -354,13 +358,13 @@ class Registry:
             raise ValueError("execution environment changed; requalification required")
         encoded = json.dumps(arguments, allow_nan=False)
         if len(encoded.encode()) > 65536:
-            raise ValueError("arguments exceed execution bound")
+            raise InvalidArguments("arguments exceed execution bound")
         actual: dict[str, Any] = json.loads(encoded)
         Draft202012Validator(binding.input_schema).validate(actual)
         for pointer, values in binding.resources.items():
             value = _pointer(actual, pointer)
             if not isinstance(value, str) or value not in values:
-                raise ValueError("resource argument not authorized")
+                raise InvalidArguments("resource argument not authorized")
         # Assessment is operator-installed domain logic, not inferred schema equality.
         fits = entry.assess(copy.deepcopy(actual)) is True
         request = UseRequest(

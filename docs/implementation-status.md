@@ -4,8 +4,8 @@
 
 | Audit | Current change/evidence | Remaining gates |
 | --- | --- | --- |
-| CIO-030-01 | `PeerService._revoke`, `test_cio_030_01_authenticated_exact_revoke_with_mixed_capability_history`: real 1,000/1,001/10,000-record A2A/PG profiles passed on Windows 3.12.10 | Mandatory Python/OS matrix and installed artifacts; optional new 100k revoke stress unrun |
-| CIO-030-02 | Both orders of a signed unapproved builder reproduced batch failure | Candidate isolation and complete release validation in progress |
+| CIO-030-01 | Commit `7f5d566`; `PeerService._revoke`, `test_cio_030_01_authenticated_exact_revoke_with_mixed_capability_history`: real 1,000/1,001/10,000-record A2A/PG profiles passed on Windows 3.12.10 | Mandatory Python/OS matrix and installed artifacts; optional new 100k revoke stress unrun |
+| CIO-030-02 | `ProposalRejected`, individual collection/selection isolation; `test_cio_030_02_*` in opportunities and hostile real A2A reply tests, bounded owner categories, genuine DB connection failure | Windows 3.12.10: targeted gates and 222-test interim source run passed; two pending audit regressions explicitly excluded; mandatory matrix/artifacts/publication pending |
 | CIO-030-03 | Controlled clock reproduced expired Opportunity returning from discovery | Persistent bounded reobservation and execution safeguards pending |
 | CIO-030-04 | Two identical logical child calls produced one actual remote execution | Explicit stable call identity, persistence and restart tests pending |
 

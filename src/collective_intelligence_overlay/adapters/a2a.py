@@ -28,7 +28,7 @@ from a2a.types import (
     SendMessageRequest,
 )
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PublicKey
-from google.protobuf.json_format import MessageToDict
+from google.protobuf.json_format import MessageToDict, ParseDict, ParseError
 from google.protobuf.struct_pb2 import Struct, Value
 from starlette.applications import Starlette
 from starlette.authentication import (
@@ -45,7 +45,7 @@ from .. import __version__
 from ..config import Config
 from ..models import now, uid
 from ..security import MAX_RECORD_BYTES, Identity, allowed_url
-from .http_limits import BodyLimit
+from .http_limits import BodyLimit, InvalidPeerResponse
 
 EXTENSION = "https://github.com/kadubon/collective-intelligence-overlay/extensions/v2"
 Handler = Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]]
@@ -66,14 +66,41 @@ def extension_data(value: dict[str, Any]) -> Value:
 def read_extension_data(value: Value) -> dict[str, Any]:
     wrapper = MessageToDict(value)
     if not isinstance(wrapper, dict) or set(wrapper) != {"application_json"}:
-        raise ValueError("v2 extension requires an exact application JSON payload")
+        raise InvalidPeerResponse("v2 extension requires an exact application JSON payload")
     encoded = wrapper["application_json"]
     if not isinstance(encoded, str) or len(encoded.encode()) > MAX_RECORD_BYTES:
-        raise ValueError("invalid or oversized extension payload")
-    result = json.loads(encoded)
+        raise InvalidPeerResponse("invalid or oversized extension payload")
+    try:
+        result = json.loads(encoded)
+    except (ValueError, RecursionError) as exc:
+        raise InvalidPeerResponse("invalid application JSON payload") from exc
     if not isinstance(result, dict):
-        raise ValueError("extension payload must be an object")
+        raise InvalidPeerResponse("extension payload must be an object")
     return result
+
+
+def validate_peer_response(method: str, content: bytes) -> None:
+    """Reject malformed wire data at a pure parsing boundary using SDK types.
+
+    This contains no network operation, host configuration or database access;
+    parser failures cannot turn a local execution/storage fault into rejection.
+    """
+    from a2a.client.card_resolver import parse_agent_card
+    from a2a.types import SendMessageResponse
+    from jsonrpc.jsonrpc2 import JSONRPC20Response  # type: ignore[import-untyped]
+
+    try:
+        data = json.loads(content)
+        if not isinstance(data, dict):
+            raise ValueError("response must be an object")
+        if method == "GET":
+            parse_agent_card(data)
+        else:
+            response = JSONRPC20Response(**data)
+            if not response.error:
+                ParseDict(response.result, SendMessageResponse())
+    except (ValueError, TypeError, KeyError, AttributeError, RecursionError, ParseError) as exc:
+        raise InvalidPeerResponse("invalid A2A service response structure") from exc
 
 
 class PeerAuthentication(AuthenticationBackend):
@@ -217,7 +244,7 @@ async def send(
     from .http_limits import BoundedA2ATransport
 
     async with httpx.AsyncClient(
-        transport=BoundedA2ATransport(url),
+        transport=BoundedA2ATransport(url, response_validator=validate_peer_response),
         timeout=30,
         follow_redirects=False,
         trust_env=False,
@@ -228,11 +255,11 @@ async def send(
 
         card = await A2ACardResolver(http, url).get_agent_card()
         if card.name != peer_name or any(i.url != url for i in card.supported_interfaces):
-            raise ValueError("card identity or endpoint mismatch")
+            raise InvalidPeerResponse("card identity or endpoint mismatch")
         if any(e.required and e.uri != EXTENSION for e in card.capabilities.extensions):
-            raise ValueError("unsupported required extension")
+            raise InvalidPeerResponse("unsupported required extension")
         if not any(e.uri == EXTENSION for e in card.capabilities.extensions):
-            raise ValueError("overlay extension absent")
+            raise InvalidPeerResponse("overlay extension absent")
         client = await create_client(
             card,
             ClientConfig(
@@ -254,9 +281,9 @@ async def send(
             if response.HasField("message"):
                 reply = response.message
                 if list(reply.extensions) != [EXTENSION] or len(reply.parts) != 1:
-                    raise ValueError("invalid extension response")
+                    raise InvalidPeerResponse("invalid extension response")
                 return read_extension_data(reply.parts[0].data)
-        raise ValueError("A2A completed without an overlay result")
+        raise InvalidPeerResponse("A2A completed without an overlay result")
 
 
 async def synchronize(

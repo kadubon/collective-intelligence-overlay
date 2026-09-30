@@ -6,6 +6,14 @@ Standard authenticated peer revocation now checks the exact owner, subject ID,
 version and digest with an indexed bounded query. Signing, persistence and cost
 observation run off the asynchronous handler's event loop. Mixed imported/legacy
 histories no longer hit the compatibility full-history reader's 1,000-record limit.
+
+Proposal collection and selection isolate expected untrusted-input rejections per
+alternative. Valid siblings remain eligible, malformed/oversized remote replies
+are isolated per peer, and stable ranking of valid candidates is preserved. Owner
+observations retain categories without raw payloads. Same-ID content conflicts,
+transport unavailability and allowance shortages remain distinct from internal
+errors; cancellation joins outstanding requests. No dependency versions changed.
+
 Release gates and publication remain pending; 0.3.0 is the latest verified release.
 
 ## 0.3.0

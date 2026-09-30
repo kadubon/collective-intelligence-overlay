@@ -30,7 +30,15 @@ from .models import (
     now,
     uid,
 )
-from .opportunities import Opportunities
+from .opportunities import (
+    Opportunities,
+    ProposalRejected,
+    ProposalRejection,
+    RejectionCategory,
+    record_rejections,
+    summarize_rejections,
+)
+from .proposal_exchange import CollectedProposals, ProposalBatch
 from .storage import Conflict, budgets, metadata
 
 selections = Table(
@@ -60,6 +68,8 @@ class StepResult(BaseModel):
     reason: str
     selection: Selection | None = None
     invocation: dict[str, Any] | None = None
+    rejections: tuple[ProposalRejection, ...] = Field(default=(), max_length=128)
+    unavailable: tuple[str, ...] = Field(default=(), max_length=16)
 
 
 class RunResult(BaseModel):
@@ -100,7 +110,7 @@ class Steps:
 
     async def run(
         self,
-        proposals: Callable[[Opportunity], Awaitable[tuple[tuple[str, dict[str, Any]], ...]]],
+        proposals: Callable[[Opportunity], Awaitable[ProposalBatch]],
         *,
         max_steps: int = 16,
         max_candidates: int = 8,
@@ -120,8 +130,9 @@ class Steps:
         seen: set[str] = set()
         rounds = discovered = deduplicated = 0
         reason = "step_limit"
+        deadline = asyncio.timeout(seconds)
         try:
-            async with asyncio.timeout(seconds):
+            async with deadline:
                 for _ in range(max_steps):
                     rounds += 1
                     start = 0
@@ -179,6 +190,8 @@ class Steps:
                         reason = "insufficient_allowance"
                         break
         except TimeoutError:
+            if not deadline.expired():
+                raise
             reason = "deadline"
         return RunResult(
             reason=reason,
@@ -235,7 +248,7 @@ class Steps:
     async def step(
         self,
         opportunity_id: str,
-        envelopes: tuple[tuple[str, dict[str, Any]], ...] = (),
+        envelopes: ProposalBatch = (),
         *,
         allocation: AllocationObservation | None = None,
     ) -> StepResult:
@@ -244,7 +257,11 @@ class Steps:
         Tuple callers come from the authenticated transport, never payload metadata.
         Replay consults the existing invocation before revalidating stale proposals.
         """
-        if len(envelopes) > 128:
+        collected = envelopes if isinstance(envelopes, CollectedProposals) else None
+        replies = collected.replies if collected is not None else envelopes
+        if not isinstance(replies, tuple):
+            raise ValueError("expected a bounded proposal batch")
+        if len(replies) > 128:
             raise ValueError("proposal batch exceeds bound")
         choice = await asyncio.to_thread(self._choice, opportunity_id)
         if choice is not None:
@@ -262,7 +279,31 @@ class Steps:
         started = time.perf_counter()
         observation_result = "interrupted"
         try:
-            result = await self._step(opportunity, reference, choice, envelopes, allocation)
+            result = await self._step(opportunity, reference, choice, replies, allocation)
+            if collected is not None:
+                combined = summarize_rejections(
+                    [
+                        (rejection.peer, rejection.category)
+                        for rejection in (*collected.rejections, *result.rejections)
+                        for _ in range(rejection.count)
+                    ]
+                )
+                reason = result.reason
+                if (
+                    reason == "no_valid_alternatives"
+                    and not combined
+                    and collected.unavailable
+                    and set(collected.unavailable)
+                    == set(self.opportunities.goal(opportunity.goal_id).peers)
+                ):
+                    reason = "peers_unavailable"
+                result = result.model_copy(
+                    update={
+                        "rejections": combined,
+                        "unavailable": collected.unavailable,
+                        "reason": reason,
+                    }
+                )
             observation_result = result.reason
         finally:
             # Measured inspection survives rejection. No receipt or refund is invented.
@@ -278,7 +319,7 @@ class Steps:
                     work_kind=opportunity.work_kind,
                     stage="selection",
                     result=observation_result,
-                    proposals_received=len(envelopes),
+                    proposals_received=len(replies),
                 ),
                 issuer=self.store.owner,
                 subject=opportunity.subject,
@@ -300,7 +341,10 @@ class Steps:
                 asyncio.to_thread(self.store.put, self.executor.identity.sign(event))
             )
         if result.reason == "selected" and result.selection is not None:
-            return await self._execute(result.selection)
+            executed = await self._execute(result.selection)
+            return executed.model_copy(
+                update={"rejections": result.rejections, "unavailable": result.unavailable}
+            )
         return result
 
     async def _step(
@@ -316,18 +360,51 @@ class Steps:
             return StepResult(reason="expired_or_changed_goal", selection=choice)
         if choice is None:
             candidates: dict[tuple[str, str], Proposal] = {}
+            signed: dict[tuple[str, str], dict[str, Any]] = {}
+            conflicted: set[tuple[str, str]] = set()
+            rejected: list[tuple[str, RejectionCategory]] = []
             for caller, envelope in envelopes:
-                proposal = await asyncio.to_thread(
-                    self.opportunities.validate_proposal, envelope, caller, self.context
+                try:
+                    proposal = await asyncio.to_thread(
+                        self.opportunities.validate_proposal, envelope, caller, self.context
+                    )
+                    if proposal.opportunity != reference:
+                        raise ProposalRejected(
+                            "reference", "proposal belongs to a different observation"
+                        )
+                except ProposalRejected as exc:
+                    rejected.append((caller, exc.category))
+                    continue
+                key = (proposal.issuer, proposal.id)
+                if key in conflicted:
+                    rejected.append((caller, "conflict"))
+                    continue
+                if key in candidates and signed[key]["payload"] != envelope["payload"]:
+                    # Both members of an ambiguous batch are excluded before any
+                    # save, so arrival order cannot choose its favored content.
+                    conflicted.add(key)
+                    candidates.pop(key)
+                    signed.pop(key)
+                    rejected.extend(((caller, "conflict"), (caller, "conflict")))
+                    continue
+                candidates[key], signed[key] = proposal, envelope
+            for key in tuple(candidates):
+                try:
+                    await asyncio.to_thread(self.store.put, signed[key])
+                except Conflict:
+                    # Store.put raises this only for an immutable record ID clash.
+                    # SQL/migration/verification faults remain visible.
+                    rejected.append((key[0], "conflict"))
+                    candidates.pop(key)
+            rejections = summarize_rejections(rejected)
+            if rejections:
+                await asyncio.to_thread(
+                    record_rejections, self.store, self.executor.identity, opportunity, rejections
                 )
-                if proposal.opportunity != reference:
-                    raise ValueError("proposal belongs to a different observation")
-                await asyncio.to_thread(self.store.put, envelope)
-                candidates[proposal.issuer, proposal.id] = proposal
             if not candidates:
-                return StepResult(reason="no_valid_alternatives")
+                return StepResult(reason="no_valid_alternatives", rejections=rejections)
             if not await asyncio.to_thread(self._available):
-                return StepResult(reason="insufficient_allowance")
+                return StepResult(reason="insufficient_allowance", rejections=rejections)
             order = {ref.digest: i for i, ref in enumerate(goal.builders)}
             ranked = sorted(
                 candidates.values(), key=lambda p: (order[p.builder.digest], p.issuer, p.id)
@@ -351,6 +428,7 @@ class Steps:
                 ),
             )
             assert choice is not None
+            return StepResult(reason="selected", selection=choice, rejections=rejections)
         return StepResult(reason="selected", selection=choice)
 
     async def _execute(self, choice: Selection) -> StepResult:

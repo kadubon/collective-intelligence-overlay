@@ -1,10 +1,16 @@
 """Bound untrusted HTTP input before SDK parsing; retain ordinary ASGI semantics."""
 
+from collections.abc import Callable
+
 import httpx
 from starlette.responses import JSONResponse
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from ..security import MAX_RECORD_BYTES
+
+
+class InvalidPeerResponse(ValueError):
+    """Expected structural/size rejection at an untrusted HTTP response boundary."""
 
 
 class BodyLimit:
@@ -43,12 +49,15 @@ class BodyLimit:
 class BoundedA2ATransport(httpx.AsyncBaseTransport):
     """Restrict SDK HTTP requests and bound response bytes before protobuf parsing."""
 
-    def __init__(self, endpoint: str) -> None:
+    def __init__(
+        self, endpoint: str, *, response_validator: Callable[[str, bytes], None] | None = None
+    ) -> None:
         self.allowed = {
             ("POST", endpoint),
             ("GET", endpoint.rstrip("/") + "/.well-known/agent-card.json"),
         }
         self.transport = httpx.AsyncHTTPTransport(retries=0, trust_env=False)
+        self.response_validator = response_validator
 
     async def handle_async_request(self, request: httpx.Request) -> httpx.Response:
         if (request.method, str(request.url)) not in self.allowed:
@@ -57,12 +66,14 @@ class BoundedA2ATransport(httpx.AsyncBaseTransport):
         response = await self.transport.handle_async_request(request)
         try:
             if response.headers.get("content-encoding", "identity") != "identity":
-                raise ValueError("compressed A2A response is not supported")
+                raise InvalidPeerResponse("compressed A2A response is not supported")
             content = bytearray()
             async for chunk in response.aiter_raw():
                 if len(content) + len(chunk) > MAX_RECORD_BYTES:
-                    raise ValueError("A2A service response exceeds byte bound")
+                    raise InvalidPeerResponse("A2A service response exceeds byte bound")
                 content.extend(chunk)
+            if self.response_validator is not None and response.is_success:
+                self.response_validator(request.method, bytes(content))
             return httpx.Response(
                 response.status_code,
                 headers=response.headers,

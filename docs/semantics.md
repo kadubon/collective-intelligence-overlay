@@ -1,5 +1,13 @@
 # Evidence, admission and lifecycle
 
+Expected proposal rejection is an owner-local input observation. Authentication,
+scope, expiry, exact references and installed builder authorization precede candidate
+storage and ranking. Rejected alternatives grant no execution or truth verdict and
+do not veto valid alternatives. Peer unavailability, an empty valid candidate set,
+insufficient allowance and internal failure are distinct. A signed unauthorized
+proposal is still rejected; a rejected proposal is not a counterexample to the goal.
+No rejection category refunds an invocation or permits repeating an uncertain effect.
+
 ## Formation inputs in capability v3 (0.3.0)
 
 Capability v3 adds bounded `formation_inputs`, each pinning a subject, issuer and

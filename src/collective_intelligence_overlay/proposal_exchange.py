@@ -17,13 +17,22 @@ from .models import (
     Event,
     Identifier,
     Opportunity,
-    Proposal,
     Scope,
     Subject,
     now,
     uid,
 )
-from .opportunities import Goal, ProposalDrafts, propose
+from .opportunities import (
+    Goal,
+    ProposalDrafts,
+    ProposalRejected,
+    ProposalRejection,
+    RejectionCategory,
+    authenticate_proposal,
+    propose,
+    record_rejections,
+    summarize_rejections,
+)
 from .security import Identity, verify
 from .storage import Store
 
@@ -63,15 +72,23 @@ class ProposalContract(BaseModel):
 
 class CollectedProposals(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True)
-    replies: tuple[tuple[str, dict[str, Any]], ...]
-    unavailable: tuple[str, ...]
+    replies: tuple[tuple[str, dict[str, Any]], ...] = Field(max_length=128)
+    unavailable: tuple[str, ...] = Field(max_length=16)
+    rejections: tuple[ProposalRejection, ...] = Field(default=(), max_length=128)
+
+
+ProposalBatch = tuple[tuple[str, dict[str, Any]], ...] | CollectedProposals
 
 
 async def collect(
     config: Config, store: Store, identity: Identity, goal: Goal, opportunity_id: str
 ) -> CollectedProposals:
     """Ask only the registered peers and retain each alternative, including dissent."""
+    import httpx
+    from a2a.utils.errors import A2AError
+
     from .adapters.a2a import send
+    from .adapters.http_limits import InvalidPeerResponse
 
     if (
         config.owner != identity.name
@@ -93,35 +110,42 @@ async def collect(
     envelope = await asyncio.to_thread(store.signed_record, reference)
     limit = asyncio.Semaphore(min(config.max_concurrency, 16))
 
-    async def ask(peer: str) -> tuple[str, list[dict[str, Any]] | None]:
+    async def ask(
+        peer: str,
+    ) -> tuple[str, list[dict[str, Any]] | None, tuple[ProposalRejection, ...]]:
         async with limit:
             started = time.perf_counter()
             try:
-                response = await send(
-                    config,
-                    identity,
-                    peer,
-                    {
-                        "operation": "propose",
-                        "envelope": envelope,
-                    },
-                )
+                try:
+                    async with asyncio.timeout(min(config.max_seconds, 30)):
+                        response = await send(
+                            config, identity, peer, {"operation": "propose", "envelope": envelope}
+                        )
+                except InvalidPeerResponse:
+                    return peer, [], (ProposalRejection(peer=peer, category="format", count=1),)
+                except (A2AError, httpx.HTTPError, TimeoutError):
+                    # Transport/RPC unavailability is neither a counterexample
+                    # nor a rejected proposal. No retry or raw error is persisted.
+                    return peer, None, ()
                 items = response.get("proposals")
-                if not isinstance(items, list) or len(items) > 8:
-                    raise ValueError("invalid bounded proposal reply")
+                if (
+                    not isinstance(items, list)
+                    or len(items) > 8
+                    or len(json.dumps(response).encode()) > 196608
+                ):
+                    return peer, [], (ProposalRejection(peer=peer, category="format", count=1),)
+                valid = []
+                rejected: list[tuple[str, RejectionCategory]] = []
                 for item in items:
-                    record = verify(item, store.principals)
-                    if (
-                        not isinstance(record, Proposal)
-                        or record.issuer != peer
-                        or record.opportunity != reference
-                    ):
-                        raise ValueError("reply origin or opportunity mismatch")
-                return peer, items
-            except Exception:
-                # No retry and no partial promotion; unavailable is not disagreement
-                # or a verification failure. Do not expose credential-bearing errors.
-                return peer, None
+                    try:
+                        record = authenticate_proposal(item, peer, store.principals)
+                        if record.opportunity != reference:
+                            raise ProposalRejected("reference", "reply opportunity mismatch")
+                    except ProposalRejected as exc:
+                        rejected.append((peer, exc.category))
+                        continue
+                    valid.append(item)
+                return peer, valid, summarize_rejections(rejected)
             finally:
                 event = Event(
                     issuer=identity.name,
@@ -142,13 +166,26 @@ async def collect(
                 )
                 await asyncio.shield(asyncio.to_thread(store.put, identity.sign(event)))
 
-    async with asyncio.timeout(min(config.max_seconds, 60)):
-        results = await asyncio.gather(*(ask(peer) for peer in goal.peers))
+    tasks = [asyncio.create_task(ask(peer)) for peer in goal.peers]
+    try:
+        async with asyncio.timeout(min(config.max_seconds, 60)):
+            results = await asyncio.gather(*tasks)
+    finally:
+        # An internal fault must stop and join other requests before the caller
+        # closes its store. Do not interrupt their cancellation cleanup twice.
+        for task in tasks:
+            if not task.done() and not task.cancelling():
+                task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+    rejections = tuple(rejection for _, _, rejected in results for rejection in rejected)
+    if rejections:
+        await asyncio.to_thread(record_rejections, store, identity, opportunity, rejections)
     return CollectedProposals(
         replies=tuple(
-            (peer, item) for peer, items in results if items is not None for item in items
+            (peer, item) for peer, items, _ in results if items is not None for item in items
         ),
-        unavailable=tuple(peer for peer, items in results if items is None),
+        unavailable=tuple(peer for peer, items, _ in results if items is None),
+        rejections=rejections,
     )
 
 

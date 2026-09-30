@@ -1,5 +1,15 @@
 # Security and threat model
 
+The 0.3.1 candidate distinguishes expected hostile Proposal input from host faults.
+Pure DSSE/type and SDK wire parsing have narrow rejection boundaries. Collection
+isolates malformed whole replies per peer and authenticates sibling proposals
+individually; selection checks the owner goal, exact references and installed builder
+before saving valid alternatives. Expected rejection cannot veto valid siblings or
+other peers. Invalid raw payloads and peer error messages are not business records.
+Bounded local category observations remain private and do not change admission,
+permissions, budgets, counterexamples or UNKNOWN. Internal storage/assessment faults
+and cancellation propagate. Outstanding peer requests are joined during cleanup.
+
 Both overlay peers and standard A2A service clients restrict SDK HTTP traffic to
 the configured JSON-RPC endpoint and its Agent Card path. Response bytes are capped
 before protobuf parsing, including chunked responses; compressed responses are

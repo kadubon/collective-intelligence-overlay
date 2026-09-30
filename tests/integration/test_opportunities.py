@@ -408,6 +408,173 @@ async def configured_steps(overlay, identities, records, amount=4):
     return Steps(opportunities, executor, context), opportunity, envelopes
 
 
+@pytest.mark.parametrize("bad_first", [False, True])
+async def test_cio_030_02_signed_unapproved_alternative_does_not_veto_valid_work(
+    overlay, identities, records, bad_first
+):
+    steps, opportunity, valid = await configured_steps(overlay, identities, records)
+    original = steps.opportunities.validate_proposal(valid[0][1], "producer", steps.context)
+    bad = original.model_copy(
+        update={
+            "id": "signed-unapproved-builder",
+            "builder": original.builder.model_copy(update={"id": "not-registered"}),
+        }
+    )
+    rejected = ("producer", identities["producer"].sign(bad))
+    batch = (rejected, valid[0]) if bad_first else (valid[0], rejected)
+    result = await steps.step(opportunity.id, batch)
+    assert result.invocation is not None and result.invocation["state"] == "completed"
+    assert result.invocation["result"] == {"value": 3}
+    assert result.selection.proposal.id == original.id
+    assert [(r.category, r.count) for r in result.rejections] == [("authorization", 1)]
+    assert not overlay.store.record_page(RecordQuery(kinds=("proposal",), record_id=bad.id)).items
+
+
+@pytest.mark.parametrize(
+    "category", ["authentication", "expired", "scope", "reference", "arguments"]
+)
+@pytest.mark.parametrize("bad_first", [False, True])
+async def test_cio_030_02_expected_rejections_are_isolated_and_observed(
+    overlay, identities, records, category, bad_first
+):
+    steps, opportunity, valid = await configured_steps(overlay, identities, records)
+    original = steps.opportunities.validate_proposal(valid[0][1], "producer", steps.context)
+    changes = {
+        "expired": {
+            "created_at": now() - timedelta(hours=2),
+            "expires_at": now() - timedelta(hours=1),
+        },
+        "scope": {"scope": original.scope.model_copy(update={"task": "another-task"})},
+        "reference": {
+            "opportunity": original.opportunity.model_copy(update={"payload_digest": "f" * 64})
+        },
+        "arguments": {"arguments": {"value": "invalid"}},
+    }
+    bad = original.model_copy(update={"id": "bad-alternative", **changes.get(category, {})})
+    envelope = identities["producer"].sign(bad)
+    if category == "authentication":
+        envelope["signatures"][0]["sig"] = base64.b64encode(b"x" * 64).decode()
+    rejected = ("producer", envelope)
+    result = await steps.step(
+        opportunity.id, (rejected, valid[0]) if bad_first else (valid[0], rejected)
+    )
+    assert result.invocation["state"] == "completed" and result.invocation["result"] == {"value": 3}
+    assert [(r.category, r.count) for r in result.rejections] == [(category, 1)]
+    assert not overlay.store.record_page(RecordQuery(kinds=("proposal",), record_id=bad.id)).items
+    observations = [
+        e.work
+        for e in overlay.store.record_page(
+            RecordQuery(kinds=("event",), issuer="receiver", task_id=opportunity.id)
+        ).items
+        if isinstance(e, Event) and e.work is not None
+    ]
+    assert any(work.result == "rejected_" + category for work in observations)
+    assert sum(work.proposals_received or 0 for work in observations) == 2
+    assert "invalid" not in " ".join(work.model_dump_json() for work in observations)
+
+
+async def test_cio_030_02_all_bad_unavailable_and_budget_are_distinct(overlay, identities, records):
+    from collective_intelligence_overlay.proposal_exchange import CollectedProposals
+
+    steps, opportunity, valid = await configured_steps(overlay, identities, records, amount=0)
+    rejected = ("producer", {"secret": "must-not-be-recorded"})
+    result = await steps.step(opportunity.id, (rejected,))
+    assert result.reason == "no_valid_alternatives" and result.invocation is None
+    assert result.rejections[0].category == "format"
+    stopped = await steps.step(
+        opportunity.id, CollectedProposals(replies=(), unavailable=("producer", "other"))
+    )
+    assert stopped.reason == "peers_unavailable" and not stopped.rejections
+    budget = await steps.step(opportunity.id, valid)
+    assert budget.reason == "insufficient_allowance" and budget.selection is None
+
+
+@pytest.mark.parametrize("reverse", [False, True])
+async def test_cio_030_02_ambiguous_id_batch_has_no_arrival_order_winner(
+    overlay, identities, records, reverse
+):
+    steps, opportunity, valid = await configured_steps(overlay, identities, records)
+    original = steps.opportunities.validate_proposal(valid[0][1], "producer", steps.context)
+    changed = original.model_copy(update={"arguments": {"value": 99}})
+    collision = (("producer", identities["producer"].sign(changed)), valid[0])
+    result = await steps.step(opportunity.id, tuple(reversed(collision)) if reverse else collision)
+    assert result.reason == "no_valid_alternatives" and result.rejections[0].category == "conflict"
+    assert result.rejections[0].count == 2
+    assert not overlay.store.record_page(RecordQuery(kinds=("proposal",))).items
+    assert steps._choice(opportunity.id) is None
+
+
+async def test_cio_030_02_stored_id_conflict_does_not_mask_database_failure(
+    overlay, identities, records, monkeypatch
+):
+    steps, opportunity, valid = await configured_steps(overlay, identities, records)
+    overlay.store.put(valid[0][1])
+    original = steps.opportunities.validate_proposal(valid[0][1], "producer", steps.context)
+    changed = original.model_copy(update={"arguments": {"value": 99}})
+    result = await steps.step(opportunity.id, (("producer", identities["producer"].sign(changed)),))
+    assert result.reason == "no_valid_alternatives" and result.rejections[0].category == "conflict"
+
+    def internal_failure(*args, **kwargs):
+        raise ValueError("installed assessment or database invariant failed")
+
+    monkeypatch.setattr(steps.opportunities.registry, "prepare", internal_failure)
+    with pytest.raises(ValueError, match="database invariant"):
+        await steps.step(opportunity.id, valid)
+    assert steps._choice(opportunity.id) is None
+
+
+async def test_cio_030_02_database_unavailability_and_cancellation_propagate(
+    overlay, identities, records, monkeypatch
+):
+    from sqlalchemy import create_engine
+    from sqlalchemy.exc import DBAPIError
+
+    from collective_intelligence_overlay.demo import free_port
+
+    steps, opportunity, valid = await configured_steps(overlay, identities, records)
+    # A genuine failed PostgreSQL connection, rather than a peer rejection double.
+    unavailable = create_engine(
+        overlay.store.engine.url.set(port=free_port()), connect_args={"timeout": 1}
+    )
+    with monkeypatch.context() as patch:
+        patch.setattr(overlay.store, "engine", unavailable)
+        try:
+            with pytest.raises(DBAPIError):
+                await steps.step(opportunity.id, valid)
+        finally:
+            unavailable.dispose()
+
+    def cancelled(*args, **kwargs):
+        raise asyncio.CancelledError
+
+    monkeypatch.setattr(steps.opportunities, "validate_proposal", cancelled)
+    with pytest.raises(asyncio.CancelledError):
+        await steps.step(opportunity.id, valid)
+    assert steps._choice(opportunity.id) is None
+
+
+async def test_cio_030_02_run_reaches_valid_work_and_preserves_internal_timeout(
+    overlay, identities, records, monkeypatch
+):
+    steps, opportunity, valid = await configured_steps(overlay, identities, records)
+
+    async def mixed(observation):
+        assert observation.id == opportunity.id
+        return (("producer", {}), valid[0])
+
+    result = await steps.run(mixed, max_steps=2, seconds=30)
+    assert result.steps[0].invocation["state"] == "completed"
+    assert result.steps[0].invocation["result"] == {"value": 3}
+    assert result.steps[0].rejections[0].category == "format"
+
+    async def internal_timeout(*args, **kwargs):
+        raise TimeoutError("internal service failed")
+
+    monkeypatch.setattr(steps.opportunities, "discover", internal_timeout)
+    with pytest.raises(TimeoutError, match="internal service"):
+        await steps.run(mixed, max_steps=1, seconds=30)
+
+
 async def test_step_concurrency_replay_and_one_allowance(overlay, identities, records):
     steps, opportunity, envelopes = await configured_steps(overlay, identities, records)
     results = await asyncio.gather(

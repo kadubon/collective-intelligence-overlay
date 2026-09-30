@@ -28,6 +28,14 @@ For finite owner goals and installed builders, use the
 checker bindings, public proposal contracts and parameterized factories through
 public APIs. Two authenticated A2A proposers return retained alternatives; the
 receiver selects against its current permissions and budget.
+
+In the 0.3.1 candidate, pass the complete result of `collect` to `Steps.step` (or
+return it from the finite run callback) to preserve unavailable peers and rejected
+alternative summaries. Malformed A2A response parsing uses the SDK's public
+`parse_agent_card`, protobuf types and its existing JSONRPC response dependency at
+a pure input boundary. The transport retains its byte, destination and time bounds.
+Public wire/schema and signed payload versions are unchanged by proposal isolation;
+category observations are owner-local. See [rejected alternatives](api.md#031-candidate-rejected-alternatives).
 `adapters.maf.propose_structured` uses a public Agent with typed output, bounded
 repair and no tools. Its deterministic client tests verify SDK behavior, not
 model discovery superiority. [API](api.md) defines bounds and signatures.
