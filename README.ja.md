@@ -11,17 +11,21 @@
 
 ## できること
 
-**0.3.1は未公開の候補版です。** 大量履歴でのowner・Subject完全一致のrevoke、
+**0.3.1をPyPIへ公開しました。** 大量履歴でのowner・Subject完全一致のrevoke、
 無効提案の個別隔離、期限切れ機会のownerによる明示的再観測、Registry・Executor・MAFを
 通る論理A2A call IDと再送・照会の対応を修正しています。
 [APIの例](docs/api.md)でrevoke、拒否category、`reobserve`、`call_id`・`call_scope`を、
-[検証記録](docs/validation.md)で修正前後の実測を確認できます。4件は別commitで保存済みですが、
-必須Python/OS matrix、配布物、公開のゲートは未完了です。通常installした
-3.12.14・3.14.7の混在peerは両方向で通過し、Windows 3.13.15の全sourceテストは
-258 pass、failure・skipなしでした。
+[検証記録](docs/validation.md)で修正前後の実測を確認できます。必須の6環境すべてで
+source 258件、installed agents 257件、model 1件、再build sdist 31件と
+core import・CLI・resource検査が通過し、failure・error・skipは0件でした。
+3.12.14・3.14.7の混在peerも両方向で通過しています。実PyPIから取得した配布物のhashは
+検査済み候補と一致しています。公開後は3安定系列すべてでcacheを使わないPyPI導入を確認し、
+最低版・最新版の全installed回帰も各257件、failure・error・skipなしで通過しました。
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.1)へ
+同一配布物と各runtimeの検証・依存報告を添付しました。
 
-候補版のmetadataは**Python >=3.12**で上限を設けません。Linux・Windowsの安定系列
-3.12.14・3.13.15・3.14.7へ検証を拡張中です。将来のPythonまで検証済みという意味ではありません。
+配布metadataは**Python >=3.12**で上限を設けません。Linux・Windowsの安定系列
+3.12.14・3.13.15・3.14.7で検証済みです。将来のPythonまで検証済みという意味ではありません。
 厳密な版・extras・OSの結果は[compatibility](docs/compatibility.md)に集約します。
 `.python-version`は最低版での開発用pinです。別系列は
 `uv sync --python 3.14.7 --all-extras --frozen`と`uv run --python 3.14.7 ...`で明示します。
@@ -62,18 +66,18 @@ C3を合成・検証し、その出力からC4を形成して、再起動と元�
 
 ## 最短の確認
 
-[PyPI 0.3.0](https://pypi.org/project/collective-intelligence-overlay/0.3.0/)を公開済みです。
-有効化したPython 3.12環境へ次のコマンドで導入できます。
+[PyPI 0.3.1](https://pypi.org/project/collective-intelligence-overlay/0.3.1/)を公開済みです。
+有効化したPython >=3.12環境へ次のコマンドで導入できます。
 配布物のハッシュ一致と公開後E2Eの結果は上記のrelease記録に記載しています。
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.3.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.3.1'
 collective-intelligence-overlay --version
 ```
 
 デモと開発環境の再現には、以下のソース手順を使用します。
 
-候補版のソースはPython >=3.12、uv、PostgreSQL 16、OPAが必要です。有料モデルは不要です。
+ソースはPython >=3.12、uv、PostgreSQL、OPAが必要です。有料モデルは不要です。
 ```sh
 git clone https://github.com/kadubon/collective-intelligence-overlay.git
 cd collective-intelligence-overlay

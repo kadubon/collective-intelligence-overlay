@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.1 (in development)
+## 0.3.1 (2026-09-30)
 
 Standard authenticated peer revocation now checks the exact owner, subject ID,
 version and digest with an indexed bounded query. Signing, persistence and cost
@@ -39,7 +39,13 @@ The existing frozen dependency versions and original content hashes are retained
 Mixed installed 3.12.14/3.14.7 peers pass both signature/hash and real HTTP exchange
 directions. Local proxy verification preserves provider reuse admission.
 
-Release gates and publication remain pending; 0.3.0 is the latest verified release.
+All six stable Linux/Windows source and installed-artifact gates passed, with zero
+mandatory failures/errors/skips. One OIDC job published the original tested wheel
+and sdist; actual PyPI download hashes match. Post-publication cache-disabled
+core/agents/model installs passed on every stable minor, with 257 full installed
+agents regressions each on minimum/latest patches and zero failures/errors/skips.
+GitHub Release includes the exact distributions and sanitized verification reports.
+Final evidence is recorded in Docs without moving the immutable release tag.
 
 ## 0.3.0
 

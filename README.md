@@ -30,19 +30,23 @@ execution remain explicit stopping conditions. The tested release is available o
 
 ## What works
 
-The **0.3.1 candidate is not published**. It fixes four operational paths: bounded
+**0.3.1 is published on PyPI**. It fixes four operational paths: bounded
 exact-owner revocation for large histories; per-alternative rejection in proposal
 collection/selection; explicit owner reobservation of expired opportunities; and
 distinct logical A2A calls with saved retry/query IDs through Registry/Executor/MAF.
 See the [API examples](docs/api.md) for revoke, rejection categories, `reobserve`
 and `call_id`/`call_scope`, and [current results](docs/validation.md) for before/after
-tests. The four source fixes have separate commits; the mandatory multi-Python/OS,
-installed-artifact and publication gates remain pending. Mixed installed
-3.12.14/3.14.7 peers passed both directions; Windows 3.13.15 full source passed
-258 tests with zero failures/errors/skips.
+tests. All six Linux/Windows stable-Python CI pairs passed full source (258 tests),
+installed agents (257), model (1), rebuilt sdist (31), and core import/CLI/resource
+checks, with zero failures/errors/skips. Mixed installed 3.12.14/3.14.7 peers
+passed both directions. Actual PyPI downloads match those tested files. Fresh
+cache-disabled PyPI core/agents/model installs passed on all three stable patches;
+minimum/latest full installed regressions each passed 257 agents tests, with zero
+failures/errors/skips. [Release files and evidence](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.1)
+include the exact distributions and per-runtime reports.
 
-Candidate metadata requires **Python >=3.12**, with no upper bound. The release
-matrix requires current stable CPython 3.12.14/3.13.15/3.14.7 on Linux
+Distribution metadata requires **Python >=3.12**, with no upper bound. The release
+matrix passed on stable CPython 3.12.14/3.13.15/3.14.7 on Linux
 and Windows; metadata does not mean all future interpreters are tested. Exact
 runtime/profile results belong in [compatibility](docs/compatibility.md).
 `.python-version` pins minimum-version development, not users' Python upper bound.
@@ -116,11 +120,11 @@ stopped before those tasks. Adaptation showed no outcome or allowance advantage
 and had higher elapsed observations in that single run. [Raw results and limits](docs/evaluation.md)
 distinguish working integration from demonstrated benefit.
 
-[Version 0.3.0 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.3.0/).
-To install into an activated Python 3.12 environment:
+[Version 0.3.1 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.3.1/).
+To install into an activated Python >=3.12 environment:
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.3.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.3.1'
 collective-intelligence-overlay --version
 ```
 

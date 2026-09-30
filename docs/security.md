@@ -1,6 +1,6 @@
 # Security and threat model
 
-The 0.3.1 candidate distinguishes expected hostile Proposal input from host faults.
+Version 0.3.1 distinguishes expected hostile Proposal input from host faults.
 Pure DSSE/type and SDK wire parsing have narrow rejection boundaries. Collection
 isolates malformed whole replies per peer and authenticates sibling proposals
 individually; selection checks the owner goal, exact references and installed builder

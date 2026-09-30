@@ -1,6 +1,6 @@
 # Python API and CLI
 
-## 0.3.1 candidate: exact revocation
+## 0.3.1: exact revocation
 
 The existing owner-only A2A operation uses a bounded exact capability lookup,
 including the authenticated owner and every component of `Subject`. Other
@@ -23,9 +23,9 @@ result = await send(
 `send` is the existing `adapters.a2a.send`. The returned signed revocation remains
 an immutable tombstone. Receivers must complete their configured synchronization
 before relying on the withdrawal; existing source freshness and dependent
-requalification rules apply. This candidate is not yet a published release.
+requalification rules apply. Version 0.3.1 is published; see [release evidence](releasing.md).
 
-## 0.3.1 candidate: rejected alternatives
+## 0.3.1: rejected alternatives
 
 `Opportunities.validate_proposal` raises `ProposalRejected` for expected external
 input rejection. Its `category` is one of `format`, `authentication`, `authorization`,
@@ -70,7 +70,7 @@ Read them with the existing event inspection operation and a query such as
 collective-intelligence-overlay inspect --config receiver.json event --query-file query.json
 ```
 
-## 0.3.1 candidate: logical remote calls
+## 0.3.1: logical remote calls
 
 `Registry.execute(..., call_id=None, call_scope=None)` adds a host-assigned logical
 identity. Each distinct A2A call needs its own ID even with identical arguments.

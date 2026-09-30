@@ -1,15 +1,21 @@
 # Implementation status
 
-## 0.3.1 audit follow-up (unreleased)
+## 0.3.1 audit follow-up
 
-| Audit | Current change/evidence | Remaining gates |
+| Audit | Change and regression evidence | Final CI and limits |
 | --- | --- | --- |
-| CIO-030-01 | Commit `7f5d566`; `PeerService._revoke`, `test_cio_030_01_authenticated_exact_revoke_with_mixed_capability_history`: real 1,000/1,001/10,000-record A2A/PG profiles passed on Windows 3.12.10 | Mandatory Python/OS matrix and installed artifacts; optional new 100k revoke stress unrun |
-| CIO-030-02 | Commit `9cf41ec`; `ProposalRejected`, individual collection/selection isolation; `test_cio_030_02_*` in opportunities and hostile real A2A reply tests, bounded owner categories, genuine DB connection failure | Windows 3.12.10: targeted gates and 222-test interim source run passed; two then-pending audit regressions explicitly excluded; mandatory matrix/artifacts/publication pending |
-| CIO-030-03 | Commit `f7f6d1e`; `reobservation.py`, opportunities/steps/invocations, migration 0013, owner CLI; 20 `test_reobservation.py` cases, controlled expiry cases and actual published 0.3.0 DB restore/backfill tests; 67-test source gate and corrected installed-host intent cases passed | Windows 3.12.10 source evidence; final complete suite, mandatory matrix/artifacts/publication pending |
-| CIO-030-04 | Commit `dd2bf3b`; `calls.py`, Registry/Executor/public MAF IDs, migration 0014; ten `test_call_identity.py` cases including changing samples, concurrent retry, content/namespace conflicts, real workflow, delayed DB-thread cancellation and provider/caller process restart after HTTP response loss; 102-test lifecycle/migration/SDK source gate passed | Subsequent complete-suite check corrected proxy purpose forwarding; Windows 3.13.15 complete source: 258 passed. Complete mandatory Python/OS matrix, installed artifacts and publication pending |
+| CIO-030-01 | `7f5d566`; `PeerService._revoke`, `test_cio_030_01_authenticated_exact_revoke_with_mixed_capability_history`: authenticated real A2A/PG at 1,000/1,001/10,000 records | All six source and installed agents suites passed; 3 signature checks / 4 SELECTs / 4 rows at every size. New optional 100k revoke stress unrun |
+| CIO-030-02 | `9cf41ec`; `ProposalRejected`, per-alternative collection/selection; `test_cio_030_02_*` in opportunities and hostile real A2A replies, bounded owner categories and real DB-failure propagation | All six source and installed suites passed, including both orders, same-peer siblings, malicious signed builders, all-invalid and real storage failures. Interim exclusions remain labeled in validation |
+| CIO-030-03 | `f7f6d1e`; `reobservation.py`, opportunities/steps/invocations, 0013 and owner CLI; 20 `test_reobservation.py` cases, controlled expiry and actual published 0.3.0 DB migration/restore | All six source and installed suites passed, including durable cooldown/count/receipts and completed/uncertain/proven-undispatched guards. No automatic external retry or refund |
+| CIO-030-04 | `dd2bf3b`, follow-up `58d9401`; `calls.py`, Registry/Executor/public MAF IDs, 0014; ten `test_call_identity.py` cases with real HTTP/DB, namespaces/content conflicts, workflow, concurrent retry, cancellation, provider/caller restart after response loss | All six source and installed suites passed. Provider reuse admission is preserved; querying a completed child never settles UNKNOWN parent work. Stable host/session IDs are required |
 
-Version 0.3.1 has not been published. See [current validation](validation.md).
+Python/artifact/CI commit `e7e2459` passed both main and tag gates and published
+the original pair through one OIDC job. Minimum/latest actual-PyPI full regressions
+each passed 257 agents tests, one model test and 31 rebuilt-sdist tests; the middle
+stable minor passed fresh core/agents/model and rebuild checks. All have zero
+failures/errors/skips. The immutable tag's GitHub Release includes the exact
+distributions and sanitized reports. See [current validation](validation.md) and
+[release state](releasing.md).
 
 ## Two-stage delivery
 

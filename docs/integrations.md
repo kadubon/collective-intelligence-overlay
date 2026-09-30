@@ -29,13 +29,13 @@ checker bindings, public proposal contracts and parameterized factories through
 public APIs. Two authenticated A2A proposers return retained alternatives; the
 receiver selects against its current permissions and budget.
 
-In the 0.3.1 candidate, pass the complete result of `collect` to `Steps.step` (or
+In 0.3.1, pass the complete result of `collect` to `Steps.step` (or
 return it from the finite run callback) to preserve unavailable peers and rejected
 alternative summaries. Malformed A2A response parsing uses the SDK's public
 `parse_agent_card`, protobuf types and its existing JSONRPC response dependency at
 a pure input boundary. The transport retains its byte, destination and time bounds.
 Public wire/schema and signed payload versions are unchanged by proposal isolation;
-category observations are owner-local. See [rejected alternatives](api.md#031-candidate-rejected-alternatives).
+category observations are owner-local. See [rejected alternatives](api.md#031-rejected-alternatives).
 `adapters.maf.propose_structured` uses a public Agent with typed output, bounded
 repair and no tools. Its deterministic client tests verify SDK behavior, not
 model discovery superiority. [API](api.md) defines bounds and signatures.
@@ -52,7 +52,7 @@ The reference composition uses public `executor`, `WorkflowContext`, `WorkflowBu
 and `workflow.run`. The tool-loop test uses an actual `Agent` with a deterministic
 `FunctionInvocationLayer`/`BaseChatClient`, not a network model or private SDK patch.
 
-For the 0.3.1 candidate, `bound_tool(registry, binding_id, context, call_scope=...)`
+For 0.3.1, `bound_tool(registry, binding_id, context, call_scope=...)`
 receives call IDs from the public `FunctionTool.invoke(tool_call_id=...)` parameter
 or public middleware `FunctionInvocationContext.metadata["call_id"]`. Conflicting
 context/parameter IDs fail. The actual 1.19.0 SDK has no `context.tool_call_id`
@@ -62,7 +62,7 @@ Use an existing Executor parent or a host-persisted scope, for example the publi
 `AgentSession.session_id` supplied explicitly by the host. Persist a new session
 before invoking tools; `AgentSession.to_dict/from_dict` retains that namespace.
 The SDK's implicit new session, occurrence ID, and call arrival order are not retry
-identities. See [logical remote calls](api.md#031-candidate-logical-remote-calls).
+identities. See [logical remote calls](api.md#031-logical-remote-calls).
 
 ## A2A
 

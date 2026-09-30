@@ -4,7 +4,7 @@ Start with Python >=3.12 and uv. Minimum-version development uses the
 `.python-version` pin; choose another interpreter explicitly, for example
 `uv sync --python 3.14.7 --all-extras --frozen` and
 `uv run --python 3.14.7 ...` for subsequent commands. See
-[compatibility](compatibility.md) for measured candidate support.
+[compatibility](compatibility.md) for measured release support.
 `uv run python scripts/fetch_opa.py` downloads OPA 1.21.0 and checks a pinned hash.
 Windows x64 and Linux x64 downloads are supported. For another platform, install
 the official OPA binary yourself and set `CIO_OPA`.

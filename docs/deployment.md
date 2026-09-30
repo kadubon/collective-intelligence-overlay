@@ -1,6 +1,6 @@
 # Deployment, backup and upgrades
 
-The candidate requires Python >=3.12, PostgreSQL, an OPA 1.21.0
+Version 0.3.1 requires Python >=3.12, PostgreSQL, an OPA 1.21.0
 executable, and an HTTPS reverse proxy. No broker is needed. Local tests can use
 Windows clients plus PostgreSQL under WSL. Container operation is described in the
 tutorial; validation results distinguish binary tests from container tests.
@@ -19,7 +19,7 @@ DB role it can evade the library; process separation is an operational prerequis
 The reference setup's random keys are a development convenience. Production key
 provisioning/rotation must be performed by the participant's operator.
 
-For the 0.3.1 candidate, stop every old writer and take the consistent backup below
+For 0.3.1, stop every old writer and take the consistent backup below
 before applying migrations 0013 and 0014. They add owner-local instance/command receipts
 and cause/invocation indexes on existing selections. Original DSSE envelopes,
 decisions, invocation IDs/states, leases and reservations are retained. Missing

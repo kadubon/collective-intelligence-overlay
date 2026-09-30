@@ -35,7 +35,7 @@ another merely because it appears in a formation receipt.
 
 ## Existing execution and admission contracts
 
-In the 0.3.1 candidate, logical child identity is separate from request content.
+In 0.3.1, logical child identity is separate from request content.
 Same-argument samples can be distinct calls; retry uses the original provider ID.
 Owner/caller/session/parent namespaces prevent coincidental ID reuse, while changed
 content in the same namespace conflicts. A persisted remote reference proves only

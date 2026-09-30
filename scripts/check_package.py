@@ -25,6 +25,11 @@ parser.add_argument("--report", type=Path)
 parser.add_argument("--hash-file", type=Path, help="Expected candidate filename/SHA-256 object")
 parser.add_argument("--test-scope", choices=("auto", "unit", "full"), default="auto")
 parser.add_argument("--supply-chain-dir", type=Path, help="Audit each actual installed profile")
+parser.add_argument(
+    "--from-pypi",
+    action="store_true",
+    help="Post-publication: cache-disabled PyPI install, including root vulnerability audit",
+)
 args = parser.parse_args()
 project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
 version = project["project"]["version"]
@@ -101,6 +106,7 @@ report = {
     "artifacts": hashes,
     "selected": requested,
     "test_scope": "full" if full else "unit",
+    "installation_source": "cache-disabled-pypi-index" if args.from_pypi else "candidate-wheel",
     "environments": {},
 }
 
@@ -178,10 +184,12 @@ def supply_chain(python, name, packages, *, temp):
     output = args.supply_chain_dir.resolve() / name
     output.mkdir(parents=True, exist_ok=True)
     requirements = output / "resolved-dependencies.txt"
-    # Only the unpublished first-party candidate is absent from the index. Audit
-    # every observed third-party version, without resolving for another Python.
+    # Before publication only the first-party root is absent from the index.
+    # Post-publication also audit that root; always use actual observed versions.
     # These pip-audit flags do not alter or bypass any package installation.
-    dependencies = [p for p in packages if p["name"] != "collective-intelligence-overlay"]
+    dependencies = [
+        p for p in packages if args.from_pypi or p["name"] != "collective-intelligence-overlay"
+    ]
     requirements.write_text(
         "".join(f"{p['name']}=={p['version']}\n" for p in dependencies), encoding="utf-8"
     )
@@ -235,7 +243,11 @@ def supply_chain(python, name, packages, *, temp):
     return {
         "dependencies": len(dependencies),
         "directory": str(output),
-        "candidate_root": "unpublished; actual PyPI root audit remains required after publication",
+        "candidate_root": (
+            "audited published PyPI root"
+            if args.from_pypi
+            else "candidate root excluded; audit the published root with --from-pypi"
+        ),
     }
 
 
@@ -261,7 +273,38 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
             "CIO_PACKAGE_RUNTIME_MINOR": json.dumps(requested["minor"]),
             "CIO_PACKAGE_RUNTIME_EXE": str(python),
         }
-        run(["uv", "pip", "install", "--python", str(python), str(wheel) + extras], cwd=temp)
+        if args.from_pypi:
+            index_environment = {
+                key: value
+                for key, value in os.environ.items()
+                if key
+                not in {
+                    "UV_DEFAULT_INDEX",
+                    "UV_INDEX",
+                    "UV_INDEX_URL",
+                    "UV_EXTRA_INDEX_URL",
+                    "UV_FIND_LINKS",
+                    "UV_OFFLINE",
+                }
+            }
+            run(
+                [
+                    "uv",
+                    "pip",
+                    "install",
+                    "--python",
+                    str(python),
+                    "--no-cache",
+                    "--no-config",
+                    "--default-index",
+                    "https://pypi.org/simple",
+                    f"collective-intelligence-overlay{extras}=={version}",
+                ],
+                cwd=temp,
+                environment=index_environment,
+            )
+        else:
+            run(["uv", "pip", "install", "--python", str(python), str(wheel) + extras], cwd=temp)
         run(["uv", "pip", "check", "--python", str(python)], cwd=temp)
         installed = json.loads(
             subprocess.check_output(

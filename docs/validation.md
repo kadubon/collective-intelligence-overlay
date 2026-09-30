@@ -1,6 +1,50 @@
 # Validation status
 
-## 0.3.1 work in progress
+## 0.3.1 released-artifact validation
+
+The exact release commit `e7e2459` passed [main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36672022262)
+and [tag CI / OIDC publication](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36674642405).
+All six Linux/Windows × CPython 3.12.14/3.13.15/3.14.7 jobs passed 258 frozen
+source tests, 257 installed agents tests, one installed model test and 31 rebuilt
+sdist tests each. Core import/CLI/resources, explicit child/backend interpreter
+checks, lint/format/strict typing/docs, security/license/SBOM and strict twine
+passed. Every mandatory suite has zero failures, errors and skips. Both source
+and installed agents include all four audit regressions, real PostgreSQL/OPA/
+A2A/MCP/MAF, eight E2Es, cancellation/UNKNOWN/allowance, original signed history,
+upgrade/restore and default 1k/10k bounded-history profiles. No audit case was
+deselected or converted to xfail/skip in either final run.
+
+Minimum/latest mixed installed peers passed both directions on the original
+release wheel, including original DSSE payload bytes, opposite-interpreter
+signatures, golden binding/request/call/manifest hashes, PostgreSQL round trips,
+parameterized reconstruction and actual HTTP sync/invoke/query/revoke.
+See [compatibility](compatibility.md) for exact runtime/time/profile tables.
+Source coverage was 87–88%, with interpreter-dependent denominators; subprocess
+coverage is not aggregated. Coverage and elapsed times do not establish performance
+improvement or independent collective capability formation.
+
+Actual PyPI wheel/sdist downloads match the six-pair tested candidate hashes.
+Cache-disabled actual-index CPython 3.13.15 core/agents/model installs passed
+core smoke, agents 30, model 1 and rebuilt sdist 31; all three profiles passed
+license/SBOM and known-vulnerability checks, including the first-party root.
+The first immediate index attempt failed before that version propagated; its
+failure log is retained separately from the successful new-environment retry.
+Minimum/latest full post-publication agents regressions each passed 257 tests:
+3.12.14 in 1,060.63 seconds and 3.14.7 in 1,060.79 seconds. Both passed the separate
+model test and 31 rebuilt-sdist tests; core import/path/version/CLI/resources and
+actual child/PEP 517 backend patches matched the requested interpreter. Every
+counted suite had zero failures, errors and skips, with strict unraisable subprocess
+warnings. All nine installed profiles completed license, vulnerability and SBOM
+checks, including the published first-party root. Concurrent audit-cache writes
+emitted nonfatal permission warnings; all actual audit JSON reports were complete
+and contained zero known vulnerabilities, without skipped package rows.
+The [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.1)
+attaches the exact PyPI distributions and 174 selected CI/post-publication reports
+with a report-byte hash manifest. Local account prefixes are redacted; raw logs,
+configs, keys and credentials are excluded. See [release evidence](releasing.md);
+historical checkpoints below remain unchanged.
+
+## 0.3.1 source development checkpoints
 
 CIO-030-01 was reproduced on Windows CPython 3.12.10 with PostgreSQL 16.15
 and OPA 1.21.0. At 1,000 capabilities the old handler verified 1,002 signatures;
@@ -104,8 +148,8 @@ the same strict warning setting. The installed-wheel mixed 3.12.14/3.14.7 test
 passed both directions, including original DSSE bytes, golden content/identity
 hashes, persisted reconstruction and actual HTTP sync/invoke/query/revoke.
 
-These local observations do not establish the final six-pair multi-Python,
-installed-artifact or release gates. Those gates remain pending; see
+These interim local observations preceded the final six-pair multi-Python,
+installed-artifact and release gates reported above; see
 [the runtime table](compatibility.md). Prototype distribution checks are distinct
 from the final candidate: 3.14.7 core smoke, 30 agents unit tests, one model test,
 31 rebuilt-sdist tests, three license/audit/SBOM profiles, and actual child/build

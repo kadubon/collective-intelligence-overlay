@@ -1,12 +1,43 @@
 # Release procedure and current state
 
-## 0.3.1 candidate, unpublished
+## 0.3.1 published on 2026-09-30
 
-The four audit fixes are committed locally; Python extension and final gates are
-in progress. The required stable matrix is Linux/Windows × CPython
-3.12.14/3.13.15/3.14.7, plus minimum/latest mixed installed peers. No successful
-0.3.1 CI, tag, GitHub Release or PyPI publication is claimed yet. See
-[validation](validation.md) and [exact runtime scope](compatibility.md).
+Release commit `e7e245920be3687eebb4b0a0817d60a82ed2c1b9`, immutable annotated
+tag `v0.3.1`, passed [main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36672022262)
+and [tag CI / official PyPA OIDC publication](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36674642405).
+Both runs passed Linux/Windows × CPython 3.12.14/3.13.15/3.14.7: each pair passed
+258 frozen source tests, 257 installed agents tests, one separate mocked-model
+test and 31 rebuilt-sdist tests, plus core version/import/CLI/resources.
+There were zero mandatory failures, errors and skips; minimum/latest mixed
+installed peers passed both directions. Lint/format/type, docs, strict twine,
+actual per-runtime vulnerability/license/SBOM and final hash gates passed.
+See [validation](validation.md) and [exact runtime scope](compatibility.md).
+
+[Actual PyPI 0.3.1](https://pypi.org/project/collective-intelligence-overlay/0.3.1/)
+was published by one tag job at 06:09 UTC. Actual index metadata and downloaded
+bytes both match the original tested wheel and sdist:
+
+| File | SHA-256 |
+| --- | --- |
+| `collective_intelligence_overlay-0.3.1-py3-none-any.whl` | `caa5acb140e5e2a09067ee4fa4e074e019fb02a68dd8a59a70ff9e973a6f9a41` |
+| `collective_intelligence_overlay-0.3.1.tar.gz` | `87a6a1e2a90987831194680f3d26dcf60dc4e6a8b54d2e76b5b95b43d63a54a0` |
+
+Fresh cache-disabled actual-PyPI installs passed core/agents/model profiles on
+CPython 3.13.15, with 30 agents unit tests, one model test, 31 rebuilt-sdist tests,
+31/60/64 resolved distributions and zero known vulnerabilities, including the
+published first-party root. CPython 3.12.14 and 3.14.7 each passed 257 full installed
+agents tests in 1,060.63/1,060.79 seconds, one separate model test and 31 rebuilt
+sdist tests, with core import/CLI/resources. Every suite had zero failures/errors/
+skips. All nine actual profiles passed license/audit/SBOM, with no skipped root.
+Exact post-publication time/dependency/runtime tables are in [compatibility](compatibility.md).
+The [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.1)
+attaches both exact PyPI files and `collective-intelligence-overlay-0.3.1-evidence.zip`
+(174 selected reports; SHA-256 `9d7b77878001a0c5d17091fb65922d3087fa901afdba6cd1b4a4d3f7f11bb963`).
+The evidence archive has a sanitized-report hash manifest; local user prefixes are
+redacted and raw logs/private configs/keys/credentials are omitted.
+The first 3.13.15 install attempt briefly could not see the newly published index
+version. Its failure log was retained; a new clean ordinary-index attempt passed.
+No cached wheel, alternate index, dependency bypass or tag movement was used.
 
 `candidate` builds one wheel/sdist pair on explicit CPython 3.12.14, runs strict
 twine and records SHA-256. Every OS/minor downloads those files. The common
@@ -15,7 +46,8 @@ docs and supply-chain gates, then normal-resolution independent core, agents and
 agents/model installed checks. Each sdist rebuild uses an observed explicit
 PEP 517 interpreter; its rebuilt wheel is never substituted for the publish file.
 Windows starts a private loopback cluster from the runner's PostgreSQL binaries;
-Linux uses PostgreSQL 16.15. Required service tests cannot be skipped.
+Linux uses PostgreSQL 16.15; Windows CI used native PostgreSQL 17.11. OPA is 1.21.0.
+Required service tests cannot be skipped.
 
 `mixed` uses the same candidate in two fresh installed interpreters and tests both
 directions. `ready` requires exactly six complete OS/patch reports, zero mandatory
@@ -35,10 +67,28 @@ uv run --python 3.14.7 python scripts/check_package.py --python 3.14.7 --dist-di
 The checker rejects a missing requested interpreter, a wrong minor/patch and a
 candidate hash mismatch. CLI, pytest, demo subprocesses and backend startup must
 use the selected executable and import CIO from their fresh site-packages.
-Publication requires fresh actual-PyPI core/agents/model installs on every stable
+Release verification requires fresh actual-PyPI core/agents/model installs on every stable
 minor, minimum/latest installed audit regressions, and actual downloaded wheel/
 sdist hashes matching the tested candidate. Historical release results below are
-not evidence for this candidate.
+not evidence for this release.
+
+The post-publication verifier uses the actual index with normal resolution. Use
+`artifacts.json` downloaded from the tag CI candidate, or the release evidence
+archive's `tag-36674642405/candidate/artifacts.json`. Do not generate a different
+manifest by rebuilding the published version from later main documentation.
+Place that original manifest at `.local/candidate/artifacts.json` for this example:
+
+```sh
+uv run python scripts/fetch_pypi_release.py --version 0.3.1 --hash-file .local/candidate/artifacts.json --output .local/pypi-031/dist --report .local/pypi-031/download.json
+uv run python scripts/check_package.py --from-pypi --python 3.14.7 --dist-dir .local/pypi-031/dist --hash-file .local/candidate/artifacts.json --test-scope full --report .local/pypi-031/package-3.14.7.json --supply-chain-dir .local/pypi-031/supply-3.14.7
+```
+
+Configure real services for `full`; repeat on the minimum patch and run smoke/unit
+checks on every other stable minor. `--from-pypi` passes `--no-cache --no-config`
+and the explicit PyPI default index to independent core/agents/model installations.
+The audit includes the now-published root. The same interpreter guard checks every
+CLI, pytest, demo and PEP 517 phase. This verifier and final result documentation
+are added to main after publication, without changing the release tag or files.
 
 ## 0.3.0 published and verified on 2026-09-30
 

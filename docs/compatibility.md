@@ -1,23 +1,50 @@
 # Compatibility and licensing
 
-## 0.3.1 candidate Python extension (2026-09-30)
+## 0.3.1 published Python extension (2026-09-30)
 
-Candidate metadata is `Requires-Python: >=3.12`, without an upper bound. The
+Published metadata is `Requires-Python: >=3.12`, without an upper bound. The
 [official release list](https://www.python.org/downloads/) was checked on
 2026-09-30: stable CPython 3.12.14, 3.13.15 and 3.14.7 are mandatory. Python 3.15
-was still prerelease; recheck before publication. Future Python, PyPy,
+was still prerelease at the final pre-publication check. Future Python, PyPy,
 free-threaded builds and macOS are not verified support claims.
 
-| Actual runtime / OS | Source | Core / agents / model wheel and sdist | State |
-| --- | --- | --- | --- |
-| Windows CPython 3.12.14 | Three-process lifecycle reproduced the purpose-forwarding regression | Mandatory full candidate checks pending | Candidate only |
-| Windows CPython 3.13.15 | 258 passed, zero failures/errors/skips, 1,103.00 seconds; frozen all extras | Mandatory full candidate checks pending | Source passed |
-| Windows CPython 3.14.7 | Initial complete run: 248 passed, 10 failed; corrected targeted service/scale and all eight E2Es passed | Prototype core smoke, agents 30 unit tests, model 1, rebuilt sdist 31 passed; all three prototype license/audit/SBOM gates passed | Final complete matrix pending |
-| Linux, each of the three stable patches | Required full service suite configured | Same fixed candidate, independent profiles and explicit build interpreter configured | CI execution pending |
-| Windows, each of the three stable patches | Required full service suite configured, private runner PostgreSQL | Same fixed candidate and profile gates configured | CI execution pending |
+| Actual tag-CI runtime / OS | Frozen source | Original wheel: core / agents / model | Rebuilt sdist | Result |
+| --- | --- | --- | --- | --- |
+| Linux CPython 3.12.14 | 258; 539.884 s | Smoke / 257 / 1 | 31 | Passed |
+| Linux CPython 3.13.15 | 258; 513.252 s | Smoke / 257 / 1 | 31 | Passed |
+| Linux CPython 3.14.7 | 258; 444.310 s | Smoke / 257 / 1 | 31 | Passed |
+| Windows CPython 3.12.14 | 258; 770.897 s | Smoke / 257 / 1 | 31 | Passed |
+| Windows CPython 3.13.15 | 258; 702.762 s | Smoke / 257 / 1 | 31 | Passed |
+| Windows CPython 3.14.7 | 258; 646.843 s | Smoke / 257 / 1 | 31 | Passed |
 
-Windows local services are PostgreSQL 16.15 under WSL and OPA 1.21.0. Prototype
-artifacts are not the final release candidate. The six jobs use the same
+Every counted suite has zero failures, errors and skips. Core smoke checks version,
+site-packages import, CLI and bundled resources. Both [main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36672022262)
+and [tag CI / OIDC publication](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36674642405)
+passed on `e7e245920be3687eebb4b0a0817d60a82ed2c1b9`. Linux uses PostgreSQL
+16.15; Windows CI uses a private native PostgreSQL 17.11 cluster. OPA is 1.21.0.
+Windows runner OS is Windows Server 2025; local post-publication checks use Windows 11.
+Elapsed observations are not normalized interpreter-performance comparisons.
+
+Actual-PyPI core/agents/model installs use fresh environments, cache-disabled normal
+index resolution and observed exact interpreters. All results below have zero
+failures/errors/skips; all nine profiles passed license/audit/SBOM, including the
+published root. Real local services are PostgreSQL 16.15 under WSL and OPA 1.21.0.
+
+| Actual PyPI runtime / OS | Core | Agents | Model | Rebuilt sdist | Resolved core/agents/model |
+| --- | --- | --- | --- | --- | --- |
+| Windows 11 CPython 3.12.14 | Passed | 257; 1,060.63 s | 1; 5.07 s | 31; 4.18 s | 31/64/67 |
+| Windows 11 CPython 3.13.15 | Passed | 30 unit; 3.64 s | 1; 3.55 s | 31; 3.27 s | 31/60/64 |
+| Windows 11 CPython 3.14.7 | Passed | 257; 1,060.79 s | 1; 4.37 s | 31; 3.95 s | 31/60/64 |
+
+Minimum/latest agents checks include all four installed audit regressions and the
+complete service/E2E suite. The middle minor has full source/wheel service coverage
+in CI and additional actual-PyPI unit/smoke coverage here. These are distinct runs,
+not summed as independent evidence. See [validation](validation.md) and the
+[public release reports](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.1).
+
+Windows local services are PostgreSQL 16.15 under WSL and OPA 1.21.0. Earlier
+prototype observations are retained in validation and are distinct from the final
+release artifacts. The six jobs use the same
 `ci_validate.py` definition, actual interpreter reports and separate coverage,
 resolved-dependency, license, audit and SBOM artifacts. No required-service skip
 passes the gate. `check_package.py --python` controls fresh venvs and records
@@ -36,20 +63,30 @@ A2A peers synchronized evidence, returned samples 1/2/1 for two calls plus retry
 queried both saved IDs and blocked execution after withdrawal. This establishes
 tested interpreter interoperability, not rolling old-package interoperability.
 
-`uv.lock` retains every previously resolved dependency version; only the project
+`uv.lock` retains all 135 previous third-party name/version pairs; only the project
 version and additional platform/interpreter wheels changed. Ordinary resolution
-is separate: the prototype also selected PyJWT 2.15.1, OpenAI 3.22.1, google-api-core
+is separate: the final clean installs also selected PyJWT 2.15.1, OpenAI 3.22.1, google-api-core
 2.40.0, google-auth 2.59.0, proto-plus 1.29.0 and sse-starlette 3.5.0. Python 3.12
 includes SDK marker dependencies aiologic/culsans/wrapt that newer minors omit.
 Each actual profile is audited; no new allowlist exception or dependency range was
-introduced. Prototype uv_build 0.12.21 remained within the existing backend range.
+introduced. Actual uv_build 0.12.21 remained within the existing backend range.
+
+Tag-CI normal-resolution distribution counts, including the first-party root, are
+31/63/66 for Linux 3.12, 31/59/63 for Linux 3.13 and 3.14, 31/64/67 for Windows
+3.12, and 31/60/64 for Windows 3.13 and 3.14 (core/agents/agents-model).
+Frozen source counts are 132/129/129 on Linux and 133/130/130 on Windows.
+Every actual profile has its own license, audit and CycloneDX report. Before
+publication the candidate audit omitted only the unpublished first-party root;
+actual-PyPI post-publication audits include it. No vulnerability ID or new license
+was added to an ignore/allow list to pass the gates. Third-party packages retain
+their own notices and redistribution obligations.
 
 `.python-version` remains the minimum development pin. Select a different patch
 with both `uv sync --python 3.14.7 --all-extras --frozen` and
 `uv run --python 3.14.7 ...`. Pinned setup-uv v6's public `python-version` input sets
 `UV_PYTHON` for CI; each matrix job also checks the observed exact patch.
 
-The unreleased 0.3.1 changes add migrations 0013/0014, not a new DSSE,
+The 0.3.1 changes add migrations 0013/0014, not a new DSSE,
 binding or A2A format. Cause grouping and command receipts stay in owner-local
 tables. Initial semantic observation fingerprints and original signed bytes are
 preserved; renewed instances use the existing `supersedes` field and fresh bases.
@@ -64,7 +101,7 @@ scope or an existing Executor parent. Executor IDs supply this automatically;
 MAF tools use public SDK call IDs and an explicit persisted host/session scope.
 Local unscoped APIs retain their previous behavior. Migration 0014 preserves every
 old invocation/remote ID and leaves unknown legacy child mappings empty. See
-[the API](api.md#031-candidate-logical-remote-calls) for retry/query migration.
+[the API](api.md#031-logical-remote-calls) for retry/query migration.
 
 Version 0.3.0 adds Capability schema 3 and its DSSE media type
 `application/vnd.collective-intelligence-overlay.record.v3+json` for explicit
