@@ -16,6 +16,11 @@
   three stable CPython patches, with private native PostgreSQL and distinct reports.
   Native golden signature/artifact exchange has separate installed reader gates.
   Native Mac release validation is still pending; this is not a publication claim.
+- Native PostgreSQL startup captures diagnostics in files, avoiding inherited
+  Windows daemon pipes. The reviewed pg8000 connection close has a small scoped
+  compatibility shim that explicitly closes its buffer after a failed protocol
+  flush; original DB errors propagate. Real transport-disconnect tests retain
+  strict finalizer-warning checks. Dependencies and license exceptions are unchanged.
 
 ## 0.3.1 (2026-09-30)
 

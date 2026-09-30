@@ -18,6 +18,19 @@ download. No dependency range or license exception is added. `amd64` is normaliz
 x86_64; metadata >=3.12 still does not guarantee every future OS/CPU/Python.
 Current observations and unverified gates are in [validation](validation.md).
 
+The reviewed pg8000 1.31.5 is still the latest published driver. Its protocol
+close can drop a buffered socket file after a failed flush, producing a later
+unraisable Windows 10038 finalizer error. Store uses SQLAlchemy's documented
+`do_connect` hook and a small connection subclass that delegates protocol close
+then explicitly closes that buffer, retaining the original failure. This isolated
+compatibility shim reads the known private `_sock` resource; it does not replace
+the driver, protocol or transaction handling. That field is a maintenance constraint
+to review when the driver changes, covered by physical-disconnect tests and the
+mandatory native source/installed gates. No dependency range or license exception
+is changed, and unraisable warnings remain errors. See
+[pg8000](https://pypi.org/project/pg8000/) and
+[SQLAlchemy's connection hook](https://docs.sqlalchemy.org/en/21/core/events.html#sqlalchemy.events.DialectEvents.do_connect).
+
 ## 0.3.1 published Python extension (2026-09-30)
 
 Published metadata is `Requires-Python: >=3.12`, without an upper bound. The

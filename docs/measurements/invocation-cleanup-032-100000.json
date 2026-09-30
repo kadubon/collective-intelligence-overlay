@@ -1,0 +1,10 @@
+{
+  "historical_rows": 100000,
+  "returned_rows": 1,
+  "cleanup_statements": 17,
+  "elapsed_seconds": 0.02132698100467678,
+  "os": "Linux",
+  "cpu": "x86_64",
+  "python": "3.12.14",
+  "unknown_effect_completion": "not inferred"
+}

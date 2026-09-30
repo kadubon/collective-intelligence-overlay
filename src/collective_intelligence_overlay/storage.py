@@ -49,6 +49,7 @@ from .models import (
     now,
     uid,
 )
+from .pg8000_compat import ManagedConnection
 from .queries import RecordCursor, RecordPage, RecordQuery
 from .security import Principal, verify
 
@@ -167,6 +168,10 @@ class Store:
             max_overflow=0,
             pool_timeout=5,
         )
+
+        @sql_event.listens_for(self.engine, "do_connect")
+        def connect(dialect: Any, record: Any, arguments: Any, parameters: Any) -> Any:
+            return ManagedConnection(*arguments, **parameters)
 
         @sql_event.listens_for(self.engine, "connect")
         def set_timeouts(connection: Any, _: Any) -> None:

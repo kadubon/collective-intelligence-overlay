@@ -19,10 +19,44 @@ The 0.3.1 fixture was produced with its actual published wheel/hash; all origina
 rows, signatures and remote call references survive 0015 and backup restoration.
 Expired undispatched work releases once; uncertain effects keep held allowance.
 
+The local complete source run had **289 passes and one test-config failure**:
+its `SimpleNamespace` omitted the new finite owner limits. After making that
+fixture explicit, all **22 related service/native/cleanup tests passed in 68.43 s**,
+zero skips, including the public unresolved-effects reason and continued old-ID
+queries. This focused correction is not substituted for the complete native CI.
+
+The next native candidate passed full source/installed gates on all three Linux
+and all three Mac arm64 patches, but Windows 3.14.7 had **289 passes / one error**
+from pg8000's socket-buffer finalizer after backend termination. It is not a passed
+matrix. A real owned-transport cutoff reproduced Windows 10038 locally; after the
+scoped resource-close shim, both physical-cutoff and backend-termination regressions
+passed on Windows CPython 3.14.7 (**2 / 3.24 s**, zero skips). Original errors,
+rollback, rerunnable cleanup and held/released balances remain checked. Native
+matrix validation of the corrected final candidate is still required.
+The corrected Windows 3.14.7 focused suite then passed **64 / 135.30 s**, zero
+failures/errors/skips: cleanup, original invocations, all historical migrations/
+restore, reference registration, native paths/process restart and TLS.
+
+Representative Linux x86_64 / WSL CPython 3.12.14, PostgreSQL 16.15 and native OPA
+1.21.0 passed the 100,000-record mixed-history, exact-owner authenticated revoke
+and invocation-cleanup profiles at source commit `6f13d3e`; these observations
+precede the later driver-close compatibility change. Each qualification verified four
+signatures and returned nine rows with nine statements. Exact revoke used three
+signature checks and returned four rows. Cleanup returned one row with 17 statements
+and retained live work and balances. These are fixture bounds, not latency SLOs.
+The combined run had three passes and one pre-setup work-history failure because
+pytest reused Windows bytecode in WSL, leaving an unavailable Windows source path.
+With separate caches, the remaining work-history profile passed **1 / 318.18 s**,
+zero skips. No product code or comparison bounds changed for this rerun.
+The first combined run is not reported as four passes. Raw completed observations
+are in [mixed history](measurements/scale-032-100000.json) and
+[invocation cleanup](measurements/invocation-cleanup-032-100000.json), plus
+[work history](measurements/work-scale-032-100000.json).
+
 CIO-031-02 adds native OPA assets, atomic explicit installation, isolated native
 PostgreSQL and one 12-pair manifest. Windows actual OPA installation passed in a
 Unicode/space directory. **Native Mac CI, the complete 0.3.2 candidate matrix,
-cross-platform reports, 100k stress and actual-PyPI checks remain pending.**
+cross-platform reports and actual-PyPI checks remain pending.**
 Platform mocks are unit failure checks, not Mac execution evidence. Paid inference,
 independent external audit and v0.4.0 production behavior remain unrun.
 

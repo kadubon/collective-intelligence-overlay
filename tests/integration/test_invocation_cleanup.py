@@ -1,8 +1,10 @@
 """Real PostgreSQL capacity recovery without looking up the orphaned IDs first."""
 
+import gc
 import json
 import os
 import platform
+import socket
 import subprocess
 import sys
 import time
@@ -229,6 +231,9 @@ def test_cleanup_database_disconnect_rolls_back_and_can_be_rerun(store):
         assert conn.execute(select(leases.c.state)).scalar_one() == "active"
     assert ledger.cleanup_expired(owner="receiver")["items"][0]["state"] == "cancelled"
     assert remaining(store) == 10
+    # Collect the terminated driver's stream here, so finalizer faults cannot
+    # escape this regression and appear in a later unrelated test's setup.
+    gc.collect()
 
 
 def wait_for_file(path, process):
@@ -236,6 +241,36 @@ def wait_for_file(path, process):
     while not path.exists() and process.poll() is None and time.monotonic() < deadline:
         time.sleep(0.02)
     assert path.exists(), "child did not reach the controlled database boundary"
+
+
+def test_closed_transport_reports_failure_without_unraisable_stream_finalizer(store):
+    from pg8000.dbapi import InterfaceError
+
+    from collective_intelligence_overlay.pg8000_compat import ManagedConnection
+
+    # Use pg8000's public sock parameter and an actual PostgreSQL connection.
+    # Physically close only this owned socket to reproduce Windows 10038 without
+    # replacing a DB, policy or driver operation with a test double.
+    with store.engine.connect() as connection:
+        assert isinstance(connection.connection.driver_connection, ManagedConnection)
+    transport = socket.create_connection(
+        (store.engine.url.host, store.engine.url.port or 5432), timeout=5
+    )
+    parameters = store.engine.url.translate_connect_args(username="user")
+    driver = ManagedConnection(**parameters, sock=transport, ssl_context=False)
+    try:
+        cursor = driver.cursor()
+        cursor.execute("SELECT 1")
+        assert cursor.fetchone() == [1]
+        cursor.close()
+        socket.close(transport.fileno())
+        with pytest.raises(InterfaceError, match="network error"):
+            driver.close()
+        gc.collect()
+    finally:
+        # A second close must retain the driver's failure contract, not succeed.
+        with pytest.raises(InterfaceError, match="connection is closed"):
+            driver.close()
 
 
 @pytest.mark.parametrize("dispatched", [False, True])

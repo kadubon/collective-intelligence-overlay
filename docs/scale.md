@@ -17,6 +17,10 @@ target setup. Select the
 stress profile with `CIO_SCALE_COUNTS=100000`, or all three with
 `CIO_SCALE_COUNTS=1000,10000,100000`. PowerShell uses `$env:NAME='value'` for these
 environment variables. CI saves the default JSON reports as `scale-observations`.
+When running Windows and WSL against the same checkout, give WSL a separate
+`PYTHONPYCACHEPREFIX` outside that checkout. Pytest's rewritten bytecode can otherwise
+retain a Windows filename that Linux cannot inspect for registered callable identity.
+This is test-cache separation; do not weaken callable source/digest validation.
 
 Every setup record is signed and verified before insertion through the Store's
 normal internal projection writer, in batches of at most 100. Setup time is reported
