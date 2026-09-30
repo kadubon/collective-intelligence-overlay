@@ -4,6 +4,7 @@ import argparse
 import base64
 import json
 import sys
+from collections import Counter
 from decimal import Decimal
 from pathlib import Path
 
@@ -157,7 +158,19 @@ def validate(directory):
             json.loads(line)
             for line in (arm_dir / "calls.jsonl").read_text(encoding="utf-8").splitlines()
         ]
-        if raw_calls != report["calls"]:
+        if any("call_index" in item for item in raw_calls):
+            if sorted(item["call_index"] for item in raw_calls) != list(range(len(raw_calls))):
+                raise ValueError("offered call index omitted or repeated")
+            raw_calls.sort(key=lambda item: item["call_index"])
+            equal = raw_calls == report["calls"]
+        else:
+            # Early development transcripts recorded completion order without
+            # an observation ordinal. Preserve their full multiset, never only
+            # a set or success-only subset.
+            equal = Counter(map(fingerprint, raw_calls)) == Counter(
+                map(fingerprint, report["calls"])
+            )
+        if not equal:
             raise ValueError("raw offered calls differ from the report")
         arms.append({"seed": seed, "mode": report["mode"], "passed": passed, "denominator": 24})
     differences = []

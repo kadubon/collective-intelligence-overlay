@@ -152,6 +152,7 @@ async def run_arm(private_home, results, admin_url, opa, caddy, seed, mode, cond
             if len(report["calls"]) >= 512:
                 raise ValueError("predeclared external call bound exceeded")
             item = {
+                "call_index": len(report["calls"]),
                 "owner": owner,
                 "operation": data["operation"],
                 "invocation_id": data.get("invocation_id"),

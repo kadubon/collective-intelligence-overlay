@@ -109,3 +109,12 @@ the sorted digest after serialization. The raw failure remains retained; it is
 not an accepted experiment. The runner now uses string keys and verifies the JSON
 round trip before starting any arm. Formal seeds, criteria and quotas were not
 changed to repair this report-format failure.
+
+The next checker-pressure repeat reached its post-run transcript guard, which
+incorrectly compared completion order with offer order under concurrency. That
+failure is also retained. Observations now have a unique `call_index`, and the
+validator compares every completion with its original offer. A third complete
+repeat validated six distinct databases, 698 signed records and conserved
+allowances, with 3/24 independent PASS in each arm. The completed connection
+development condition at seed 1019 validated 998 signed records and 24/24 PASS
+per arm. These are separate development fixtures, not additional formal pairs.
