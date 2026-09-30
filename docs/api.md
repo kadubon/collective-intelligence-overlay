@@ -1,5 +1,25 @@
 # Python API and CLI
 
+## 0.3.1 candidate: exact revocation
+
+The existing owner-only A2A operation uses a bounded exact capability lookup,
+including the authenticated owner and every component of `Subject`. Other
+issuers' same-subject records and other versions/digests do not establish ownership.
+From the operator's configured SDK session:
+
+```python
+result = await send(config, identity, config.owner, {
+    "operation": "revoke",
+    "subject": subject.model_dump(mode="json"),
+    "reason": "withdrawn",
+})
+```
+
+`send` is the existing `adapters.a2a.send`. The returned signed revocation remains
+an immutable tombstone. Receivers must complete their configured synchronization
+before relying on the withdrawal; existing source freshness and dependent
+requalification rules apply. This candidate is not yet a published release.
+
 ## 0.3.0 APIs
 
 Discovery and fresh selection attempts now emit `Event(schema_version="3",

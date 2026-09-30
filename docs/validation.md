@@ -1,5 +1,22 @@
 # Validation status
 
+## 0.3.1 work in progress
+
+CIO-030-01 was reproduced on Windows CPython 3.12.10 with PostgreSQL 16.15
+and OPA 1.21.0. At 1,000 capabilities the old handler verified 1,002 signatures;
+1,001/10,000 failed at the compatibility history-reader bound. The corrected real
+authenticated A2A HTTP profiles at all three sizes passed (3 tests, 92.66 seconds).
+Each revoke used 3 signature checks, 4 SELECT statements and 4 returned rows.
+The fixtures mix original v1/v2 records, old versions, imported issuers and an
+identical foreign subject. They also verify authentication/ownership/digest/missing
+subject rejection, retained revocation, actual receiver synchronization and
+rejection of the target and its dependent after sync. `CIO_REVOKE_COUNTS=100000`
+selects optional stress; that new revoke stress has not been run.
+
+These local observations do not establish the new multi-Python, installed-artifact
+or release gates. The other three audit items and Python support extension remain
+under development. Existing released-version facts below are historical evidence.
+
 ## 0.3.0 released artifacts
 
 The exact release commit `a2fc32b` passed [main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36637949588)

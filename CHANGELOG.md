@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.3.1 (in development)
+
+Standard authenticated peer revocation now checks the exact owner, subject ID,
+version and digest with an indexed bounded query. Signing, persistence and cost
+observation run off the asynchronous handler's event loop. Mixed imported/legacy
+histories no longer hit the compatibility full-history reader's 1,000-record limit.
+Release gates and publication remain pending; 0.3.0 is the latest verified release.
+
 ## 0.3.0
 
 Work metrics resolve original signed invocation receipts and expose resources by

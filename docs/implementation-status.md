@@ -1,5 +1,16 @@
 # Implementation status
 
+## 0.3.1 audit follow-up (unreleased)
+
+| Audit | Current change/evidence | Remaining gates |
+| --- | --- | --- |
+| CIO-030-01 | `PeerService._revoke`, `test_cio_030_01_authenticated_exact_revoke_with_mixed_capability_history`: real 1,000/1,001/10,000-record A2A/PG profiles passed on Windows 3.12.10 | Mandatory Python/OS matrix and installed artifacts; optional new 100k revoke stress unrun |
+| CIO-030-02 | Both orders of a signed unapproved builder reproduced batch failure | Candidate isolation and complete release validation in progress |
+| CIO-030-03 | Controlled clock reproduced expired Opportunity returning from discovery | Persistent bounded reobservation and execution safeguards pending |
+| CIO-030-04 | Two identical logical child calls produced one actual remote execution | Explicit stable call identity, persistence and restart tests pending |
+
+Version 0.3.1 has not been published. See [current validation](validation.md).
+
 ## Two-stage delivery
 
 Stage A, 0.2.1, is published and verified at `3026c39`. Stage B, 0.3.0, is

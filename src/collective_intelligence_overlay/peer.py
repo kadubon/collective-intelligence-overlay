@@ -138,19 +138,20 @@ class PeerService:
             )
         if operation == "revoke":
             subject = Subject.model_validate(data["subject"])
-            if not any(
-                c.subject == subject and c.issuer == self.config.owner
-                for c in self.overlay.store.capabilities()
-            ):
-                raise ValueError("can only revoke own capability")
-            record = Revocation(
-                issuer=self.config.owner, subject=subject, reason=str(data["reason"])
-            )
-            envelope = self.identity.sign(record)
-            self.overlay.store.put(envelope)
-            self.record_event(subject, "revocation", "revocation", started)
-            return {"envelope": envelope}
+            return await asyncio.to_thread(self._revoke, subject, str(data["reason"]), started)
         raise ValueError("unknown operation")
+
+    def _revoke(self, subject: Subject, reason: str, started: float) -> dict[str, Any]:
+        page = self.overlay.store.record_page(
+            RecordQuery(kinds=("capability",), issuer=self.config.owner, subject=subject), limit=1
+        )
+        if not page.items:
+            raise ValueError("can only revoke own capability")
+        record = Revocation(issuer=self.config.owner, subject=subject, reason=reason)
+        envelope = self.identity.sign(record)
+        self.overlay.store.put(envelope)
+        self.record_event(subject, "revocation", "revocation", started)
+        return {"envelope": envelope}
 
     def record_event(
         self, subject: Subject, action: str, category: str, started: float, outcome: Any = None
