@@ -9,6 +9,12 @@
 実行はMicrosoft Agent Framework（MAF）、通信はA2A、tool接続はMCPを利用します。
 集団全体を管理するagentや独自workflow engineは必要ありません。
 
+**0.3.2のsource候補**では、ownerに限定した有限のinvocation整理と、Intel／Apple Silicon
+Mac向けOPA導入を追加しています。旧workerをfenceし、未dispatchを正に確認できた予約だけを
+解放します。dispatch済みの作用はUNKNOWN・予算拘束として残ります。
+Macの公開ゲートは未完了で、下記の公開済み版は0.3.1です。
+[native導入](docs/quickstart.md)、[cleanup API](docs/api.md)、[検証状況](docs/validation.md)を参照してください。
+
 ## できること
 
 **0.3.1をPyPIへ公開しました。** 大量履歴でのowner・Subject完全一致のrevoke、

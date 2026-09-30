@@ -1,5 +1,31 @@
 # Validation status
 
+## 0.3.2 source candidate (not published)
+
+CIO-031-01 was reproduced on Windows CPython 3.12.14 with real PostgreSQL
+16.15 under WSL: two expired reserved/dispatched cases refused a distinct ID with
+`owner invocation capacity exhausted`, without old-ID queries. Both failed before
+the change. After common fenced expiry and capacity-triggered cleanup, both cases
+plus 31 existing invocation regressions passed: **33 tests / 57.66 s**, zero skips.
+These are controlled real-DB expiry cases, not physical process-stop evidence.
+
+Actual worker/cleanup process-tree termination, DB backend disconnection, cross-unit
+cleanup/claim/get/cancel/finish races, native paths/socket restart/TLS verification
+passed **15 tests / 32.33 s** after correcting Windows venv-launcher termination.
+Separate cleanup/installer failure checks passed **22 / 21.43 s**. Original
+0.1.0–0.3.0 and actual-0.3.1 migration/restore checks plus delayed DB-thread commit
+passed **23 / 46.84 s**. Suites overlap and are not added as independent cases.
+The 0.3.1 fixture was produced with its actual published wheel/hash; all original
+rows, signatures and remote call references survive 0015 and backup restoration.
+Expired undispatched work releases once; uncertain effects keep held allowance.
+
+CIO-031-02 adds native OPA assets, atomic explicit installation, isolated native
+PostgreSQL and one 12-pair manifest. Windows actual OPA installation passed in a
+Unicode/space directory. **Native Mac CI, the complete 0.3.2 candidate matrix,
+cross-platform reports, 100k stress and actual-PyPI checks remain pending.**
+Platform mocks are unit failure checks, not Mac execution evidence. Paid inference,
+independent external audit and v0.4.0 production behavior remain unrun.
+
 ## 0.3.1 released-artifact validation
 
 The exact release commit `e7e2459` passed [main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36672022262)

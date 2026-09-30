@@ -1,5 +1,23 @@
 # Compatibility and licensing
 
+## 0.3.2 candidate target (native results pending)
+
+The manifest table at the end declares required gates, not completed support.
+Its authority is `scripts/runtime-matrix.json`; Actions and report validation load
+it, and `runtime_matrix.py --write-docs/--check-docs` generate/check that table.
+Official [runner labels](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)
+identify `macos-15` as arm64 and `macos-15-intel` as Intel. Native PostgreSQL uses
+Homebrew's located 17 tools in a private cluster, without Linux service containers
+or an existing brew service. PostgreSQL retains its own license; Homebrew and macOS
+retain separate terms. No Docker Desktop is required.
+
+OPA's official [1.21.0 release](https://github.com/open-policy-agent/opa/releases/tag/v1.21.0)
+provides reviewed Darwin amd64/arm64 assets; the package's `opa_install.py` is the
+single pinned-checksum authority. It verifies native execution/version after the
+download. No dependency range or license exception is added. `amd64` is normalized
+x86_64; metadata >=3.12 still does not guarantee every future OS/CPU/Python.
+Current observations and unverified gates are in [validation](validation.md).
+
 ## 0.3.1 published Python extension (2026-09-30)
 
 Published metadata is `Requires-Python: >=3.12`, without an upper bound. The
@@ -179,3 +197,13 @@ PostgreSQL example uses the upstream official container image; its OS packages c
 their own licenses. Binary tests do not establish container security or full-image
 license audit. SBOM generation uses cyclonedx-bom; known-vulnerability checks use
 pip-audit. Metadata scanning does not replace legal review or supply-chain attestation.
+
+
+<!-- runtime-matrix:start -->
+| OS | Native CPU | Runner | CPython patches | Required scope |
+| --- | --- | --- | --- | --- |
+| Linux | amd64 | `ubuntu-latest` | 3.12.14, 3.13.15, 3.14.7 | full |
+| Windows | amd64 | `windows-latest` | 3.12.14, 3.13.15, 3.14.7 | full |
+| Darwin | arm64 | `macos-15` | 3.12.14, 3.13.15, 3.14.7 | full |
+| Darwin | amd64 | `macos-15-intel` | 3.12.14, 3.13.15, 3.14.7 | full |
+<!-- runtime-matrix:end -->

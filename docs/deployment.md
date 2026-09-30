@@ -1,5 +1,26 @@
 # Deployment, backup and upgrades
 
+## 0.3.2 candidate: capacity recovery and native Mac
+
+Stop old writers and take a consistent backup before applying migration 0015.
+It adds an ordered owner/state index and rewrites no original record, signature,
+invocation ID/state, lease, reservation, balance or remote call map. Restore a
+tested backup for rollback. The migration/interrupt/restore regression uses an
+actual published-0.3.1 wheel fixture and compares every original table row.
+
+[Native Mac setup](quickstart.md) uses `brew --prefix postgresql@17` for Intel or
+Apple Silicon, rather than a fixed path. Its isolated trust-auth cluster is for
+development; production still needs restricted roles and SCRAM/TLS below.
+Docker Desktop and system-wide Gatekeeper changes are not required.
+
+After worker loss, list with `invocation-cleanup --dry-run`, then apply a finite
+batch using that owner's config. New-claim capacity/budget refusal also makes one
+bounded pass. Fencing precedes logical slot recovery. Positive undispatched proof
+releases allowance once; dispatched effects remain UNKNOWN/held. Query original
+invocation/provider IDs and retain their saved mappings. Cleanup does not stop
+host tasks or reconcile effects. Never resend or top up merely because of expiry.
+See [API bounds and reasons](api.md).
+
 Version 0.3.1 requires Python >=3.12, PostgreSQL, an OPA 1.21.0
 executable, and an HTTPS reverse proxy. No broker is needed. Local tests can use
 Windows clients plus PostgreSQL under WSL. Container operation is described in the

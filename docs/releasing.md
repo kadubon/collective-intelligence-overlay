@@ -1,5 +1,24 @@
 # Release procedure and current state
 
+## 0.3.2 candidate publication gates
+
+0.3.2 is not yet published. One Linux build fixes the original wheel/sdist hashes.
+All 12 native OS/CPU/patch/full-scope jobs must pass source, real services/E2E,
+core/agents/model normal installation, rebuilt sdist and supply-chain reports.
+The manifest controls matrix/report/docs identities; each Mac CPU has separate
+reports. Four installed native readers separately verify shared golden artifacts
+and new signatures from all installed producers; no cross-runner public ports are
+opened. Existing mixed-Python actual HTTP peers stay mandatory. Mac/Windows always
+stop/remove only the temporary PostgreSQL cluster whose ownership marker matches.
+
+Ready rejects absent, duplicate, wrong-interpreter/CPU, changed-hash or skipped
+reports. Publish remains a single official PyPA/OIDC job in environment `pypi`,
+only on a matching tag after every required gate. Do not substitute rebuilt Mac
+wheels for the fixed candidate. After publication, actual cache-disabled PyPI
+installs and major regressions are required on both native Mac CPUs and representative
+Linux/Windows, with hashes compared to this same pair. Do not start v0.4.0 features
+until 0.3.2's safety gates pass; publication order remains 0.3.2 then 0.4.0.
+
 ## 0.3.1 published on 2026-09-30
 
 Release commit `e7e245920be3687eebb4b0a0817d60a82ed2c1b9`, immutable annotated

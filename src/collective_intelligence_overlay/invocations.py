@@ -7,11 +7,24 @@ import contextlib
 import copy
 import time
 from contextvars import ContextVar
+from datetime import datetime
 from decimal import Decimal
-from typing import Any
+from typing import Any, cast
 
 from pydantic import Field, TypeAdapter
-from sqlalchemy import JSON, Column, DateTime, Integer, String, Table, func, insert, select, update
+from sqlalchemy import (
+    JSON,
+    Column,
+    DateTime,
+    Integer,
+    String,
+    Table,
+    func,
+    insert,
+    or_,
+    select,
+    update,
+)
 
 from .bindings import (
     ExecutionContext,
@@ -64,6 +77,15 @@ class Reservation(Model):
     seconds: int = Field(default=30, ge=1, le=300)
     minimum_remaining: Decimal = Field(default=Decimal(0), ge=0, max_digits=24, decimal_places=9)
     max_concurrent: int | None = Field(default=None, ge=1, le=32)
+    max_unresolved: int = Field(default=32, ge=1, le=1024)
+
+
+class _MaintenanceRequired(Conflict):
+    """A stopped new claim may make one bounded maintenance pass before retrying."""
+
+
+class UnresolvedEffectsLimit(Conflict):
+    """Owner policy refuses further work until original uncertain effects are reconciled."""
 
 
 def invocation_request(
@@ -164,15 +186,20 @@ class InvocationStore:
         return row, lease
 
     @staticmethod
-    def _release(conn: Any, row: Any, lease: Any, reason: str) -> bool:
-        if not (
+    def _releasable(row: Any, lease: Any) -> bool:
+        return bool(
             row["state"] == "running"
             and row["phase"] == "reserved"
             and row["reservation_state"] == "held"
             and lease["state"] == "active"
             and row["worker"] == lease["worker"]
             and row["fence"] == lease["fence"]
-        ):
+            and lease["actual"] is None
+        )
+
+    @staticmethod
+    def _release(conn: Any, row: Any, lease: Any, reason: str) -> bool:
+        if not InvocationStore._releasable(row, lease):
             return False
         # The caller holds all three locks. Revoke dispatch ownership in this same
         # transaction before making the reserved allowance available again.
@@ -193,44 +220,181 @@ class InvocationStore:
         )
         return True
 
+    @classmethod
+    def _expire_locked(cls, conn: Any, row: Any, lease: Any) -> Any:
+        # The stored timestamptz deadline and PostgreSQL wall clock are authoritative.
+        observed: datetime = conn.execute(select(func.clock_timestamp())).scalar_one()
+        if row["state"] != "running" or (
+            lease["expires_at"] > observed
+            and lease["state"] == "active"
+            and lease["worker"] == row["worker"]
+            and lease["fence"] == row["fence"]
+        ):
+            return row
+        selector = _selector(row["caller"], row["id"])
+        released = cls._release(conn, row, lease, "worker_lost_or_expired")
+        conn.execute(
+            update(invocations)
+            .where(selector)
+            .values(
+                state="cancelled" if released else "unknown",
+                reason="worker_lost_or_expired",
+                updated_at=observed,
+            )
+        )
+        if not released:
+            # Never cancel a replacement lease owned by a different worker/fence.
+            conn.execute(
+                update(leases)
+                .where(
+                    (leases.c.task_id == row["lease_id"])
+                    & (leases.c.worker == row["worker"])
+                    & (leases.c.fence == row["fence"])
+                    & (leases.c.state == "active")
+                )
+                .values(state="cancelled", fence=leases.c.fence + 1)
+            )
+        return conn.execute(select(invocations).where(selector)).mappings().one()
+
     def get(self, caller: str, invocation_id: str) -> dict[str, Any] | None:
-        selector = _selector(caller, invocation_id)
         with self.store.engine.begin() as conn:
             row, lease = self._locked(conn, caller, invocation_id)
-            if row is None:
-                return None
-            if row["state"] == "running":
-                if (
-                    lease["expires_at"] <= now()
+            return None if row is None else _public(self._expire_locked(conn, row, lease))
+
+    def cleanup_expired(
+        self, *, owner: str, limit: int = 32, seconds: int = 5, dry_run: bool = False
+    ) -> dict[str, Any]:
+        """Inspect/fence a finite owner-local batch; never invoke or infer external effects.
+
+        ``seconds`` bounds database work after connection acquisition. The Store's
+        separate finite pool/connect timeouts still apply. A DB timeout/failure is
+        raised; committed earlier rows remain safe to inspect and rerun.
+        """
+        if owner != self.store.owner:
+            raise ValueError("invocation cleanup belongs to the configured owner")
+        if not 1 <= limit <= 128 or not 1 <= seconds <= 30:
+            raise ValueError("cleanup bounds: limit 1..128, seconds 1..30")
+        deadline = time.monotonic() + seconds
+
+        def bounded(conn: Any) -> bool:
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                return False
+            # Each row uses fewer than 16 statements, with no cross-unit transaction.
+            ms = str(max(1, int(remaining * 1000 / 16)))
+            conn.execute(select(func.set_config("statement_timeout", ms, True)))
+            conn.execute(select(func.set_config("lock_timeout", ms, True)))
+            return True
+
+        with self.store.engine.begin() as conn:
+            if not bounded(conn):
+                raise Conflict("cleanup time budget ended before candidate query; rerun")
+            candidates = conn.execute(
+                select(invocations.c.caller, invocations.c.id)
+                .select_from(
+                    invocations.outerjoin(leases, invocations.c.lease_id == leases.c.task_id)
+                )
+                .where(
+                    (invocations.c.owner == owner)
+                    & (invocations.c.state == "running")
+                    & or_(
+                        leases.c.task_id.is_(None),
+                        leases.c.expires_at <= func.clock_timestamp(),
+                        leases.c.state != "active",
+                        leases.c.worker != invocations.c.worker,
+                        leases.c.fence != invocations.c.fence,
+                    )
+                )
+                .order_by(invocations.c.created_at, invocations.c.caller, invocations.c.id)
+                .limit(limit + 1)
+            ).all()
+        items = []
+        processed = 0
+        for candidate in candidates[:limit]:
+            caller, invocation_id = cast(str, candidate[0]), cast(str, candidate[1])
+            with self.store.engine.begin() as conn:
+                if not bounded(conn):
+                    break
+                row, lease = self._locked(conn, caller, invocation_id)
+                if row is None:
+                    raise Conflict(
+                        "invocation lease mapping missing; operator reconciliation required"
+                    )
+                if row["owner"] != owner:
+                    raise Conflict("invocation owner changed")
+                observed: datetime = conn.execute(select(func.clock_timestamp())).scalar_one()
+                eligible = row["state"] == "running" and (
+                    lease["expires_at"] <= observed
                     or lease["state"] != "active"
                     or lease["worker"] != row["worker"]
                     or lease["fence"] != row["fence"]
-                ):
-                    released = self._release(conn, row, lease, "worker_lost_or_expired")
-                    conn.execute(
-                        update(invocations)
-                        .where(selector)
-                        .values(
-                            state="cancelled" if released else "unknown",
-                            reason="worker_lost_or_expired",
-                            updated_at=now(),
-                        )
+                )
+                before = row["state"]
+                action = (
+                    "release_undispatched"
+                    if eligible and self._releasable(row, lease)
+                    else "retain_unknown_effect"
+                    if eligible
+                    else "no_longer_eligible"
+                )
+                if eligible and not dry_run:
+                    row = self._expire_locked(conn, row, lease)
+                    lease = (
+                        conn.execute(select(leases).where(leases.c.task_id == row["lease_id"]))
+                        .mappings()
+                        .one()
                     )
-                    if not released:
-                        conn.execute(
-                            update(leases)
-                            .where(
-                                (leases.c.task_id == row["lease_id"])
-                                & (leases.c.worker == row["worker"])
-                                & (leases.c.fence == row["fence"])
-                                & (leases.c.state == "active")
-                            )
-                            .values(state="cancelled", fence=leases.c.fence + 1, actual=None)
-                        )
-                    row = conn.execute(select(invocations).where(selector)).mappings().one()
-            return _public(row)
+                items.append(
+                    {
+                        "caller": caller,
+                        "id": invocation_id,
+                        "previous_state": before,
+                        "state": row["state"],
+                        "phase": row["phase"],
+                        "reservation_state": row["reservation_state"],
+                        "reason": row["reason"],
+                        "lease_state": lease["state"],
+                        "lease_expires_at": lease["expires_at"].isoformat(),
+                        "eligible": eligible,
+                        "action": action,
+                        "logical_slot_recovered": eligible and not dry_run,
+                        "physical_task": "not_observed",
+                        "external_effect": "not_dispatched"
+                        if action == "release_undispatched"
+                        else "unconfirmed",
+                    }
+                )
+            processed += 1
+        return {
+            "owner": owner,
+            "dry_run": dry_run,
+            "items": items,
+            "has_more": len(candidates) > processed,
+            "required": "query original IDs; cleanup does not confirm external effect completion",
+        }
 
     def claim(
+        self,
+        caller: str,
+        invocation_id: str,
+        binding_id: str,
+        binding_digest: str,
+        request: dict[str, Any],
+        allowance: Reservation,
+    ) -> tuple[dict[str, Any], bool]:
+        try:
+            return self._claim(
+                caller, invocation_id, binding_id, binding_digest, request, allowance
+            )
+        except _MaintenanceRequired:
+            # Roll back the stopped claim first. Cleanup locks exactly one budget
+            # unit per transaction, never while holding claim's owner advisory lock.
+            self.cleanup_expired(owner=self.store.owner, limit=32, seconds=5)
+            return self._claim(
+                caller, invocation_id, binding_id, binding_digest, request, allowance
+            )
+
+    def _claim(
         self,
         caller: str,
         invocation_id: str,
@@ -263,7 +427,22 @@ class InvocationStore:
                     raise Conflict("invocation ID reused with different request")
                 return dict(old), False
             if remaining < allowance.quantity + allowance.minimum_remaining:
-                raise Conflict("budget exhausted or protected allowance would be consumed")
+                raise _MaintenanceRequired(
+                    "budget exhausted or protected allowance would be consumed"
+                )
+            unresolved = conn.execute(
+                select(invocations.c.id)
+                .where(
+                    (invocations.c.owner == self.store.owner)
+                    & invocations.c.state.in_(("unknown", "cancelled", "rejected"))
+                    & invocations.c.reservation_state.in_(("held", "legacy_unknown"))
+                )
+                .limit(allowance.max_unresolved)
+            ).all()
+            if len(unresolved) >= allowance.max_unresolved:
+                raise UnresolvedEffectsLimit(
+                    "owner unresolved effects limit reached; query original IDs and reconcile"
+                )
             if allowance.max_concurrent is not None:
                 running = conn.execute(
                     select(invocations.c.id)
@@ -274,7 +453,7 @@ class InvocationStore:
                     .limit(allowance.max_concurrent)
                 ).all()
                 if len(running) >= allowance.max_concurrent:
-                    raise Conflict("owner invocation capacity exhausted")
+                    raise _MaintenanceRequired("owner invocation capacity exhausted")
             if (
                 conn.execute(
                     select(leases.c.task_id).where(leases.c.task_id == lease_id).with_for_update()
@@ -330,7 +509,7 @@ class InvocationStore:
             or lease["worker"] != claim["worker"]
             or lease["fence"] != claim["fence"]
             or lease["state"] != "active"
-            or lease["expires_at"] <= now()
+            or lease["expires_at"] <= conn.execute(select(func.clock_timestamp())).scalar_one()
         ):
             raise Conflict("invocation worker lost execution ownership")
 

@@ -1,5 +1,56 @@
 # Python API and CLI
 
+## 0.3.2 candidate: bounded invocation cleanup
+
+`InvocationStore.cleanup_expired(owner=..., limit=32, seconds=5, dry_run=False)`
+is an operator-local operation; owner must equal Store.owner. Bounds are 1–128
+rows and 1–30 seconds of DB work after connection acquisition. Store's finite
+pool/connect timeouts apply separately. DB failures propagate, with earlier
+committed rows safe to inspect/rerun. Each row follows budget → invocation → lease
+locking, in a separate transaction for each budget unit. Missing mappings need
+operator reconciliation.
+
+```python
+from collective_intelligence_overlay.invocations import InvocationStore
+
+ledger = InvocationStore(overlay.store)  # supplied trusted owner Overlay
+preview = ledger.cleanup_expired(owner=overlay.store.owner, limit=16, dry_run=True)
+result = ledger.cleanup_expired(owner=overlay.store.owner, limit=16, seconds=5)
+```
+
+The CLI shares that SDK operation and needs no running peer:
+
+```sh
+collective-intelligence-overlay invocation-cleanup --config owner/config.json --limit 16 --dry-run
+collective-intelligence-overlay invocation-cleanup --config owner/config.json --limit 16 --seconds 5
+```
+
+Exit 3 / `has_more=true` means another finite batch; exit 2 is failure. Output lists
+old caller/ID, state, phase, reason, reservation, lease and planned action, omitting
+arguments/results/credentials. Logical slot recovery is separate from physical
+task status (`not_observed`) and external effects (`unconfirmed`). Cleanup never
+invokes, implicitly queries a provider, creates PASS or proves process termination.
+
+New claims make one bounded cleanup pass only after budget/capacity refusal, then
+retry once. Existing IDs always retain the original request/result; changed content
+conflicts. Stored UTC deadlines and PostgreSQL `clock_timestamp()` decide expiry.
+Matching active reserved/held leases with no actual settlement are fenced and
+released once. Dispatched, legacy or mismatched ownership stays UNKNOWN/held;
+live work and other owners are retained.
+
+Owner `Reservation.max_unresolved` / `Config.max_unresolved` defaults to 32 (1–1024).
+That many terminal uncertain/held reservations stop new independent claims with
+`UnresolvedEffectsLimit`; the peer returns `OWNER_UNRESOLVED_EFFECTS_LIMIT`, requiring
+original-ID queries and reconciliation. Old queries/retries stay available.
+Conversion of already admitted work can exceed the threshold; effects are retained.
+A finite `max_concurrent` bounds additional admitted work. These are distinct from
+physical tasks and spending balances; changing limits requires owner authority.
+
+`collective-intelligence-overlay opa-install --target PATH` explicitly installs
+reviewed native OPA 1.21.0 after HTTPS/size/hash/version/CPU checks and atomic replace.
+Failure retains an existing binary. The package helper is the sole asset/checksum
+authority; `scripts/fetch_opa.py` is its developer wrapper.
+
 ## 0.3.1: exact revocation
 
 The existing owner-only A2A operation uses a bounded exact capability lookup,

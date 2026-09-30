@@ -40,6 +40,7 @@ class Config(Model):
     identities: dict[Identifier, TrustedIdentity] = Field(max_length=128)
     policy: PolicySettings = Field(default_factory=PolicySettings)
     max_concurrency: int = Field(default=4, ge=1, le=32)
+    max_unresolved: int = Field(default=32, ge=1, le=1024)
     max_steps: int = Field(default=20, ge=1, le=1000)
     max_children: int = Field(default=4, ge=0, le=32)
     max_rechecks: int = Field(default=2, ge=0, le=10)

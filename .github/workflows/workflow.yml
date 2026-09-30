@@ -12,24 +12,33 @@ permissions:
 jobs:
   candidate:
     runs-on: ubuntu-latest
+    outputs:
+      linux: ${{ steps.matrix.outputs.linux }}
+      windows: ${{ steps.matrix.outputs.windows }}
+      macos: ${{ steps.matrix.outputs.macos }}
+      cross: ${{ steps.matrix.outputs.cross }}
+      minimum: ${{ steps.matrix.outputs.minimum }}
+      latest: ${{ steps.matrix.outputs.latest }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
           persist-credentials: false
+      - id: matrix
+        run: python scripts/runtime_matrix.py --github-output
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           version: '0.12.19'
-          python-version: '3.12.14'
+          python-version: ${{ steps.matrix.outputs.minimum }}
       - run: uv sync --all-extras --frozen
       - name: Check actual build interpreter and release ancestry
         run: |
-          uv run python -c "import platform,sys; assert platform.python_version()=='3.12.14'; print(sys.version,sys.executable)"
+          uv run python -c "import platform,sys; assert platform.python_version()=='${{ steps.matrix.outputs.minimum }}'; print(sys.version,sys.executable)"
           if [[ "$GITHUB_REF" == refs/tags/* ]]; then
             uv run python -c "import os,tomllib; v=tomllib.load(open('pyproject.toml','rb'))['project']['version']; assert os.environ['GITHUB_REF_NAME']=='v'+v"
             git merge-base --is-ancestor HEAD origin/main
           fi
-      - run: uv build --force-pep517 --python 3.12.14 --out-dir .local/candidate/dist
+      - run: uv build --force-pep517 --python '${{ steps.matrix.outputs.minimum }}' --out-dir .local/candidate/dist
       - run: uv run twine check --strict .local/candidate/dist/*
       - name: Fix candidate hashes once
         run: |
@@ -43,12 +52,11 @@ jobs:
 
   linux:
     needs: candidate
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     strategy:
       fail-fast: false
-      matrix:
-        python: ['3.12.14', '3.13.15', '3.14.7']
+      matrix: ${{ fromJSON(needs.candidate.outputs.linux) }}
     services:
       postgres:
         image: postgres:16.15
@@ -76,23 +84,22 @@ jobs:
           path: .local/candidate
       - run: uv sync --all-extras --frozen
       - run: uv run python scripts/fetch_opa.py
-      - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --candidate .local/candidate --report-dir .local/reports
+      - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
-          name: reports-Linux-${{ matrix.python }}
+          name: reports-Linux-${{ matrix.architecture }}-${{ matrix.python }}-full
           path: .local/reports/
           include-hidden-files: true
           if-no-files-found: error
 
   windows:
     needs: candidate
-    runs-on: windows-latest
+    runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     strategy:
       fail-fast: false
-      matrix:
-        python: ['3.12.14', '3.13.15', '3.14.7']
+      matrix: ${{ fromJSON(needs.candidate.outputs.windows) }}
     env:
       CIO_TEST_DATABASE_URL: postgresql+pg8000://postgres@127.0.0.1:55439/postgres
       CIO_OPA: ${{ github.workspace }}/.local/bin/opa.exe
@@ -112,23 +119,67 @@ jobs:
       - name: Start a private runner PostgreSQL cluster
         shell: pwsh
         run: |
-          if (!(Test-Path -LiteralPath "$env:PGBIN/initdb.exe")) { throw 'runner PostgreSQL missing' }
-          $testData = Join-Path $env:RUNNER_TEMP 'cio-postgres'
-          if (Test-Path -LiteralPath $testData) { throw 'test cluster directory already exists' }
-          & "$env:PGBIN/initdb.exe" -D $testData -U postgres -A trust --encoding=UTF8
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          & "$env:PGBIN/pg_ctl.exe" -D $testData -l "$env:RUNNER_TEMP/cio-postgres.log" -o '-h 127.0.0.1 -p 55439' -w -t 60 start
+          uv run --no-project python scripts/private_postgres.py start --bin "$env:PGBIN" --data "$env:RUNNER_TEMP/cio-postgres"
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           $env:PGBIN | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
-          & "$env:PGBIN/psql.exe" -h 127.0.0.1 -p 55439 -U postgres -c 'SELECT version()'
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
       - run: uv sync --all-extras --frozen
       - run: uv run python scripts/fetch_opa.py
-      - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --candidate .local/candidate --report-dir .local/reports
+      - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
+      - name: Stop only the private Windows cluster
+        if: always()
+        shell: pwsh
+        run: uv run --no-project python scripts/private_postgres.py stop --bin "$env:PGBIN" --data "$env:RUNNER_TEMP/cio-postgres"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
-          name: reports-Windows-${{ matrix.python }}
+          name: reports-Windows-${{ matrix.architecture }}-${{ matrix.python }}-full
+          path: .local/reports/
+          include-hidden-files: true
+          if-no-files-found: error
+
+  macos:
+    needs: candidate
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.candidate.outputs.macos) }}
+    env:
+      CIO_TEST_DATABASE_URL: postgresql+pg8000://postgres@127.0.0.1:55439/postgres
+      CIO_OPA: ${{ github.workspace }}/.local/bin/opa
+      CIO_SCALE_REPORT_DIR: .local/reports/scale
+      HOMEBREW_NO_AUTO_UPDATE: '1'
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.12.19'
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: candidate-distributions
+          path: .local/candidate
+      - name: Locate native PostgreSQL and start an isolated cluster
+        shell: bash
+        run: |
+          if ! brew list --versions postgresql@17; then brew install postgresql@17; fi
+          pg_bin="$(brew --prefix postgresql@17)/bin"
+          echo "CIO_PG_BIN=$pg_bin" >> "$GITHUB_ENV"
+          echo "$pg_bin" >> "$GITHUB_PATH"
+          uv run --no-project python scripts/private_postgres.py start --bin "$pg_bin" --data "$RUNNER_TEMP/cio-postgres"
+      - run: uv sync --all-extras --frozen
+      - run: uv run python scripts/fetch_opa.py
+      - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
+      - name: Stop only the private Mac cluster
+        if: always() && env.CIO_PG_BIN != ''
+        shell: bash
+        run: uv run --no-project python scripts/private_postgres.py stop --bin "$CIO_PG_BIN" --data "$RUNNER_TEMP/cio-postgres"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: reports-Darwin-${{ matrix.architecture }}-${{ matrix.python }}-full
           path: .local/reports/
           include-hidden-files: true
           if-no-files-found: error
@@ -156,14 +207,14 @@ jobs:
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           version: '0.12.19'
-          python-version: '3.12.14'
+          python-version: ${{ needs.candidate.outputs.minimum }}
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: candidate-distributions
           path: .local/candidate
       - run: uv sync --all-extras --frozen
       - run: uv run python scripts/fetch_opa.py
-      - run: uv run python scripts/check_python_interop.py --candidate .local/candidate --minimum 3.12.14 --latest 3.14.7 --report .local/reports/mixed-python.json
+      - run: uv run python scripts/check_python_interop.py --candidate .local/candidate --minimum '${{ needs.candidate.outputs.minimum }}' --latest '${{ needs.candidate.outputs.latest }}' --report .local/reports/mixed-python.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -172,8 +223,46 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
 
+  cross:
+    needs: [candidate, linux, windows, macos]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.candidate.outputs.cross) }}
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.12.19'
+          python-version: ${{ matrix.python }}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: candidate-distributions
+          path: .local/candidate
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          pattern: reports-*-full
+          path: .local/origins
+      - name: Verify every native producer with an installed native reader
+        shell: bash
+        run: |
+          uv venv --python '${{ matrix.python }}' .local/cross
+          if [[ "$RUNNER_OS" == Windows ]]; then cross_python=.local/cross/Scripts/python.exe; else cross_python=.local/cross/bin/python; fi
+          uv pip install --python "$cross_python" .local/candidate/dist/*.whl
+          "$cross_python" scripts/check_platform_interop.py --candidate .local/candidate --reports .local/origins --output .local/reports/cross-platform.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: reports-cross-${{ matrix.os }}-${{ matrix.architecture }}-${{ matrix.python }}
+          path: .local/reports/
+          include-hidden-files: true
+          if-no-files-found: error
+
   ready:
-    needs: [candidate, linux, windows, mixed]
+    needs: [candidate, linux, windows, macos, mixed, cross]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -182,7 +271,7 @@ jobs:
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
           version: '0.12.19'
-          python-version: '3.12.14'
+          python-version: ${{ needs.candidate.outputs.minimum }}
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: candidate-distributions
@@ -191,11 +280,11 @@ jobs:
         with:
           pattern: reports-*
           path: .local/reports
-      - run: uv run --no-project --python 3.12.14 python scripts/check_matrix.py --candidate .local/candidate --reports .local/reports
+      - run: uv run --no-project --python '${{ needs.candidate.outputs.minimum }}' python scripts/check_matrix.py --candidate .local/candidate --reports .local/reports
 
   publish:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'kadubon/collective-intelligence-overlay'
-    needs: [candidate, linux, windows, mixed, ready]
+    needs: [candidate, linux, windows, macos, mixed, cross, ready]
     runs-on: ubuntu-latest
     environment:
       name: pypi

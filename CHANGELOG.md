@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.2 (unreleased candidate)
+
+- CIO-031-01: owner-bounded expiry cleanup shares the existing fenced transition
+  with get. New capacity/budget refusals make one maintenance pass and retry once.
+  Reserved positive proof releases allowance once; dispatched/legacy/mismatched
+  work remains UNKNOWN/held. Operator dry-run/CLI and a separate unresolved-effects
+  limit retain original IDs and provide recovery reasons. Migration 0015 adds only
+  an ordered index. Real PostgreSQL process-kill, interruption, rollback, races and
+  actual-0.3.1 migration/restore regressions preserve signed rows and remote maps.
+- CIO-031-02: explicit atomic OPA installation includes reviewed native Darwin
+  arm64/amd64 assets, size/hash/version/CPU checks and clear unsupported-platform
+  errors. The source script delegates to the installed package helper.
+  One manifest expands mandatory CI to Linux/Windows/Mac Intel/Mac arm64 across
+  three stable CPython patches, with private native PostgreSQL and distinct reports.
+  Native golden signature/artifact exchange has separate installed reader gates.
+  Native Mac release validation is still pending; this is not a publication claim.
+
 ## 0.3.1 (2026-09-30)
 
 Standard authenticated peer revocation now checks the exact owner, subject ID,

@@ -13,6 +13,13 @@ the overlay records evidence, qualifies reuse and stops known-invalid dependenci
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [Architecture](docs/architecture.md)
 
+The **0.3.2 source candidate** adds bounded owner invocation cleanup and reviewed
+native OPA setup for Intel/Apple Silicon macOS. It fences stale workers and releases
+only positively undispatched reservations; dispatched effects stay UNKNOWN/held.
+Native Mac release gates are pending; 0.3.1 remains the published release below.
+See [native setup](docs/quickstart.md), [cleanup API](docs/api.md) and
+[current validation](docs/validation.md).
+
 Version 0.2.1 returns execution allowance after a refusal or
 cancellation only when the database proves no dispatch and fences further dispatch.
 Inspection costs remain recorded; uncertain effects and old reservations stay held.

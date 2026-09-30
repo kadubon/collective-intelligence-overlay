@@ -67,6 +67,7 @@ with zipfile.ZipFile(wheel) as archive:
         "migrations/versions/0012_selection_window.py",
         "migrations/versions/0013_reobservation.py",
         "migrations/versions/0014_remote_calls.py",
+        "migrations/versions/0015_invocation_cleanup.py",
         "calls.py",
         "reobservation.py",
         "schemas/event.json",
@@ -84,7 +85,8 @@ with tarfile.open(sdist) as archive:
 runtime_code = (
     "import sys,json,platform; "
     "print(json.dumps({'version':sys.version,'minor':list(sys.version_info[:2]),"
-    "'executable':sys.executable,'prefix':sys.prefix,'os':platform.platform()}))"
+    "'executable':sys.executable,'prefix':sys.prefix,'os':platform.platform(),"
+    "'architecture':platform.machine()}))"
 )
 selected = subprocess.check_output(["uv", "python", "find", args.python], text=True).strip()
 requested = json.loads(subprocess.check_output([selected, "-c", runtime_code], text=True))
@@ -112,7 +114,7 @@ report = {
 
 # Test-only instrumentation, with no package/application source in PYTHONPATH.
 # Record actual CLI, pytest, PEP-517 and demo child startup; fail a wrong runtime.
-startup_guard = """import importlib.util, json, os, sys
+startup_guard = """import importlib.util, json, os, platform, sys
 from pathlib import Path
 if os.environ.get("CIO_PACKAGE_RUNTIME_DIR"):
     expected = json.loads(os.environ["CIO_PACKAGE_RUNTIME_MINOR"])
@@ -130,7 +132,8 @@ if os.environ.get("CIO_PACKAGE_RUNTIME_DIR"):
     runtime_file.write_text(
         json.dumps({"version":sys.version,"minor":list(sys.version_info[:2]),
                     "executable":sys.executable,"prefix":sys.prefix,"import":origin,
-                    "argv":sys.argv,"phase":phase}), encoding="utf-8")
+                    "argv":sys.argv,"phase":phase,"architecture":platform.machine()}),
+        encoding="utf-8")
 """
 smoke = (
     "import importlib.metadata as m,json,sys; from pathlib import Path; "

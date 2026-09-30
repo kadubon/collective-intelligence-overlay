@@ -32,6 +32,7 @@ def seed_release(store, version):
         "020": ("0008", "394ba59aa6ec9e95b4f725862747f5198826cf9b"),
         "021": ("0009", "3026c39b7cb3a4808e4b1eaf45332b1b81f4df8a"),
         "030": ("0012", "a2fc32b5511b3c3cec4f2e15fcd6375eb9540c67"),
+        "031": ("0014", "e7e245920be3687eebb4b0a0817d60a82ed2c1b9"),
     }[version]
     fixture = json.loads(
         (Path(__file__).parents[1] / f"fixtures/v{version}_database.json").read_text()
@@ -65,6 +66,86 @@ def seed_release(store, version):
                 else:
                     conn.execute(insert(table).values(**values))
     return fixture
+
+
+@pytest.mark.parametrize("interrupted", [False, True])
+def test_actual_031_cleanup_index_upgrade_and_restore_preserve_all_rows(
+    unmigrated_store, interrupted
+):
+    from collective_intelligence_overlay.calls import remote_calls
+    from collective_intelligence_overlay.invocations import InvocationStore, invocations
+
+    store = unmigrated_store
+    fixture = seed_release(store, "031")
+    assert fixture["wheel_sha256"] == (
+        "caa5acb140e5e2a09067ee4fa4e074e019fb02a68dd8a59a70ff9e973a6f9a41"
+    )
+    old = MetaData()
+    old.reflect(store.engine)
+
+    def snapshot(target):
+        with target.engine.connect() as conn:
+            return {
+                name: [
+                    dict(r)
+                    for r in conn.execute(
+                        select(table).order_by(*table.primary_key.columns)
+                    ).mappings()
+                ]
+                for name, table in old.tables.items()
+                if name != "alembic_version"
+            }
+
+    original = snapshot(store)
+    assert original["budgets"][0]["remaining"] == 6
+    assert len(original["remote_calls"]) == 1
+    if interrupted:
+
+        def interrupt(conn, cursor, statement, parameters, context, executemany):
+            if "CREATE INDEX ix_invocations_owner_running_order" in statement:
+                raise RuntimeError("interrupted cleanup index migration")
+
+        event.listen(store.engine, "after_cursor_execute", interrupt)
+        try:
+            with pytest.raises(RuntimeError, match="cleanup index migration"):
+                migrate(store.engine)
+        finally:
+            event.remove(store.engine, "after_cursor_execute", interrupt)
+        assert snapshot(store) == original
+        with store.engine.connect() as conn:
+            assert (
+                conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0014"
+            )
+    migrate(store.engine)
+    migrate(store.engine)
+    assert snapshot(store) == original
+    assert "ix_invocations_owner_running_order" in {
+        i["name"] for i in inspect(store.engine).get_indexes("invocations")
+    }
+    with database_copy(store) as restored:
+        migrate(restored.engine)
+        assert snapshot(restored) == original
+        for row in original["records"]:
+            verify(row["envelope"], restored.principals)
+        with restored.engine.connect() as conn:
+            assert list(conn.execute(select(remote_calls)).mappings()) == original["remote_calls"]
+        with restored.engine.begin() as conn:
+            conn.execute(
+                update(leases)
+                .where(leases.c.state == "active")
+                .values(expires_at=datetime.fromisoformat("2020-01-01T00:00:00+00:00"))
+            )
+        cleaned = InvocationStore(restored).cleanup_expired(owner="receiver")
+        assert len(cleaned["items"]) == 2
+        with restored.engine.connect() as conn:
+            saved = {r["id"]: r for r in conn.execute(select(invocations)).mappings()}
+            assert saved["reserved"]["reservation_state"] == "released"
+            assert saved["dispatched"]["state"] == "unknown"
+            assert saved["dispatched"]["reservation_state"] == "held"
+            assert saved["uncertain"]["state"] == "unknown"
+            assert saved["completed"]["result"] == {"value": 7}
+            assert conn.execute(select(budgets.c.remaining)).scalar_one() == 7
+            assert list(conn.execute(select(remote_calls)).mappings()) == original["remote_calls"]
 
 
 def test_actual_020_invocation_upgrade_keeps_unknown_allowances_and_signed_history(
@@ -238,7 +319,7 @@ def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_s
         assert selection["cause_id"] == projection["cause_id"]
         assert conn.execute(select(requests)).first() is None
         assert conn.execute(select(remote_calls)).first() is None
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0014"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0015"
         assert conn.execute(
             select(invocations.c.id).where(invocations.c.id == fixture["legacy_remote_id"])
         ).scalar_one()

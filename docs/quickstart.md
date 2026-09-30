@@ -6,8 +6,46 @@ Start with Python >=3.12 and uv. Minimum-version development uses the
 `uv run --python 3.14.7 ...` for subsequent commands. See
 [compatibility](compatibility.md) for measured release support.
 `uv run python scripts/fetch_opa.py` downloads OPA 1.21.0 and checks a pinned hash.
-Windows x64 and Linux x64 downloads are supported. For another platform, install
-the official OPA binary yourself and set `CIO_OPA`.
+The 0.3.2 source installer selects Windows/Linux x86_64 and native macOS
+x86_64/arm64 official assets. Size, SHA-256, version and CPU are checked before
+atomic replacement. Import/pip install does not download OPA. An installed 0.3.2
+candidate also exposes `collective-intelligence-overlay opa-install --target PATH`;
+0.3.1 does not. Unsupported platforms and Rosetta stop clearly.
+
+## Native macOS development without Docker
+
+Use native CPython: arm64 for Apple Silicon, x86_64 for Intel.
+[Homebrew](https://brew.sh/) must already be available; its license and macOS terms
+are separate from this project's Apache-2.0. From the checkout, run
+`uv sync --all-extras --frozen` and the OPA command above. This creates a **new,
+loopback-only development cluster** using trust authentication. The port probe
+must succeed; choose another dedicated port consistently if occupied. Never stop
+an existing server or use `brew services` for this test cluster.
+
+```sh
+brew install postgresql@17
+set -e
+pg_bin="$(brew --prefix postgresql@17)/bin"
+export PATH="$pg_bin:$PATH"
+uv run python -c "import socket; s=socket.socket(); s.bind(('127.0.0.1',55439)); s.close()"
+test ! -e .local/mac-pg
+"$pg_bin/initdb" -D .local/mac-pg -U cio_dev -A trust --encoding=UTF8
+"$pg_bin/pg_ctl" -D .local/mac-pg -l .local/mac-pg.log -o "-h 127.0.0.1 -p 55439 -c unix_socket_directories=''" -w start
+"$pg_bin/pg_isready" -h 127.0.0.1 -p 55439 -U cio_dev
+export CIO_TEST_DATABASE_URL='postgresql+pg8000://cio_dev@127.0.0.1:55439/postgres'
+export CIO_OPA="$PWD/.local/bin/opa"
+uv run collective-intelligence-overlay demo --directory '.local/mac demo'
+uv run collective-intelligence-overlay doctor --config '.local/mac demo/receiver/config.json'
+```
+
+Expect `ACCEPT`, sum `117.00`, changed-environment `REQUALIFY`, and withdrawal
+`REJECT`. Keep generated keys/configs private. After inspection,
+`"$pg_bin/pg_ctl" -D .local/mac-pg -m fast -w stop` stops only this cluster and
+retains its data for restart. CI removes its separately owned temporary cluster
+only after confirming stop. These trust-auth steps are not production SCRAM/TLS;
+see [deployment](deployment.md). Native runner results are still required.
+
+## Other dedicated development PostgreSQL configurations
 
 Use a dedicated development PostgreSQL instance. Example with Docker:
 

@@ -102,6 +102,14 @@ matched experiments from their complete raw report, including censored/negative
 results and missing resources; there is no demonstrated general adaptive advantage.
 
 On UNKNOWN retain reasons and propose the indicated observation or verification.
+In 0.3.2, inspect orphan work with owner-local `invocation-cleanup --dry-run`, then
+apply a finite batch using the API's bounds. Cleanup fences stale ownership; it
+does not stop physical tasks, resend or reconcile provider effects. Only positive
+undispatched proof releases allowance. `OWNER_UNRESOLVED_EFFECTS_LIMIT` requires
+original-ID queries and effect reconciliation before further independent work.
+Use [native setup and cleanup reference](../../../docs/api.md) for the exact
+commands. OPA download is explicit (`opa-install`); do not infer support from a
+platform string or install an unreviewed binary. See [native Mac tutorial](../../../docs/quickstart.md).
 On REQUALIFY obtain new scoped evidence; on REJECT or known withdrawal stop that
 use. Recommendations create no authority. Respect existing reservation, step,
 concurrency and time limits; paid model calls require explicit opt-in.

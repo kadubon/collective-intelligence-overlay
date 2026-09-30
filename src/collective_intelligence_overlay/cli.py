@@ -29,6 +29,8 @@ def main() -> int:
         "binding-check", help="validate a manifest; does not register it"
     )
     binding_check.add_argument("--manifest", type=Path, required=True)
+    opa_install = commands.add_parser("opa-install", help="explicitly install reviewed native OPA")
+    opa_install.add_argument("--target", type=Path, required=True)
     for name in (
         "check-config",
         "migrate",
@@ -41,10 +43,15 @@ def main() -> int:
         "invoke",
         "invocation",
         "cancel-invocation",
+        "invocation-cleanup",
         "reobserve",
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
+        if name == "invocation-cleanup":
+            cmd.add_argument("--limit", type=int, default=32)
+            cmd.add_argument("--seconds", type=int, default=5)
+            cmd.add_argument("--dry-run", action="store_true")
         if name == "reobserve":
             cmd.add_argument("--goal-file", type=Path, required=True)
             cmd.add_argument("--opportunity-id", required=True)
@@ -97,7 +104,11 @@ def main() -> int:
     overlay = None
     try:
         result: Any
-        if args.command == "binding-check":
+        if args.command == "opa-install":
+            from .opa_install import VERSION, install_opa
+
+            result = {"path": str(install_opa(args.target)), "version": VERSION}
+        elif args.command == "binding-check":
             from .bindings import Binding
 
             binding = Binding.model_validate(_json_file(args.manifest))
@@ -130,6 +141,15 @@ def main() -> int:
                     "freshness": "invalidated",
                     "required": "reconcile post-backup work and resynchronize before use",
                 }
+            elif args.command == "invocation-cleanup":
+                from .invocations import InvocationStore
+
+                result = InvocationStore(overlay.store).cleanup_expired(
+                    owner=config.owner,
+                    limit=args.limit,
+                    seconds=args.seconds,
+                    dry_run=args.dry_run,
+                )
             elif args.command == "reobserve":
                 from .bindings import Registry
                 from .opportunities import Goal, Opportunities
@@ -269,6 +289,8 @@ def main() -> int:
                 return 0
             return 0 if state == "completed" else 2
         if args.command == "sync" and not result["complete"]:
+            return 3
+        if args.command == "invocation-cleanup" and result["has_more"]:
             return 3
         if (
             args.command in {"inspect", "metrics"}

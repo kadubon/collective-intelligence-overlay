@@ -10,7 +10,7 @@ from jsonschema import ValidationError as SchemaError  # type: ignore[import-unt
 from .accounting import capability_metrics, metrics_page
 from .bindings import ExecutionContext, Registry
 from .config import Config
-from .invocations import Executor, Reservation
+from .invocations import Executor, Reservation, UnresolvedEffectsLimit
 from .models import Event, Revocation, Subject, UseRequest, uid
 from .proposal_exchange import ProposalExchange
 from .queries import RecordCursor, RecordQuery
@@ -28,7 +28,13 @@ class PeerService:
         if configure is not None:
             configure(self.registry)
         self.executor = Executor(
-            self.registry, self.identity, Reservation(seconds=min(config.max_seconds, 30))
+            self.registry,
+            self.identity,
+            Reservation(
+                seconds=min(config.max_seconds, 30),
+                max_concurrent=config.max_concurrency,
+                max_unresolved=config.max_unresolved,
+            ),
         )
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
@@ -83,6 +89,12 @@ class PeerService:
                     data["arguments"],
                     context,
                 )
+            except UnresolvedEffectsLimit:
+                return {
+                    "state": "conflict",
+                    "error": "OWNER_UNRESOLVED_EFFECTS_LIMIT",
+                    "required": "query original IDs and reconcile uncertain effects; do not resend",
+                }
             except Conflict:
                 return {"state": "conflict", "error": "INVOCATION_OR_ALLOWANCE_CONFLICT"}
             except (ValueError, SchemaError):
