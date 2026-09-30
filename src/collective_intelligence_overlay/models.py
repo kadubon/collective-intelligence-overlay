@@ -244,6 +244,8 @@ class WorkObservation(Model):
             if self.proposals_received is not None or self.result not in {
                 "discovered",
                 "deduplicated",
+                "expired",
+                "superseded",
                 "satisfied",
                 "interrupted",
             }:

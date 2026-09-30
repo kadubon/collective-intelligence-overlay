@@ -16,6 +16,21 @@ DB role it can evade the library; process separation is an operational prerequis
 The reference setup's random keys are a development convenience. Production key
 provisioning/rotation must be performed by the participant's operator.
 
+For the 0.3.1 candidate, stop every old writer and take the consistent backup below
+before applying migration 0013. It adds owner-local instance and command receipts
+and cause/invocation indexes on existing selections. Original DSSE envelopes,
+decisions, invocation IDs/states, leases and reservations are retained. Missing
+legacy cause contracts, counts, reasons and reissue times stay unknown; original
+record sequence orders the known history. Keep each application's trusted Goal
+configuration and installed reconstruction manifests with the backup.
+Do not run a 0.3.0 writer against the new selection/observation projections.
+CLI `reobserve` consumes trusted `--goal-file` configuration; it does not install
+checkers. Restore installed bindings through the existing host factory, inspect
+old uncertain invocations by their original ID and reconcile before a new attempt.
+Restart does not reset reissue limits. Replay of a cooldown/satisfied receipt is
+historical; use a new explicit owner command for a later observation. Rolling
+upgrades have not been established. See [the API](api.md) for refusal states.
+
 Before first start: protect config/key/artifact paths, configure pinned peers and
 verifier methods, run `check-config`, then `migrate`, then `doctor`. Start one `peer`
 process per owner. The ASGI server binds loopback; forward only through authenticated

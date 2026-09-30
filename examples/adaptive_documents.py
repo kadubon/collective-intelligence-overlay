@@ -452,6 +452,30 @@ class AdaptiveDocuments(DocumentService):
                             "binding_digest": goal.request.binding_digest,
                         }:
                             raise ValueError("checker proposal changes the registered target")
+                    # This installed finite host requests the checker operation.
+                    # A new observation alone is not permission to repeat prior work.
+                    intent = await self.opportunities.reobserve(
+                        observation.id,
+                        "check-intent-" + observation.id,
+                        "installed-checker",
+                        caller=self.identity.name,
+                        new_attempt=True,
+                    )
+                    if intent.state == "satisfied":
+                        continue
+                    if (
+                        intent.state != "existing_instance"
+                        or intent.opportunity is None
+                        or intent.opportunity.id != observation.id
+                    ):
+                        history.append(
+                            {
+                                "opportunity": observation.id,
+                                "reobservation": intent.model_dump(mode="json"),
+                            }
+                        )
+                        reason = "reobservation_required"
+                        break
                     checked_step = await self.steps.step(
                         observation.id, replies.replies, allocation=allocation
                     )

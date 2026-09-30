@@ -575,6 +575,57 @@ async def test_cio_030_02_run_reaches_valid_work_and_preserves_internal_timeout(
         await steps.run(mixed, max_steps=1, seconds=30)
 
 
+async def test_cio_030_03_discovery_does_not_offer_expired_observation(
+    overlay, identities, records, monkeypatch
+):
+    from collective_intelligence_overlay import opportunities as module
+
+    host, goal, _ = setup(overlay, identities, records)
+    observed_at = now()
+    monkeypatch.setattr(module, "now", lambda: observed_at)
+    first = (await host.discover()).opportunities[0]
+    observed_at += timedelta(seconds=goal.lifetime_seconds + 1)
+    later = await host.discover()
+    assert first.expires_at <= observed_at
+    assert not later.opportunities
+    assert later.expired == (first,)
+    # Discovery alone must not mint a fresh execution attempt on every call.
+    assert overlay.store.record_page(RecordQuery(kinds=("opportunity",))).items == (first,)
+
+
+async def test_cio_030_03_expired_instance_rejects_propose_validation_and_selection(
+    overlay, identities, records, monkeypatch
+):
+    from collective_intelligence_overlay import opportunities as observation_module
+    from collective_intelligence_overlay import steps as selection_module
+
+    steps, opportunity, valid = await configured_steps(overlay, identities, records)
+    expired_clock = opportunity.expires_at + timedelta(seconds=1)
+    monkeypatch.setattr(observation_module, "now", lambda: expired_clock)
+    monkeypatch.setattr(selection_module, "now", lambda: expired_clock)
+    with pytest.raises(ValueError, match="proposal expired"):
+        steps.opportunities.validate_proposal(valid[0][1], "producer", steps.context)
+    reference = overlay.store.reference("opportunity", "receiver", opportunity.id)
+    goal = steps.opportunities.goal(opportunity.goal_id)
+    with pytest.raises(ValueError, match="has expired"):
+        propose(
+            opportunity,
+            reference,
+            identities["producer"],
+            ProposalDrafts(
+                alternatives=(
+                    ProposalDraft(
+                        builder=goal.builders[0], arguments={"value": 3}, alternative="late"
+                    ),
+                )
+            ),
+        )
+    result = await steps.step(opportunity.id, valid)
+    assert result.reason == "expired_or_changed_goal" and result.selection is None
+    assert steps._choice(opportunity.id) is None
+    assert not overlay.store.record_page(RecordQuery(kinds=("proposal",))).items
+
+
 async def test_step_concurrency_replay_and_one_allowance(overlay, identities, records):
     steps, opportunity, envelopes = await configured_steps(overlay, identities, records)
     results = await asyncio.gather(

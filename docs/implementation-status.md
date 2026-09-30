@@ -5,8 +5,8 @@
 | Audit | Current change/evidence | Remaining gates |
 | --- | --- | --- |
 | CIO-030-01 | Commit `7f5d566`; `PeerService._revoke`, `test_cio_030_01_authenticated_exact_revoke_with_mixed_capability_history`: real 1,000/1,001/10,000-record A2A/PG profiles passed on Windows 3.12.10 | Mandatory Python/OS matrix and installed artifacts; optional new 100k revoke stress unrun |
-| CIO-030-02 | `ProposalRejected`, individual collection/selection isolation; `test_cio_030_02_*` in opportunities and hostile real A2A reply tests, bounded owner categories, genuine DB connection failure | Windows 3.12.10: targeted gates and 222-test interim source run passed; two pending audit regressions explicitly excluded; mandatory matrix/artifacts/publication pending |
-| CIO-030-03 | Controlled clock reproduced expired Opportunity returning from discovery | Persistent bounded reobservation and execution safeguards pending |
+| CIO-030-02 | Commit `9cf41ec`; `ProposalRejected`, individual collection/selection isolation; `test_cio_030_02_*` in opportunities and hostile real A2A reply tests, bounded owner categories, genuine DB connection failure | Windows 3.12.10: targeted gates and 222-test interim source run passed; two then-pending audit regressions explicitly excluded; mandatory matrix/artifacts/publication pending |
+| CIO-030-03 | `reobservation.py`, opportunities/steps/invocations, migration 0013, owner CLI; 20 `test_reobservation.py` cases, controlled expiry cases and actual published 0.3.0 DB restore/backfill tests; 67-test source gate and corrected installed-host intent cases passed | Windows 3.12.10 source evidence; final complete suite, mandatory matrix/artifacts/publication pending |
 | CIO-030-04 | Two identical logical child calls produced one actual remote execution | Explicit stable call identity, persistence and restart tests pending |
 
 Version 0.3.1 has not been published. See [current validation](validation.md).

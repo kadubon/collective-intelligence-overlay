@@ -84,3 +84,12 @@ Tests cover tampering, identity/audience/expiry, unknown schemas, stale evidence
 permission denial, bounded input, revocation, cancellation and stale worker fencing.
 External penetration testing, malicious administrator resistance, multi-organization
 key management and long-running availability have not been established.
+
+0.3.1 reobservation is owner-local and absent from peer/model tools. Its request IDs,
+reason labels, lifetime, cooldown and count are bounded. Stable owner/goal grouping
+prevents a target/checker revision from hiding an unresolved old execution. The
+existing feed transaction serializes instance and choice creation; execution still
+uses the existing budget/invocation/lease lock order. No observation issues a grant
+or refunds resources. Selection requires persisted terminal/fence/release proof,
+keeps ambiguous legacy mappings for reconciliation, and refuses a second attempt
+while prior work is pending or uncertain. Original signed facts remain immutable.

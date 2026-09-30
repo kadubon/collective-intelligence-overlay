@@ -7,18 +7,19 @@ allowance, expiry and uncertain results retain their existing authoritative rows
 from __future__ import annotations
 
 import asyncio
+import base64
 import time
 from collections.abc import Awaitable, Callable
 from decimal import Decimal
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
-from sqlalchemy import JSON, Column, DateTime, String, Table, select
+from sqlalchemy import JSON, Column, DateTime, String, Table, and_, func, or_, select
 from sqlalchemy.dialects.postgresql import insert
 
 from .allocation import AllocationObservation, AllocationPolicy, allocate
 from .bindings import ExecutionContext, fingerprint
-from .invocations import Executor
+from .invocations import Executor, invocation_request, invocations
 from .models import (
     Cost,
     Event,
@@ -39,7 +40,10 @@ from .opportunities import (
     summarize_rejections,
 )
 from .proposal_exchange import CollectedProposals, ProposalBatch
-from .storage import Conflict, budgets, metadata
+from .reobservation import instances
+from .security import digest, verify
+from .storage import Conflict, budgets, feed_state, leases, metadata
+from .storage import records as record_table
 
 selections = Table(
     "work_selections",
@@ -48,7 +52,17 @@ selections = Table(
     Column("opportunity_id", String(160), primary_key=True),
     Column("body", JSON, nullable=False),
     Column("created_at", DateTime(timezone=True), nullable=False),
+    Column("cause_id", String(64)),
+    Column("invocation_id", String(160)),
 )
+
+
+class AttemptBlocked(ValueError):
+    """Expected owner-local refusal to create an execution attempt."""
+
+    def __init__(self, reason: str) -> None:
+        self.reason = reason
+        super().__init__(reason)
 
 
 class Selection(BaseModel):
@@ -203,8 +217,153 @@ class Steps:
         )
 
     def _choice(self, opportunity_id: str, proposed: Selection | None = None) -> Selection | None:
+        proposal = None if proposed is None else self.store.resolve_reference(proposed.proposal)
+        observation = (
+            None if proposed is None else self.store.resolve_reference(proposed.opportunity)
+        )
+        if proposed is not None and not isinstance(proposal, Proposal):
+            raise ValueError("choice requires a stored proposal")
         with self.store.engine.begin() as conn:
             if proposed is not None:
+                # The existing owner feed lock serializes choice/instance publication.
+                # Execution transitions retain budget -> invocation -> lease locking.
+                conn.execute(
+                    select(feed_state.c.sequence).where(feed_state.c.id == 1).with_for_update()
+                ).one()
+            body = conn.execute(
+                select(selections.c.body).where(
+                    (selections.c.owner == self.store.owner)
+                    & (selections.c.opportunity_id == opportunity_id)
+                )
+            ).scalar_one_or_none()
+            if body is not None or proposed is None:
+                return Selection.model_validate(body) if body is not None else None
+            if proposed is not None:
+                if (
+                    not isinstance(observation, Opportunity)
+                    or observation.expires_at <= now()
+                    or observation.goal_digest
+                    != self.opportunities.goal(observation.goal_id).digest
+                ):
+                    raise AttemptBlocked("expired_or_changed_goal")
+                state = (
+                    conn.execute(
+                        select(instances).where(
+                            (instances.c.owner == self.store.owner)
+                            & (instances.c.opportunity_id == opportunity_id)
+                        )
+                    )
+                    .mappings()
+                    .first()
+                )
+                if state is None or state["cause_id"] is None:
+                    raise AttemptBlocked("reobservation_required")
+                latest_id: str = conn.execute(
+                    select(instances.c.opportunity_id)
+                    .where(
+                        (instances.c.owner == self.store.owner)
+                        & (instances.c.cause_id == state["cause_id"])
+                    )
+                    .order_by(instances.c.issue_sequence.desc())
+                    .limit(1)
+                ).scalar_one()
+                if latest_id != opportunity_id:
+                    raise AttemptBlocked("reobservation_required")
+                # NULL legacy cause cannot be silently attributed to unrelated work.
+                prior = and_(
+                    selections.c.owner == self.store.owner,
+                    selections.c.opportunity_id != opportunity_id,
+                    or_(
+                        selections.c.cause_id == state["cause_id"], selections.c.cause_id.is_(None)
+                    ),
+                )
+                history = selections.outerjoin(
+                    invocations,
+                    and_(
+                        invocations.c.owner == selections.c.owner,
+                        invocations.c.caller == self.context.caller,
+                        invocations.c.id == selections.c.invocation_id,
+                    ),
+                ).outerjoin(leases, leases.c.task_id == invocations.c.lease_id)
+                released = and_(
+                    invocations.c.state.in_(("cancelled", "rejected", "unknown")),
+                    invocations.c.phase == "reserved",
+                    invocations.c.reservation_state == "released",
+                    leases.c.state == "cancelled",
+                    leases.c.worker == invocations.c.worker,
+                    leases.c.fence > invocations.c.fence,
+                    leases.c.actual.is_(None),
+                )
+                safe = func.coalesce(or_(invocations.c.state == "completed", released), False)
+                if (
+                    conn.execute(
+                        select(selections.c.opportunity_id)
+                        .select_from(history)
+                        .where(prior & ~safe)
+                        .limit(1)
+                    ).first()
+                    is not None
+                ):
+                    raise AttemptBlocked("reconciliation_required")
+                assert isinstance(proposal, Proposal)
+                content = fingerprint(
+                    invocation_request(
+                        self.store.owner,
+                        proposal.builder.id,
+                        proposal.builder.digest,
+                        proposal.arguments,
+                        self.context,
+                    )
+                )
+                previous_record = record_table.alias("previous_opportunity")
+                completed = (
+                    conn.execute(
+                        select(selections.c.body, previous_record.c.envelope)
+                        .select_from(
+                            history.outerjoin(
+                                previous_record,
+                                and_(
+                                    previous_record.c.kind == "opportunity",
+                                    previous_record.c.issuer == selections.c.owner,
+                                    previous_record.c.record_id == selections.c.opportunity_id,
+                                ),
+                            )
+                        )
+                        .where(
+                            prior
+                            & (selections.c.cause_id == state["cause_id"])
+                            & (invocations.c.state == "completed")
+                            & (invocations.c.fingerprint == content)
+                            & (
+                                previous_record.c.body["observation_digest"].as_string()
+                                == observation.observation_digest
+                            )
+                        )
+                        .order_by(selections.c.created_at, selections.c.opportunity_id)
+                        .limit(1)
+                    )
+                    .mappings()
+                    .first()
+                )
+                if completed is not None:
+                    saved = Selection.model_validate(completed["body"])
+                    previous = verify(completed["envelope"], self.store.principals)
+                    if (
+                        not isinstance(previous, Opportunity)
+                        or previous.observation_digest != observation.observation_digest
+                        or digest(base64.b64decode(completed["envelope"]["payload"], validate=True))
+                        != saved.opportunity.payload_digest
+                    ):
+                        raise ValueError("stored completed choice has inconsistent observation")
+                    return saved
+                if (
+                    not state["new_attempt_requested"]
+                    and conn.execute(
+                        select(selections.c.opportunity_id).where(prior).limit(1)
+                    ).first()
+                    is not None
+                ):
+                    raise AttemptBlocked("new_attempt_required")
                 conn.execute(
                     insert(selections)
                     .values(
@@ -212,16 +371,12 @@ class Steps:
                         opportunity_id=opportunity_id,
                         body=proposed.model_dump(mode="json"),
                         created_at=now(),
+                        cause_id=state["cause_id"],
+                        invocation_id=proposed.invocation_id,
                     )
                     .on_conflict_do_nothing()
                 )
-            body = conn.execute(
-                select(selections.c.body).where(
-                    (selections.c.owner == self.store.owner)
-                    & (selections.c.opportunity_id == opportunity_id)
-                )
-            ).scalar_one_or_none()
-        return Selection.model_validate(body) if body is not None else None
+        return proposed
 
     def last_allocation(self) -> AllocationObservation | None:
         """Read the latest persisted owner choice for bounded host-loop cooldown."""
@@ -413,21 +568,31 @@ class Steps:
             proposal_ref = await asyncio.to_thread(
                 self.store.reference, "proposal", selected.issuer, selected.id
             )
-            choice = await asyncio.to_thread(
-                self._choice,
-                opportunity.id,
-                Selection(
-                    owner=self.store.owner,
-                    opportunity=reference,
-                    proposal=proposal_ref,
-                    invocation_id="work-" + fingerprint([self.store.owner, opportunity.id]),
-                    reasons=("operator_builder_order", "stable_alternative_order"),
-                    skipped=tuple(p.id for p in ranked[1:]),
-                    estimates=selected.estimates,
-                    allocation=allocation,
-                ),
+            proposed = Selection(
+                owner=self.store.owner,
+                opportunity=reference,
+                proposal=proposal_ref,
+                invocation_id="work-" + fingerprint([self.store.owner, opportunity.id]),
+                reasons=("operator_builder_order", "stable_alternative_order"),
+                skipped=tuple(p.id for p in ranked[1:]),
+                estimates=selected.estimates,
+                allocation=allocation,
             )
+            try:
+                choice = await asyncio.to_thread(self._choice, opportunity.id, proposed)
+            except AttemptBlocked as exc:
+                return StepResult(reason=exc.reason, rejections=rejections)
             assert choice is not None
+            if choice.opportunity.id != opportunity.id:
+                old = await asyncio.to_thread(
+                    self.executor.store.get, self.context.caller, choice.invocation_id
+                )
+                return StepResult(
+                    reason="existing_invocation",
+                    selection=choice,
+                    invocation=old,
+                    rejections=rejections,
+                )
             return StepResult(reason="selected", selection=choice, rejections=rejections)
         return StepResult(reason="selected", selection=choice)
 

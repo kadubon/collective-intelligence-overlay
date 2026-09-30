@@ -1,5 +1,15 @@
 # Compatibility and licensing
 
+The unreleased 0.3.1 reobservation change adds migration 0013, not a new DSSE,
+binding or A2A format. Cause grouping and command receipts stay in owner-local
+tables. Initial semantic observation fingerprints and original signed bytes are
+preserved; renewed instances use the existing `supersedes` field and fresh bases.
+The local Event 3 discovery validator additionally accepts expired/superseded
+observations. Stop 0.3.0 writers before upgrading; this does not establish rolling
+interoperability. The actual published 0.3.0 database fixture covers original v1/v2/v3
+records and retained execution/lease/reservation states, with genuine PostgreSQL
+backup/restore and interrupted-backfill rollback. See [validation](validation.md).
+
 Version 0.3.0 adds Capability schema 3 and its DSSE media type
 `application/vnd.collective-intelligence-overlay.record.v3+json` for explicit
 formation inputs. Event schema 3 uses the same media type for local work

@@ -66,6 +66,41 @@ class Reservation(Model):
     max_concurrent: int | None = Field(default=None, ge=1, le=32)
 
 
+def invocation_request(
+    owner: str,
+    binding_id: str,
+    binding_digest: str,
+    arguments: dict[str, Any],
+    context: ExecutionContext,
+) -> dict[str, Any]:
+    """The existing immutable content contract, independent of invocation identity."""
+    return {
+        "owner": owner,
+        "caller": context.caller,
+        "purpose": context.purpose,
+        "binding": binding_id,
+        "binding_digest": binding_digest,
+        "arguments": arguments,
+        "environment": context.environment,
+        "permissions": sorted(context.permissions),
+    }
+
+
+def released_before_dispatch(row: Any, lease: Any) -> bool:
+    """Positive persisted proof; absence, timeout and cancellation alone prove nothing."""
+    return bool(
+        row is not None
+        and lease is not None
+        and row["state"] in {"cancelled", "rejected", "unknown"}
+        and row["phase"] == "reserved"
+        and row["reservation_state"] == "released"
+        and lease["state"] == "cancelled"
+        and lease["worker"] == row["worker"]
+        and lease["fence"] > row["fence"]
+        and lease["actual"] is None
+    )
+
+
 def _selector(caller: str, invocation_id: str) -> Any:
     TypeAdapter(Identifier).validate_python(caller)
     TypeAdapter(Identifier).validate_python(invocation_id)
@@ -438,16 +473,9 @@ class Executor:
             if steps[0] >= steps[1]:
                 raise ValueError("formation invocation step budget exhausted")
             steps[0] += 1
-        request = {
-            "owner": self.identity.name,
-            "caller": context.caller,
-            "purpose": context.purpose,
-            "binding": binding_id,
-            "binding_digest": binding_digest,
-            "arguments": arguments,
-            "environment": context.environment,
-            "permissions": sorted(context.permissions),
-        }
+        request = invocation_request(
+            self.identity.name, binding_id, binding_digest, arguments, context
+        )
         old = await asyncio.to_thread(self.store.get, context.caller, invocation_id)
         if old:
             if old["fingerprint"] != fingerprint(request):

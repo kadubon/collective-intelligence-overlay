@@ -207,10 +207,78 @@ reservations, not arbitrary resource use by trusted installed Python code.
 proposal peers. `Opportunities(registry, identity, goals)` owns isolated copies.
 `await opportunities.discover(max_candidates=8, start=0)` performs existing local
 qualification against bounded indexed snapshots. Use its `next_goal` for another
-bounded page. Results preserve the original signed opportunity when the semantic
-cause is unchanged, including concurrent discovery. Decision IDs, timestamps and
-unrelated events do not create new opportunities. Relevant evidence revisions,
+bounded page. Unchanged semantic observations return their current signed instance,
+including concurrent discovery. Decision IDs, timestamps and unrelated events do
+not create new instances. Relevant evidence revisions,
 goal inputs, policy and qualification reasons can create a new observation.
+
+Expired instances appear only in `Discovery.expired`; displaced instances appear
+in `superseded`. Neither is an available candidate. `next_action="reobserve"`
+identifies the explicit owner operation; ordinary discovery never renews a lifetime.
+
+```python
+from collective_intelligence_overlay.reobservation import ReobservationPolicy
+
+host = Opportunities(
+    registry,
+    identity,
+    goals,
+    reobservation_policy=ReobservationPolicy(cooldown_seconds=60, max_reissues=3),
+)
+receipt = await host.reobserve(expired_id, "owner-request-1", "expired", caller=identity.name)
+```
+
+The cause digest binds owner and goal ID, retaining unresolved work across host
+target/checker revisions. The goal's contract digest remains a separate pin.
+Each fresh instance retains `supersedes`, a newly qualified decision basis and its
+own expiry. No proposal or selection moves from the prior instance. The operation
+rechecks the registered goal, current policy, exact target binding/evidence,
+revisions and freshness. Installed checker/actual builder grants are still checked
+by allocation and Registry at selection/dispatch; a receipt cannot grant them.
+
+Receipt states are `issued`, `existing_instance`, `satisfied`, `cooldown` and
+`reissue_limit`, with cause, bounded reason, observed time, known reissue count and
+optional opportunity. Retry the same request ID to retrieve the same historical
+receipt (`replayed=True`); changed command arguments conflict. A later observation
+requires a new explicit command ID, including after a cooldown refusal. Defaults
+are 60 seconds and three reissues; bounds are 1–86,400 seconds and 1–16 reissues.
+The first issue starts the cooldown. Counters and receipts survive restart and
+concurrent requests converge on a valid current instance. A satisfied goal issues
+nothing. Legacy historical counts/times remain unknown; the counter covers newly
+tracked reissues. These are owner-local projections, not another execution ledger.
+
+```bash
+collective-intelligence-overlay reobserve --config owner.json --goal-file goal.json \
+  --opportunity-id OPPORTUNITY_ID --request-id owner-request-1 --reason expired
+```
+
+The CLI reads bounded trusted Goal configuration and uses the same SDK operation.
+It does not install artifacts or load received code. The optional `--new-attempt`
+(SDK `new_attempt=True`) records owner intent. `Steps` independently requires
+persisted proof of reserved phase, terminal refusal/cancellation, fenced cancelled
+lease and released reservation before retrying undispatched work. No exception or
+Python cancellation proves that. A valid closed instance can be reissued after
+cooldown for this explicit request. A refused business result can remain UNKNOWN
+while these positive facts prove that dispatch never occurred; the original
+UNKNOWN result is retained. Running/dispatched or unresolved UNKNOWN effects, or a prior choice
+without an invocation returns `reconciliation_required`; an unresolved legacy
+cause also needs explicit reconciliation. `new_attempt_required` distinguishes a
+safe closed history without owner intent. Same-content completed work is queried
+only when its signed observation is also unchanged; its original choice and ID
+are returned. Changed evidence is not turned into a current result by replay.
+
+Migration 0013 retains signed bytes and execution/lease/budget states. It projects
+known cause and invocation links from existing records, leaving missing legacy
+contract/count/time/reason facts unknown. An old missing contract can be adopted
+only against the owner's exact registered goal digest; unrelated configuration
+cannot silently supply historical facts. Stop old writers for this upgrade; see
+[deployment](deployment.md) and [validation](validation.md).
+
+The installed adaptive document example explicitly records owner checker intent
+before a distinct bounded check. Its fixed checker arguments and target digest
+still come from trusted host configuration; proposals cannot set this flag. It
+requires the current instance and fresh replies, and pending/uncertain work remains
+blocked even with the flag. This adds no automatic retry on expiry.
 
 After an installed builder publishes an actual candidate, the trusted host can call
 `opportunities.select_target(goal_id, expected_goal_digest, binding_id, candidate_ref)`.

@@ -41,9 +41,16 @@ def main() -> int:
         "invoke",
         "invocation",
         "cancel-invocation",
+        "reobserve",
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
+        if name == "reobserve":
+            cmd.add_argument("--goal-file", type=Path, required=True)
+            cmd.add_argument("--opportunity-id", required=True)
+            cmd.add_argument("--request-id", required=True)
+            cmd.add_argument("--reason", required=True)
+            cmd.add_argument("--new-attempt", action="store_true")
         if name in {"invoke", "invocation", "cancel-invocation"}:
             cmd.add_argument("--peer", required=True)
             cmd.add_argument("--invocation-id", required=True)
@@ -123,6 +130,21 @@ def main() -> int:
                     "freshness": "invalidated",
                     "required": "reconcile post-backup work and resynchronize before use",
                 }
+            elif args.command == "reobserve":
+                from .bindings import Registry
+                from .opportunities import Goal, Opportunities
+
+                goal = Goal.model_validate(_json_file(args.goal_file))
+                host = Opportunities(Registry(overlay), identity, (goal,))
+                result = asyncio.run(
+                    host.reobserve(
+                        args.opportunity_id,
+                        args.request_id,
+                        args.reason,
+                        caller=config.owner,
+                        new_attempt=args.new_attempt,
+                    )
+                ).model_dump(mode="json")
             elif args.command in {"invoke", "invocation", "cancel-invocation"}:
                 from .adapters.a2a import send
 

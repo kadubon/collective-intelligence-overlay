@@ -31,6 +31,7 @@ def seed_release(store, version):
     revision, commit = {
         "020": ("0008", "394ba59aa6ec9e95b4f725862747f5198826cf9b"),
         "021": ("0009", "3026c39b7cb3a4808e4b1eaf45332b1b81f4df8a"),
+        "030": ("0012", "a2fc32b5511b3c3cec4f2e15fcd6375eb9540c67"),
     }[version]
     fixture = json.loads(
         (Path(__file__).parents[1] / f"fixtures/v{version}_database.json").read_text()
@@ -167,6 +168,109 @@ def test_actual_021_upgrade_and_backup_preserve_all_reservation_states(unmigrate
         assert ledger.cancel("receiver", "reserved")["reservation_state"] == "released"
         with restored.engine.connect() as conn:
             assert conn.execute(select(budgets.c.remaining)).scalar_one() == 7
+
+
+@pytest.mark.parametrize("interrupted", [False, True])
+def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_store, interrupted):
+    from collective_intelligence_overlay.invocations import InvocationStore, invocations
+    from collective_intelligence_overlay.opportunities import Goal
+    from collective_intelligence_overlay.reobservation import cause_id, instances, requests
+    from collective_intelligence_overlay.steps import selections
+
+    store = unmigrated_store
+    fixture = seed_release(store, "030")
+    old = MetaData()
+    old.reflect(store.engine)
+    preserved = tuple(
+        old.tables[name]
+        for name in ("records", "decisions", "budgets", "leases", "invocations", "work_selections")
+    )
+
+    def snapshot(target):
+        with target.engine.connect() as conn:
+            return {
+                table.name: [
+                    dict(row)
+                    for row in conn.execute(
+                        select(table).order_by(*table.primary_key.columns)
+                    ).mappings()
+                ]
+                for table in preserved
+            }
+
+    original = snapshot(store)
+    assert original["budgets"][0]["remaining"] == 5
+    assert {row["schema_version"] for row in (r["body"] for r in original["records"])} == {
+        "1",
+        "2",
+        "3",
+    }
+    if interrupted:
+
+        def interrupt(conn, cursor, statement, parameters, context, executemany):
+            if "INSERT INTO work_opportunity_instances" in statement:
+                raise RuntimeError("interrupted observation projection")
+
+        event.listen(store.engine, "after_cursor_execute", interrupt)
+        try:
+            with pytest.raises(RuntimeError, match="observation projection"):
+                migrate(store.engine)
+        finally:
+            event.remove(store.engine, "after_cursor_execute", interrupt)
+        assert snapshot(store) == original
+        assert "work_opportunity_instances" not in inspect(store.engine).get_table_names()
+        with store.engine.connect() as conn:
+            assert (
+                conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0012"
+            )
+    migrate(store.engine)
+    migrate(store.engine)
+    assert snapshot(store) == original
+    goal = Goal.model_validate(fixture["goal"])
+    with store.engine.connect() as conn:
+        projection = conn.execute(select(instances)).mappings().one()
+        assert projection["cause_id"] == cause_id("receiver", goal.id)
+        assert projection["reissue_count"] is None and projection["last_reissued_at"] is None
+        assert projection["reissue_reason"] is None and projection["new_attempt_requested"] is False
+        selection = conn.execute(select(selections)).mappings().one()
+        assert selection["invocation_id"] == selection["body"]["invocation_id"]
+        assert selection["cause_id"] == projection["cause_id"]
+        assert conn.execute(select(requests)).first() is None
+        assert conn.execute(
+            select(invocations.c.id).where(invocations.c.id == fixture["legacy_remote_id"])
+        ).scalar_one()
+    with database_copy(store) as restored:
+        migrate(restored.engine)
+        assert snapshot(restored) == original
+        for row in original["records"]:
+            verify(row["envelope"], restored.principals)
+        ledger = InvocationStore(restored)
+        assert ledger.get("receiver", "completed")["result"] == {"value": 7}
+        assert ledger.get("receiver", "uncertain")["state"] == "unknown"
+        assert ledger.cancel("receiver", "dispatched")["reservation_state"] == "held"
+        assert ledger.cancel("receiver", "reserved")["reservation_state"] == "released"
+        with restored.engine.connect() as conn:
+            assert conn.execute(select(budgets.c.remaining)).scalar_one() == 6
+
+
+def test_legacy_missing_contract_is_not_backfilled_as_a_known_cause(
+    unmigrated_store, identities, opportunity
+):
+    from collective_intelligence_overlay.reobservation import instances
+
+    store = unmigrated_store
+    migrate(store.engine, "0012")
+    assert opportunity.goal_contract_digest is None
+    original = identities["receiver"].sign(opportunity)
+    store.put(original)
+    migrate(store.engine)
+    with store.engine.connect() as conn:
+        state = conn.execute(select(instances)).mappings().one()
+        assert state["cause_id"] is None and state["reissue_count"] is None
+        assert state["last_reissued_at"] is None and state["reissue_reason"] is None
+        retained = conn.execute(select(records.c.envelope)).scalar_one()
+        assert retained == original
+    assert verify(retained, store.principals) == opportunity
 
 
 def seed_actual_v010(store):

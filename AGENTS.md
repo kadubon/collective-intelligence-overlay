@@ -68,3 +68,14 @@ Keep work-cohort, event-period and current-admission metrics separate. Receipt
 context is not an additional charge, and inclusive wall observations are not summed.
 Keep every matched arm isolated and retain negative/censored outcomes; improvement
 is not a release gate. See `docs/implementation-status.md` for the requirement audit.
+
+For 0.3.1, keep an owner/goal cause distinct from an expiring observation and an
+execution attempt. Discovery alone never renews expiry. Explicit reobservation
+qualifies current inputs and persists bounded counts/cooldowns/request receipts;
+retry returns the original historical receipt. Target/checker revisions must not
+hide old UNKNOWN work. Serialize instance/choice publication with the existing
+feed transaction; execution retains its existing lock order and authoritative rows.
+Completed-result reuse needs matching signed observation and request content.
+New attempts after cancellation require owner intent and positive reserved-phase,
+worker/fence and released-reservation proof. Preserve unknown legacy cause/count/
+reason facts and original DSSE bytes; stop old writers for offline migration.

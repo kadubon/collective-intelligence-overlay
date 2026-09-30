@@ -119,3 +119,15 @@ and original signed v1/v2 record payloads are preserved.
 Costs use Decimal and retain category, unit and measured/estimated/unavailable status.
 Missing costs are null, not zero. Metrics deduplicate issuer/event ID and never add
 incompatible currencies or units. Resource reservations are not measured API invoices.
+
+In 0.3.1 an owner/goal cause is distinct from a finite observation instance and an
+execution attempt. Explicit reobservation qualifies current inputs and preserves
+old signed observations, dissent, withdrawals and obligations. Expiry alone does
+not create a new instance or permission to repeat an external operation. Owner
+request receipts are historical observations; even a replayed `satisfied` receipt
+does not state that the goal remains satisfied after later withdrawal.
+New selection consults the original invocation and lease. Unresolved work stays
+unresolved across target/checker revisions. Unchanged observation/content can reuse
+its original completed result; changed evidence cannot be promoted by such replay.
+Only positively fenced, released undispatched work permits an explicit owner retry.
+The [SDK operation](api.md) documents finite limits and reconciliation results.

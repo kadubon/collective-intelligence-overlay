@@ -15,7 +15,7 @@ from decimal import Decimal
 from typing import Any, Literal, Self
 
 from jsonschema import ValidationError as SchemaError  # type: ignore[import-untyped]
-from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
+from pydantic import BaseModel, ConfigDict, Field, JsonValue, TypeAdapter, model_validator
 from securesystemslib.exceptions import FormatError, VerificationError
 
 from .bindings import ExecutionContext, InvalidArguments, Registry, fingerprint
@@ -37,6 +37,7 @@ from .models import (
     uid,
 )
 from .queries import RecordQuery
+from .reobservation import ObservationLedger, Reobservation, ReobservationPolicy, cause_id
 from .security import MAX_RECORD_BYTES, Identity, Principal, verify
 from .storage import Conflict, Store, projection_digest
 
@@ -192,6 +193,9 @@ class Discovery(BaseModel):
     deduplicated: int
     satisfied: int
     next_goal: int | None
+    expired: tuple[Opportunity, ...] = Field(default=(), max_length=32)
+    superseded: tuple[Opportunity, ...] = Field(default=(), max_length=32)
+    next_action: Literal["reobserve"] | None = None
 
 
 class ProposalDraft(BaseModel):
@@ -278,7 +282,14 @@ def work_kind(reasons: tuple[str, ...]) -> WorkKind:
 
 
 class Opportunities:
-    def __init__(self, registry: Registry, identity: Identity, goals: tuple[Goal, ...]) -> None:
+    def __init__(
+        self,
+        registry: Registry,
+        identity: Identity,
+        goals: tuple[Goal, ...],
+        *,
+        reobservation_policy: ReobservationPolicy | None = None,
+    ) -> None:
         if identity.name != registry.overlay.store.owner:
             raise ValueError("opportunity identity must belong to the local owner")
         if not 1 <= len(goals) <= 32 or len({g.id for g in goals}) != len(goals):
@@ -292,6 +303,8 @@ class Opportunities:
         self.identity = identity
         self._goals = {g.id: g.model_copy(deep=True) for g in goals}
         self._digests = {g.id: g.digest for g in goals}
+        self.observations = ObservationLedger(registry.overlay.store, identity)
+        self.reobservation_policy = reobservation_policy or ReobservationPolicy()
 
     def goal(self, goal_id: str) -> Goal:
         goal = self._goals.get(goal_id)
@@ -356,10 +369,127 @@ class Opportunities:
         self._digests[goal_id] = updated.digest
         return updated.model_copy(deep=True)
 
+    async def _observe(self, goal: Goal) -> Opportunity | None:
+        """Always qualify current owner inputs; never extend an old signed basis."""
+        decision = await self.registry.overlay.qualify(goal.request)
+        if decision.outcome == Outcome.ACCEPT:
+            return None
+        observation = fingerprint(
+            {
+                "goal": goal.digest,
+                "outcome": decision.outcome.value,
+                "reasons": sorted(decision.reasons),
+                "revisions": decision.revisions,
+                "evidence_ids": sorted(decision.evidence_ids),
+                "policy": decision.policy_digest,
+            }
+        )
+        kind = work_kind(decision.reasons)
+        if "missing_ambiguous_or_cyclic_dependency" in decision.reasons:
+            target = await asyncio.to_thread(
+                self.registry.overlay.store.record_page,
+                RecordQuery(
+                    kinds=("capability",),
+                    issuer=goal.request.capability_issuer,
+                    subject=goal.request.subject,
+                ),
+                limit=1,
+            )
+            if not target.items:
+                kind = "formation"
+        timestamp = now()
+        return Opportunity(
+            id="op-" + observation,
+            issuer=self.identity.name,
+            subject=goal.request.subject,
+            scope=goal.request.scope,
+            receivers=(self.identity.name, *goal.peers),
+            goal_id=goal.id,
+            goal_digest=goal.digest,
+            goal_contract_digest=goal.contract_digest,
+            work_kind=kind,
+            basis=(
+                RecordRef(
+                    kind="decision",
+                    issuer=self.identity.name,
+                    id=decision.id,
+                    payload_digest=projection_digest(decision.model_dump(mode="json")),
+                ),
+            ),
+            observation_digest=observation,
+            policy_digest=decision.policy_digest,
+            reasons=decision.reasons,
+            expected_contract=goal.request.scope.output_contract,
+            checker=goal.checker,
+            permissions=goal.request.scope.permissions,
+            created_at=timestamp,
+            expires_at=timestamp + timedelta(seconds=goal.lifetime_seconds),
+        )
+
+    async def reobserve(
+        self,
+        opportunity_id: str,
+        request_id: str,
+        reason: str,
+        *,
+        caller: str,
+        new_attempt: bool = False,
+    ) -> Reobservation:
+        """Explicit owner observation command; old choices and executions remain immutable."""
+        for value in (opportunity_id, request_id, reason, caller):
+            TypeAdapter(Identifier).validate_python(value)
+        TypeAdapter(bool).validate_python(new_attempt, strict=True)
+        if caller != self.identity.name:
+            raise ValueError("reobservation requires the local owner")
+        command = fingerprint(
+            {
+                "opportunity": opportunity_id,
+                "request": request_id,
+                "reason": reason,
+                "caller": caller,
+                "new_attempt": new_attempt,
+            }
+        )
+        replay = await asyncio.to_thread(self.observations.replay, request_id, command)
+        if replay is not None:
+            return replay
+        store = self.registry.overlay.store
+        reference = await asyncio.to_thread(store.reference, "opportunity", caller, opportunity_id)
+        previous = await asyncio.to_thread(store.resolve_reference, reference)
+        if not isinstance(previous, Opportunity) or previous.issuer != caller:
+            raise ValueError("reobservation requires an exact local opportunity")
+        goal = self.goal(previous.goal_id)
+        if (
+            previous.goal_contract_digest not in {None, goal.contract_digest}
+            or previous.goal_contract_digest is None
+            and previous.goal_digest != goal.digest
+            or previous.scope != goal.request.scope
+            or previous.checker != goal.checker
+        ):
+            raise ValueError("reobservation does not preserve the registered goal contract")
+        candidate = await self._observe(goal)
+        # Host mutation and concurrent evidence changes must not publish stale observations.
+        if self.goal(goal.id).digest != goal.digest:
+            raise Conflict("goal changed before reobservation")
+        return await asyncio.to_thread(
+            self.observations.renew,
+            candidate,
+            previous,
+            cause_id(caller, goal.id),
+            request_id,
+            command,
+            reason,
+            new_attempt,
+            self.reobservation_policy,
+            goal.lifetime_seconds,
+        )
+
     async def discover(self, *, max_candidates: int = 8, start: int = 0) -> Discovery:
         if not 1 <= max_candidates <= 32 or not 0 <= start < len(self._goals):
             raise ValueError("invalid discovery bound")
         found: list[Opportunity] = []
+        expired: list[Opportunity] = []
+        superseded: list[Opportunity] = []
         discovered = deduplicated = satisfied = 0
         # Each target has an indexed bounded dependency snapshot. No all-pairs scan.
         end = min(start + max_candidates, len(self._goals))
@@ -370,89 +500,29 @@ class Opportunities:
             observed_id = None
             observed_kind = None
             try:
-                decision = await self.registry.overlay.qualify(goal.request)
-                if decision.outcome == Outcome.ACCEPT:
+                candidate = await self._observe(goal)
+                if candidate is None:
                     observed_result = "satisfied"
                     satisfied += 1
                     continue
-                semantic = {
-                    "goal": goal.digest,
-                    "outcome": decision.outcome.value,
-                    "reasons": sorted(decision.reasons),
-                    "revisions": decision.revisions,
-                    "evidence_ids": sorted(decision.evidence_ids),
-                    "policy": decision.policy_digest,
-                }
-                observation = fingerprint(semantic)
-                opportunity_id = "op-" + observation
-                observed_id = opportunity_id
-                query = RecordQuery(
-                    kinds=("opportunity",), issuer=self.identity.name, record_id=opportunity_id
+                if self.goal(goal.id).digest != goal.digest:
+                    raise Conflict("goal changed before observation")
+                item, inserted, old = await asyncio.to_thread(
+                    self.observations.publish,
+                    candidate,
+                    cause_id(self.identity.name, goal.id),
+                    goal.lifetime_seconds,
                 )
-                store = self.registry.overlay.store
-                page = await asyncio.to_thread(store.record_page, query, limit=1)
-                if page.items:
-                    item = page.items[0]
-                    if not isinstance(item, Opportunity) or item.observation_digest != observation:
-                        raise Conflict("opportunity identity does not match observation")
-                    found.append(item)
-                    observed_kind = item.work_kind
-                    observed_result = "deduplicated"
-                    deduplicated += 1
-                    continue
-                kind = work_kind(decision.reasons)
-                if "missing_ambiguous_or_cyclic_dependency" in decision.reasons:
-                    target = await asyncio.to_thread(
-                        store.record_page,
-                        RecordQuery(
-                            kinds=("capability",),
-                            issuer=goal.request.capability_issuer,
-                            subject=goal.request.subject,
-                        ),
-                        limit=1,
-                    )
-                    if not target.items:
-                        kind = "formation"
-                item = Opportunity(
-                    id=opportunity_id,
-                    issuer=self.identity.name,
-                    subject=goal.request.subject,
-                    scope=goal.request.scope,
-                    receivers=(self.identity.name, *goal.peers),
-                    goal_id=goal.id,
-                    goal_digest=goal.digest,
-                    goal_contract_digest=goal.contract_digest,
-                    work_kind=kind,
-                    basis=(
-                        RecordRef(
-                            kind="decision",
-                            issuer=self.identity.name,
-                            id=decision.id,
-                            payload_digest=projection_digest(decision.model_dump(mode="json")),
-                        ),
-                    ),
-                    observation_digest=observation,
-                    policy_digest=decision.policy_digest,
-                    reasons=decision.reasons,
-                    expected_contract=goal.request.scope.output_contract,
-                    checker=goal.checker,
-                    permissions=goal.request.scope.permissions,
-                    expires_at=now() + timedelta(seconds=goal.lifetime_seconds),
-                )
-                try:
-                    inserted = await asyncio.to_thread(store.put, self.identity.sign(item))
-                except Conflict:
-                    # Concurrent observers can produce distinct decision IDs/timestamps
-                    # for the same cause. Retain the first immutable signed observation.
-                    page = await asyncio.to_thread(store.record_page, query, limit=1)
-                    existing = page.items[0] if page.items else None
-                    if (
-                        not isinstance(existing, Opportunity)
-                        or existing.observation_digest != observation
-                    ):
-                        raise
-                    item, inserted = existing, False
+                observed_id = item.id
                 observed_kind = item.work_kind
+                if item.expires_at <= now():
+                    expired.append(item)
+                    observed_result = "expired"
+                    continue
+                if old:
+                    superseded.append(item)
+                    observed_result = "superseded"
+                    continue
                 observed_result = "discovered" if inserted else "deduplicated"
                 discovered += int(inserted)
                 deduplicated += int(not inserted)
@@ -496,6 +566,9 @@ class Opportunities:
             deduplicated=deduplicated,
             satisfied=satisfied,
             next_goal=end if end < len(self._goals) else None,
+            expired=tuple(expired),
+            superseded=tuple(superseded),
+            next_action="reobserve" if expired or superseded else None,
         )
 
     def validate_proposal(
@@ -550,6 +623,7 @@ class Opportunities:
             or opportunity.checker != goal.checker
             or opportunity.expires_at <= now()
             or opportunity.policy_digest != self.registry.overlay.policy.digest
+            or not self.observations.is_current(opportunity.id)
         ):
             raise ProposalRejected("reference", "proposal refers to an inapplicable opportunity")
         if proposal.expires_at > opportunity.expires_at:

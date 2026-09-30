@@ -32,8 +32,33 @@ This run includes actual PostgreSQL/OPA/A2A/MCP/MAF, three-process applications,
 backup/restore, invocation/allowance/cancellation and the default signed-history
 profiles. Ruff, format, strict typing and generated-schema/doc-link checks passed.
 
+CIO-030-03's initial expired-instance reproduction failed before its fix. The
+current reobservation suite exercises 20 real PostgreSQL cases with controlled
+clocks: expiry/proposal refusal, stable causes, fresh bases, owner checks, cooldown,
+limits, concurrent requests, idempotent receipts, distinct CLI processes, budget
+recovery, checker recovery, satisfied goals, revisions, retained negatives and
+execution guards. Actual OPA freshness refusal yields an undispatched UNKNOWN with
+fenced/released reservation; a later explicit owner attempt proceeds without
+rewriting that original result. Dispatched/uncertain/pending work stays blocked.
+Completed result reuse requires the original signed observation as well as request
+content; changing evidence does not replay an old result as a current check.
+
+A Windows CPython 3.12.10 source gate passed **67 tests in 178.29 seconds**, zero
+failures/errors/skips: the new cases, existing opportunity tests, eight migration
+tests and one actual three-process adaptive document case. A broader checkpoint
+had 113 passes and two application refusals; the installed host needed explicit
+checker intent under the new guard. Both previously failing parameter cases passed
+after that host fix, including a separate two-case OPA-refusal/application gate
+(64.77 seconds). These checkpoints are not the final complete source suite.
+The 0.3.0 fixture was generated with the actual published wheel, outside checkout
+on Python 3.12.10 at revision 0012. Original v1/v2/v3 signed history, selection,
+six invocation/lease states and budget survive migration 0013 and real pg_dump/
+pg_restore. Interrupted backfill rolls back. Missing legacy fields remain unknown;
+the captured legacy remote ID is an actual old hash/InvocationStore fixture, not
+proof of an old HTTP exchange. Remote call-identity HTTP/restart coverage is pending.
+
 These local observations do not establish the new multi-Python, installed-artifact
-or release gates. CIO-030-03/04 and Python support extension remain under development.
+or release gates. CIO-030-04 and Python support extension remain under development.
 Existing released-version facts below are historical evidence.
 
 ## 0.3.0 released artifacts

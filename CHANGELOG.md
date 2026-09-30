@@ -14,6 +14,15 @@ observations retain categories without raw payloads. Same-ID content conflicts,
 transport unavailability and allowance shortages remain distinct from internal
 errors; cancellation joins outstanding requests. No dependency versions changed.
 
+Expired opportunities are excluded from available discovery results. Explicit
+owner reobservation issues a fresh signed instance with `supersedes`, persisted
+reason/count/cooldown and idempotent request receipts. Cause identity remains in
+the owner/goal namespace across target and checker revisions. Migration 0013 adds
+only observation/command and selection projections; original payloads and unknown
+legacy facts remain unchanged. New choices consult existing invocation/lease rows:
+uncertain or pending work blocks another attempt, matching completed observations
+are queried, and proven undispatched releases require explicit owner intent.
+
 Release gates and publication remain pending; 0.3.0 is the latest verified release.
 
 ## 0.3.0
