@@ -21,7 +21,14 @@
 - Trusted local read-only bindings can be staged without replacing the active
   version. Explicit probes use existing grants/Executor; finite ordinary admission
   checks precede promotion or rollback and preserve the old entry on refusal.
-  Retained versions stay bounded. Durable application promotion remains pending.
+  Retained versions stay bounded. Existing signed Events and private CAS manifests
+  record exact operator choices, protected-input decisions and a declared checker
+  comparison basis. Stable choice retries retain original bytes and do not reapply
+  a rolled-back transition. Config-pinned startup restoration rechecks signed
+  identity and never renews admission. The installed document host connects stage,
+  independent checking, explicit promotion and retained rollback with exact pins.
+  An independent calibration regression retains the old binding. Complete native
+  fault/comparability acceptance remains pending.
 - The existing document application is packaged, with source launchers using the
   same implementation. Explicitly granted `app.*` operations and a bounded owner
   runner connect its actual MAF formation/check/reuse loop to standard host intake.

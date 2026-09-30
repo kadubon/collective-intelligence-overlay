@@ -49,7 +49,7 @@ from collective_intelligence_overlay.peer import PeerService
 from collective_intelligence_overlay.storage import Conflict
 
 
-async def ready(url, identity, *, process=None):
+async def ready(url, identity, *, process=None, runtime_path=None):
     timestamp = now()
     token = jwt.encode(
         {
@@ -65,7 +65,11 @@ async def ready(url, identity, *, process=None):
     async with httpx.AsyncClient(
         trust_env=False, headers={"Authorization": f"Bearer {token}"}
     ) as client:
-        for _ in range(120):
+        # Cold SDK imports are startup work, outside the subsequent lost-response
+        # business operation. Use the existing 30-second network/readiness bound;
+        # 120 sleeps of 50 ms accidentally gave native cold startup only six.
+        deadline = asyncio.get_running_loop().time() + 30
+        while asyncio.get_running_loop().time() < deadline:
             if process is not None and process.returncode is not None:
                 raise AssertionError((await process.stderr.read()).decode())
             try:
@@ -74,7 +78,14 @@ async def ready(url, identity, *, process=None):
                 return
             except httpx.ConnectError:
                 await asyncio.sleep(0.05)
-    raise AssertionError("real provider did not start")
+    raise AssertionError(
+        {
+            "reason": "PROVIDER_STARTUP_TIMEOUT",
+            "maximum_seconds": 30,
+            "process_returncode": process.returncode if process else None,
+            "runtime_written": runtime_path.exists() if runtime_path else None,
+        }
+    )
 
 
 async def stop(process):
@@ -607,7 +618,12 @@ async def test_lost_real_http_response_provider_and_caller_process_restart(peers
     provider_runtime = tmp_path / "provider-runtime.json"
     provider = await child(peers, "provider", lose=True, output=provider_runtime)
     try:
-        await ready(peers.configs["producer"].url, peers.identity, process=provider)
+        await ready(
+            peers.configs["producer"].url,
+            peers.identity,
+            process=provider,
+            runtime_path=provider_runtime,
+        )
         runtime = json.loads(provider_runtime.read_text())
         assert runtime["minor"] == list(sys.version_info[:2])
         assert os.path.normcase(runtime["executable"]) == os.path.normcase(sys.executable)
@@ -629,7 +645,12 @@ async def test_lost_real_http_response_provider_and_caller_process_restart(peers
         assert len(before["calls"]) == 1 and count(peers) == 1
         await stop(provider)
         provider = await child(peers, "provider", output=provider_runtime)
-        await ready(peers.configs["producer"].url, peers.identity, process=provider)
+        await ready(
+            peers.configs["producer"].url,
+            peers.identity,
+            process=provider,
+            runtime_path=provider_runtime,
+        )
         assert json.loads(provider_runtime.read_text()) == runtime
         output = tmp_path / "caller-after.json"
         caller = await child(peers, "resume", output=output)

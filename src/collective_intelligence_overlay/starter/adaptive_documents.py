@@ -25,6 +25,7 @@ from collective_intelligence_overlay.allocation import AllocationPolicy, allocat
 from collective_intelligence_overlay.application import ApplicationHost
 from collective_intelligence_overlay.bindings import (
     Binding,
+    BindingChange,
     ExecutionContext,
     Target,
     callable_digest,
@@ -40,6 +41,7 @@ from collective_intelligence_overlay.models import (
     Evidence,
     Opportunity,
     Proposal,
+    RecordRef,
     Scope,
     Subject,
     UseRequest,
@@ -83,11 +85,13 @@ def write_json(path: Path, value: Any) -> None:
 class AdaptiveDocuments(DocumentService):
     def __init__(self, config: Config, host: ApplicationHost | None = None) -> None:
         super().__init__(config, host)
+        self._host = host
         self.home = config.private_key.parent
         self.settings_path = config.application_settings or self.home / "application.json"
         if self.settings_path.stat().st_size > 262144:
             raise ValueError("application settings exceed byte bound")
         data = json.loads(self.settings_path.read_text(encoding="utf-8"))
+        self.choices: dict[str, RecordRef] = {}
         self.training_text = data["training_text"]
         self.report_input = data.get("report_input", "text")
         if self.report_input not in {"text", "document"}:
@@ -121,6 +125,33 @@ class AdaptiveDocuments(DocumentService):
             )
         if config.owner == "receiver":
             self._run_lock = asyncio.Lock()
+            staged = data.get("staged", [])
+            if not isinstance(staged, list) or len(staged) > 8:
+                raise ValueError("invalid finite staged document pins")
+            for value in staged:
+                pin = Binding.model_validate(value)
+                manifest = json.loads(self.artifacts.get(pin.subject.digest))
+                if pin.id == "report":
+                    restored = self.install_report(
+                        manifest["parameters"]["input_key"], staged=True, revision=pin.revision
+                    )
+                elif pin.id == "triage":
+                    restored = self.install_triage(
+                        int(manifest["parameters"]["threshold"]), staged=True, revision=pin.revision
+                    )
+                else:
+                    raise ValueError("unsupported staged document binding")
+                if restored != pin:
+                    raise ValueError("staged installed application changed")
+            choices = data.get("choices", {})
+            if not isinstance(choices, dict) or set(choices) - {"report", "triage"}:
+                raise ValueError("invalid document choice pins")
+            for name, value in choices.items():
+                reference = RecordRef.model_validate(value)
+                restored = self.registry.restore_choice(reference, self.artifacts)
+                if restored != self.installed.get(name):
+                    raise ValueError("recorded choice and installed pins disagree")
+                self.choices[name] = reference
             self.checker_binding = remote_checker_binding(config)
             self.registry.register_a2a(
                 self.checker_binding, lambda args: True, config, self.identity
@@ -171,7 +202,19 @@ class AdaptiveDocuments(DocumentService):
         data["installed"] = {
             name: binding.model_dump(mode="json") for name, binding in self.installed.items()
         }
-        write_json(path, data)
+        data["staged"] = [binding.model_dump(mode="json") for binding in self.staged.values()]
+        data["choices"] = {
+            name: reference.model_dump(mode="json") for name, reference in self.choices.items()
+        }
+        try:
+            if len(json.dumps(data).encode()) > 262144:
+                raise ValueError("application settings exceed byte bound")
+            write_json(path, data)
+        except (OSError, ValueError):
+            if self._host is not None and self._host.operations is not None:
+                self._host.operations.state = "draining"
+                self._host.operations.reason = "APPLICATION_PINS_SAVE_FAILED"
+            raise
 
     async def propose(self, opportunity: Opportunity) -> ProposalDrafts:
         contract = next(item for item in self.contracts if item.id == opportunity.goal_id)
@@ -221,6 +264,13 @@ class AdaptiveDocuments(DocumentService):
         )
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
+        if data.get("operation") in {"stage-change", "promote-change"}:
+            if caller != self.config.owner or caller != "receiver":
+                raise ValueError("document changes are local receiver operator choices")
+            if self._run_lock.locked():
+                return {"reason": "already_running"}
+            async with self._run_lock:
+                return await self.change(data)
         if data.get("operation") == "describe-checker":
             if self.config.owner not in {"receiver", "verifier"}:
                 raise ValueError("no installed checker")
@@ -254,6 +304,88 @@ class AdaptiveDocuments(DocumentService):
                 run = self.run_static if data["operation"] == "static-run" else self.run
                 return await run(int(data.get("max_steps", 8)))
         return await super().handle(caller, data)
+
+    async def change(self, data: dict[str, Any]) -> dict[str, Any]:
+        name = str(data["name"])
+        if name not in {"report", "triage"}:
+            raise ValueError("only installed read-only document factories may be staged")
+        if data["operation"] == "stage-change":
+            revision = "trial." + fingerprint([data["command_id"], name, data["parameters"]])[:32]
+            if self.installed[name].revision == revision:
+                return {"binding": self.installed[name].model_dump(mode="json"), "active": True}
+            for binding in self.staged.values():
+                if binding.id == name and binding.revision == revision:
+                    return {"binding": binding.model_dump(mode="json"), "active": False}
+            if name == "report":
+                binding = self.install_report(
+                    data["parameters"]["input_key"], staged=True, revision=revision
+                )
+                dependencies = tuple(self.installed[n] for n in ("remote-words", "render"))
+            else:
+                binding = self.install_triage(
+                    int(data["parameters"]["threshold"]), staged=True, revision=revision
+                )
+                dependencies = (self.installed["report"],)
+            self.publish(binding, dependencies)
+            self.save_goals()
+            return {"binding": binding.model_dump(mode="json"), "active": False}
+        arguments = data["protected_inputs"]
+        if (
+            not isinstance(arguments, list)
+            or not 1 <= len(arguments) <= 8
+            or not all(isinstance(item, dict) for item in arguments)
+        ):
+            raise ValueError("one to eight actual protected inputs required")
+        comparison = self.artifacts.put(
+            json.dumps(data["comparison"], allow_nan=False, sort_keys=True).encode()
+        )
+        binding = self.registry.inspect(name, expected_digest=str(data["binding_digest"]))
+        goal = self.opportunities.goal(name)
+        if binding.scope != goal.request.scope or binding.subject.id != goal.request.subject.id:
+            raise ValueError("change does not preserve the operator goal contract")
+        reference = await self.registry.promote_recorded(
+            name,
+            str(data["binding_digest"]),
+            tuple(arguments),
+            self.context,
+            expected_active=data["expected_active"],
+            identity=self.identity,
+            artifacts=self.artifacts,
+            command_id=str(data["command_id"]),
+            checker_comparison=data["checker_comparison"],
+            comparison_artifact=comparison,
+        )
+        event = self.overlay.store.resolve_reference(reference)
+        assert isinstance(event, Event)
+        choice = BindingChange.model_validate_json(self.artifacts.get(event.subject.digest))
+        # A retry returns its historical receipt; it must not revert a later choice.
+        current = self.registry.inspect(name)
+        if choice.accepted and current.digest == choice.binding.digest:
+            previous = self.installed[name]
+            self.installed[name] = current
+            self.staged.pop(current.digest, None)
+            if previous.digest != current.digest:
+                self.staged[previous.digest] = previous
+            self.choices[name] = reference
+            goal = self.opportunities.goal(name)
+            candidate = self.overlay.store.reference(
+                "capability", current.issuer, current.subject.key
+            )
+            self.opportunities.select_target(name, goal.digest, name, candidate)
+            self.save_goals()
+        return {
+            "choice": reference.model_dump(mode="json"),
+            "accepted": choice.accepted,
+            "active_digest": current.digest,
+        }
+
+    def check_threshold(self, manifest: dict[str, Any]) -> int:
+        """Independent expected calibration from this verifier's operator settings.
+
+        The candidate's declared threshold cannot redefine the registered quality
+        contract. This deterministic checker does not infer external validity.
+        """
+        return len(self.training_text.split())
 
     async def check_requested_candidate(self, data: dict[str, Any]) -> dict[str, Any]:
         name = str(data["name"])

@@ -20,9 +20,19 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 from .artifacts import Artifacts
 from .blocking import run_blocking
-from .models import Decision, Digest, Identifier, ReceiptRef, Scope, Subject, UseRequest
+from .models import (
+    Decision,
+    Digest,
+    Event,
+    Identifier,
+    ReceiptRef,
+    RecordRef,
+    Scope,
+    Subject,
+    UseRequest,
+)
 from .overlay import Overlay
-from .security import Identity, allowed_url, digest
+from .security import Identity, allowed_url, digest, verify
 
 if TYPE_CHECKING:
     import httpx
@@ -203,6 +213,31 @@ class PreparedCall:
     request: UseRequest
 
 
+class BindingChange(BaseModel):
+    """Private CAS observation referenced by an ordinary signed Event.
+
+    Checker comparability is an operator declaration with a retained basis, not a
+    theorem or a new evidence verdict. Restoring a choice never renews admission.
+    """
+
+    model_config = ConfigDict(extra="forbid", frozen=True)
+    change_schema: Literal["1"] = "1"
+    owner: Identifier
+    command_id: Identifier
+    binding: Binding
+    previous_digest: Digest | None
+    protected_arguments: tuple[Digest, ...] = Field(min_length=1, max_length=8)
+    context: ExecutionContext
+    checker_comparison: Literal["unchanged", "changed", "unknown"]
+    comparison_artifact: Digest
+    decisions: tuple[RecordRef, ...] = Field(min_length=1, max_length=8)
+    accepted: bool
+
+    @property
+    def request_digest(self) -> str:
+        return fingerprint(self.model_dump(mode="json", exclude={"decisions", "accepted"}))
+
+
 def callable_digest(operation: Callable[..., Any]) -> str:
     """Installed source identity, not an attestation of its dependencies or correctness."""
     return digest(inspect.getsource(operation).encode())
@@ -232,6 +267,7 @@ class Registry:
         self._digests: dict[str, _Registration] = {}
         self._staged: set[str] = set()
         self._retained: set[str] = set()
+        self._change_lock = asyncio.Lock()
 
     def register_local(
         self, binding: Binding, operation: Operation, assess: Assessment, *, staged: bool = False
@@ -403,6 +439,204 @@ class Registry:
         active entry unchanged; explicit retained versions can be checked again
         for rollback. Applications persist their own operator configuration.
         """
+        async with self._change_lock:
+            return await self._promote(
+                binding_id,
+                expected_digest,
+                protected_inputs,
+                context,
+                expected_active=expected_active,
+            )
+
+    async def promote_recorded(
+        self,
+        binding_id: str,
+        expected_digest: str,
+        protected_inputs: tuple[dict[str, Any], ...],
+        context: ExecutionContext,
+        *,
+        expected_active: str | None,
+        identity: Identity,
+        artifacts: Artifacts,
+        command_id: str,
+        checker_comparison: Literal["unchanged", "changed", "unknown"],
+        comparison_artifact: str,
+    ) -> RecordRef:
+        """Persist a bounded signed owner choice before switching the local entry.
+
+        A repeated command returns its original receipt, including a refusal. It
+        never rechecks old inputs, renews evidence or reapplies an old transition.
+        The application persists this exact reference with its installed pins.
+        """
+        from .queries import RecordQuery
+
+        if identity.name != self.overlay.store.owner or context.caller != identity.name:
+            raise ValueError("binding promotion belongs to the local operator")
+        protected_inputs = copy.deepcopy(protected_inputs)
+        context = context.model_copy(deep=True)
+        binding = self._version(binding_id, expected_digest).binding.model_copy(deep=True)
+        # Validate all bounded private metadata before querying or publishing it.
+        request = BindingChange(
+            owner=identity.name,
+            command_id=command_id,
+            binding=binding,
+            previous_digest=expected_active,
+            protected_arguments=tuple(fingerprint(item) for item in protected_inputs),
+            context=context,
+            checker_comparison=checker_comparison,
+            comparison_artifact=comparison_artifact,
+            decisions=(
+                RecordRef(
+                    kind="decision", issuer=identity.name, id="pending", payload_digest="0" * 64
+                ),
+            ),
+            accepted=False,
+        )
+        await run_blocking(artifacts.get, comparison_artifact)
+        event_id = "binding-choice-" + fingerprint([identity.name, command_id])
+
+        async with self._change_lock:
+            page = await run_blocking(
+                self.overlay.store.record_page,
+                RecordQuery(kinds=("event",), issuer=identity.name, record_id=event_id),
+                limit=1,
+            )
+            if page.items:
+                reference = await run_blocking(
+                    self.overlay.store.reference, "event", identity.name, event_id
+                )
+                saved = await run_blocking(self._recorded_change, reference, artifacts)
+                if saved.request_digest != request.request_digest:
+                    raise ValueError("binding choice command reused with different request")
+                return reference
+
+            async def record(decisions: tuple[Decision, ...]) -> None:
+                references = tuple(
+                    [
+                        await run_blocking(
+                            self.overlay.store.reference, "decision", identity.name, item.id
+                        )
+                        for item in decisions
+                    ]
+                )
+                change = request.model_copy(
+                    update={
+                        "decisions": references,
+                        "accepted": all(item.outcome == "ACCEPT" for item in decisions),
+                    }
+                )
+                artifact = await run_blocking(artifacts.put, change.model_dump_json().encode())
+                event = Event(
+                    id=event_id,
+                    issuer=identity.name,
+                    subject=Subject(
+                        id="binding-choice." + fingerprint(binding_id), version="1", digest=artifact
+                    ),
+                    action="recommendation",
+                    task_id=binding_id,
+                    attempt_id=command_id,
+                    correlation_id=command_id,
+                )
+                await run_blocking(self.overlay.store.put, identity.sign(event))
+
+            await self._promote(
+                binding_id,
+                expected_digest,
+                protected_inputs,
+                context,
+                expected_active=expected_active,
+                record=record,
+            )
+            return await run_blocking(
+                self.overlay.store.reference, "event", identity.name, event_id
+            )
+
+    def _recorded_change(self, reference: RecordRef, artifacts: Artifacts) -> BindingChange:
+        if reference.kind != "event" or reference.issuer != self.overlay.store.owner:
+            raise ValueError("binding choice requires an exact local event reference")
+        event = verify(self.overlay.store.signed_record(reference), self.overlay.store.principals)
+        if (
+            not isinstance(event, Event)
+            or event.schema_version != "1"
+            or event.action != "recommendation"
+        ):
+            raise ValueError("record is not an operator binding choice")
+        change = BindingChange.model_validate_json(artifacts.get(event.subject.digest))
+        if (
+            change.owner != reference.issuer
+            or change.context.caller != change.owner
+            or change.context.purpose != "reuse"
+            or event.id != "binding-choice-" + fingerprint([change.owner, change.command_id])
+            or event.task_id != change.binding.id
+            or event.attempt_id != change.command_id
+            or event.correlation_id != change.command_id
+            or event.subject
+            != Subject(
+                id="binding-choice." + fingerprint(change.binding.id),
+                version="1",
+                digest=event.subject.digest,
+            )
+            or len(change.decisions) != len(change.protected_arguments)
+        ):
+            raise ValueError("binding choice metadata mismatch")
+        artifacts.get(change.comparison_artifact)
+        decisions = [self.overlay.store.resolve_reference(item) for item in change.decisions]
+        if any(
+            not isinstance(item, Decision)
+            or item.request.receiver != change.owner
+            or item.request.purpose != "reuse"
+            or item.request.subject != change.binding.subject
+            or item.request.capability_issuer != change.binding.issuer
+            or item.request.binding_digest != change.binding.digest
+            or item.request.arguments_digest != argument
+            or item.request.scope != change.binding.scope
+            for item, argument in zip(decisions, change.protected_arguments, strict=True)
+        ) or change.accepted != all(
+            isinstance(item, Decision) and item.outcome == "ACCEPT" for item in decisions
+        ):
+            raise ValueError("binding choice decisions mismatch")
+        return change
+
+    def restore_choice(self, reference: RecordRef, artifacts: Artifacts) -> Binding:
+        """Restore only a config-pinned historical choice of preinstalled code.
+
+        This startup-only trusted API does not search history or grant current use.
+        Ordinary Executor admission still rechecks expiry, withdrawals and inputs.
+        """
+        if self._change_lock.locked():
+            raise ValueError("choice restoration cannot run during promotion")
+        change = self._recorded_change(reference, artifacts)
+        if not change.accepted:
+            raise ValueError("refused binding choice cannot activate a version")
+        if change.binding.digest not in self._retained:
+            raise ValueError("binding choice version must be explicitly staged at startup")
+        entry = self._version(change.binding.id, change.binding.digest)
+        if (
+            entry.binding != change.binding
+            or entry.binding.effects != "read-only"
+            or entry.binding.target.kind != "local"
+        ):
+            raise ValueError("binding choice does not match preinstalled read-only code")
+        self._activate(entry)
+        return entry.binding.model_copy(deep=True)
+
+    def _activate(self, entry: _Registration) -> None:
+        previous = self._entries.get(entry.binding.id)
+        self._entries[entry.binding.id] = entry
+        self._staged.discard(entry.digest)
+        if previous is not None and previous is not entry:
+            self._staged.add(previous.digest)
+
+    async def _promote(
+        self,
+        binding_id: str,
+        expected_digest: str,
+        protected_inputs: tuple[dict[str, Any], ...],
+        context: ExecutionContext,
+        *,
+        expected_active: str | None,
+        record: Callable[[tuple[Decision, ...]], Awaitable[None]] | None = None,
+    ) -> tuple[Decision, ...]:
         if context.caller != self.overlay.store.owner or context.purpose != "reuse":
             raise ValueError("binding promotion is a local operator choice")
         if not 1 <= len(protected_inputs) <= 8:
@@ -419,15 +653,14 @@ class Registry:
         for arguments in protected_inputs:
             prepared = self._prepare(entry, expected_digest, arguments, context)
             decisions.append(await self.overlay.qualify(prepared.request))
+        if record is not None:
+            await record(tuple(decisions))
         if any(decision.outcome != "ACCEPT" for decision in decisions):
             return tuple(decisions)
         if self._entries.get(binding_id) is not previous:
             raise ValueError("active binding changed during promotion")
         self._version(binding_id, expected_digest)
-        self._entries[binding_id] = entry
-        self._staged.discard(entry.digest)
-        if previous is not None and previous is not entry:
-            self._staged.add(previous.digest)
+        self._activate(entry)
         return tuple(decisions)
 
     def _entry(self, binding_id: str) -> _Registration:

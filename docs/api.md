@@ -903,10 +903,47 @@ Once staged management begins, direct registration cannot bypass promotion.
 
 This primitive performs no trial, independent verification or application-specific
 regression comparison itself. The installed checker must justify its scoped
-evidence on the actual protected cases. An application must persist the operator
-choice, scope, checker basis and installed configuration for restart; these
-registry pointers are process-local. Complete production promotion, checker
-comparability and durable reference-application integration remain under validation.
+evidence on the actual protected cases. The lower-level `promote` pointer is
+process-local.
+
+For a durable observation use `await registry.promote_recorded(id, digest,
+protected_inputs, context, expected_active=old_digest, identity=owner_identity,
+artifacts=owner_artifacts, command_id="owner-choice", checker_comparison="unchanged",
+comparison_artifact=local_digest)`. Comparison is `unchanged`, `changed` or `unknown`;
+the CAS artifact records the operator's basis and limitations. This declaration
+does not establish scientific comparability. The API stores full binding/scope,
+argument digests, exact local Decision references and the comparison basis in a
+bounded private CAS manifest. An existing signed recommendation Event points to
+that manifest, including refused choices. It carries no truth verdict. Publication
+precedes the pointer change and adds no reservation or external invocation.
+
+The returned exact `RecordRef` belongs in operator application settings alongside
+the installed active/retained pins. Reusing the command ID returns the original
+receipt, including a refusal, and does not reapply a later-rolled-back transition.
+Changed requests conflict. At startup, register the exact installed versions and
+call `registry.restore_choice(reference, owner_artifacts)`. It rejects refused,
+mismatched or compromised signed choices. It neither searches for a latest record
+nor renews historical admission: ordinary Executor use still checks current inputs,
+expiry, dependencies and withdrawals. A crash before the application settings are
+saved leaves the last persisted choice authoritative for restart.
+
+The packaged document host exposes owner-only `app.stage-change` and
+`app.promote-change` through the standard authenticated A2A `send` API. Stage data
+has `name` (`report`/`triage`), `command_id` and `parameters` (`input_key`/`threshold`).
+It publishes generated status and retains the old active binding. `app.describe`
+accepts `binding_digest` to inspect a staged/retained version and reports
+`requested_version_available`; the independent checker verifies that exact pin.
+Promote data has `name`, `binding_digest`, `expected_active`, `command_id`,
+`protected_inputs` (one to eight dictionaries), `checker_comparison`, and a private
+JSON `comparison` basis. Its result has `choice`, historical `accepted`, and current
+`active_digest`. The installed operator goal contract must remain intact. The
+adaptive triage checker derives expected calibration from its own operator settings;
+the candidate cannot redefine that expectation. Failed/unchecked versions retain
+the original. Exact staged/choice pins survive restart. Rollback uses the same
+operation with the retained original digest and a new command ID. A settings-save
+failure closes intake with `APPLICATION_PINS_SAVE_FAILED`; restart restores the
+last persisted configuration. Complete all-native faults and broader checker
+comparability remain part of production acceptance.
 
 Factories can call `host.register_operation("app.NAME", async_handler, callers=(...))`
 for at most 32 application operations. Names must have that prefix, be unique and

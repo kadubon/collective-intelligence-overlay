@@ -474,6 +474,113 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             assert await call("receiver", **request) == outcome
             restarted = await call("receiver", operation=mode, max_steps=8)
             assert restarted["reason"] == "goals_satisfied" and not restarted["history"]
+            if host_mode:
+                # Trial candidates remain separate from the admitted original.
+                # A changed calibration cannot redefine the independent checker.
+                original_digest = Binding.model_validate(c4).digest
+                protected = [{"text": "protected 次世代 document"}]
+                comparison = {
+                    "contract": "same operator calibration and triage business contract",
+                    "checker": checker_binding().model_dump(mode="json"),
+                    "basis": imported_checker_test["evidence"],
+                    "limit": "finite input check; no general transport validity claim",
+                }
+                changes = []
+                for label, threshold in (
+                    ("regression", len(training_text.split()) + 1),
+                    ("replacement", len(training_text.split())),
+                ):
+                    staged = await call(
+                        "receiver",
+                        operation="stage-change",
+                        name="triage",
+                        command_id="stage-" + label,
+                        parameters={"threshold": threshold},
+                    )
+                    new_binding = Binding.model_validate(staged["binding"])
+                    assert not staged["active"]
+                    assert (
+                        Binding.model_validate(
+                            (await call("receiver", operation="describe", name="triage"))["binding"]
+                        ).digest
+                        == original_digest
+                    )
+                    await stop("receiver")
+                    await start("receiver")
+                    described = await call(
+                        "receiver",
+                        operation="describe",
+                        name="triage",
+                        binding_digest=new_binding.digest,
+                    )
+                    assert described["binding"] == staged["binding"]
+                    assert described["requested_version_available"]
+                    promotion = {
+                        "operation": "promote-change",
+                        "name": "triage",
+                        "binding_digest": new_binding.digest,
+                        "expected_active": original_digest,
+                        "protected_inputs": protected,
+                        "comparison": comparison,
+                        "checker_comparison": "unchanged",
+                        "command_id": "choose-" + label,
+                    }
+                    unchecked = await call(
+                        "receiver", **{**promotion, "command_id": "unchecked-" + label}
+                    )
+                    assert (
+                        not unchecked["accepted"] and unchecked["active_digest"] == original_digest
+                    )
+                    checked = await call(
+                        "verifier",
+                        operation="verify",
+                        attempt="trial-" + label,
+                        provider="receiver",
+                        name="triage",
+                        binding_digest=new_binding.digest,
+                        arguments=protected[0],
+                    )
+                    assert checked["evidence"]["verdict"] == (
+                        "FAIL" if label == "regression" else "PASS"
+                    )
+                    await sync("receiver", "verifier")
+                    chosen = await call("receiver", **promotion)
+                    assert chosen["accepted"] is (label == "replacement")
+                    assert await call("receiver", **promotion) == chosen
+                    assert await call("receiver", **request) == outcome
+                    changes.append((new_binding, promotion, chosen))
+                replacement, promotion, chosen = changes[-1]
+                assert chosen["active_digest"] == replacement.digest
+                await stop("receiver")
+                await start("receiver")
+                assert (
+                    Binding.model_validate(
+                        (await call("receiver", operation="describe", name="triage"))["binding"]
+                    )
+                    == replacement
+                )
+                rollback = await call(
+                    "receiver",
+                    **{
+                        **promotion,
+                        "binding_digest": original_digest,
+                        "expected_active": replacement.digest,
+                        "command_id": "explicit-rollback",
+                    },
+                )
+                assert rollback["accepted"] and rollback["active_digest"] == original_digest
+                replayed_choice = await call("receiver", **promotion)
+                assert replayed_choice["choice"] == chosen["choice"]
+                assert replayed_choice["active_digest"] == original_digest
+                await stop("receiver")
+                await start("receiver")
+                assert (
+                    Binding.model_validate(
+                        (await call("receiver", operation="describe", name="triage"))["binding"]
+                    ).digest
+                    == original_digest
+                )
+                assert await call("receiver", **request) == outcome
             if mode == "static-run":
                 from collective_intelligence_overlay.queries import RecordQuery
 

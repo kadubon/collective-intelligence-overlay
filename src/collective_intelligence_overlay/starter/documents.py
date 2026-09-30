@@ -69,6 +69,8 @@ APPLICATION_OPERATIONS = frozenset(
         "request-document-check",
         "adaptive-run",
         "static-run",
+        "stage-change",
+        "promote-change",
     }
 )
 
@@ -140,6 +142,7 @@ class DocumentService(PeerService):
             self.proposal_exchange = host.proposal_exchange
         self.artifacts = config.artifacts()
         self.installed: dict[str, Binding] = {}
+        self.staged: dict[str, Binding] = {}
         settings = config.application_settings or config.private_key.parent / "application.json"
         data: dict[str, Any] = {}
         if settings.exists():
@@ -240,9 +243,15 @@ class DocumentService(PeerService):
                         Binding.model_validate(manifest["parameters"]["provider"])
                     )
                 elif name == "report":
-                    restored = self.install_report(manifest["parameters"].get("input_key", "text"))
+                    restored = self.install_report(
+                        manifest["parameters"].get("input_key", "text"),
+                        revision=candidate.revision if isinstance(candidate, Binding) else None,
+                    )
                 else:
-                    restored = self.install_triage(int(manifest["parameters"]["threshold"]))
+                    restored = self.install_triage(
+                        int(manifest["parameters"]["threshold"]),
+                        revision=candidate.revision if isinstance(candidate, Binding) else None,
+                    )
                 if (
                     restored.digest
                     != (
@@ -259,7 +268,13 @@ class DocumentService(PeerService):
                     )
 
     def make_binding(
-        self, name: str, operation: Any, parameters: dict[str, Any], components: tuple[str, ...]
+        self,
+        name: str,
+        operation: Any,
+        parameters: dict[str, Any],
+        components: tuple[str, ...],
+        *,
+        revision: str | None = None,
     ) -> Binding:
         manifest = {
             "application": "documents.v1",
@@ -305,11 +320,13 @@ class DocumentService(PeerService):
             )
         return Binding(
             id=name,
-            revision="2" if document_input else "1",
+            revision=revision or ("2" if document_input else "1"),
             issuer=self.config.owner,
             registrar=self.config.owner,
             subject=Subject(
-                id="documents." + name, version="2" if document_input else "1", digest=artifact
+                id="documents." + name,
+                version=revision or ("2" if document_input else "1"),
+                digest=artifact,
             ),
             target=target,
             scope=Scope(
@@ -333,8 +350,12 @@ class DocumentService(PeerService):
         *,
         parameters: dict[str, Any] | None = None,
         components: tuple[str, ...] = (),
+        staged: bool = False,
+        revision: str | None = None,
     ) -> Binding:
-        binding = self.make_binding(name, operation, parameters or {}, components)
+        binding = self.make_binding(
+            name, operation, parameters or {}, components, revision=revision
+        )
         self.registry.register_local(
             binding,
             operation,
@@ -342,8 +363,12 @@ class DocumentService(PeerService):
                 isinstance(value := args.get("text", args.get("document", "nonempty")), str)
                 and bool(value.strip())
             ),
+            staged=staged,
         )
-        self.installed[name] = binding
+        if staged:
+            self.staged[binding.digest] = binding
+        else:
+            self.installed[name] = binding
         return binding
 
     def install_remote(self, provider: Binding) -> Binding:
@@ -410,7 +435,9 @@ class DocumentService(PeerService):
             raise ValueError("registered child execution was not admitted or completed")
         return result["result"]
 
-    def install_report(self, input_key: str = "text") -> Binding:
+    def install_report(
+        self, input_key: str = "text", *, staged: bool = False, revision: str | None = None
+    ) -> Binding:
         if input_key not in {"text", "document"}:
             raise ValueError("unsupported installed report input adapter")
 
@@ -440,9 +467,13 @@ class DocumentService(PeerService):
             report,
             parameters={"input_key": input_key},
             components=tuple(self.installed[n].digest for n in ("remote-words", "render")),
+            staged=staged,
+            revision=revision,
         )
 
-    def install_triage(self, threshold: int) -> Binding:
+    def install_triage(
+        self, threshold: int, *, staged: bool = False, revision: str | None = None
+    ) -> Binding:
         if not 1 <= threshold <= 4096:
             raise ValueError("calibration threshold outside the configured bound")
 
@@ -458,15 +489,24 @@ class DocumentService(PeerService):
             triage,
             parameters={"threshold": threshold},
             components=(self.installed["report"].digest,),
+            staged=staged,
+            revision=revision,
         )
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
         operation = data.get("operation")
         if operation == "describe":
-            binding = self.installed[str(data["name"])]
+            name = str(data["name"])
+            try:
+                binding = self.registry.inspect(name, expected_digest=data.get("binding_digest"))
+                available = True
+            except ValueError:
+                binding = self.installed[name]
+                available = False
             return {
                 "binding": binding.model_dump(mode="json"),
                 "manifest": json.loads(self.artifacts.get(binding.subject.digest)),
+                "requested_version_available": available,
                 "pid": os.getpid(),
             }
         if operation in {"register-remote", "form-report", "form-triage", "verify"}:
@@ -542,11 +582,19 @@ class DocumentService(PeerService):
             provider, name = str(data["provider"]), str(data["name"])
             await synchronize(self.config, self.identity, self.overlay.store, provider, page_size=2)
             description = await send(
-                self.config, self.identity, provider, {"operation": "describe", "name": name}
+                self.config,
+                self.identity,
+                provider,
+                {
+                    "operation": "describe",
+                    "name": name,
+                    "binding_digest": request["binding_digest"],
+                },
             )
             binding = Binding.model_validate(description["binding"])
             if (
-                request["binding_digest"] is not None
+                not description.get("requested_version_available", True)
+                or request["binding_digest"] is not None
                 and request["binding_digest"] != binding.digest
             ):
                 raise CandidateChanged("candidate changed before checking")
@@ -588,7 +636,7 @@ class DocumentService(PeerService):
                 elif name == "report":
                     expected = {"report": "Words: " + str(count)}
                 elif name == "triage":
-                    threshold = description["manifest"]["parameters"]["threshold"]
+                    threshold = self.check_threshold(description["manifest"])
                     expected = {"long": count > threshold, "threshold": threshold}
                 else:
                     raise ValueError("checker does not cover this application")
@@ -653,6 +701,10 @@ class DocumentService(PeerService):
                 )
             )
             raise
+
+    def check_threshold(self, manifest: dict[str, Any]) -> int:
+        """The base example checks the declared parameter, not its external validity."""
+        return int(manifest["parameters"]["threshold"])
 
 
 def main() -> None:

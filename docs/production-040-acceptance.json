@@ -302,14 +302,15 @@
       "id": "P22",
       "requirement": "Candidate/shadow or limited trial/independent check/operator scoped promotion and rollback",
       "implementation": [
-        "src/collective_intelligence_overlay/bindings.py"
+        "src/collective_intelligence_overlay/bindings.py",
+        "src/collective_intelligence_overlay/starter/adaptive_documents.py",
+        "src/collective_intelligence_overlay/starter/documents.py"
       ],
       "test": "FAIL/UNKNOWN/protected regression retains old binding; shadow has no duplicate effect; checker meaning comparison recorded",
-      "observed": "Trusted read-only local staging preserves the active revision, permits only explicit granted verification through Executor and retains bounded versions. Ordinary per-input admission precedes an explicit process-local promotion/rollback; refusals preserve the old entry. Fifteen real PostgreSQL/OPA Registry/MAF/MCP and persisted-binding tests passed 31.50 seconds. Four strengthened stage cases passed 15.11 seconds: PASS, independently reported FAIL/UNKNOWN and missing application assessment; wrong probe callers are denied, original invocation receipts survive and promotion creates no new reservation. Earlier FAIL-after-first-check stopped later probes conservatively; the finite test trial batch now finishes before evidence publication. These are local SDK primitives, not complete durable reference-application production acceptance.",
+      "observed": "Bounded read-only staged revisions preserve the current binding and explicit probe grants. Existing signed Events/private CAS manifests retain operator choice, exact protected-input Decisions and a declared checker comparison basis. Stable command retry retains original bytes without reapplying rollback; config-pinned startup rejects compromised/refused/mismatched choices and does not renew current admission. Fifteen real PostgreSQL/OPA Registry/persisted-binding tests passed in 31.07 seconds, including capacity failure before publication and withdrawal after restoration. One actual three-owner HTTPS/MCP/MAF reference test passed in 129.16 seconds: changed calibration independently FAILs, unchecked candidates stay inactive, a PASS replacement and original rollback survive restarts, historical receipts remain unchanged. Earlier failed expectation/exception-shape assertions are retained. Complete all-native production/comparability acceptance remains open. The later complete document development regression group passed nine cases in 477.95 seconds, including static/adaptive, transfer mismatch, restart/withdrawal, and native standard-host paths; overlapping groups are not summed.",
       "remaining": [
-        "durable signed operator choices and reference-application active/candidate restoration",
-        "actual protected regression and checker-comparability records in the network production path",
-        "all native installed promotion/rollback fault protocols"
+        "all native installed promotion/rollback and interrupted-settings fault protocols",
+        "broader checker/allocation-change comparability and protected-case contracts in the complete production path"
       ],
       "status": "partial; complete acceptance pending"
     },
@@ -321,7 +322,7 @@
         "tests/integration/test_production_recovery_review.py"
       ],
       "test": "Profile fault_protocol and all existing 0.3.0-0.3.2 tests; zero mandatory skips",
-      "observed": "Full source 316 passed before latest recovery/quota/logging additions; later focused 27- and 8-test groups passed, overlap not summed; DB-clock +/-30 day regression retained",
+      "observed": "Full source 316 passed before latest recovery/quota/logging additions; later focused 27- and 8-test groups passed, overlap not summed; DB-clock +/-30 day regression retained Frozen fbc1273 source later passed all 340 tests in 1339.88 seconds, zero failures/errors/skips; this precedes recorded-choice integration. Prior 34ad native Intel macOS 3.14 also exposed one cold provider startup timeout in its six-second test harness in addition to socket resets. Startup readiness now uses the existing 30-second bound with process/runtime diagnostics; one lost-response/restart test passed 20.52 seconds. Failed logs are retained; native confirmation and updated full source remain pending.",
       "remaining": [
         "updated full source/native matrix and complete predeclared fault protocol"
       ],

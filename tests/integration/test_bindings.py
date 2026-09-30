@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sys
+from dataclasses import replace
 from decimal import Decimal
 
 import httpx
@@ -23,6 +24,7 @@ from collective_intelligence_overlay.adapters.maf import bound_tool
 from collective_intelligence_overlay.artifacts import Artifacts
 from collective_intelligence_overlay.bindings import (
     Binding,
+    BindingChange,
     ExecutionContext,
     Registry,
     Target,
@@ -261,10 +263,82 @@ async def test_staged_readonly_trial_admission_promotion_and_rollback(
         overlay.store.put(envelope)
     with overlay.store.engine.connect() as conn:
         balance = conn.execute(select(budgets.c.remaining)).scalar_one()
-    result = await registry.promote(
-        candidate.id, candidate.digest, inputs, context, expected_active=original.digest
+    comparison = cas.put(
+        json.dumps(
+            {
+                "checker": checks[0],
+                "contract": candidate.scope.model_dump(mode="json"),
+                "declaration": ("unchanged independent sum contract; no transport validity proof"),
+            }
+        ).encode()
     )
+    full_cas = Artifacts(tmp_path / "choice-capacity", max_files=1)
+    assert full_cas.put(cas.get(comparison)) == comparison
+    with pytest.raises(ValueError, match="ARTIFACT_CAPACITY_EXCEEDED"):
+        await registry.promote_recorded(
+            candidate.id,
+            candidate.digest,
+            inputs,
+            context,
+            expected_active=original.digest,
+            identity=identities["receiver"],
+            artifacts=full_cas,
+            command_id="unpublished-choice",
+            checker_comparison="unchanged",
+            comparison_artifact=comparison,
+        )
+    assert registry.inspect(original.id) == original
+    choice = await registry.promote_recorded(
+        candidate.id,
+        candidate.digest,
+        inputs,
+        context,
+        expected_active=original.digest,
+        identity=identities["receiver"],
+        artifacts=cas,
+        command_id="choose-trial",
+        checker_comparison="unchanged",
+        comparison_artifact=comparison,
+    )
+    choice_event = overlay.store.resolve_reference(choice)
+    change = BindingChange.model_validate_json(cas.get(choice_event.subject.digest))
+    result = [overlay.store.resolve_reference(item) for item in change.decisions]
     accepted = checker_state == "PASS" and not unassessed_input
+    assert change.accepted is accepted
+    choice_envelope = overlay.store.signed_record(choice)
+    assert verify(choice_envelope, overlay.store.principals) == choice_event
+    assert choice_event.outcome is None  # a local operator choice is not a truth verdict
+    assert change.protected_arguments == tuple(fingerprint(item) for item in inputs)
+    assert change.previous_digest == original.digest
+    assert (
+        await registry.promote_recorded(
+            candidate.id,
+            candidate.digest,
+            inputs,
+            context,
+            expected_active=original.digest,
+            identity=identities["receiver"],
+            artifacts=cas,
+            command_id="choose-trial",
+            checker_comparison="unchanged",
+            comparison_artifact=comparison,
+        )
+        == choice
+    )
+    assert overlay.store.signed_record(choice) == choice_envelope
+    with pytest.raises(ValueError, match="different request"):
+        await registry.promote_recorded(
+            candidate.id,
+            candidate.digest,
+            inputs[:1],
+            context,
+            expected_active=original.digest,
+            identity=identities["receiver"],
+            artifacts=cas,
+            command_id="choose-trial",
+            checker_comparison="unchanged",
+            comparison_artifact=comparison,
+        )
     assert all(decision.outcome == "ACCEPT" for decision in result) is accepted
     assert registry.inspect(original.id) == (candidate if accepted else original)
     with overlay.store.engine.connect() as conn:
@@ -285,6 +359,65 @@ async def test_staged_readonly_trial_admission_promotion_and_rollback(
         assert all(decision.outcome == "ACCEPT" for decision in rollback)
         assert registry.inspect(original.id) == original
         assert executor.store.get("receiver", "activated") == activated
+        # Replaying an old command after rollback returns its bytes without
+        # reapplying that historical transition or creating another reservation.
+        assert (
+            await registry.promote_recorded(
+                candidate.id,
+                candidate.digest,
+                inputs,
+                context,
+                expected_active=original.digest,
+                identity=identities["receiver"],
+                artifacts=cas,
+                command_id="choose-trial",
+                checker_comparison="unchanged",
+                comparison_artifact=comparison,
+            )
+            == choice
+        )
+        assert registry.inspect(original.id) == original
+    restored = Registry(overlay)
+    restored.register_local(original, transform, lambda args: bool(args["amounts"]))
+    restored.register_local(candidate, operation, lambda _: True, staged=True)
+    if accepted:
+        principal = overlay.store.principals["receiver"]
+        overlay.store.principals["receiver"] = replace(
+            principal, compromised_keyids=frozenset({principal.key.keyid})
+        )
+        try:
+            with pytest.raises(ValueError, match="uncompromised"):
+                restored.restore_choice(choice, cas)
+            assert restored.inspect(original.id) == original
+        finally:
+            overlay.store.principals["receiver"] = principal
+        assert restored.restore_choice(choice, cas) == candidate
+        assert restored.inspect(original.id) == candidate
+        # Historical ACCEPT is not renewed by restoring the configured choice.
+        overlay.store.put(
+            identities["producer"].sign(
+                Revocation(
+                    issuer="producer",
+                    subject=candidate.subject,
+                    reason="after recorded choice",
+                )
+            )
+        )
+        denied = await Executor(restored, identities["receiver"], Reservation()).invoke(
+            "restored-current-use",
+            candidate.id,
+            candidate.digest,
+            inputs[0],
+            context,
+        )
+        assert denied["state"] == "unknown" and denied["result"] is None
+        assert denied["reason"] == "admission_denied"
+    else:
+        with pytest.raises(ValueError, match="refused binding choice"):
+            restored.restore_choice(choice, cas)
+        assert restored.inspect(original.id) == original
+    with pytest.raises(ValueError, match="mismatched signed record"):
+        restored.restore_choice(choice.model_copy(update={"payload_digest": "0" * 64}), cas)
     assert (
         await executor.invoke("old-original", original.id, original.digest, inputs[0], context)
         == saved

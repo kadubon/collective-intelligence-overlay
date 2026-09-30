@@ -99,6 +99,19 @@ Windows/CPython 3.12 development observations are partial evidence:
   20.55 seconds: current receipts transport unchanged known historical signatures,
   while old feed keys, direct compromised submissions and compromised admission
   remain denied/UNKNOWN. Neither an anchor nor an old timestamp grants authority.
+- Frozen source `fbc1273` passed all 340 tests in 1339.88 seconds with zero failures,
+  errors or skips. This includes bounded staged Registry revisions and the raw
+  native socket-disconnect fix. Later recorded-choice integration is a separate
+  development change and is not included in that frozen source result.
+- Fifteen Registry/persisted-binding tests passed in 31.07 seconds after adding
+  signed operator choices, private CAS comparison/decision references, publication
+  capacity failure, compromised choice denial and exact restoration. One actual
+  three-owner HTTPS/MCP/MAF reference test passed in 129.16 seconds: independently
+  detected calibration FAIL and unchecked refusal retain the original; a checked
+  replacement and explicit rollback survive process restart. Historical command
+  replay preserves original signed bytes and completed invocation results.
+  Those cases do not establish general checker comparability or the complete
+  all-native production fault protocol.
 
 The preceding development reports remain retained: two successful HTTPS business
 cases with one 5-second administrative teardown timeout; two MCP manifest failures
@@ -111,7 +124,7 @@ by this profile. These fixes do not lower the acceptance targets.
 
 These groups overlap and are not an additional complete-suite count. Local tests
 do not establish all native installed profiles, networked three-peer recovery,
-the complete production application protocol, promotion, the hour-long soak or ten matched
+the complete production application protocol, all-native promotion faults, the hour-long soak or ten matched
 experiment arms. Those gates remain open in the requirement register.
 
 The official Caddy 2.11.4 release binary was rejected after standard govulncheck

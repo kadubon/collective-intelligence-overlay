@@ -155,6 +155,11 @@ that original receipt and unchanged state even for a distinct control caller.
 For trusted local read-only updates, an installed host can use staged Registry
 registration and explicit `promote` after independently checking protected inputs.
 Read the API for grants, finite bounds, ordinary admission and retained rollback.
-Generated candidates/probe completion grant no PASS. The registry switch is
-process-local; persist operator choice and checker basis in the application before
-restart. Complete durable production promotion remains under validation.
+Generated candidates/probe completion grant no PASS. Use `promote_recorded` for an
+existing signed Event/private CAS choice with exact Decisions and comparison basis.
+Persist its exact reference and installed pins; startup `restore_choice` never
+renews current admission. Choice retry returns the original receipt without
+reapplying a rolled-back transition. The document host exposes `app.stage-change`
+and `app.promote-change`; its independent checker retains the operator calibration
+contract, and refused choices preserve the old binding. Follow the API's explicit
+input/pin/comparison fields. Full native fault/comparability acceptance remains open.
