@@ -9,7 +9,7 @@ invocation recovery, finite goal/proposal/formation work, allowance disposition 
 scoped evidence/metrics. It links to repository docs rather
 than duplicating API definitions. Version 0.3.1 adds routing for exact withdrawal,
 rejected alternatives, explicit owner reobservation and stable logical remote calls.
-The 0.3.2 candidate adds bounded orphan inspection/cleanup, retained UNKNOWN effects
+Version 0.3.2 adds bounded orphan inspection/cleanup, retained UNKNOWN effects
 and native setup routing; exact commands and support status remain in the linked docs.
 Keep the skill alongside this repository when
 using its relative references. Its `name`/`description` frontmatter and repository

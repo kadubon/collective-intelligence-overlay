@@ -1,6 +1,6 @@
 # Deployment, backup and upgrades
 
-## 0.3.2 candidate: capacity recovery and native Mac
+## 0.3.2: capacity recovery and native Mac
 
 Stop old writers and take a consistent backup before applying migration 0015.
 It adds an ordered owner/state index and rewrites no original record, signature,

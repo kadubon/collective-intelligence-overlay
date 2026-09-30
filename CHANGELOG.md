@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.2 (unreleased candidate)
+## 0.3.2
 
 - CIO-031-01: owner-bounded expiry cleanup shares the existing fenced transition
   with get. New capacity/budget refusals make one maintenance pass and retry once.
@@ -15,12 +15,17 @@
   One manifest expands mandatory CI to Linux/Windows/Mac Intel/Mac arm64 across
   three stable CPython patches, with private native PostgreSQL and distinct reports.
   Native golden signature/artifact exchange has separate installed reader gates.
-  Native Mac release validation is still pending; this is not a publication claim.
+  Completed native support and publication evidence are recorded in validation
+  and release documentation.
 - Native PostgreSQL startup captures diagnostics in files, avoiding inherited
   Windows daemon pipes. The reviewed pg8000 connection close has a small scoped
   compatibility shim that explicitly closes its buffer after a failed protocol
   flush; original DB errors propagate. Real transport-disconnect tests retain
   strict finalizer-warning checks. Dependencies and license exceptions are unchanged.
+- All 12 native implementation profiles passed 291 source, 290 installed agents,
+  one model and 41 rebuilt-sdist tests with zero failures/errors/skips. Four native
+  readers and mixed-Python HTTP passed. Representative 100k profiles completed;
+  tag publication and actual-index status remain recorded separately in Docs.
 
 ## 0.3.1 (2026-09-30)
 

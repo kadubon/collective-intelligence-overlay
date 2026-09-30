@@ -2,7 +2,16 @@
 
 ## 0.3.2 candidate publication gates
 
-0.3.2 is not yet published. One Linux build fixes the original wheel/sdist hashes.
+0.3.2 is not yet published. The implementation at `a03a59e` passed all 12
+native source/installed gates, four shared-artifact readers, mixed-Python HTTP
+and final report/hash validation in
+[main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36700000778).
+Documentation finalization precedes the matching immutable tag; that tag's single
+original pair must pass the same gates before OIDC publication, followed by actual
+PyPI verification. [Validation](validation.md) retains intermediate failures and
+representative completed 100k stress results.
+
+One Linux build fixes the original wheel/sdist hashes.
 All 12 native OS/CPU/patch/full-scope jobs must pass source, real services/E2E,
 core/agents/model normal installation, rebuilt sdist and supply-chain reports.
 The manifest controls matrix/report/docs identities; each Mac CPU has separate

@@ -9,34 +9,35 @@
 実行はMicrosoft Agent Framework（MAF）、通信はA2A、tool接続はMCPを利用します。
 集団全体を管理するagentや独自workflow engineは必要ありません。
 
-**0.3.2のsource候補**では、ownerに限定した有限のinvocation整理と、Intel／Apple Silicon
+**0.3.2**では、ownerに限定した有限のinvocation整理と、Intel／Apple Silicon
 Mac向けOPA導入を追加しています。旧workerをfenceし、未dispatchを正に確認できた予約だけを
 解放します。dispatch済みの作用はUNKNOWN・予算拘束として残ります。
-Macの公開ゲートは未完了で、下記の公開済み版は0.3.1です。
 [native導入](docs/quickstart.md)、[cleanup API](docs/api.md)、[検証状況](docs/validation.md)を参照してください。
+実際の公開状態と検査済み配布物のhashは[公開記録](docs/releasing.md)に集約します。
 
 ## できること
 
-**0.3.1をPyPIへ公開しました。** 大量履歴でのowner・Subject完全一致のrevoke、
-無効提案の個別隔離、期限切れ機会のownerによる明示的再観測、Registry・Executor・MAFを
-通る論理A2A call IDと再送・照会の対応を修正しています。
-[APIの例](docs/api.md)でrevoke、拒否category、`reobserve`、`call_id`・`call_scope`を、
-[検証記録](docs/validation.md)で修正前後の実測を確認できます。必須の6環境すべてで
-source 258件、installed agents 257件、model 1件、再build sdist 31件と
-core import・CLI・resource検査が通過し、failure・error・skipは0件でした。
-3.12.14・3.14.7の混在peerも両方向で通過しています。実PyPIから取得した配布物のhashは
-検査済み候補と一致しています。公開後は3安定系列すべてでcacheを使わないPyPI導入を確認し、
-最低版・最新版の全installed回帰も各257件、failure・error・skipなしで通過しました。
-[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.1)へ
-同一配布物と各runtimeの検証・依存報告を添付しました。
+0.3.2の実装は、Linux・Windows・Mac Intel・Mac arm64の12環境すべてでnative CIを
+通過しました。各環境でsource 291件、installed agents 290件、model 1件、
+再build sdist 41件とcore import・CLI・resource検査が通過し、failure・error・skipは0件です。
+4環境のnative readerが全producerのartifact・署名を検証し、最低版・最新版の
+installed HTTP peerも両方向で通過しました。[検証記録](docs/validation.md)に正確なcommit、
+途中の失敗、完了した100k stressを保持します。[公開記録](docs/releasing.md)では、
+これらの検査とtag公開・実PyPIからの検証を区別しています。
 
-配布metadataは**Python >=3.12**で上限を設けません。Linux・Windowsの安定系列
-3.12.14・3.13.15・3.14.7で検証済みです。将来のPythonまで検証済みという意味ではありません。
+0.3.1のowner・Subject完全一致のrevoke、無効提案の個別隔離、ownerによる明示的再観測、
+Registry・Executor・MAFを通る永続的な論理A2A call IDも回帰対象です。
+[APIの例](docs/api.md)で`reobserve`、cleanup、拒否理由、`call_id`・`call_scope`を確認できます。
+
+配布metadataは**Python >=3.12**で上限を設けません。Linux・Windows
+とnative Mac両CPUの安定系列3.12.14・3.13.15・3.14.7で検証済みです。
+将来のPythonまで検証済みという意味ではありません。
 厳密な版・extras・OSの結果は[compatibility](docs/compatibility.md)に集約します。
 `.python-version`は最低版での開発用pinです。別系列は
 `uv sync --python 3.14.7 --all-extras --frozen`と`uv run --python 3.14.7 ...`で明示します。
 
-0.3.0からは旧writerを停止し、backup後にmigration 0013/0014を適用します。
+0.3.1からは旧writerを停止し、backup後にindexだけを追加するmigration 0015を適用します。
+0.3.0からは0013/0014も適用します。
 署名原文・旧remote ID・UNKNOWN・予約を保存し、新しい対応表が空でも未実行とは判断しません。
 [移行・照合・復旧](docs/deployment.md)に従ってください。過去の負のpilot結果は保持しており、
 このpatchで集団的能力形成の加速を証明したとは扱いません。
@@ -72,12 +73,12 @@ C3を合成・検証し、その出力からC4を形成して、再起動と元�
 
 ## 最短の確認
 
-[PyPI 0.3.1](https://pypi.org/project/collective-intelligence-overlay/0.3.1/)を公開済みです。
+[PyPI](https://pypi.org/project/collective-intelligence-overlay/)の最新公開版を、
 有効化したPython >=3.12環境へ次のコマンドで導入できます。
-配布物のハッシュ一致と公開後E2Eの結果は上記のrelease記録に記載しています。
+配布物のhash一致と公開後検証は上記の公開記録を参照してください。
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.3.1'
+uv pip install 'collective-intelligence-overlay[agents]'
 collective-intelligence-overlay --version
 ```
 

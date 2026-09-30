@@ -1,8 +1,38 @@
 # Compatibility and licensing
 
-## 0.3.2 candidate target (native results pending)
+## 0.3.2 native implementation validation (2026-09-30)
 
-The manifest table at the end declares required gates, not completed support.
+All 12 mandatory native pairs passed the implementation's
+[main CI at a03a59e](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36700000778),
+including source and normally resolved installed artifacts. The table below is
+that pre-publication observation, distinct from the final tag's original pair and
+actual-index checks. Every suite has zero failures/errors/skips; core smoke,
+actual child/build runtime, licensing, known-vulnerability and SBOM checks passed.
+Source elapsed times are observations, not normalized performance comparisons.
+
+| Actual native runtime | Frozen source | Installed agents | Model | Rebuilt sdist | Resolved core/agents/model |
+| --- | --- | --- | --- | --- | --- |
+| Darwin amd64 / 3.12.14 | 291; 1558.045 s | 290 | 1 | 41 | 31/63/66 |
+| Darwin amd64 / 3.13.15 | 291; 1247.515 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin amd64 / 3.14.7 | 291; 1083.010 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin arm64 / 3.12.14 | 291; 662.717 s | 290 | 1 | 41 | 31/63/66 |
+| Darwin arm64 / 3.13.15 | 291; 608.533 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin arm64 / 3.14.7 | 291; 546.765 s | 290 | 1 | 41 | 31/59/63 |
+| Linux amd64 / 3.12.14 | 291; 548.940 s | 290 | 1 | 41 | 31/63/66 |
+| Linux amd64 / 3.13.15 | 291; 571.829 s | 290 | 1 | 41 | 31/59/63 |
+| Linux amd64 / 3.14.7 | 291; 500.001 s | 290 | 1 | 41 | 31/59/63 |
+| Windows amd64 / 3.12.14 | 291; 876.232 s | 290 | 1 | 41 | 31/64/67 |
+| Windows amd64 / 3.13.15 | 291; 1001.677 s | 290 | 1 | 41 | 31/60/64 |
+| Windows amd64 / 3.14.7 | 291; 699.660 s | 290 | 1 | 41 | 31/60/64 |
+
+Native Mac hosts reported macOS 15.7.9; Windows reported Server 2025.
+Linux PostgreSQL was 16.15, native Windows/Homebrew PostgreSQL was 17.11,
+and native OPA was 1.21.0. Four native readers passed all 12 producers' shared
+golden artifacts and signatures; minimum/latest installed HTTP peers passed both
+directions. Future interpreters, PyPy, free-threaded and other OS/CPU combinations
+remain unverified. Actual tag/PyPI status is maintained in [releasing](releasing.md).
+
+The manifest table at the end declares required identities.
 Its authority is `scripts/runtime-matrix.json`; Actions and report validation load
 it, and `runtime_matrix.py --write-docs/--check-docs` generate/check that table.
 Official [runner labels](https://docs.github.com/en/actions/reference/runners/github-hosted-runners)

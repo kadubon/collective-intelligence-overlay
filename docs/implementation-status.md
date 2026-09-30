@@ -1,5 +1,21 @@
 # Implementation status
 
+## 0.3.2 audit follow-up
+
+| Requirement | Implementation and regression | Boundary |
+| --- | --- | --- |
+| CIO-031-01 capacity recovery | Shared fenced expiry in `invocations.py`; bounded owner cleanup and one maintenance/retry on new-claim refusal; real PostgreSQL `test_invocation_cleanup.py` | Old-ID lookup is unnecessary. Logical capacity recovery does not prove physical termination or completion of an outside effect |
+| Allowance and UNKNOWN | Budget -> invocation -> lease locking, reserved-phase/worker/fence checks and owner unresolved-effects policy; process death, cross-unit races, delayed DB threads, rollback and restart regressions | Positive undispatched proof releases once; uncertain effects remain UNKNOWN/held with original IDs/maps |
+| Offline compatibility | Index-only 0015 and actual published-0.3.1 fixture in migration/restore tests | Original records, signed bytes, lifecycle rows and remote references are compared; stop old writers and use tested backup restoration |
+| CIO-031-02 native setup | Explicit package OPA installer, reviewed Darwin assets, private native PostgreSQL and Unicode/path/mode/TLS/process tests | Platform mocks test refusal paths. Native support requires real reports for each CPU; no Rosetta, Docker Desktop or global service cleanup |
+| Distribution/runtime gates | Single candidate, 12-pair manifest, full source/installed/rebuilt-sdist gates, mixed HTTP peers and four installed cross-platform readers | Hashes, actual child/build runtimes and zero mandatory skips are required; current completion and publication state are in the linked records |
+| Representative stress | Completed mixed-history, exact authenticated revoke, work-history and invocation-cleanup 100k profiles | Separate run outcomes are retained; bounded fixture work is not a general latency or resource guarantee |
+
+See [validation](validation.md), [compatibility](compatibility.md),
+[scale reports](scale.md) and [release state](releasing.md) for completed runs and
+pending gates. No v0.4.0 production behavior or empirical intelligence improvement
+is claimed by this patch.
+
 ## 0.3.1 audit follow-up
 
 | Audit | Change and regression evidence | Final CI and limits |

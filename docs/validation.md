@@ -1,6 +1,26 @@
 # Validation status
 
-## 0.3.2 source candidate (not published)
+## 0.3.2 native pre-publication validation
+
+Implementation commit `a03a59e3b5ac94425785a3e8d3e3d944699db6bc` passed
+[main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36700000778).
+Every Linux/Windows/Mac Intel/Mac arm64 x CPython 3.12.14/3.13.15/3.14.7 pair
+passed **291 frozen source tests, 290 normally installed agents tests, one model
+test and 41 rebuilt-sdist tests**, plus core import/CLI/resources. Every mandatory
+suite had zero failures, errors and skips. Actual child/backend interpreters and
+native CPUs, lint/format/type/docs, license/audit/SBOM and candidate hashes passed.
+Linux used PostgreSQL 16.15; Windows and both Mac CPUs used native PostgreSQL
+17.11; OPA was 1.21.0. Four installed native readers each verified 228 new
+signatures from all 12 producers and the same legacy payload/golden hashes.
+Minimum/latest installed peers passed actual HTTP in both directions. These are
+shared-artifact cross-platform checks and within-runner HTTP, not cross-host
+public networking or independent external audit.
+
+The complete reports were also downloaded and checked with `check_matrix.py`.
+Native safety gates are complete; tag/OIDC publication and actual-PyPI checks
+remain required. The documentation-finalized tag must test its own single original
+pair before publication. Exact runtime observations are in
+[compatibility](compatibility.md), and publication state is in [releasing](releasing.md).
 
 CIO-031-01 was reproduced on Windows CPython 3.12.14 with real PostgreSQL
 16.15 under WSL: two expired reserved/dispatched cases refused a distinct ID with
@@ -32,7 +52,7 @@ matrix. A real owned-transport cutoff reproduced Windows 10038 locally; after th
 scoped resource-close shim, both physical-cutoff and backend-termination regressions
 passed on Windows CPython 3.14.7 (**2 / 3.24 s**, zero skips). Original errors,
 rollback, rerunnable cleanup and held/released balances remain checked. Native
-matrix validation of the corrected final candidate is still required.
+matrix validation of the corrected implementation subsequently passed above.
 The corrected Windows 3.14.7 focused suite then passed **64 / 135.30 s**, zero
 failures/errors/skips: cleanup, original invocations, all historical migrations/
 restore, reference registration, native paths/process restart and TLS.
@@ -55,8 +75,8 @@ are in [mixed history](measurements/scale-032-100000.json) and
 
 CIO-031-02 adds native OPA assets, atomic explicit installation, isolated native
 PostgreSQL and one 12-pair manifest. Windows actual OPA installation passed in a
-Unicode/space directory. **Native Mac CI, the complete 0.3.2 candidate matrix,
-cross-platform reports and actual-PyPI checks remain pending.**
+Unicode/space directory. **Native Mac CI, the complete 12-pair implementation
+matrix and cross-platform reports passed. Tag and actual-PyPI checks remain pending.**
 Platform mocks are unit failure checks, not Mac execution evidence. Paid inference,
 independent external audit and v0.4.0 production behavior remain unrun.
 

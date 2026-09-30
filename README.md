@@ -13,12 +13,12 @@ the overlay records evidence, qualifies reuse and stops known-invalid dependenci
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [Architecture](docs/architecture.md)
 
-The **0.3.2 source candidate** adds bounded owner invocation cleanup and reviewed
+Version **0.3.2** adds bounded owner invocation cleanup and reviewed
 native OPA setup for Intel/Apple Silicon macOS. It fences stale workers and releases
 only positively undispatched reservations; dispatched effects stay UNKNOWN/held.
-Native Mac release gates are pending; 0.3.1 remains the published release below.
 See [native setup](docs/quickstart.md), [cleanup API](docs/api.md) and
-[current validation](docs/validation.md).
+[current validation](docs/validation.md). Exact publication status and tested
+distribution hashes are recorded in [releasing](docs/releasing.md).
 
 Version 0.2.1 returns execution allowance after a refusal or
 cancellation only when the database proves no dispatch and fences further dispatch.
@@ -37,30 +37,30 @@ execution remain explicit stopping conditions. The tested release is available o
 
 ## What works
 
-**0.3.1 is published on PyPI**. It fixes four operational paths: bounded
-exact-owner revocation for large histories; per-alternative rejection in proposal
-collection/selection; explicit owner reobservation of expired opportunities; and
-distinct logical A2A calls with saved retry/query IDs through Registry/Executor/MAF.
-See the [API examples](docs/api.md) for revoke, rejection categories, `reobserve`
-and `call_id`/`call_scope`, and [current results](docs/validation.md) for before/after
-tests. All six Linux/Windows stable-Python CI pairs passed full source (258 tests),
-installed agents (257), model (1), rebuilt sdist (31), and core import/CLI/resource
-checks, with zero failures/errors/skips. Mixed installed 3.12.14/3.14.7 peers
-passed both directions. Actual PyPI downloads match those tested files. Fresh
-cache-disabled PyPI core/agents/model installs passed on all three stable patches;
-minimum/latest full installed regressions each passed 257 agents tests, with zero
-failures/errors/skips. [Release files and evidence](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.1)
-include the exact distributions and per-runtime reports.
+The 0.3.2 implementation passed all 12 Linux/Windows/Mac Intel/Mac arm64 native
+CI pairs: 291 source tests, 290 installed agents tests, one model test and 41
+rebuilt-sdist tests, plus core import/CLI/resources, with zero failures/errors/skips.
+Four native readers verified shared artifacts/signatures from every producer;
+minimum/latest installed HTTP peers passed both directions. [Validation](docs/validation.md)
+records exact commits, intermediate failures and completed 100k stress profiles.
+[Release state](docs/releasing.md) distinguishes those checks from tag publication
+and actual-PyPI verification.
+
+Existing 0.3.1 paths remain covered: bounded exact-owner revocation, per-alternative
+proposal rejection, explicit owner reobservation and persistent logical A2A call
+IDs through Registry/Executor/MAF. See the [API examples](docs/api.md) for
+`reobserve`, cleanup, rejection reasons and `call_id`/`call_scope`.
 
 Distribution metadata requires **Python >=3.12**, with no upper bound. The release
-matrix passed on stable CPython 3.12.14/3.13.15/3.14.7 on Linux
-and Windows; metadata does not mean all future interpreters are tested. Exact
+matrix passed on stable CPython 3.12.14/3.13.15/3.14.7 on Linux,
+Windows and both native Mac CPUs; metadata does not mean all future interpreters are tested. Exact
 runtime/profile results belong in [compatibility](docs/compatibility.md).
 `.python-version` pins minimum-version development, not users' Python upper bound.
 Select another interpreter explicitly with `uv sync --python 3.14.7 --all-extras --frozen`
 and `uv run --python 3.14.7 ...`.
 
-To upgrade from 0.3.0, stop old writers, back up and apply migrations 0013/0014.
+To upgrade from 0.3.1, stop old writers, back up and apply index-only migration 0015.
+Upgrades from 0.3.0 also apply migrations 0013/0014.
 Keep signed records, old remote IDs and UNKNOWN reservations; an empty new call
 mapping never proves non-execution. [Offline upgrade/recovery](docs/deployment.md)
 describes reconciliation and restart. This patch does not change the retained
@@ -127,11 +127,12 @@ stopped before those tasks. Adaptation showed no outcome or allowance advantage
 and had higher elapsed observations in that single run. [Raw results and limits](docs/evaluation.md)
 distinguish working integration from demonstrated benefit.
 
-[Version 0.3.1 is published on PyPI](https://pypi.org/project/collective-intelligence-overlay/0.3.1/).
-To install into an activated Python >=3.12 environment:
+Install the latest published release from
+[PyPI](https://pypi.org/project/collective-intelligence-overlay/) into an activated
+Python >=3.12 environment:
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]==0.3.1'
+uv pip install 'collective-intelligence-overlay[agents]'
 collective-intelligence-overlay --version
 ```
 
@@ -186,8 +187,9 @@ uv run python scripts/check_package.py
 
 Integration/E2E tests require PostgreSQL and OPA; missing services are explicit skips,
 not production validation. Paid model calls are off by default. Current checks and
-unverified boundaries are in [validation](docs/validation.md). Windows and Linux are
-the initial target platforms; the network reference deployment is Linux-oriented.
+unverified boundaries are in [validation](docs/validation.md). The native release
+matrix covers Linux, Windows and both Mac CPUs; completed support claims require
+its actual reports. The network reference deployment is Linux-oriented.
 
 New code is Apache-2.0. See [LICENSE](LICENSE), [NOTICE](NOTICE),
 [dependency compatibility/licensing](docs/compatibility.md),
