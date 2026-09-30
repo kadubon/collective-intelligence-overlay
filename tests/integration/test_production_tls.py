@@ -283,10 +283,27 @@ async def test_actual_caddy_https_application_drain_and_process_restart(
         telemetry = await send(config, identity, config.owner, {"operation": "operational_metrics"})
         assert telemetry["database"]["invocation_states"]["completed"] == 1
         assert telemetry["database"]["measured_consumption_from_allowance"] is False
+        observed_process = telemetry["process"]
+        if sys.platform == "win32":
+            assert peer.pid in {observed_process["pid"], observed_process["parent_pid"]}
+        else:
+            assert observed_process["pid"] == peer.pid
+        assert telemetry["process"]["self_user_seconds"] >= 0
+        assert telemetry["process"]["self_system_seconds"] >= 0
+        assert telemetry["process"]["service_observation_seconds"] > 0
+        assert telemetry["process"]["rss_bytes"] is None
+        if sys.platform == "win32":
+            assert telemetry["process"]["reaped_children_user_seconds"] is None
         assert telemetry["artifacts"]["capacity_bytes"] == 268435456
         owner_logs = list((config.private_key.parent / "logs").glob("owner.jsonl*"))
         assert owner_logs
         logged = "\n".join(p.read_text() for p in owner_logs)
+        observations = [json.loads(line) for line in logged.splitlines()]
+        for reason in ("DATABASE_CURSOR_FINISHED", "POLICY_DECISION"):
+            assert any(
+                entry.get("reason") == reason and entry["elapsed_seconds"] >= 0
+                for entry in observations
+            )
         assert token not in logged and config.database_url.get_secret_value() not in logged
         assert request["arguments"]["text"] not in logged
         assert overlay.store.evidence() == []

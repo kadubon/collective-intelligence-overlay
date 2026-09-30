@@ -5,6 +5,8 @@ from __future__ import annotations
 import base64
 import hashlib
 import json
+import logging
+import time
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from decimal import Decimal
@@ -186,6 +188,42 @@ class Store:
             cursor.execute("SET idle_in_transaction_session_timeout = '10s'")
             cursor.close()
             connection.commit()
+
+        # SQLAlchemy's public cursor events measure execution, excluding pool
+        # acquisition, connection establishment and transaction commit. Never
+        # put SQL, parameters, exceptions or connection URLs in the observation.
+        @sql_event.listens_for(self.engine, "before_cursor_execute")
+        def cursor_started(
+            conn: Connection, cursor: Any, statement: Any, parameters: Any, context: Any, many: Any
+        ) -> None:
+            conn.info["cio_cursor_observation"] = (context, time.perf_counter())
+
+        def cursor_finished(conn: Connection, context: Any, failed: bool) -> None:
+            observed = conn.info.pop("cio_cursor_observation", None)
+            if observed is None or observed[0] is not context:
+                return
+            logging.getLogger(__name__).info(
+                json.dumps(
+                    {
+                        "owner": self.owner,
+                        "reason": "DATABASE_CURSOR_FAILED"
+                        if failed
+                        else "DATABASE_CURSOR_FINISHED",
+                        "elapsed_seconds": time.perf_counter() - observed[1],
+                    }
+                )
+            )
+
+        @sql_event.listens_for(self.engine, "after_cursor_execute")
+        def cursor_returned(
+            conn: Connection, cursor: Any, statement: Any, parameters: Any, context: Any, many: Any
+        ) -> None:
+            cursor_finished(conn, context, False)
+
+        @sql_event.listens_for(self.engine, "handle_error")
+        def cursor_failed(context: Any) -> None:
+            if context.connection is not None and context.execution_context is not None:
+                cursor_finished(context.connection, context.execution_context, True)
 
     def close(self) -> None:
         self.engine.dispose()

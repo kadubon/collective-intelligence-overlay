@@ -117,6 +117,7 @@ class Operations:
 
     def __init__(self, service: PeerService, lock: OwnerLock | None = None) -> None:
         self.service = service
+        self._observation_started_at = time.monotonic()
         self.lock = lock or OwnerLock(service.overlay.store)
         self.blocking = BlockingWork(8)
         self.state: State = "starting"
@@ -317,10 +318,11 @@ class Operations:
                 if operation == "operational_metrics":
                     if caller != self.service.config.owner:
                         raise ValueError("operational metrics are owner-only")
-                    from .observability import database_observations
+                    from .observability import database_observations, process_observations
 
                     result: dict[str, Any] = {
                         "operations": self.snapshot(),
+                        "process": process_observations(self._observation_started_at),
                         "database": await run_blocking(
                             database_observations, self.service.overlay.store
                         ),

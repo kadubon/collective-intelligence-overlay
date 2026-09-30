@@ -113,6 +113,22 @@ Windows/CPython 3.12 development observations are partial evidence:
   Those cases do not establish general checker comparability or the complete
   all-native production fault protocol.
 
+- Frozen source `0a6ce62` passed all 340 tests in 1539.23 seconds with zero
+  failures/errors/skips and unraisable pytest warnings treated as errors. It covers
+  recorded choices/startup diagnostics, before later checker/CPU observations.
+- Checker source/calibration-contract pinning passed one complete normal actual
+  HTTPS/MAF/authenticated MCP case on Windows in 131.04 seconds and native WSL
+  Linux in 134.79 seconds. Incorrect checker identity does not spend verification
+  allowance. These are working-source observations, separate from frozen source.
+- Standard OS CPU observations passed seven actual TLS/owner tests in 34.12 seconds.
+  DB cursor/OPA/A2A monitoring then passed eight tests in 34.47 seconds. Windows
+  venv launcher versus actual Python PID, and one nonexistent test path, caused
+  earlier retained development failures. No failure or overlapping group is hidden.
+- Native Linux custom Caddy passed standard upstream/module/license/vulnerability/
+  SBOM checks with Go 1.27.1 and 1007 linked packages. Its separate report ZIP is
+  retained. The WSL Linux fixture observed 16 logical CPUs and about 30,988 MiB
+  memory without caps; this is not bare-metal validation or an executed hour soak.
+
 The preceding development reports remain retained: two successful HTTPS business
 cases with one 5-second administrative teardown timeout; two MCP manifest failures
 from noncompact JSON in the test setup; and a run with a reused wrong test binding

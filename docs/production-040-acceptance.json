@@ -219,7 +219,7 @@
         "scripts/proxy/README.md"
       ],
       "test": "Installed deploy assets; authorization/A2A extension forwarding; untrusted/wrong-hostname rejection",
-      "observed": "Audited native Windows v2.11.4+cio.1 passes actual HTTPS hostname/CA, authorization/extensions, streamed body bounds, drain and restart",
+      "observed": "Audited native Windows v2.11.4+cio.1 passes actual HTTPS hostname/CA, authorization/extensions, streamed body bounds, drain and restart Native Linux custom v2.11.4+cio.1 passed the same standard upstream/module/license/vulnerability/SBOM audits and actual three-peer HTTPS/MCP host test; binary SHA256 1aceb0a96fa685321f51fdda7ef7016c8954d1eb8be341dea9fbdbb70e14a7cb. WSL Linux CPython 3.12.14, 16 logical CPUs and approximately 30,988 MiB memory were observed without resource caps; this is not a bare-metal/soak claim.",
       "remaining": [
         "all native custom builds, short protocol, complete header/timeout faults and protected TLS deployment"
       ],
@@ -278,7 +278,7 @@
         "src/collective_intelligence_overlay/operations.py"
       ],
       "test": "Known secret/raw inputs absent; DB/OPA/provider failures, UNKNOWN/check age/freshness/drain observable",
-      "observed": "8-test focused group passed with actual TLS metrics and secret-free standard rotated logs; authoritative states/held uncertainty/source completion/DB/CAS observed, missing resources explicit",
+      "observed": "8-test focused group passed with actual TLS metrics and secret-free standard rotated logs; authoritative states/held uncertainty/source completion/DB/CAS observed, missing resources explicit Standard os.times process CPU and actual PID/parent PID are now separate from historical budget projections; Windows child CPU and RSS remain unavailable. Public SQLAlchemy cursor events and existing OPA/A2A paths emit redacted monotonic monitoring durations without raw SQL, input or secrets. The actual native Windows TLS/owner/retry group passed eight tests in 34.47 seconds; this precedes the additional cursor-error assertion. Earlier PID-launcher and nonexistent-test-path failures are retained. Full lifecycle/native resource acceptance remains pending.",
       "remaining": [
         "current verification backlog/age, OPA/provider lifecycle timings and complete native protocol metrics"
       ],
@@ -307,7 +307,7 @@
         "src/collective_intelligence_overlay/starter/documents.py"
       ],
       "test": "FAIL/UNKNOWN/protected regression retains old binding; shadow has no duplicate effect; checker meaning comparison recorded",
-      "observed": "Bounded read-only staged revisions preserve the current binding and explicit probe grants. Existing signed Events/private CAS manifests retain operator choice, exact protected-input Decisions and a declared checker comparison basis. Stable command retry retains original bytes without reapplying rollback; config-pinned startup rejects compromised/refused/mismatched choices and does not renew current admission. Fifteen real PostgreSQL/OPA Registry/persisted-binding tests passed in 31.07 seconds, including capacity failure before publication and withdrawal after restoration. One actual three-owner HTTPS/MCP/MAF reference test passed in 129.16 seconds: changed calibration independently FAILs, unchecked candidates stay inactive, a PASS replacement and original rollback survive restarts, historical receipts remain unchanged. Earlier failed expectation/exception-shape assertions are retained. Complete all-native production/comparability acceptance remains open. The later complete document development regression group passed nine cases in 477.95 seconds, including static/adaptive, transfer mismatch, restart/withdrawal, and native standard-host paths; overlapping groups are not summed.",
+      "observed": "Bounded read-only staged revisions preserve the current binding and explicit probe grants. Existing signed Events/private CAS manifests retain operator choice, exact protected-input Decisions and a declared checker comparison basis. Stable command retry retains original bytes without reapplying rollback; config-pinned startup rejects compromised/refused/mismatched choices and does not renew current admission. Fifteen real PostgreSQL/OPA Registry/persisted-binding tests passed in 31.07 seconds, including capacity failure before publication and withdrawal after restoration. One actual three-owner HTTPS/MCP/MAF reference test passed in 129.16 seconds: changed calibration independently FAILs, unchecked candidates stay inactive, a PASS replacement and original rollback survive restarts, historical receipts remain unchanged. Earlier failed expectation/exception-shape assertions are retained. Complete all-native production/comparability acceptance remains open. The later complete document development regression group passed nine cases in 477.95 seconds, including static/adaptive, transfer mismatch, restart/withdrawal, and native standard-host paths; overlapping groups are not summed. Checker contracts now include calibration helper source and operator threshold, giving source/data changes distinct revisions and subject versions. Incorrect expected checker identity is denied before verification allowance is spent. The complete normal actual HTTPS/MAF/authenticated MCP case passed on Windows in 131.04 seconds and native WSL Linux in 134.79 seconds, one case each; these working-source tests are separate from frozen 0a6ce62.",
       "remaining": [
         "all native installed promotion/rollback and interrupted-settings fault protocols",
         "broader checker/allocation-change comparability and protected-case contracts in the complete production path"
@@ -322,7 +322,7 @@
         "tests/integration/test_production_recovery_review.py"
       ],
       "test": "Profile fault_protocol and all existing 0.3.0-0.3.2 tests; zero mandatory skips",
-      "observed": "Full source 316 passed before latest recovery/quota/logging additions; later focused 27- and 8-test groups passed, overlap not summed; DB-clock +/-30 day regression retained Frozen fbc1273 source later passed all 340 tests in 1339.88 seconds, zero failures/errors/skips; this precedes recorded-choice integration. Prior 34ad native Intel macOS 3.14 also exposed one cold provider startup timeout in its six-second test harness in addition to socket resets. Startup readiness now uses the existing 30-second bound with process/runtime diagnostics; one lost-response/restart test passed 20.52 seconds. Failed logs are retained; native confirmation and updated full source remain pending.",
+      "observed": "Full source 316 passed before latest recovery/quota/logging additions; later focused 27- and 8-test groups passed, overlap not summed; DB-clock +/-30 day regression retained Frozen fbc1273 source later passed all 340 tests in 1339.88 seconds, zero failures/errors/skips; this precedes recorded-choice integration. Prior 34ad native Intel macOS 3.14 also exposed one cold provider startup timeout in its six-second test harness in addition to socket resets. Startup readiness now uses the existing 30-second bound with process/runtime diagnostics; one lost-response/restart test passed 20.52 seconds. Failed logs are retained; native confirmation and updated full source remain pending. Frozen source 0a6ce62693c4 passed all 340 tests in 1539.23 seconds, zero failures/errors/skips, with unraisable pytest warnings treated as errors. This covers recorded choices and startup diagnostics but precedes later checker-contract and CPU/timing observations.",
       "remaining": [
         "updated full source/native matrix and complete predeclared fault protocol"
       ],
@@ -408,7 +408,7 @@
         "scripts/proxy/go.sum"
       ],
       "test": "Profile distribution_gates.supply_chain on all 12 actual resolutions",
-      "observed": "Official proxy rejected with 28 affecting findings; pinned custom Windows build passes standard upstream/license/module/vulnerability/CycloneDX audits; unlinked OpenPGP finding and OFL/MPL obligations explicitly reviewed",
+      "observed": "Official proxy rejected with 28 affecting findings; pinned custom Windows build passes standard upstream/license/module/vulnerability/CycloneDX audits; unlinked OpenPGP finding and OFL/MPL obligations explicitly reviewed The native Linux Go 1.27.1 archive matched its official SHA256; the custom Caddy build had 1007 linked packages, zero affected imported packages/symbols and the retained reviewed module-only OpenPGP finding. Native report ZIP caddy-linux-reports-0a6ce62.zip is preserved separately from Windows. Raw CEL patch hashes differ by line endings, so binary/patch equality across OS is not claimed.",
       "remaining": [
         "all native Go graphs, assembly/header notice review and every Python resolution audit"
       ],

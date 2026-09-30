@@ -93,6 +93,7 @@ class AdaptiveDocuments(DocumentService):
         data = json.loads(self.settings_path.read_text(encoding="utf-8"))
         self.choices: dict[str, RecordRef] = {}
         self.training_text = data["training_text"]
+        self.calibration_threshold = len(self.training_text.split())
         self.report_input = data.get("report_input", "text")
         if self.report_input not in {"text", "document"}:
             raise ValueError("unsupported report input contract")
@@ -108,7 +109,7 @@ class AdaptiveDocuments(DocumentService):
         )
         self.contracts = tuple(ProposalContract.model_validate(item) for item in data["contracts"])
         if config.owner == "verifier":
-            self.checker_binding = checker_binding()
+            self.checker_binding = checker_binding(calibration_threshold=self.calibration_threshold)
             self.registry.register_local(
                 self.checker_binding,
                 self.check_requested_candidate,
@@ -152,11 +153,17 @@ class AdaptiveDocuments(DocumentService):
                 if restored != self.installed.get(name):
                     raise ValueError("recorded choice and installed pins disagree")
                 self.choices[name] = reference
-            self.checker_binding = remote_checker_binding(config)
+            self.checker_binding = remote_checker_binding(
+                config, calibration_threshold=self.calibration_threshold
+            )
             self.registry.register_a2a(
                 self.checker_binding, lambda args: True, config, self.identity
             )
-            self.publish(self.checker_binding, (checker_binding(),), imported=True)
+            self.publish(
+                self.checker_binding,
+                (checker_binding(calibration_threshold=self.calibration_threshold),),
+                imported=True,
+            )
             if "report" not in self.installed:
                 # An installed factory is not yet a published/verified candidate.
                 self.install_report()
@@ -385,7 +392,7 @@ class AdaptiveDocuments(DocumentService):
         The candidate's declared threshold cannot redefine the registered quality
         contract. This deterministic checker does not infer external validity.
         """
-        return len(self.training_text.split())
+        return self.calibration_threshold
 
     async def check_requested_candidate(self, data: dict[str, Any]) -> dict[str, Any]:
         name = str(data["name"])
@@ -416,7 +423,11 @@ class AdaptiveDocuments(DocumentService):
         if target not in {"verifier", "receiver"}:
             raise ValueError("unconfigured checker owner")
         expected = (
-            checker_binding() if target == "verifier" else remote_checker_binding(self.config)
+            checker_binding(calibration_threshold=self.calibration_threshold)
+            if target == "verifier"
+            else remote_checker_binding(
+                self.config, calibration_threshold=self.calibration_threshold
+            )
         )
         final_id = "checker-certified-" + expected.digest
 
@@ -902,23 +913,28 @@ class AdaptiveDocuments(DocumentService):
         return {"reason": reason, "history": history, "pid": os.getpid()}
 
 
-def checker_binding() -> Binding:
+def checker_binding(*, calibration_threshold: int) -> Binding:
     """Pin the installed adapter and its existing reference-check implementation."""
     source = callable_digest(AdaptiveDocuments.check_requested_candidate)
+    if not 1 <= calibration_threshold <= 4096:
+        raise ValueError("checker calibration outside the operator contract bound")
+    contract = fingerprint(
+        {
+            "adapter": source,
+            "checker": callable_digest(DocumentService.check),
+            "calibration_source": callable_digest(AdaptiveDocuments.check_threshold),
+            "calibration_threshold": calibration_threshold,
+        }
+    )
     return Binding(
         id="document-check",
-        revision="1",
+        revision="2." + contract,
         issuer="verifier",
         registrar="verifier",
         subject=Subject(
             id="documents.checker",
-            version="1",
-            digest=fingerprint(
-                {
-                    "adapter": source,
-                    "checker": callable_digest(DocumentService.check),
-                }
-            ),
+            version="2." + contract,
+            digest=contract,
         ),
         target=Target(
             kind="local",
@@ -960,23 +976,20 @@ def checker_binding() -> Binding:
     )
 
 
-def remote_checker_binding(config: Config) -> Binding:
-    provider = checker_binding()
+def remote_checker_binding(config: Config, *, calibration_threshold: int) -> Binding:
+    provider = checker_binding(calibration_threshold=calibration_threshold)
     endpoint = next(peer.url for peer in config.peers if peer.identity == "verifier")
+    contract = fingerprint({"provider": provider.model_dump(mode="json"), "endpoint": endpoint})
     return provider.model_copy(
         update={
             "id": "remote-checker",
             "issuer": "receiver",
             "registrar": "receiver",
+            "revision": "2." + contract,
             "subject": Subject(
                 id="documents.remote-checker",
-                version="1",
-                digest=fingerprint(
-                    {
-                        "provider": provider.model_dump(mode="json"),
-                        "endpoint": endpoint,
-                    }
-                ),
+                version="2." + contract,
+                digest=contract,
             ),
             "target": Target(
                 kind="a2a",
@@ -1009,7 +1022,11 @@ def configure_application(
             # receive the same installed adapter and pay for its later formation.
             receiver.publish(report, (remote, receiver.installed["render"]))
             report = receiver.install_report("document")
-        checker = binding_ref(remote_checker_binding(configs["receiver"]))
+        checker = binding_ref(
+            remote_checker_binding(
+                configs["receiver"], calibration_threshold=len(training_text.split())
+            )
+        )
         scopes = {
             "report": report.scope,
             "triage": Scope(

@@ -2,6 +2,13 @@
 
 ## 0.4.0 (unreleased)
 
+- Reference checker contracts now pin calibration helper source and the operator's
+  expected threshold as well as the adapter and underlying checker. Contract changes
+  receive distinct revisions/subjects and require explicit new checks and goal pins.
+- Owner process observations expose standard OS CPU seconds and actual PID/parent
+  PID. Explicitly unavailable RSS/live-child/historical costs remain distinct.
+  Redacted standard logs observe SQLAlchemy cursor, OPA and official A2A exchange
+  durations and failures without recording SQL, arguments or credentials.
 - Operator-selected installed application host, packaged starter, separate secret
   files, restricted runtime DB bootstrap, owner locking, dependency readiness,
   drain and tracked physical blocking work compose the existing execution APIs.

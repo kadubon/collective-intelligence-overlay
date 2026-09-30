@@ -221,7 +221,9 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     "operation": "invoke",
                     "invocation_id": "unverified-checker",
                     "binding_id": checker_description["binding"]["id"],
-                    "binding_digest": checker_binding().digest,
+                    "binding_digest": checker_binding(
+                        calibration_threshold=len(training_text.split())
+                    ).digest,
                     "arguments": {
                         "name": "remote-words",
                         "attempt": "unverified-checker",
@@ -247,10 +249,16 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     operation="qualify",
                     request={
                         "receiver": "verifier",
-                        "subject": checker_binding().subject.model_dump(mode="json"),
+                        "subject": checker_binding(
+                            calibration_threshold=len(training_text.split())
+                        ).subject.model_dump(mode="json"),
                         "capability_issuer": "verifier",
-                        "binding_digest": checker_binding().digest,
-                        "scope": checker_binding().scope.model_dump(mode="json"),
+                        "binding_digest": checker_binding(
+                            calibration_threshold=len(training_text.split())
+                        ).digest,
+                        "scope": checker_binding(
+                            calibration_threshold=len(training_text.split())
+                        ).scope.model_dump(mode="json"),
                         "semantic_fit": "confirmed",
                     },
                 )
@@ -454,7 +462,9 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 if mode == "adaptive-run"
                 else history[1]["check_attempt"],
                 "binding_digest": history[1]["evidence"]["binding_digest"],
-                "checker_digest": checker_binding().digest,
+                "checker_digest": checker_binding(
+                    calibration_threshold=len(training_text.split())
+                ).digest,
             }
             replayed_check = await send(
                 configs["receiver"], identities["receiver"], "verifier", check_request
@@ -478,10 +488,34 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 # Trial candidates remain separate from the admitted original.
                 # A changed calibration cannot redefine the independent checker.
                 original_digest = Binding.model_validate(c4).digest
+                changed_checker = checker_binding(
+                    calibration_threshold=len(training_text.split()) + 1
+                )
+                current_checker = checker_binding(calibration_threshold=len(training_text.split()))
+                assert changed_checker.subject != current_checker.subject
+                assert changed_checker.digest != current_checker.digest
+                checker_balance = await asyncio.to_thread(balance, "verifier")
+                with pytest.raises(Exception) as denied_checker:
+                    await send(
+                        configs["receiver"],
+                        identities["receiver"],
+                        "verifier",
+                        {
+                            "operation": "app.request-document-check",
+                            "name": "triage",
+                            "attempt": "wrong-calibration-contract",
+                            "binding_digest": original_digest,
+                            "checker_digest": changed_checker.digest,
+                        },
+                    )
+                assert type(denied_checker.value).__name__ == "InternalError"
+                assert await asyncio.to_thread(balance, "verifier") == checker_balance
                 protected = [{"text": "protected 次世代 document"}]
                 comparison = {
                     "contract": "same operator calibration and triage business contract",
-                    "checker": checker_binding().model_dump(mode="json"),
+                    "checker": checker_binding(
+                        calibration_threshold=len(training_text.split())
+                    ).model_dump(mode="json"),
                     "basis": imported_checker_test["evidence"],
                     "limit": "finite input check; no general transport validity claim",
                 }

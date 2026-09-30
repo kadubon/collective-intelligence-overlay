@@ -142,7 +142,13 @@ installed pins retain operator intent across restart without choosing the latest
 history record. Pins and generated candidates do not grant PASS or reuse.
 Use `metrics --operational` for owner-only process/database/CAS observations;
 allowance is not measured consumption. Standard service logs omit raw bodies and
-exceptions. Capacity warnings require owner backup/archival planning, never silent
+exceptions. OS process CPU counters cover process lifetime and reaped POSIX children;
+Windows child counters and RSS require external sampling. DB cursor, OPA and A2A
+durations are nested monitoring observations, not additional signed charges.
+Missing or rotated observations are not zero consumption. The reference checker
+pins source and operator calibration; changing either requires explicit new
+contracts/goal pins and independent evidence.
+Capacity warnings require owner backup/archival planning, never silent
 purge of signed records, withdrawal, call mappings or held uncertain work.
 
 When `Config.operator_callers` is explicit, only those pinned identities can

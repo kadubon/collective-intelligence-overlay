@@ -240,6 +240,30 @@ def application(
 async def send(
     config: Config, identity: Identity, peer_name: str, data: dict[str, Any]
 ) -> dict[str, Any]:
+    """Official SDK exchange; process-local logging is not a signed cost receipt."""
+    import logging
+
+    started = time.perf_counter()
+    returned = False
+    try:
+        result = await _send(config, identity, peer_name, data)
+        returned = True
+        return result
+    finally:
+        logging.getLogger(__name__).info(
+            json.dumps(
+                {
+                    "owner": config.owner,
+                    "reason": "A2A_EXCHANGE_FINISHED" if returned else "A2A_EXCHANGE_FAILED",
+                    "elapsed_seconds": time.perf_counter() - started,
+                }
+            )
+        )
+
+
+async def _send(
+    config: Config, identity: Identity, peer_name: str, data: dict[str, Any]
+) -> dict[str, Any]:
     peer = next((p for p in config.peers if p.identity == peer_name), None)
     if peer is None:
         raise ValueError("unconfigured peer")

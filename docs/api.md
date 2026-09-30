@@ -939,7 +939,12 @@ JSON `comparison` basis. Its result has `choice`, historical `accepted`, and cur
 `active_digest`. The installed operator goal contract must remain intact. The
 adaptive triage checker derives expected calibration from its own operator settings;
 the candidate cannot redefine that expectation. Failed/unchecked versions retain
-the original. Exact staged/choice pins survive restart. Rollback uses the same
+the original. Checker identity includes the installed adapter, underlying checker,
+calibration helper source and explicit operator threshold. The revision and subject
+version contain that complete contract digest. Source or calibration changes require
+new explicit goal/checker pins and independent checks; old evidence is not renewed.
+An incorrect expected checker digest is rejected before spending verification allowance.
+Exact staged/choice pins survive restart. Rollback uses the same
 operation with the retained original digest and a new command ID. A settings-save
 failure closes intake with `APPLICATION_PINS_SAVE_FAILED`; restart restores the
 last persisted configuration. Complete all-native faults and broader checker
@@ -1075,8 +1080,13 @@ It reports physical request/blocking work, authoritative invocation states,
 unresolved held effects, expired running invocations, remaining allowance,
 completed source prefixes, retained record counts, actual database size and CAS
 usage. `last_allocation` is the configured finite loop's last observation, not a
-measurement of all current work. Missing CPU/model/token/currency/provider timing
-is reported as unavailable; remaining allowance is not measured consumption.
+measurement of all current work. `process` reports actual PID/parent PID and standard
+OS user/system CPU seconds since process start. POSIX child counters cover reaped
+children only; Windows child counters and RSS remain explicitly unavailable here.
+`service_observation_seconds` is a monotonic observation interval, not CPU time.
+Use external OS sampling for live descendants/RSS. Historical CPU, model tokens,
+currency and provider costs not measured by budget projections remain unavailable;
+remaining allowance is not measured consumption.
 Service or authorization errors exit 2. This mode cannot combine history/query
 flags; existing event/cohort/current-admission metric semantics remain separate.
 
@@ -1085,6 +1095,14 @@ the protected identity directory's `logs` child). `log_segment_bytes` defaults
 to 8388608 and `log_backup_segments` to seven: at most eight retained segments.
 The formatter emits bounded owner/reason/state/correlation/numeric metadata and
 exception type, excluding library message bodies, headers and tracebacks.
+Standard observations include `DATABASE_CURSOR_FINISHED`/`DATABASE_CURSOR_FAILED`
+through SQLAlchemy's public cursor events, `POLICY_DECISION`/`POLICY_INTERRUPTED`,
+and `A2A_EXCHANGE_FINISHED`/`A2A_EXCHANGE_FAILED`. Their monotonic durations cover
+cursor execution, complete OPA evaluation, and client card-resolution/message exchange
+respectively. DB cursor duration excludes connection/pool waits and commit. A returned
+A2A result may be an application refusal or UNKNOWN. These process logs are monitoring,
+not signed consumption receipts; their nested durations must not be added to request
+wall time. Missing observations or rotated history do not mean zero consumption.
 SDK imports do not reconfigure an application's logging. Custom application
 handlers remain the trusted host's responsibility. Protect native Windows
 directories with OS ACLs; POSIX mode bits do not establish Windows isolation.

@@ -2,6 +2,8 @@
 
 import asyncio
 import json
+import logging
+import time
 from importlib.resources import files
 from pathlib import Path
 from typing import Any
@@ -27,6 +29,23 @@ class Policy:
         self.digest = digest(self.path.read_bytes() + settings.model_dump_json().encode())
 
     async def decide(self, facts: dict[str, Any]) -> tuple[Outcome, tuple[str, ...]]:
+        started = time.perf_counter()
+        result = None
+        try:
+            result = await self._evaluate(facts)
+            return result
+        finally:
+            logging.getLogger(__name__).info(
+                json.dumps(
+                    {
+                        "reason": "POLICY_DECISION" if result else "POLICY_INTERRUPTED",
+                        "state": result[0].value if result else "unknown",
+                        "elapsed_seconds": time.perf_counter() - started,
+                    }
+                )
+            )
+
+    async def _evaluate(self, facts: dict[str, Any]) -> tuple[Outcome, tuple[str, ...]]:
         facts = {**facts, "settings": self.settings.model_dump(mode="json")}
         process = None
         try:

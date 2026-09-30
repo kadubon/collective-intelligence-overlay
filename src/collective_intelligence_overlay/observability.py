@@ -3,6 +3,8 @@
 import json
 import logging
 import os
+import sys
+import time
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
@@ -13,6 +15,27 @@ from .config import Config
 from .invocations import invocations
 from .storage import Store, budgets, leases, records
 from .synchronization import checkpoints
+
+
+def process_observations(started_at: float) -> dict[str, Any]:
+    """Standard OS CPU counters, separate from allowance and historical event costs."""
+    observed = os.times()
+    children_available = sys.platform != "win32"
+    return {
+        "pid": os.getpid(),
+        "parent_pid": os.getppid(),
+        "cpu_basis": "operating_system_process_lifetime; seconds; not wall time or allowance",
+        "self_user_seconds": observed.user,
+        "self_system_seconds": observed.system,
+        "reaped_children_user_seconds": observed.children_user if children_available else None,
+        "reaped_children_system_seconds": observed.children_system if children_available else None,
+        "children_basis": "reaped children only; live descendants require separate OS sampling"
+        if children_available
+        else "unavailable from Windows os.times",
+        "service_observation_seconds": time.monotonic() - started_at,
+        "rss_bytes": None,
+        "rss_basis": "requires external OS process/descendant sampling",
+    }
 
 
 class OwnerLogFormatter(logging.Formatter):
@@ -38,7 +61,12 @@ class OwnerLogFormatter(logging.Formatter):
             "logger": channel,
             "reason": "LIBRARY_LOG",
         }
-        if record.name == "collective_intelligence_overlay.operations":
+        if record.name in {
+            "collective_intelligence_overlay.operations",
+            "collective_intelligence_overlay.storage",
+            "collective_intelligence_overlay.policy",
+            "collective_intelligence_overlay.adapters.a2a",
+        }:
             try:
                 data = json.loads(record.getMessage())
             except (ValueError, TypeError):

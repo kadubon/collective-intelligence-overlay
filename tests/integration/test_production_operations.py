@@ -1,5 +1,6 @@
 import asyncio
 import json
+import logging
 import os
 import subprocess
 import sys
@@ -9,12 +10,36 @@ from decimal import Decimal
 
 import pytest
 from sqlalchemy import select, text
+from sqlalchemy.exc import DBAPIError
 
 from collective_intelligence_overlay.application import load_application
 from collective_intelligence_overlay.blocking import run_blocking
 from collective_intelligence_overlay.models import now
 from collective_intelligence_overlay.operations import OwnerAlreadyRunning, OwnerLock
 from collective_intelligence_overlay.storage import Conflict, leases
+
+
+def test_cursor_failure_observation_preserves_error_and_redacts_parameters(store, caplog):
+    with caplog.at_level(logging.INFO, logger="collective_intelligence_overlay.storage"):
+        with pytest.raises(DBAPIError):
+            with store.engine.begin() as conn:
+                conn.execute(text("SELECT 1 / :denominator"), {"denominator": 0})
+        with store.engine.connect() as conn:
+            assert (
+                conn.execute(
+                    text("SELECT :private_value"), {"private_value": "private SQL input"}
+                ).scalar_one()
+                == "private SQL input"
+            )
+    observed = [
+        json.loads(record.getMessage())
+        for record in caplog.records
+        if record.name == "collective_intelligence_overlay.storage"
+    ]
+    assert sum(item["reason"] == "DATABASE_CURSOR_FAILED" for item in observed) == 1
+    assert any(item["reason"] == "DATABASE_CURSOR_FINISHED" for item in observed)
+    assert all(item["elapsed_seconds"] >= 0 for item in observed)
+    assert "private SQL input" not in json.dumps(observed)
 
 
 async def test_duplicate_process_drain_and_dependency_failure(app_config, tmp_path):
