@@ -23,6 +23,14 @@ legacy facts remain unchanged. New choices consult existing invocation/lease row
 uncertain or pending work blocks another attempt, matching completed observations
 are queried, and proven undispatched releases require explicit owner intent.
 
+Logical remote call IDs are separate from request fingerprints, with persisted
+owner/caller/session/parent namespaces and exact provider/binding references.
+Registry accepts explicit call IDs; Executor supplies existing invocation identity;
+MAF uses public tool-call parameters/context. Distinct identical-input calls execute
+separately, retry preserves the remote ID, and changed content conflicts. Missing
+remote identity fails clearly. Migration 0014 preserves legacy IDs without inventing
+missing mappings. Querying a completed child never settles an uncertain parent.
+
 Release gates and publication remain pending; 0.3.0 is the latest verified release.
 
 ## 0.3.0

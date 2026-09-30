@@ -172,6 +172,7 @@ def test_actual_021_upgrade_and_backup_preserve_all_reservation_states(unmigrate
 
 @pytest.mark.parametrize("interrupted", [False, True])
 def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_store, interrupted):
+    from collective_intelligence_overlay.calls import RemoteCalls, remote_calls
     from collective_intelligence_overlay.invocations import InvocationStore, invocations
     from collective_intelligence_overlay.opportunities import Goal
     from collective_intelligence_overlay.reobservation import cause_id, instances, requests
@@ -236,6 +237,8 @@ def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_s
         assert selection["invocation_id"] == selection["body"]["invocation_id"]
         assert selection["cause_id"] == projection["cause_id"]
         assert conn.execute(select(requests)).first() is None
+        assert conn.execute(select(remote_calls)).first() is None
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0014"
         assert conn.execute(
             select(invocations.c.id).where(invocations.c.id == fixture["legacy_remote_id"])
         ).scalar_one()
@@ -245,6 +248,10 @@ def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_s
         for row in original["records"]:
             verify(row["envelope"], restored.principals)
         ledger = InvocationStore(restored)
+        assert RemoteCalls(restored).page("receiver", invocation_id="old-parent") == ()
+        legacy = ledger.get("producer", fixture["legacy_remote_id"])
+        assert legacy["state"] == "unknown" and legacy["phase"] == "dispatched"
+        assert legacy["reservation_state"] == "held"
         assert ledger.get("receiver", "completed")["result"] == {"value": 7}
         assert ledger.get("receiver", "uncertain")["state"] == "unknown"
         assert ledger.cancel("receiver", "dispatched")["reservation_state"] == "held"

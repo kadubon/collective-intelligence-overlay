@@ -93,3 +93,11 @@ uses the existing budget/invocation/lease lock order. No observation issues a gr
 or refunds resources. Selection requires persisted terminal/fence/release proof,
 keeps ambiguous legacy mappings for reconciliation, and refuses a second attempt
 while prior work is pending or uncertain. Original signed facts remain immutable.
+
+0.3.1 logical call identity comes from trusted host execution context or the MAF
+SDK's public tool-call ID, with owner/caller/session/parent namespaces. Models supply
+business inputs only. Neither a new call ID nor a saved reference grants provider
+permission: actual purpose, caller authentication, local admission and allowance
+remain provider-owned. Same-ID content changes conflict. Result queries use the
+saved destination and original provider ID, scoped to the trusted local caller;
+old unknown mappings are never reconstructed as fresh operations.

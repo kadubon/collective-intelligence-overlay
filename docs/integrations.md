@@ -52,6 +52,18 @@ The reference composition uses public `executor`, `WorkflowContext`, `WorkflowBu
 and `workflow.run`. The tool-loop test uses an actual `Agent` with a deterministic
 `FunctionInvocationLayer`/`BaseChatClient`, not a network model or private SDK patch.
 
+For the 0.3.1 candidate, `bound_tool(registry, binding_id, context, call_scope=...)`
+receives call IDs from the public `FunctionTool.invoke(tool_call_id=...)` parameter
+or public middleware `FunctionInvocationContext.metadata["call_id"]`. Conflicting
+context/parameter IDs fail. The actual 1.19.0 SDK has no `context.tool_call_id`
+attribute; the adapter subclasses the public tool and never patches SDK code.
+Its tool input schema contains only business `arguments`, not identity or grants.
+Use an existing Executor parent or a host-persisted scope, for example the public
+`AgentSession.session_id` supplied explicitly by the host. Persist a new session
+before invoking tools; `AgentSession.to_dict/from_dict` retains that namespace.
+The SDK's implicit new session, occurrence ID, and call arrival order are not retry
+identities. See [logical remote calls](api.md#031-candidate-logical-remote-calls).
+
 ## A2A
 
 The adapter uses SDK 1.x protobuf `AgentCard`, `Message`, `Part` and the official

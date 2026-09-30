@@ -2,7 +2,8 @@
 
 import asyncio
 import time
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Mapping
+from contextvars import ContextVar
 from decimal import Decimal
 from typing import Any
 
@@ -13,7 +14,6 @@ from agent_framework import (
     FunctionMiddleware,
     FunctionTool,
     MiddlewareFailure,
-    tool,
 )
 from pydantic import BaseModel, ConfigDict, ValidationError
 
@@ -21,6 +21,48 @@ from ..bindings import ExecutionContext, Registry
 from ..models import Cost, UseRequest
 from ..opportunities import ProposalDrafts
 from ..overlay import AdmissionDenied, Overlay
+from ..storage import Conflict
+
+_tool_call_id: ContextVar[str | None] = ContextVar("maf_public_tool_call_id", default=None)
+
+
+class _ContextTool(FunctionTool):
+    """Bridge the SDK's public invoke parameter without editing its implementation."""
+
+    async def invoke(
+        self,
+        *,
+        arguments: BaseModel | Mapping[str, Any] | None = None,
+        context: FunctionInvocationContext | None = None,
+        tool_call_id: str | None = None,
+        skip_parsing: bool = False,
+        **kwargs: Any,
+    ) -> Any:
+        metadata_id = None if context is None else context.metadata.get("call_id")
+        if metadata_id is not None and not isinstance(metadata_id, str):
+            raise ValueError("invalid public MAF tool-call context")
+        if tool_call_id is not None and metadata_id is not None and tool_call_id != metadata_id:
+            raise Conflict("public MAF tool-call identities disagree")
+        call_id = tool_call_id if tool_call_id is not None else metadata_id
+        token = _tool_call_id.set(call_id)
+        try:
+            if skip_parsing:
+                return await super().invoke(
+                    arguments=arguments,
+                    context=context,
+                    tool_call_id=tool_call_id,
+                    skip_parsing=True,
+                    **kwargs,
+                )
+            return await super().invoke(
+                arguments=arguments,
+                context=context,
+                tool_call_id=tool_call_id,
+                skip_parsing=False,
+                **kwargs,
+            )
+        finally:
+            _tool_call_id.reset(token)
 
 
 class ProposalGeneration(BaseModel):
@@ -104,7 +146,9 @@ async def propose_structured(
     )
 
 
-def bound_tool(registry: Registry, binding_id: str, context: ExecutionContext) -> FunctionTool:
+def bound_tool(
+    registry: Registry, binding_id: str, context: ExecutionContext, *, call_scope: str | None = None
+) -> FunctionTool:
     """Create an ordinary MAF tool with a pinned operator registration.
 
     The model controls arguments only. Binding updates require the host to create
@@ -113,14 +157,21 @@ def bound_tool(registry: Registry, binding_id: str, context: ExecutionContext) -
     binding = registry.inspect(binding_id)
     execution_context = context.model_copy(deep=True)
 
-    @tool(
+    async def invoke(arguments: dict[str, Any]) -> Any:
+        return await registry.execute(
+            binding_id,
+            binding.digest,
+            arguments,
+            execution_context,
+            call_id=_tool_call_id.get(),
+            call_scope=call_scope,
+        )
+
+    return _ContextTool(
         name=binding_id,
         description="Invoke the operator-registered capability with checked inputs.",
+        func=invoke,
     )
-    async def invoke(arguments: dict[str, Any]) -> Any:
-        return await registry.execute(binding_id, binding.digest, arguments, execution_context)
-
-    return invoke
 
 
 class AdmissionMiddleware(FunctionMiddleware):

@@ -55,10 +55,37 @@ on Python 3.12.10 at revision 0012. Original v1/v2/v3 signed history, selection,
 six invocation/lease states and budget survive migration 0013 and real pg_dump/
 pg_restore. Interrupted backfill rolls back. Missing legacy fields remain unknown;
 the captured legacy remote ID is an actual old hash/InvocationStore fixture, not
-proof of an old HTTP exchange. Remote call-identity HTTP/restart coverage is pending.
+proof of an old HTTP exchange.
+
+CIO-030-04 was reproduced through the actual Registry parent/A2A path: two equal
+inputs caused only one provider execution before the fix (the direct Executor
+path already passed). Explicit child IDs now separate those calls. A new real
+PostgreSQL/A2A gate passed **8 tests in 66.24 seconds** on Windows CPython 3.12.10:
+sequential and parallel changing read-only samples, concurrent retry, changed
+arguments/binding/purpose/permissions/environment, owner/caller/session/parent
+namespaces, bounded lookup and unauthorized caller refusal, real MAF tool calls
+and exported/restored AgentSession, and actual MAF composite workflow.
+The test's counter is a persistent sampling witness; it is not a promised domain
+side effect or a provider cache double. A real HTTP result is dropped after the
+provider completes; distinct provider and caller processes then restart. Query
+returns the saved child's completed result without another sample, while the
+parent remains UNKNOWN/dispatched/held and its second child remains unissued.
+Initial fixture digest, unauthenticated readiness and response-drop matching errors
+were corrected separately and are not audit reproduction evidence.
+
+The final C4 source checkpoint passed **102 tests in 233.36 seconds**, zero
+failures/errors/skips, on the same Windows CPython 3.12.10 services. It includes
+ten C4 cases, all unit tests, existing invocation/lease/cancellation/allowance,
+eight migration/backup tests, registered bindings, MAF/MCP/A2A SDKs, lineage,
+standard A2A and persisted reconstruction. Added checks retain the provider's
+verification-purpose grant and join a delayed real mapping commit before cancelled
+host cleanup. Actual 0.3.0 upgrade to 0014 keeps the legacy remote UNKNOWN and its
+held allowance, queryable by original caller/ID, with an empty new mapping.
+The preceding broader run had 98 passes and three fixture errors (unchanged binding
+revision and wrong legacy caller); those errors were fixed, not marked skip/xfail.
 
 These local observations do not establish the new multi-Python, installed-artifact
-or release gates. CIO-030-04 and Python support extension remain under development.
+or release gates. The complete new-Python suite and support extension are pending.
 Existing released-version facts below are historical evidence.
 
 ## 0.3.0 released artifacts

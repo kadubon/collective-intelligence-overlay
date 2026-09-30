@@ -79,3 +79,10 @@ Completed-result reuse needs matching signed observation and request content.
 New attempts after cancellation require owner intent and positive reserved-phase,
 worker/fence and released-reservation proof. Preserve unknown legacy cause/count/
 reason facts and original DSSE bytes; stop old writers for offline migration.
+
+For logical remote calls, require host IDs and stable scope/parent context; never
+use argument hashes, in-memory counters or fresh retry UUIDs as operation identity.
+Persist provider/local binding references before RPC and query their original ID.
+Keep request fingerprints separate and reject changed content. MAF identities come
+from public invoke parameters/context, not model arguments or invented attributes.
+No call reference settles UNKNOWN, releases allowance or reconstructs old mappings.

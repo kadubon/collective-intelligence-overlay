@@ -35,6 +35,15 @@ another merely because it appears in a formation receipt.
 
 ## Existing execution and admission contracts
 
+In the 0.3.1 candidate, logical child identity is separate from request content.
+Same-argument samples can be distinct calls; retry uses the original provider ID.
+Owner/caller/session/parent namespaces prevent coincidental ID reuse, while changed
+content in the same namespace conflicts. A persisted remote reference proves only
+which provider ID was allocated, not that it executed or completed. Provider result
+lookup is authoritative for that child; an uncertain parent remains uncertain.
+No new reference releases a reservation, creates PASS, or permits replaying an
+unknown effect. Legacy mappings remain absent when original child IDs are unknown.
+
 0.2.1 execution allowance is distinct from measured cost. New invocation rows
 track `held`, `released` or `consumed`; migrated rows retain `legacy_unknown`.
 The standard one-work reservation is permission to make one dispatched execution,

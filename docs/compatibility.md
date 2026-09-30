@@ -1,6 +1,6 @@
 # Compatibility and licensing
 
-The unreleased 0.3.1 reobservation change adds migration 0013, not a new DSSE,
+The unreleased 0.3.1 changes add migrations 0013/0014, not a new DSSE,
 binding or A2A format. Cause grouping and command receipts stay in owner-local
 tables. Initial semantic observation fingerprints and original signed bytes are
 preserved; renewed instances use the existing `supersedes` field and fresh bases.
@@ -9,6 +9,13 @@ observations. Stop 0.3.0 writers before upgrading; this does not establish rolli
 interoperability. The actual published 0.3.0 database fixture covers original v1/v2/v3
 records and retained execution/lease/reservation states, with genuine PostgreSQL
 backup/restore and interrupted-backfill rollback. See [validation](validation.md).
+
+New A2A Registry child calls require explicit logical IDs plus a persisted host
+scope or an existing Executor parent. Executor IDs supply this automatically;
+MAF tools use public SDK call IDs and an explicit persisted host/session scope.
+Local unscoped APIs retain their previous behavior. Migration 0014 preserves every
+old invocation/remote ID and leaves unknown legacy child mappings empty. See
+[the API](api.md#031-candidate-logical-remote-calls) for retry/query migration.
 
 Version 0.3.0 adds Capability schema 3 and its DSSE media type
 `application/vnd.collective-intelligence-overlay.record.v3+json` for explicit

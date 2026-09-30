@@ -56,7 +56,10 @@ def evidence(binding):
     )
 
 
-async def test_a2a_provider_and_consumer_each_enforce_binding_and_persist_result(tmp_path, policy):
+@pytest.mark.parametrize("nested", [False, True])
+async def test_a2a_provider_and_consumer_each_enforce_binding_and_persist_result(
+    tmp_path, policy, nested
+):
     url = os.environ.get("CIO_TEST_DATABASE_URL")
     if not url:
         pytest.skip("real PostgreSQL required")
@@ -159,6 +162,58 @@ async def test_a2a_provider_and_consumer_each_enforce_binding_and_persist_result
         registry.register_a2a(proxy, lambda _: True, configs["receiver"], consumer_identity)
         executor = Executor(registry, consumer_identity, Reservation())
         context = ExecutionContext(caller="receiver", environment=scope.environment)
+        if nested:
+
+            async def twice(arguments):
+                first = await registry.execute(
+                    proxy.id, proxy.digest, arguments, context, call_id="first"
+                )
+                second = await registry.execute(
+                    proxy.id, proxy.digest, arguments, context, call_id="second"
+                )
+                return [first, second]
+
+            parent = proxy.model_copy(
+                update={
+                    "id": "two-logical-calls",
+                    "subject": Subject(
+                        id="two-logical-calls", version="1", digest=callable_digest(twice)
+                    ),
+                    "target": Target(
+                        kind="local",
+                        name="twice",
+                        interface_digest=callable_digest(twice),
+                        implementation_identity="installed",
+                    ),
+                    "output_schema": {"type": "array", "items": {"type": "integer"}},
+                    "components": (proxy.digest,),
+                }
+            )
+            registry.register_local(parent, twice, lambda _: True)
+            parent_candidate = candidate(parent).model_copy(
+                update={"dependencies": (proxy.subject,), "dependency_issuers": ("receiver",)}
+            )
+            consumer_overlay.store.put(consumer_identity.sign(parent_candidate))
+            verifier_overlay.store.put(verifier_identity.sign(evidence(parent)))
+            parent_filter = FeedFilter(subjects=(parent.subject,))
+            Receiver(consumer_overlay.store).apply(
+                "verifier",
+                parent_filter,
+                Feed(verifier_overlay.store, verifier_identity).page("receiver", parent_filter),
+            )
+            result = await executor.invoke(
+                "parent-two-calls", parent.id, parent.digest, {"value": 4}, context
+            )
+            assert result["state"] == "completed" and result["result"] == [8, 8]
+            assert calls == [4, 4]
+            assert (
+                await executor.invoke(
+                    "parent-two-calls", parent.id, parent.digest, {"value": 4}, context
+                )
+                == result
+            )
+            assert calls == [4, 4]
+            return
         result = await executor.invoke("remote-1", proxy.id, proxy.digest, {"value": 4}, context)
         assert result["state"] == "completed" and result["result"] == 8
         assert calls == [4]

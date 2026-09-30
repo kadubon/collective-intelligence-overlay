@@ -7,7 +7,8 @@ from a2a.client import A2ACardResolver, ClientConfig, create_client
 from a2a.types import Message, Part, Role, SendMessageRequest
 from google.protobuf.json_format import MessageToDict
 
-from ..bindings import Target, active_invocation, fingerprint
+from ..bindings import Target, fingerprint
+from ..calls import active_call
 from ..models import uid
 from .a2a import struct
 from .http_limits import BoundedA2ATransport
@@ -52,9 +53,10 @@ async def invoke(
         wire_arguments = struct(arguments)
         if MessageToDict(wire_arguments) != arguments:
             raise ValueError("standard A2A data part cannot preserve these numeric values")
+        call = active_call.get()
         request = SendMessageRequest(
             message=Message(
-                message_id=active_invocation.get() or uid(),
+                message_id=call.key if call is not None else uid(),
                 role=Role.ROLE_USER,
                 parts=[Part(data=wire_arguments)],
             )

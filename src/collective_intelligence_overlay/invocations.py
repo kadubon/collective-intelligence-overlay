@@ -584,7 +584,12 @@ class Executor:
         try:
             async with asyncio.timeout(self.allowance.seconds):
                 result = await self.registry.execute(
-                    binding_id, binding_digest, arguments, context, before_call=boundary
+                    binding_id,
+                    binding_digest,
+                    arguments,
+                    context,
+                    before_call=boundary,
+                    call_id=invocation_id,
                 )
                 completed_event = event(claim, False, result)
                 await asyncio.to_thread(

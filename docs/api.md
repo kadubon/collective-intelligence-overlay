@@ -70,6 +70,80 @@ Read them with the existing event inspection operation and a query such as
 collective-intelligence-overlay inspect --config receiver.json event --query-file query.json
 ```
 
+## 0.3.1 candidate: logical remote calls
+
+`Registry.execute(..., call_id=None, call_scope=None)` adds a host-assigned logical
+identity. Each distinct A2A call needs its own ID even with identical arguments.
+Retry the same call with the same ID and persisted scope. `Executor.invoke` supplies
+its existing durable invocation ID and parent scope automatically; named nested
+Registry calls inherit that scope. Existing local tools can retain their unscoped
+API, without a remote idempotency claim. Missing remote identity raises
+`calls.MissingCallIdentity` before RPC; it never invents a retry UUID or counter.
+
+```python
+first = await registry.execute(
+    binding.id,
+    binding.digest,
+    arguments,
+    context,
+    call_id="sample-first",
+    call_scope="saved-host-session",
+)
+second = await registry.execute(
+    binding.id,
+    binding.digest,
+    arguments,
+    context,
+    call_id="sample-second",
+    call_scope="saved-host-session",
+)
+retry_first = await registry.execute(
+    binding.id,
+    binding.digest,
+    arguments,
+    context,
+    call_id="sample-first",
+    call_scope="saved-host-session",
+)
+assert retry_first == first
+```
+
+Identity binds owner, trusted caller, session/scope, parent and call ID. Content
+fingerprints separately bind arguments, exact local/provider bindings, purpose,
+environment, permissions and named parent content. A changed request with the same
+identity raises `Conflict`, before another provider invocation. Registered children
+still require their parent's exact component grant and current admission. Named
+contexts have a maximum depth of 16; arrival order never assigns their identities.
+
+Migration 0014 persists `RemoteCall` references before RPC: remote invocation ID,
+provider/endpoint, exact local/provider bindings, parent and invocation context, and
+content fingerprints. It stores no business result or execution/lease state.
+Provider Executor remains authoritative for retry, allowance and completion.
+For a nested call after uncertain delivery or a host restart:
+
+```python
+refs = registry.remote_calls(context, invocation_id="saved-parent-invocation", limit=32)
+for ref in refs:
+    result = await registry.query_remote_call(ref.call_key, context, config, identity)
+```
+
+Alternatively use `call_scope="saved-host-session"` for standalone calls. Choose
+exactly one lookup selector, limit 1–128. A full page can continue with
+`after=refs[-1].call_key`; this is a bounded owner/caller lookup. Query uses the
+saved remote ID and configured original provider, issues no `invoke`, and returns
+the provider row or `None`. The host must authenticate its local caller before
+constructing `ExecutionContext`; caller text in tool arguments grants nothing.
+Do not replay a nested call as a new standalone call: its parent namespace would
+change. Resume the parent through Executor and query its original references.
+One completed child cannot settle the uncertain parent or authorize another child.
+
+Legacy 0.3.0 rows remain queryable by their original provider invocation IDs.
+0014 never invents missing logical child IDs or a legacy mapping. An empty mapping
+does not prove non-execution. Stop old writers and reconcile UNKNOWN/dispatched
+work before starting new attempts; [deployment](deployment.md) specifies backup
+and offline upgrade. Standard non-overlay A2A services receive the named context
+as message ID when available, but their own retry/result guarantees still apply.
+
 ## 0.3.0 APIs
 
 Discovery and fresh selection attempts now emit `Event(schema_version="3",

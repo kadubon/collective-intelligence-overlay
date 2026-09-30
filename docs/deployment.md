@@ -17,7 +17,7 @@ The reference setup's random keys are a development convenience. Production key
 provisioning/rotation must be performed by the participant's operator.
 
 For the 0.3.1 candidate, stop every old writer and take the consistent backup below
-before applying migration 0013. It adds owner-local instance and command receipts
+before applying migrations 0013 and 0014. They add owner-local instance/command receipts
 and cause/invocation indexes on existing selections. Original DSSE envelopes,
 decisions, invocation IDs/states, leases and reservations are retained. Missing
 legacy cause contracts, counts, reasons and reissue times stay unknown; original
@@ -30,6 +30,14 @@ old uncertain invocations by their original ID and reconcile before a new attemp
 Restart does not reset reissue limits. Replay of a cooldown/satisfied receipt is
 historical; use a new explicit owner command for a later observation. Rolling
 upgrades have not been established. See [the API](api.md) for refusal states.
+
+0014 adds remote-call references, not an execution-state table. Stop old callers
+and providers before moving a host to the new ID rule. Keep legacy remote IDs and
+query their original provider manually (`operation="invocation"`) when no mapping
+exists; never recompute them as new calls. Restore persisted host/session IDs and
+installed bindings after restart. For new nested calls, query saved references by
+the original parent invocation; do not repeat an UNKNOWN parent or its children
+under a new ID. A child's completed result does not release a parent's held allowance.
 
 Before first start: protect config/key/artifact paths, configure pinned peers and
 verifier methods, run `check-config`, then `migrate`, then `doctor`. Start one `peer`

@@ -6,6 +6,7 @@ Neither a manifest nor a matching JSON schema supplies semantic evidence.
 
 from __future__ import annotations
 
+import asyncio
 import copy
 import inspect
 import json
@@ -18,13 +19,14 @@ from jsonschema import Draft202012Validator  # type: ignore[import-untyped]
 from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 from .artifacts import Artifacts
-from .models import Digest, Identifier, ReceiptRef, Scope, Subject, UseRequest, uid
+from .models import Digest, Identifier, ReceiptRef, Scope, Subject, UseRequest
 from .overlay import Overlay
 from .security import Identity, allowed_url, digest
 
 if TYPE_CHECKING:
     import httpx
 
+    from .calls import RemoteCall
     from .config import Config
 
 active_invocation: ContextVar[str | None] = ContextVar("active_overlay_invocation", default=None)
@@ -187,6 +189,7 @@ class _Registration:
     digest: str
     operation: Operation
     assess: Assessment
+    remote_identity: bool = False
 
 
 @dataclass(frozen=True)
@@ -288,7 +291,14 @@ class Registry:
 
         self._register(binding, reconstructed, assess)
 
-    def _register(self, binding: Binding, operation: Operation, assess: Assessment) -> None:
+    def _register(
+        self,
+        binding: Binding,
+        operation: Operation,
+        assess: Assessment,
+        *,
+        remote_identity: bool = False,
+    ) -> None:
         if binding.registrar != self.overlay.store.owner:
             raise ValueError("registration belongs to the local operator")
         if binding.issuer not in self.overlay.store.principals:
@@ -299,7 +309,7 @@ class Registry:
         # Pydantic frozen models can contain mutable dicts: own an isolated copy and
         # compare its original fingerprint again at the actuator boundary.
         owned = binding.model_copy(deep=True)
-        entry = _Registration(owned, owned.digest, operation, assess)
+        entry = _Registration(owned, owned.digest, operation, assess, remote_identity)
         if previous is not None:
             self._digests.pop(previous.digest, None)
         self._entries[binding.id] = entry
@@ -389,9 +399,40 @@ class Registry:
         context: ExecutionContext,
         *,
         before_call: Callable[[], Awaitable[None]] | None = None,
+        call_id: str | None = None,
+        call_scope: str | None = None,
     ) -> Any:
-        prepared = self.prepare(binding_id, expected_digest, arguments, context)
+        from .calls import MissingCallIdentity, RemoteCalls, active_call, call_instance
+        from .invocations import invocation_request
+
+        arguments = copy.deepcopy(arguments)
+        context = context.model_copy(deep=True)
+        frame = active_call.get()
+        identity_missing = call_id is None
+        if call_id is not None:
+            try:
+                frame = call_instance(
+                    self.overlay.store.owner,
+                    call_id,
+                    call_scope,
+                    active_invocation.get(),
+                    invocation_request(
+                        self.overlay.store.owner, binding_id, expected_digest, arguments, context
+                    ),
+                )
+            except MissingCallIdentity:
+                identity_missing = True
+                # Unscoped local tools retain their existing non-persistent API.
+                # They do not acquire a remote identity or an idempotency claim.
+            else:
+                assert frame is not None
+                await asyncio.to_thread(RemoteCalls(self.overlay.store).check, frame)
         entry = self._entry(binding_id)
+        if entry.remote_identity and identity_missing:
+            raise MissingCallIdentity(
+                "A2A calls require call_id and persisted call_scope, or a stable Executor parent"
+            )
+        prepared = self.prepare(binding_id, expected_digest, arguments, context)
 
         async def actuator() -> Any:
             current = self._entry(binding_id)
@@ -404,9 +445,11 @@ class Registry:
             ):
                 raise ValueError("invocation changed before execution")
             token = active_binding.set(entry.binding)
+            call_token = active_call.set(frame)
             try:
                 result = await entry.operation(copy.deepcopy(prepared.arguments))
             finally:
+                active_call.reset(call_token)
                 active_binding.reset(token)
             if len(json.dumps(result, allow_nan=False).encode()) > 65536:
                 raise ValueError("result exceeds execution bound")
@@ -462,29 +505,40 @@ class Registry:
         if peer is None or peer.url != target.endpoint or identity.name != self.overlay.store.owner:
             raise ValueError("A2A binding does not match operator-owned peer configuration")
         peer_name = target.peer
-        local_binding_id, local_binding_digest = binding.id, binding.digest
+        pinned_binding = binding.model_copy(deep=True)
 
         async def operation(arguments: dict[str, Any]) -> Any:
             from .adapters.a2a import send
+            from .calls import MissingCallIdentity, RemoteCalls, active_call
 
-            invocation = fingerprint(
-                [
-                    active_invocation.get() or uid(),
-                    local_binding_id,
-                    local_binding_digest,
-                    arguments,
-                ]
+            instance = active_call.get()
+            if instance is None:
+                raise MissingCallIdentity(
+                    "A2A call has no stable host context; provide call_id and call_scope"
+                )
+            saving = asyncio.create_task(
+                asyncio.to_thread(
+                    RemoteCalls(self.overlay.store).bind, instance, pinned_binding, target
+                )
             )
+            try:
+                saved = await asyncio.shield(saving)
+            except asyncio.CancelledError:
+                # The DB thread may already have committed. Join it before the
+                # host closes its store, and never dispatch a cancelled caller.
+                await asyncio.shield(saving)
+                raise
             response = await send(
                 config,
                 identity,
                 peer_name,
                 {
                     "operation": "invoke",
-                    "invocation_id": invocation,
+                    "invocation_id": saved.remote_invocation_id,
                     "binding_id": target.name,
                     "binding_digest": target.interface_digest,
                     "arguments": arguments,
+                    "purpose": instance.purpose,
                 },
             )
             if response.get("state") != "completed":
@@ -493,7 +547,58 @@ class Registry:
                 )
             return response["result"]
 
-        self._register(binding, operation, assess)
+        self._register(binding, operation, assess, remote_identity=True)
+
+    def remote_calls(
+        self,
+        context: ExecutionContext,
+        *,
+        invocation_id: str | None = None,
+        call_scope: str | None = None,
+        limit: int = 32,
+        after: str | None = None,
+    ) -> tuple[RemoteCall, ...]:
+        """Read one bounded page; continue after its last key when the page is full.
+
+        An empty map never proves that a legacy or uncertain operation had no effect.
+        """
+        from .calls import RemoteCalls
+
+        return RemoteCalls(self.overlay.store).page(
+            context.caller,
+            invocation_id=invocation_id,
+            call_scope=call_scope,
+            limit=limit,
+            after=after,
+        )
+
+    async def query_remote_call(
+        self, call_key: str, context: ExecutionContext, config: Config, identity: Identity
+    ) -> dict[str, Any] | None:
+        """Query the saved provider ID without issuing an invocation or recomputing IDs."""
+        from .adapters.a2a import send
+        from .calls import RemoteCalls
+
+        if identity.name != self.overlay.store.owner or config.owner != identity.name:
+            raise ValueError("remote lookup requires the local owner")
+        saved = await asyncio.to_thread(
+            RemoteCalls(self.overlay.store).get, context.caller, call_key
+        )
+        if saved is None:
+            return None
+        peer = next((peer for peer in config.peers if peer.identity == saved.provider), None)
+        if peer is None or peer.url != saved.endpoint:
+            raise ValueError("saved remote provider destination changed; reconcile explicitly")
+        response = await send(
+            config,
+            identity,
+            saved.provider,
+            {"operation": "invocation", "invocation_id": saved.remote_invocation_id},
+        )
+        result = response.get("invocation")
+        if result is not None and not isinstance(result, dict):
+            raise ValueError("invalid remote invocation lookup")
+        return result
 
     def register_a2a_service(
         self,
