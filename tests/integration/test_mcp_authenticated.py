@@ -1,6 +1,7 @@
 import asyncio
 import os
 import secrets
+import subprocess
 import sys
 from pathlib import Path
 
@@ -9,6 +10,7 @@ import httpx2
 import pytest
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
+from process_control import stop_owned_process
 
 from collective_intelligence_overlay.adapters.mcp import invoke_registered
 from collective_intelligence_overlay.bindings import (
@@ -29,14 +31,17 @@ async def test_registered_mcp_uses_explicit_public_authenticated_client(
     endpoint = f"http://127.0.0.1:{port}/mcp"
     token = secrets.token_urlsafe(24)
     environment = {**os.environ, "CIO_TEST_MCP_TOKEN": token}
-    process = await asyncio.create_subprocess_exec(
-        sys.executable,
-        str(Path(__file__).with_name("authenticated_mcp_application.py")),
-        "--port",
-        str(port),
+    process = await asyncio.to_thread(
+        subprocess.Popen,
+        [
+            sys.executable,
+            str(Path(__file__).with_name("authenticated_mcp_application.py")),
+            "--port",
+            str(port),
+        ],
         env=environment,
-        stdout=asyncio.subprocess.DEVNULL,
-        stderr=asyncio.subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
     )
     clients = []
 
@@ -58,7 +63,7 @@ async def test_registered_mcp_uses_explicit_public_authenticated_client(
                     assert response.status_code == 401
                     break
                 except httpx.ConnectError:
-                    if process.returncode is not None:
+                    if process.poll() is not None:
                         raise AssertionError("authenticated MCP process failed") from None
                     await asyncio.sleep(0.05)
             else:
@@ -124,6 +129,4 @@ async def test_registered_mcp_uses_explicit_public_authenticated_client(
                 {"source": "category,amount\na,2.00\n"},
             )
     finally:
-        if process.returncode is None:
-            process.terminate()
-        await asyncio.wait_for(process.wait(), 10)
+        await asyncio.to_thread(stop_owned_process, process)

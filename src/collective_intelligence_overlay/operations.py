@@ -117,6 +117,8 @@ class Operations:
         self._policy_processes: set[asyncio.subprocess.Process] = set()
         self._monitor: asyncio.Task[None] | None = None
         self.handled = self.refused = self.failed = 0
+        self._restored = False
+        self._recovery_mutex = asyncio.Lock()
 
     def _database_ready(self) -> bool:
         if not self.lock.check():
@@ -149,6 +151,9 @@ class Operations:
             with self.blocking.scope():
                 if not await run_blocking(self._database_ready):
                     self.reason = "DATABASE_SCHEMA_OR_ROLE_NOT_READY"
+                    return False
+                if await run_blocking(self.service.overlay.store.restore_pending):
+                    self.reason = "RESTORE_RECONCILIATION_REQUIRED"
                     return False
             policy = self.service.overlay.policy
             current = digest(policy.path.read_bytes() + policy.settings.model_dump_json().encode())
@@ -201,6 +206,7 @@ class Operations:
             if self.lock.connection is None:
                 await run_blocking(self.lock.acquire)
         self.state = "ready" if await self.ready() else "degraded"
+        self._restored = await run_blocking(self.service.overlay.store.restore_pending)
         self._monitor = asyncio.create_task(self._watch_dependencies())
 
     async def _watch_dependencies(self) -> None:
@@ -236,6 +242,14 @@ class Operations:
         self.blocking.close()
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
+        # During recovery, serialize state mutations and operator resume. Once
+        # resumed, the existing executor/HTTP bounds retain normal concurrency.
+        if self._restored:
+            async with self._recovery_mutex:
+                return await self._handle(caller, data)
+        return await self._handle(caller, data)
+
+    async def _handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
         operation = data.get("operation")
         if operation in {"status", "drain", "resume"}:
             if caller != self.service.config.owner:
@@ -245,6 +259,18 @@ class Operations:
             elif operation == "resume":
                 if self.state == "stopped":
                     raise ValueError("stopped host requires restart")
+                if self._restored:
+                    recovery = getattr(self.service, "recovery", None)
+                    if recovery is None or self._active or self.blocking.pending:
+                        self.reason = "RESTORE_RECONCILIATION_REQUIRED"
+                        return self.snapshot()
+                    try:
+                        with self.blocking.scope():
+                            await run_blocking(recovery.authorize_resume, caller)
+                    except (ValueError, DBAPIError):
+                        self.reason = "RESTORE_RECONCILIATION_REQUIRED"
+                        return self.snapshot()
+                    self._restored = False
                 self.state = "ready" if await self.ready() else "degraded"
             elif self.state == "ready" and not await self.ready():
                 self.state = "degraded"
@@ -256,6 +282,12 @@ class Operations:
             "metrics",
             "capability_metrics",
             "discover",
+            "remote_calls",
+            "reconcile",
+            "sync",
+            "recovery_state",
+            "recovery_review",
+            "operational_metrics",
         }
         if self.state != "ready" and operation not in allowed_during_drain:
             self.refused += 1
@@ -270,7 +302,27 @@ class Operations:
                     self.state, self.reason = "degraded", "OWNER_SESSION_LOST"
                     self.refused += 1
                     return {"error": "SERVICE_INTAKE_CLOSED", "reason": self.reason}
-                result = await self.service.handle(caller, data)
+                if operation == "operational_metrics":
+                    if caller != self.service.config.owner:
+                        raise ValueError("operational metrics are owner-only")
+                    from .observability import database_observations
+
+                    result: dict[str, Any] = {
+                        "operations": self.snapshot(),
+                        "database": await run_blocking(
+                            database_observations, self.service.overlay.store
+                        ),
+                        "artifacts": await run_blocking(self.service.config.artifacts().usage),
+                        "last_allocation": None,
+                    }
+                    steps = getattr(self.service, "steps", None)
+                    if steps is not None:
+                        allocation = await run_blocking(steps.last_allocation)
+                        result["last_allocation"] = (
+                            allocation.model_dump(mode="json") if allocation else None
+                        )
+                else:
+                    result = await self.service.handle(caller, data)
             self.handled += 1
             return result
         except BaseException:

@@ -155,6 +155,9 @@ def _public(row: Any) -> dict[str, Any]:
     for key in ("created_at", "updated_at"):
         result[key] = row[key].isoformat()
     result["purpose"] = row["request"].get("purpose", "reuse")
+    result["arguments_digest"] = (
+        fingerprint(row["request"]["arguments"]) if "arguments" in row["request"] else None
+    )
     return result
 
 

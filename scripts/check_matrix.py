@@ -5,6 +5,9 @@ import hashlib
 import json
 from pathlib import Path
 
+from packaging.utils import parse_wheel_filename
+from packaging.version import Version
+from production_acceptance import require_prepublication
 from runtime_matrix import combinations, manifest
 
 parser = argparse.ArgumentParser()
@@ -17,6 +20,26 @@ assert expected == {
     for p in (args.candidate / "dist").iterdir()
     if p.name.endswith((".whl", ".tar.gz"))
 }, "candidate changed"
+wheel_names = [name for name in expected if name.endswith(".whl")]
+assert len(wheel_names) == 1
+version = parse_wheel_filename(wheel_names[0])[1]
+if version >= Version("0.4.0"):
+    root = Path(__file__).resolve().parents[1]
+    profile = json.loads((root / "docs/profiles/production-040.json").read_text(encoding="utf-8"))
+    profile_digest = hashlib.sha256(
+        json.dumps(profile, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    acceptance = json.loads(
+        (root / "docs/production-040-acceptance.json").read_text(encoding="utf-8")
+    )
+    require_prepublication(acceptance)
+    for name in ("production-acceptance.json", "production-soak.json", "matched-experiment.json"):
+        evidence = list(args.reports.rglob(name))
+        assert len(evidence) == 1, f"mandatory 0.4.0 evidence absent or duplicate: {name}"
+        report = json.loads(evidence[0].read_text(encoding="utf-8"))
+        assert report["artifacts"] == expected and report["passed"] is True
+        assert report["profile_id"] == profile["profile_id"]
+        assert report["profile_sha256"] == profile_digest
 required = {(r["os"], r["architecture"], r["python"], r["scope"]) for r in combinations()}
 observed = set()
 packages = list(args.reports.rglob("package.json"))

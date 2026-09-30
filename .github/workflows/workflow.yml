@@ -113,6 +113,11 @@ jobs:
           path: .local/candidate
       - run: uv sync --all-extras --frozen
       - run: uv run python scripts/fetch_opa.py
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - run: uv run python scripts/fetch_caddy.py
       - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
@@ -154,6 +159,11 @@ jobs:
           $env:PGBIN | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
       - run: uv sync --all-extras --frozen
       - run: uv run python scripts/fetch_opa.py
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - run: uv run python scripts/fetch_caddy.py
       - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
       - name: Stop only the private Windows cluster
         if: always()
@@ -202,6 +212,11 @@ jobs:
           uv run --no-project python scripts/private_postgres.py start --bin "$pg_bin" --data "$RUNNER_TEMP/cio-postgres"
       - run: uv sync --all-extras --frozen
       - run: uv run python scripts/fetch_opa.py
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - run: uv run python scripts/fetch_caddy.py
       - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
       - name: Stop only the private Mac cluster
         if: always() && env.CIO_PG_BIN != ''

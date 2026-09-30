@@ -47,7 +47,7 @@ from ..blocking import run_blocking
 from ..config import Config
 from ..models import now, uid
 from ..security import MAX_RECORD_BYTES, Identity, allowed_url
-from .http_limits import BodyLimit, InvalidPeerResponse
+from .http_limits import BodyLimit, InvalidPeerResponse, RequestCapacity
 
 EXTENSION = "https://github.com/kadubon/collective-intelligence-overlay/extensions/v2"
 Handler = Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]]
@@ -122,6 +122,11 @@ class PeerAuthentication(AuthenticationBackend):
             entry = self.config.identities.get(issuer)
             if entry is None:
                 raise AuthenticationError("unknown issuer")
+            if (
+                entry.keyid in entry.compromised_keyids
+                or jwt.get_unverified_header(token).get("kid", entry.keyid) != entry.keyid
+            ):
+                raise AuthenticationError("current uncompromised authentication key required")
             key = Ed25519PublicKey.from_public_bytes(bytes.fromhex(entry.key["keyval"]["public"]))
             claims = jwt.decode(
                 token,
@@ -221,8 +226,13 @@ def application(
         routes=routes,
         lifespan=lifespan,
         middleware=[
-            Middleware(BodyLimit),
             Middleware(AuthenticationMiddleware, backend=PeerAuthentication(config)),
+            Middleware(
+                RequestCapacity,
+                owner_limit=config.max_owner_requests,
+                caller_limit=config.max_caller_requests,
+            ),
+            Middleware(BodyLimit),
         ],
     )
 
@@ -247,6 +257,7 @@ async def send(
         },
         identity.signer.private_bytes,
         algorithm="EdDSA",
+        headers={"kid": identity.signer.public_key.keyid},
     )
     if len(json.dumps(data).encode()) > MAX_RECORD_BYTES:
         raise ValueError("message too large")
@@ -254,7 +265,21 @@ async def send(
 
     async with httpx.AsyncClient(
         transport=BoundedA2ATransport(
-            url, response_validator=validate_peer_response, tls_context=config.tls_context()
+            url,
+            response_validator=validate_peer_response,
+            tls_context=config.tls_context(),
+            seconds=min(config.max_seconds, 300) + 5 if data.get("operation") == "run" else 30,
+            readonly_post=data.get("operation")
+            in {
+                "status",
+                "invocation",
+                "remote_calls",
+                "goals",
+                "discover",
+                "metrics",
+                "operational_metrics",
+                "recovery_state",
+            },
         ),
         timeout=min(config.max_seconds, 300) + 5 if data.get("operation") == "run" else 30,
         follow_redirects=False,

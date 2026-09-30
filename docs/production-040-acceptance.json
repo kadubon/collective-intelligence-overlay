@@ -132,90 +132,99 @@
     {
       "id": "P11",
       "requirement": "Operation timeouts and bounded 429/503 Retry-After handling preserve stable call IDs and single reservations",
-      "implementation": [],
-      "test": "Real HTTP rate limits/overload; readonly retry differs from effect queries",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/adapters/http_limits.py"
       ],
-      "status": "pending"
+      "test": "Real HTTP rate limits/overload; readonly retry differs from effect queries",
+      "observed": "Real HTTP retry/capacity/body-limit tests pass; readonly 429/503 retry is bounded and state-changing calls are not retried",
+      "remaining": [
+        "all native short protocols and single-reservation fault assessment"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P12",
       "requirement": "Original provider-ID/binding/fingerprint reconciliation never invokes; append-only provenance/version receipt",
-      "implementation": [],
-      "test": "Lost response/provider restart; changed mapping rejected; insufficient evidence stays UNKNOWN/held",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "real-service tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/reconciliation.py",
+        "src/collective_intelligence_overlay/calls.py"
       ],
-      "status": "pending"
+      "test": "Lost response/provider restart; changed mapping rejected; insufficient evidence stays UNKNOWN/held",
+      "observed": "Actual PostgreSQL/OPA/A2A lost-response and mapping/digest-tamper tests pass; original-ID query appends Event v4 without invoking",
+      "remaining": [
+        "native provider restart/lifecycle protocol and complete observation costs"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P13",
       "requirement": "Reported completion, confirmed effect and independent PASS separate; no automatic new attempt/refund",
-      "implementation": [],
-      "test": "Reconciliation does not create PASS or release without authority; explicit new attempt requires positive proof",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests",
-        "operator docs"
+      "implementation": [
+        "src/collective_intelligence_overlay/reconciliation.py"
       ],
-      "status": "pending"
+      "test": "Reconciliation does not create PASS or release without authority; explicit new attempt requires positive proof",
+      "observed": "Explicit read-only effect query keeps reported completion/effect/PASS separate; legacy missing arguments stay UNKNOWN and original allowance is held",
+      "remaining": [
+        "safe explicit new-attempt proof path and native faults"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P14",
       "requirement": "Duplicate owner boot denied; coherent DB/artifacts/config/key/goals/version/feed backup and standard restore",
       "implementation": [
-        "src/collective_intelligence_overlay/operations.py"
+        "src/collective_intelligence_overlay/operations.py",
+        "src/collective_intelligence_overlay/recovery.py"
       ],
       "test": "Two processes; interrupted pg_dump/snapshot; integrity and owned-resource handling",
-      "observed": "Second actual Python process cannot start for the same DB/owner",
+      "observed": "Actual second process denied; stopped-owner pg_dump backup, final manifest, failed backup retention and actual pg_restore into new DB pass",
       "remaining": [
-        "coherent backup, interruption, restore and post-backup effects"
+        "installed 0.3.2 upgrade, native protected homes and full recovery protocol"
       ],
       "status": "partial; complete acceptance pending"
     },
     {
       "id": "P15",
       "requirement": "Restored intake closed; history/UNKNOWN/maps/budget verification, restore-state, sync/reconcile before explicit resume",
-      "implementation": [],
-      "test": "Post-backup effect is not erased; structural restore is not unconditional business readiness",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests",
-        "recovery docs"
+      "implementation": [
+        "src/collective_intelligence_overlay/recovery.py",
+        "src/collective_intelligence_overlay/synchronization.py"
       ],
-      "status": "pending"
+      "test": "Post-backup effect is not erased; structural restore is not unconditional business readiness",
+      "observed": "Durable closure, UNKNOWN/mismatch review, matched review, restart, explicit resume, full post-restore sync and state drift refusal pass with actual PostgreSQL restore",
+      "remaining": [
+        "networked three-peer post-backup missing-state/call protocol and native installed recovery"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P16",
       "requirement": "One actual reviewed OSS reverse proxy, real HTTPS/hostname verification and bounded headers/body/stream/timeout",
-      "implementation": [],
-      "test": "Installed deploy assets; authorization/A2A extension forwarding; untrusted/wrong-hostname rejection",
-      "observed": null,
-      "remaining": [
-        "primary API/license review",
-        "implementation",
-        "real TLS tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/starter/Caddyfile",
+        "scripts/fetch_caddy.py",
+        "scripts/proxy/README.md"
       ],
-      "status": "pending"
+      "test": "Installed deploy assets; authorization/A2A extension forwarding; untrusted/wrong-hostname rejection",
+      "observed": "Audited native Windows v2.11.4+cio.1 passes actual HTTPS hostname/CA, authorization/extensions, streamed body bounds, drain and restart",
+      "remaining": [
+        "all native custom builds, short protocol, complete header/timeout faults and protected TLS deployment"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P17",
       "requirement": "Execution/check/proposal/observation/operator grants and per-caller/owner limits; private health/artifact protection",
-      "implementation": [],
-      "test": "Unauthenticated/unauthorized denial, verification-only grants and resource/URL/tenant/egress checks",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/adapters/http_limits.py",
+        "src/collective_intelligence_overlay/adapters/a2a.py"
       ],
-      "status": "pending"
+      "test": "Unauthenticated/unauthorized denial, verification-only grants and resource/URL/tenant/egress checks",
+      "observed": "Authenticated owner/caller capacity and owner-only reconciliation/recovery/metrics combine with existing explicit execution/verification grants",
+      "remaining": [
+        "complete proposal/observation grants, heavy-work quotas, egress and native fault protocol"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P18",
@@ -233,40 +242,45 @@
     {
       "id": "P19",
       "requirement": "Routine versus compromise key rotation; historical origin versus current authority; no created_at precompromise inference",
-      "implementation": [],
-      "test": "Both peers restart with current and historical pins; original receipts/maps/budget survive; compromised evidence rechecks",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests",
-        "incident docs"
+      "implementation": [
+        "src/collective_intelligence_overlay/security.py",
+        "src/collective_intelligence_overlay/config.py",
+        "src/collective_intelligence_overlay/setup.py"
       ],
-      "status": "pending"
+      "test": "Both peers restart with current and historical pins; original receipts/maps/budget survive; compromised evidence rechecks",
+      "observed": "Routine/compromised key plus withdrawal group: 5 passed; old bytes retained, old HTTP authority denied, compromised admission UNKNOWN, offline rotation does not overwrite",
+      "remaining": [
+        "both real peer processes rotate/restart/recover with TLS and native incident commands"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P20",
       "requirement": "Structured redacted standard logs and authorized operational metrics including physical work and lifecycle costs",
-      "implementation": [],
-      "test": "Known secret/raw inputs absent; DB/OPA/provider failures, UNKNOWN/check age/freshness/drain observable",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/observability.py",
+        "src/collective_intelligence_overlay/operations.py"
       ],
-      "status": "pending"
+      "test": "Known secret/raw inputs absent; DB/OPA/provider failures, UNKNOWN/check age/freshness/drain observable",
+      "observed": "8-test focused group passed with actual TLS metrics and secret-free standard rotated logs; authoritative states/held uncertainty/source completion/DB/CAS observed, missing resources explicit",
+      "remaining": [
+        "current verification backlog/age, OPA/provider lifecycle timings and complete native protocol metrics"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P21",
       "requirement": "Finite artifact/log capacities and retention warnings without unsafe signed history purge",
-      "implementation": [],
-      "test": "Capacity/rotation boundary; signed bytes, withdrawals, mappings and uncertain leases retained",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests",
-        "archival docs"
+      "implementation": [
+        "src/collective_intelligence_overlay/artifacts.py",
+        "src/collective_intelligence_overlay/observability.py"
       ],
-      "status": "pending"
+      "test": "Capacity/rotation boundary; signed bytes, withdrawals, mappings and uncertain leases retained",
+      "observed": "Native Windows four-process CAS race admits one within quota; original replay/bytes retained; standard rotating logs obey finite segment bounds and no history purge",
+      "remaining": [
+        "all native locking/ACLs, consistent configurable capacities, archival commands and DB warnings"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P22",
@@ -285,12 +299,13 @@
       "id": "P23",
       "requirement": "All old safety regressions plus required real-service faults and DB clock checks",
       "implementation": [
-        "src/collective_intelligence_overlay/storage.py"
+        "src/collective_intelligence_overlay/storage.py",
+        "tests/integration/test_production_recovery_review.py"
       ],
       "test": "Profile fault_protocol and all existing 0.3.0-0.3.2 tests; zero mandatory skips",
-      "observed": "DB-clock lease creation/reclaim/finish passed with Python clock offsets of +/-30 days; focused cleanup/concurrency 25 passed",
+      "observed": "Full source 316 passed before latest recovery/quota/logging additions; later focused 27- and 8-test groups passed, overlap not summed; DB-clock +/-30 day regression retained",
       "remaining": [
-        "all old regressions, required fault protocol and native matrix"
+        "updated full source/native matrix and complete predeclared fault protocol"
       ],
       "status": "partial; complete acceptance pending"
     },
@@ -335,51 +350,64 @@
     {
       "id": "P27",
       "requirement": "Developer AGENTS, user canonical SKILL and slills entry links remain distinct and accurate",
-      "implementation": [],
-      "test": "Relative links/names, documented operations and instruction boundaries",
-      "observed": null,
-      "remaining": [
-        "update",
-        "validate"
+      "implementation": [
+        "AGENTS.md",
+        ".agents/skills/collective-intelligence-overlay/SKILL.md",
+        "docs/api.md"
       ],
-      "status": "pending"
+      "test": "Relative links/names, documented operations and instruction boundaries",
+      "observed": "Canonical skill and API now distinguish original-ID observation, UNKNOWN review, explicit resume, compromised authority and unavailable operational resources",
+      "remaining": [
+        "complete application/production operations docs and final link/installed-command gates"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P28",
       "requirement": "Minimal additive migrations, old DSSE bytes and APIs preserved, actual 0.3.2 upgrade and semantic checker/policy regression",
-      "implementation": [],
-      "test": "Fresh and installed-old-version offline upgrade; protected business cases; no inferred rolling support",
-      "observed": null,
-      "remaining": [
-        "migration",
-        "tests",
-        "upgrade guide"
+      "implementation": [
+        "src/collective_intelligence_overlay/migrations/versions/0016_reconciliation.py",
+        "src/collective_intelligence_overlay/migrations/versions/0017_recovery_gate.py",
+        "src/collective_intelligence_overlay/migrations/versions/0018_recovery_review.py",
+        "src/collective_intelligence_overlay/migrations/versions/0019_sync_completion.py"
       ],
-      "status": "pending"
+      "test": "Fresh and installed-old-version offline upgrade; protected business cases; no inferred rolling support",
+      "observed": "Additive projections retain legacy NULL arguments and historical DSSE bytes; migration and actual restore focused regressions pass",
+      "remaining": [
+        "actual installed 0.3.2 offline upgrade and protected checker/policy regression"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P29",
       "requirement": "Apache-2.0 new code, upstream provenance/NOTICE, every resolved dependency and external binary license/security/SBOM",
-      "implementation": [],
-      "test": "Profile distribution_gates.supply_chain on all 12 actual resolutions",
-      "observed": null,
-      "remaining": [
-        "dependency reviews",
-        "full audit"
+      "implementation": [
+        "scripts/fetch_caddy.py",
+        "scripts/proxy/README.md",
+        "scripts/proxy/go.mod",
+        "scripts/proxy/go.sum"
       ],
-      "status": "pending"
+      "test": "Profile distribution_gates.supply_chain on all 12 actual resolutions",
+      "observed": "Official proxy rejected with 28 affecting findings; pinned custom Windows build passes standard upstream/license/module/vulnerability/CycloneDX audits; unlinked OpenPGP finding and OFL/MPL obligations explicitly reviewed",
+      "remaining": [
+        "all native Go graphs, assembly/header notice review and every Python resolution audit"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P30",
       "requirement": "Same candidate pair validates all native source/wheel/extras/sdist/cross signatures and production assets",
-      "implementation": [],
-      "test": "Existing 12-profile workflow plus production/docs gates and cross-platform readers",
-      "observed": null,
-      "remaining": [
-        "CI integration",
-        "actual all-profile validation"
+      "implementation": [
+        ".github/workflows/workflow.yml",
+        "scripts/check_matrix.py",
+        "scripts/check_package.py"
       ],
-      "status": "pending"
+      "test": "Existing 12-profile workflow plus production/docs gates and cross-platform readers",
+      "observed": "Native Go setup/custom proxy audit integrated; package guard requires additive migrations; complete production/soak/experiment report guard added, unpublished 0.4.0 remains closed",
+      "remaining": [
+        "same final candidate pair through all source/wheel/extras/sdist/cross/mixed/native production gates"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P31",

@@ -124,9 +124,9 @@ async def test_cio_030_01_authenticated_exact_revoke_with_mixed_capability_histo
     signatures, returned = [], []
     original_verify = storage.verify
 
-    def measured_verify(envelope, principals):
+    def measured_verify(envelope, principals, **options):
         signatures.append(1)
-        return original_verify(envelope, principals)
+        return original_verify(envelope, principals, **options)
 
     def measured_rows(conn, cursor, statement, parameters, context, executemany):
         if statement.lstrip().upper().startswith("SELECT"):

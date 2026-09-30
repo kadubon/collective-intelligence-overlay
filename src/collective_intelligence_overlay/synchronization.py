@@ -22,6 +22,7 @@ from sqlalchemy import (
     String,
     Table,
     Text,
+    func,
     or_,
     select,
     update,
@@ -45,6 +46,7 @@ checkpoints = Table(
     Column("cursor", Text),
     Column("complete", Boolean, nullable=False),
     Column("last_receipt", String(64)),
+    Column("completed_at", DateTime(timezone=True)),
     Column("subjects", JSONB, nullable=False),
 )
 
@@ -71,6 +73,11 @@ class ResnapshotRequired(ValueError):
 
 
 def decode_token(token: str, principal: Principal, source: str, receiver: str) -> dict[str, Any]:
+    if (
+        principal.key.keyid in principal.compromised_keyids
+        or jwt.get_unverified_header(token).get("kid", principal.key.keyid) != principal.key.keyid
+    ):
+        raise ValueError("feed requires the current uncompromised key")
     key = Ed25519PublicKey.from_public_bytes(
         bytes.fromhex(principal.key.to_dict()["keyval"]["public"])
     )
@@ -97,7 +104,12 @@ class Feed:
         self.store, self.identity = store, identity
 
     def _token(self, claims: dict[str, Any]) -> str:
-        return jwt.encode(claims, self.identity.signer.private_bytes, algorithm="EdDSA")
+        return jwt.encode(
+            claims,
+            self.identity.signer.private_bytes,
+            algorithm="EdDSA",
+            headers={"kid": self.identity.signer.public_key.keyid},
+        )
 
     def page(
         self,
@@ -287,7 +299,8 @@ class Receiver:
                     subjects=[subject_key(s) for s in filter.subjects],
                 )
                 .on_conflict_do_update(
-                    index_elements=["source", "filter_digest"], set_={"complete": False}
+                    index_elements=["source", "filter_digest"],
+                    set_={"complete": False, "completed_at": None},
                 )
             )
 
@@ -346,6 +359,7 @@ class Receiver:
                         "cursor": None,
                         "complete": False,
                         "last_receipt": None,
+                        "completed_at": None,
                     },
                 )
             )
@@ -442,6 +456,7 @@ class Receiver:
                     cursor=page.next_cursor,
                     complete=claims["complete"],
                     last_receipt=receipt_hash,
+                    completed_at=func.clock_timestamp() if claims["complete"] else None,
                     subjects=[subject_key(s) for s in filter.subjects],
                 )
             )

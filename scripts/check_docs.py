@@ -6,6 +6,7 @@ import re
 from pathlib import Path
 
 from collective_intelligence_overlay.bindings import ArtifactSpec, Binding
+from collective_intelligence_overlay.config import Config
 from collective_intelligence_overlay.models import (
     Capability,
     Event,
@@ -18,7 +19,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--write-schemas", action="store_true")
 args = parser.parse_args()
 root = Path(__file__).resolve().parents[1]
-for model in (Capability, Evidence, Event, Opportunity, Proposal, Binding, ArtifactSpec):
+for model in (Capability, Evidence, Event, Opportunity, Proposal, Binding, ArtifactSpec, Config):
     path = root / "src/collective_intelligence_overlay/schemas" / f"{model.__name__.lower()}.json"
     content = json.dumps(model.model_json_schema(), indent=2) + "\n"
     if args.write_schemas:

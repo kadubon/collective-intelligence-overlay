@@ -24,6 +24,7 @@ remote_calls = Table(
     Column("parent_context", String(64)),
     Column("invocation_context", String(64)),
     Column("request_fingerprint", String(64), nullable=False),
+    Column("arguments_digest", String(64)),
     Column("lineage_fingerprint", String(64), nullable=False),
     Column("provider", String(160), nullable=False),
     Column("endpoint", String(2048), nullable=False),
@@ -114,6 +115,7 @@ class RemoteCall(BaseModel):
     request_fingerprint: Digest
     lineage_fingerprint: Digest
     provider: Identifier
+    arguments_digest: Digest | None = None
     endpoint: str
     binding_id: Identifier
     binding_digest: Digest
@@ -160,7 +162,13 @@ class RemoteCalls:
         if saved is not None:
             self._check(saved, instance)
 
-    def bind(self, instance: CallInstance, binding: Binding, target: Target) -> RemoteCall:
+    def bind(
+        self,
+        instance: CallInstance,
+        binding: Binding,
+        target: Target,
+        arguments: dict[str, Any] | None = None,
+    ) -> RemoteCall:
         if instance.owner != self.store.owner or target.peer is None or target.endpoint is None:
             raise ValueError("remote mapping requires the local owner and a pinned provider")
         selector = (
@@ -180,6 +188,7 @@ class RemoteCalls:
                     parent_context=instance.parent_context,
                     invocation_context=instance.invocation_context,
                     request_fingerprint=instance.request_fingerprint,
+                    arguments_digest=fingerprint(arguments) if arguments is not None else None,
                     lineage_fingerprint=instance.lineage_fingerprint,
                     provider=target.peer,
                     endpoint=target.endpoint,
@@ -202,6 +211,8 @@ class RemoteCalls:
                 or saved.binding_digest != binding.digest
                 or saved.provider_binding_id != target.name
                 or saved.provider_binding_digest != target.interface_digest
+                or saved.arguments_digest
+                != (fingerprint(arguments) if arguments is not None else None)
             ):
                 raise Conflict("logical call ID reused with a different provider or binding")
             return saved

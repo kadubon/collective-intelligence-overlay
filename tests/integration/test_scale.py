@@ -120,9 +120,9 @@ async def test_mixed_history_scale(total, overlay, identities, records, monkeypa
     original_verify = storage.verify
     original_decide = overlay.policy.decide
 
-    def measured_verify(envelope, principals):
+    def measured_verify(envelope, principals, **options):
         signature_bytes.append(len(json.dumps(envelope, separators=(",", ":")).encode()))
-        return original_verify(envelope, principals)
+        return original_verify(envelope, principals, **options)
 
     async def measured_decide(facts):
         started = time.perf_counter()
@@ -258,10 +258,10 @@ async def test_work_history_discovery_scale(total, overlay, identities, records,
         original_sign = identities["receiver"].sign
         original_decide = overlay.policy.decide
 
-        def measured_verify(envelope, principals):
+        def measured_verify(envelope, principals, **options):
             started = time.perf_counter()
             try:
-                return original_verify(envelope, principals)
+                return original_verify(envelope, principals, **options)
             finally:
                 signatures.append(time.perf_counter() - started)
 

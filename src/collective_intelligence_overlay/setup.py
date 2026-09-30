@@ -85,6 +85,63 @@ def starter(directory: Path) -> dict[str, Any]:
     return {"directory": str(directory.resolve()), "files": list(names), "registered": False}
 
 
+def rotate_key(
+    config: Config, directory: Path, *, compromised: tuple[str, ...] = ()
+) -> dict[str, Any]:
+    """Prepare an offline operator key/config bundle; peers never update trust automatically."""
+    from .operations import OwnerLock
+
+    previous = config.identities[config.owner]
+    known = {previous.keyid, *previous.historical_keys}
+    if not set(compromised) <= known:
+        raise ValueError("compromised key IDs must be explicitly pinned existing keys")
+    signer = CryptoSigner.generate_ed25519()
+    replacement = previous.model_copy(
+        update={
+            "keyid": signer.public_key.keyid,
+            "key": signer.public_key.to_dict(),
+            "historical_keys": {**previous.historical_keys, previous.keyid: previous.key},
+            "compromised_keyids": tuple(
+                sorted(set(previous.compromised_keyids) | set(compromised))
+            ),
+        }
+    )
+    TrustedIdentity.model_validate(replacement.model_dump())
+    store = Store(config.database_url.get_secret_value(), config.owner, {})
+    lock = OwnerLock(store)
+    try:
+        lock.acquire()
+        directory.mkdir(parents=True, exist_ok=False, mode=0o700)
+        _write(directory / "identity.pem", signer.private_bytes, private=True)
+        _write(
+            directory / "database-url",
+            config.database_url.get_secret_value().encode(),
+            private=True,
+        )
+        data = config.model_dump(mode="json", exclude={"database_url"})
+        data.update(private_key="identity.pem", database_url_file="database-url")
+        for field in ("artifact_directory", "application_settings", "tls_ca_certificate"):
+            source = getattr(config, field)
+            if source is not None:
+                data[field] = str(source.resolve())
+        data["identities"][config.owner] = replacement.model_dump(mode="json")
+        # Refer to the existing absolute artifacts/settings/CA, never copy or clear state.
+        _write(directory / "config.json", json.dumps(data, indent=2).encode(), private=True)
+        public = {"owner": config.owner, "identity": replacement.model_dump(mode="json")}
+        _write(directory / "public-identity.json", json.dumps(public, indent=2).encode())
+        return {
+            "config": str((directory / "config.json").resolve()),
+            "current_keyid": replacement.keyid,
+            "historical_keyids": sorted(replacement.historical_keys),
+            "compromised_keyids": replacement.compromised_keyids,
+            "peer_trust_updated": False,
+            "required": "update peer pins and restart; compromised history grants no authority",
+        }
+    finally:
+        lock.close()
+        store.close()
+
+
 def bootstrap_database(config: Config, operator_url: str, allowance: Decimal) -> dict[str, Any]:
     """Create a new dedicated DB/role; DDL credentials never enter runtime config.
 

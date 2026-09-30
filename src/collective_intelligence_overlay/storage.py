@@ -13,6 +13,7 @@ from typing import Any
 from sqlalchemy import (
     JSON,
     BigInteger,
+    Boolean,
     Column,
     DateTime,
     Integer,
@@ -84,6 +85,10 @@ feed_state = Table(
     Column("id", Integer, primary_key=True),
     Column("generation", String(64), nullable=False),
     Column("sequence", BigInteger, nullable=False),
+    Column("restore_pending", Boolean, nullable=False, server_default="false"),
+    Column("restored_at", DateTime(timezone=True)),
+    Column("recovery_receipt", String(160)),
+    Column("recovery_digest", String(64)),
 )
 subject_revisions = Table(
     "subject_revisions",
@@ -352,7 +357,7 @@ class Store:
         payload = base64.b64decode(envelope["payload"], validate=True)
         if hashlib.sha256(payload).hexdigest() != reference.payload_digest:
             raise ValueError("mismatched record reference")
-        return verify(envelope, self.principals)
+        return verify(envelope, self.principals, require_authority=False)
 
     def reference(self, kind: str, issuer: str, record_id: str) -> RecordRef:
         """Get an exact reference from stored bytes, not current model defaults."""
@@ -378,7 +383,7 @@ class Store:
                 ).scalar_one_or_none()
                 if envelope is None:
                     raise ValueError("missing record reference")
-                verify(envelope, self.principals)
+                verify(envelope, self.principals, require_authority=False)
                 value = hashlib.sha256(
                     base64.b64decode(envelope["payload"], validate=True)
                 ).hexdigest()
@@ -402,7 +407,7 @@ class Store:
             != reference.payload_digest
         ):
             raise ValueError("missing or mismatched signed record")
-        verify(envelope, self.principals)
+        verify(envelope, self.principals, require_authority=False)
         return dict(envelope)
 
     def reset_sync_after_restore(self) -> str:
@@ -418,7 +423,15 @@ class Store:
         with self.engine.begin() as conn:
             conn.execute(select(feed_state).where(feed_state.c.id == 1).with_for_update()).one()
             conn.execute(
-                update(feed_state).where(feed_state.c.id == 1).values(generation=generation)
+                update(feed_state)
+                .where(feed_state.c.id == 1)
+                .values(
+                    generation=generation,
+                    restore_pending=True,
+                    restored_at=func.clock_timestamp(),
+                    recovery_receipt=None,
+                    recovery_digest=None,
+                )
             )
             conn.execute(
                 update(checkpoints).values(
@@ -429,12 +442,21 @@ class Store:
                     cursor=None,
                     complete=False,
                     last_receipt=None,
+                    completed_at=None,
                 )
             )
             conn.execute(
                 update(subject_revisions).values(revision=subject_revisions.c.revision + 1)
             )
         return generation
+
+    def restore_pending(self) -> bool:
+        with self.engine.connect() as conn:
+            return bool(
+                conn.execute(
+                    select(feed_state.c.restore_pending).where(feed_state.c.id == 1)
+                ).scalar_one()
+            )
 
     @staticmethod
     def _revisions(conn: Connection, keys: set[str]) -> dict[str, int]:
@@ -656,7 +678,7 @@ class Store:
             item = (
                 Decision.model_validate(envelope)
                 if local_decisions
-                else verify(envelope, self.principals)
+                else verify(envelope, self.principals, require_authority=False)
             )
             size = len(item.model_dump_json().encode())
             if size > byte_limit:
@@ -691,7 +713,7 @@ class Store:
             )
         if len(rows) > limit:
             raise ValueError("record limit exceeded; use record_page with an explicit cursor")
-        return [verify(row, self.principals) for row in rows]
+        return [verify(row, self.principals, require_authority=False) for row in rows]
 
     def capabilities(self) -> list[Capability]:
         return [x for x in self.read_records("capability") if isinstance(x, Capability)]

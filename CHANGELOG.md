@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.4.0 (unreleased)
+
+- Operator-selected installed application host, packaged starter, separate secret
+  files, restricted runtime DB bootstrap, owner locking, dependency readiness,
+  drain and tracked physical blocking work compose the existing execution APIs.
+- Bounded authenticated HTTP capacity and read-only retries preserve operation
+  identity. Original provider-ID reconciliation appends provenance observations,
+  separates reported completion/effect/PASS and retains UNKNOWN and allowance.
+- Offline coherent PostgreSQL/CAS/config/key backup and additive 0016-0019
+  projections preserve old signed bytes. Restored intake stays closed through
+  restart; full post-restore sync and an explicitly registered external-state
+  query precede a separately authorized, unchanged-state resume.
+- Routine/compromised keyrings separate historical origin from current authority.
+  Standard redacted rotating logs, owner-only metrics and configured atomic CAS
+  quotas retain uncertain mappings, signed history and unavailable costs.
+- The official Caddy binary failed vulnerability review. An explicit pinned
+  native v2.11.4+cio.1 build uses security-updated dependencies, a two-line public
+  CEL API adjustment and standard native upstream/license/security/SBOM audits.
+  OFL/MPL obligations and the unlinked OpenPGP advisory are retained in the review.
+- The predeclared complete production/native/fault/soak/experiment gates remain
+  unfinished. This candidate has not been tagged, released or published to PyPI.
+
 ## 0.3.2 (2026-09-30)
 
 - CIO-031-01: owner-bounded expiry cleanup shares the existing fenced transition

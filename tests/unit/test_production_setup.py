@@ -31,6 +31,14 @@ def test_setup_separates_secret_and_resolves_paths_without_overwrite(tmp_path, m
     assert config.local_development is False
     assert config.identities.keys() == {"analyst"}
     assert "private-test-value" not in repr(config)
+    bounded = config.model_copy(update={"artifact_capacity_bytes": 1048576, "artifact_max_files": 1})
+    cas = bounded.artifacts()
+    original_object = cas.put(b"owner input")
+    assert bounded.artifacts().put(b"owner input") == original_object
+    with pytest.raises(ValueError, match="ARTIFACT_CAPACITY_EXCEEDED"):
+        bounded.artifacts().put(b"different input")
+    assert cas.get(original_object) == b"owner input"
+    assert bounded.artifacts().usage()["capacity_bytes"] == 1048576
     if os.name != "nt":
         assert (home / "identity.pem").stat().st_mode & 0o777 == 0o600
         assert (home / "secrets/database-url").stat().st_mode & 0o777 == 0o600

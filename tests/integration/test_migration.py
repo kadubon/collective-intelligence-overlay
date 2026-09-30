@@ -128,7 +128,11 @@ def test_actual_031_cleanup_index_upgrade_and_restore_preserve_all_rows(
         for row in original["records"]:
             verify(row["envelope"], restored.principals)
         with restored.engine.connect() as conn:
-            assert list(conn.execute(select(remote_calls)).mappings()) == original["remote_calls"]
+            mapped = list(conn.execute(select(remote_calls)).mappings())
+            assert all(row["arguments_digest"] is None for row in mapped)
+            assert [
+                {k: v for k, v in row.items() if k != "arguments_digest"} for row in mapped
+            ] == original["remote_calls"]
         with restored.engine.begin() as conn:
             conn.execute(
                 update(leases)
@@ -145,7 +149,11 @@ def test_actual_031_cleanup_index_upgrade_and_restore_preserve_all_rows(
             assert saved["uncertain"]["state"] == "unknown"
             assert saved["completed"]["result"] == {"value": 7}
             assert conn.execute(select(budgets.c.remaining)).scalar_one() == 7
-            assert list(conn.execute(select(remote_calls)).mappings()) == original["remote_calls"]
+            mapped = list(conn.execute(select(remote_calls)).mappings())
+            assert all(row["arguments_digest"] is None for row in mapped)
+            assert [
+                {k: v for k, v in row.items() if k != "arguments_digest"} for row in mapped
+            ] == original["remote_calls"]
 
 
 def test_actual_020_invocation_upgrade_keeps_unknown_allowances_and_signed_history(
@@ -319,7 +327,7 @@ def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_s
         assert selection["cause_id"] == projection["cause_id"]
         assert conn.execute(select(requests)).first() is None
         assert conn.execute(select(remote_calls)).first() is None
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0015"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0019"
         assert conn.execute(
             select(invocations.c.id).where(invocations.c.id == fixture["legacy_remote_id"])
         ).scalar_one()

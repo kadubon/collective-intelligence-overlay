@@ -5,6 +5,8 @@ from collections.abc import Awaitable, Callable
 from datetime import datetime, timedelta
 from typing import TypeVar
 
+from securesystemslib.exceptions import VerificationError
+
 from .blocking import run_blocking
 from .models import Capability, Decision, Evidence, Outcome, Subject, UseRequest, now, uid
 from .policy import Policy
@@ -317,7 +319,7 @@ class Overlay:
                 )
 
             decision = await evaluate(request, frozenset())
-        except (ValueError, RecursionError):
+        except (ValueError, RecursionError, VerificationError):
             decision = self._decision(request, Outcome.UNKNOWN, ("invalid_or_excessive_records",))
         decision = decision.model_copy(
             update={

@@ -297,6 +297,211 @@
       "title": "ReceiptRef",
       "type": "object"
     },
+    "ReconciliationReceipt": {
+      "additionalProperties": false,
+      "description": "Owner's observation of an original call, never a semantic PASS or refund.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "caller": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Caller",
+          "type": "string"
+        },
+        "call_key": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Call Key",
+          "type": "string"
+        },
+        "provider": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Provider",
+          "type": "string"
+        },
+        "provider_invocation_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Provider Invocation Id",
+          "type": "string"
+        },
+        "local_binding_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Local Binding Digest",
+          "type": "string"
+        },
+        "provider_binding_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Provider Binding Digest",
+          "type": "string"
+        },
+        "request_fingerprint": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Request Fingerprint",
+          "type": "string"
+        },
+        "arguments_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Arguments Digest"
+        },
+        "provider_request_fingerprint": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Provider Request Fingerprint"
+        },
+        "provider_result_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Provider Result Digest"
+        },
+        "original_invocation_id": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Original Invocation Id"
+        },
+        "original_receipt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReceiptRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "reported_state": {
+          "enum": [
+            "completed",
+            "running",
+            "unknown",
+            "cancelled",
+            "rejected",
+            "absent"
+          ],
+          "title": "Reported State",
+          "type": "string"
+        },
+        "effect": {
+          "default": "unknown",
+          "enum": [
+            "confirmed",
+            "absent",
+            "unknown"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "independent_verification": {
+          "const": "UNKNOWN",
+          "default": "UNKNOWN",
+          "title": "Independent Verification",
+          "type": "string"
+        },
+        "reason": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Reason",
+          "type": "string"
+        },
+        "query_response_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Query Response Digest"
+        },
+        "effect_observation_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Effect Observation Digest"
+        },
+        "reconciler_binding_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Reconciler Binding Digest"
+        }
+      },
+      "required": [
+        "caller",
+        "call_key",
+        "provider",
+        "provider_invocation_id",
+        "local_binding_digest",
+        "provider_binding_digest",
+        "request_fingerprint",
+        "arguments_digest",
+        "provider_request_fingerprint",
+        "provider_result_digest",
+        "reported_state",
+        "reason"
+      ],
+      "title": "ReconciliationReceipt",
+      "type": "object"
+    },
     "Scope": {
       "additionalProperties": false,
       "description": "Exact operational applicability; schema equality does not prove semantic fit.",
@@ -573,7 +778,8 @@
       "enum": [
         "1",
         "2",
-        "3"
+        "3",
+        "4"
       ],
       "title": "Schema Version",
       "type": "string"
@@ -604,6 +810,17 @@
       "anyOf": [
         {
           "$ref": "#/$defs/WorkObservation"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "reconciliation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ReconciliationReceipt"
         },
         {
           "type": "null"

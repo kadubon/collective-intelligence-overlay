@@ -1,0 +1,397 @@
+{
+  "$defs": {
+    "Peer": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "identity": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Identity",
+          "type": "string"
+        },
+        "url": {
+          "title": "Url",
+          "type": "string"
+        }
+      },
+      "required": [
+        "identity",
+        "url"
+      ],
+      "title": "Peer",
+      "type": "object"
+    },
+    "PolicySettings": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "licenses": {
+          "default": [
+            "Apache-2.0",
+            "MIT",
+            "BSD-3-Clause",
+            "CC0-1.0"
+          ],
+          "items": {
+            "type": "string"
+          },
+          "title": "Licenses",
+          "type": "array"
+        },
+        "permissions": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "title": "Permissions",
+          "type": "array"
+        },
+        "max_evidence_age_seconds": {
+          "default": 86400,
+          "maximum": 31536000,
+          "minimum": 1,
+          "title": "Max Evidence Age Seconds",
+          "type": "integer"
+        },
+        "max_source_age_seconds": {
+          "default": 300,
+          "maximum": 86400,
+          "minimum": 1,
+          "title": "Max Source Age Seconds",
+          "type": "integer"
+        }
+      },
+      "title": "PolicySettings",
+      "type": "object"
+    },
+    "TrustedIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "keyid": {
+          "title": "Keyid",
+          "type": "string"
+        },
+        "key": {
+          "additionalProperties": true,
+          "title": "Key",
+          "type": "object"
+        },
+        "trust_group": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Trust Group",
+          "type": "string"
+        },
+        "methods": {
+          "default": [],
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.:/-]+$",
+            "type": "string"
+          },
+          "title": "Methods",
+          "type": "array"
+        },
+        "historical_keys": {
+          "additionalProperties": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "maxProperties": 16,
+          "title": "Historical Keys",
+          "type": "object"
+        },
+        "compromised_keyids": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 17,
+          "title": "Compromised Keyids",
+          "type": "array"
+        }
+      },
+      "required": [
+        "keyid",
+        "key",
+        "trust_group"
+      ],
+      "title": "TrustedIdentity",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "Schema Version",
+      "type": "string"
+    },
+    "owner": {
+      "maxLength": 160,
+      "minLength": 1,
+      "pattern": "^[a-zA-Z0-9_.:/-]+$",
+      "title": "Owner",
+      "type": "string"
+    },
+    "database_url": {
+      "format": "password",
+      "title": "Database Url",
+      "type": "string",
+      "writeOnly": true
+    },
+    "private_key": {
+      "format": "path",
+      "title": "Private Key",
+      "type": "string"
+    },
+    "artifact_directory": {
+      "format": "path",
+      "title": "Artifact Directory",
+      "type": "string"
+    },
+    "opa_binary": {
+      "title": "Opa Binary",
+      "type": "string"
+    },
+    "url": {
+      "title": "Url",
+      "type": "string"
+    },
+    "local_development": {
+      "default": false,
+      "title": "Local Development",
+      "type": "boolean"
+    },
+    "share_records": {
+      "default": false,
+      "title": "Share Records",
+      "type": "boolean"
+    },
+    "peers": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/Peer"
+      },
+      "maxItems": 64,
+      "title": "Peers",
+      "type": "array"
+    },
+    "identities": {
+      "maxProperties": 128,
+      "patternProperties": {
+        "^[a-zA-Z0-9_.:/-]+$": {
+          "$ref": "#/$defs/TrustedIdentity"
+        }
+      },
+      "propertyNames": {
+        "maxLength": 160,
+        "minLength": 1
+      },
+      "title": "Identities",
+      "type": "object"
+    },
+    "policy": {
+      "$ref": "#/$defs/PolicySettings"
+    },
+    "max_concurrency": {
+      "default": 4,
+      "maximum": 32,
+      "minimum": 1,
+      "title": "Max Concurrency",
+      "type": "integer"
+    },
+    "max_owner_requests": {
+      "default": 16,
+      "maximum": 256,
+      "minimum": 1,
+      "title": "Max Owner Requests",
+      "type": "integer"
+    },
+    "max_caller_requests": {
+      "default": 4,
+      "maximum": 64,
+      "minimum": 1,
+      "title": "Max Caller Requests",
+      "type": "integer"
+    },
+    "max_unresolved": {
+      "default": 32,
+      "maximum": 1024,
+      "minimum": 1,
+      "title": "Max Unresolved",
+      "type": "integer"
+    },
+    "max_steps": {
+      "default": 20,
+      "maximum": 1000,
+      "minimum": 1,
+      "title": "Max Steps",
+      "type": "integer"
+    },
+    "max_children": {
+      "default": 4,
+      "maximum": 32,
+      "minimum": 0,
+      "title": "Max Children",
+      "type": "integer"
+    },
+    "max_rechecks": {
+      "default": 2,
+      "maximum": 10,
+      "minimum": 0,
+      "title": "Max Rechecks",
+      "type": "integer"
+    },
+    "max_seconds": {
+      "default": 120,
+      "maximum": 3600,
+      "minimum": 1,
+      "title": "Max Seconds",
+      "type": "integer"
+    },
+    "execution_environment": {
+      "maxProperties": 64,
+      "patternProperties": {
+        "^[a-zA-Z0-9_.:/-]+$": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "type": "string"
+        }
+      },
+      "propertyNames": {
+        "maxLength": 160,
+        "minLength": 1
+      },
+      "title": "Execution Environment",
+      "type": "object"
+    },
+    "application": {
+      "anyOf": [
+        {
+          "maxLength": 256,
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Application"
+    },
+    "application_settings": {
+      "anyOf": [
+        {
+          "format": "path",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Application Settings"
+    },
+    "listen_port": {
+      "anyOf": [
+        {
+          "maximum": 65535,
+          "minimum": 1024,
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Listen Port"
+    },
+    "tls_ca_certificate": {
+      "anyOf": [
+        {
+          "format": "path",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Tls Ca Certificate"
+    },
+    "log_directory": {
+      "anyOf": [
+        {
+          "format": "path",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Log Directory"
+    },
+    "log_segment_bytes": {
+      "default": 8388608,
+      "maximum": 67108864,
+      "minimum": 4096,
+      "title": "Log Segment Bytes",
+      "type": "integer"
+    },
+    "log_backup_segments": {
+      "default": 7,
+      "maximum": 31,
+      "minimum": 1,
+      "title": "Log Backup Segments",
+      "type": "integer"
+    },
+    "artifact_capacity_bytes": {
+      "default": 268435456,
+      "maximum": 8589934592,
+      "minimum": 1048576,
+      "title": "Artifact Capacity Bytes",
+      "type": "integer"
+    },
+    "artifact_max_files": {
+      "default": 65536,
+      "maximum": 65536,
+      "minimum": 1,
+      "title": "Artifact Max Files",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "owner",
+    "database_url",
+    "private_key",
+    "artifact_directory",
+    "opa_binary",
+    "url",
+    "identities"
+  ],
+  "title": "Config",
+  "type": "object"
+}

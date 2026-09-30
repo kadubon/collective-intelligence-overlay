@@ -530,7 +530,13 @@ class Registry:
                     "A2A call has no stable host context; provide call_id and call_scope"
                 )
             saving = asyncio.create_task(
-                run_blocking(RemoteCalls(self.overlay.store).bind, instance, pinned_binding, target)
+                run_blocking(
+                    RemoteCalls(self.overlay.store).bind,
+                    instance,
+                    pinned_binding,
+                    target,
+                    arguments,
+                )
             )
             try:
                 saved = await asyncio.shield(saving)
@@ -607,6 +613,8 @@ class Registry:
             saved.provider,
             {"operation": "invocation", "invocation_id": saved.remote_invocation_id},
         )
+        if set(response) != {"invocation"}:
+            raise ValueError("provider query returned no authoritative invocation response")
         result = response.get("invocation")
         if result is not None and not isinstance(result, dict):
             raise ValueError("invalid remote invocation lookup")

@@ -808,3 +808,143 @@ in a file limited to 64 KiB; CLI identity comes from the protected owner config.
 loading code, connecting to a service or registering the manifest. Actual registration
 uses the trusted application's `Registry` setup callback. There is deliberately no
 CLI that loads executable code named by an untrusted manifest.
+
+## 0.4.0 candidate operations
+
+These operations are implemented on main and under validation; they are not a
+claim that the complete production profile has passed. The public
+`ApplicationHost` uses the existing Registry/Executor/Opportunities/Steps. An
+operator-selected installed `module:factory` receives the host and returns None.
+Remote inputs cannot select that factory or register executable code.
+
+`remote-calls --config PATH --invocation-id ORIGINAL` queries one bounded page of
+the owner's saved child mappings. Alternatively use `--call-scope SCOPE` for a
+persisted standalone host scope. A full page continues with `--after LAST_CALL_KEY`;
+an empty page proves no absence of legacy effects. `reconcile --config PATH
+--call-key KEY --command-id OBSERVATION --invocation-id ORIGINAL` queries the exact
+saved provider ID. Repeat the same command ID to recover its historical signed
+observation; use a new operator command ID for a new observation.
+
+Reconciliation matches caller, provider, binding, argument digest, result digest
+and original parent. Event v4 retains the local request fingerprint, provider
+fingerprint, response digest, original UNKNOWN receipt and observed cost. Older
+record media types and signed payloads remain unchanged. Legacy mappings without
+an argument digest remain UNKNOWN; migration does not invent it. Provider
+completion is a report, not independently confirmed effect or PASS.
+
+For application-specific effect confirmation, the installed factory registers an
+ordinary read-only query binding and calls `host.reconciliations.register(ID)`.
+The query receives an object with `call` and `provider_report` and returns the
+public `EffectObservation` JSON shape. It runs through the same Registry with an
+owner verification grant and actual argument checks. `--reconciler ID` selects
+only that explicitly registered binding. Mismatched or missing observations stay
+UNKNOWN. Neither query path invokes the original uncertain action, changes its
+result, releases its reservation, issues a fresh attempt or creates PASS.
+
+Authenticated ASGI capacity defaults to 16 owner requests and four per caller,
+including reads, proposals and body receipt. The configuration fields are
+`max_owner_requests` and `max_caller_requests`. Refusals use standard HTTP 503 or
+429 with `Retry-After: 1`; body receipt is bounded to 262144 bytes and 30 seconds.
+Read-only transport retries 429/503 at most three times, with each wait at most
+five seconds and the existing network deadline. The same serialized request is
+retained. A larger server-requested wait is returned without an early retry.
+Invoke/cancel/reconcile/sync/run and other state-changing POSTs are not retried.
+The independently bounded Agent Card GET may retry before an invocation is sent.
+
+`backup --config PATH --directory NEW --database-url-env CIO_BACKUP_DATABASE_URL`
+requires a stopped owner and a separate explicit PostgreSQL operator connection.
+`--pg-prefix-file PATH` accepts JSON argv for an installed native client wrapper;
+otherwise `pg_dump` must be on PATH. `--tls-private-key PATH` explicitly includes
+an operator-managed proxy private key. The exclusive protected directory includes
+the PostgreSQL custom dump, content-addressed artifacts, private identity/DSN,
+portable config, application settings/CA when configured, runtime and feed metadata,
+and a final digest manifest. It contains secrets: protect/encrypt it with existing
+backup tooling. A failed/interrupted backup has no accepted final manifest and is
+retained for diagnosis. Existing destinations are refused.
+
+`verify-backup --directory PATH` checks bytes and reports
+`business_restore_verified: false`. It does not restore a database or establish
+that external work since the backup is represented. `restore-state --config PATH`
+requires an offline owner lock, rotates the feed and invalidates freshness. It now
+persists closed intake across restart. Explicit operator review uses the existing
+Registry and signed event path below. Do not manually clear the database flag to
+substitute for that review.
+
+The installed application registers a read-only business-state query with an
+owner verification grant, then calls `host.recovery.register(BINDING_ID)`.
+`recovery-state --config PATH` inspects signed payloads and their database
+projections, content-addressed files, invocation/lease/remote-call identity,
+allowance, runtime/application settings and completed full-source synchronization.
+Every configured foreign source must complete full synchronization after the
+restore. Source-declared time governs evidence freshness; local database completion
+time establishes ordering after the local restore. Running work must first be
+fenced using the existing cleanup path. This inspection grants no intake permission.
+
+`recovery-review --config PATH --command-id ID --checker BINDING_ID
+--arguments-file PATH` runs only the explicitly registered read-only query. It
+receives `state` and the operator's bounded `arguments` and returns the public
+`RecoveryObservation` JSON shape. The application must query authoritative
+external state, consumption and original call IDs, including work missing from
+the backup. Echoing the restored inputs does not meet that contract. Missing
+external inventory, insufficient provenance or unexplained consumption requires
+`post_backup_state: unknown`; do not manufacture or discard missing mappings.
+The observation must match the exact owner, restored generation, inspected state
+digest, independently established balances and uncertain original caller/ID pairs.
+
+The signed receipt and private proof retain UNKNOWN or mismatch. Reusing its
+command ID returns the original historical observation without another query.
+UNKNOWN exits 2; matched exits 0 but still leaves intake closed. `resume --config
+PATH` is a separate owner operation: it rechecks the exact inspected state and
+query authority before opening intake. A restart does not bypass this check;
+changed budgets, records, artifacts, sync or settings require a new review.
+These operations never rewrite the original UNKNOWN, refund allowance, issue
+independent PASS, or imply that structural restoration recovered external effects.
+The complete native production recovery protocol remains an acceptance gate.
+
+`key-rotate --config PATH --directory NEW [--compromised-key-id PINNED_ID]` prepares
+an offline key/config/public-pin bundle without overwriting the old files. The
+operator updates each peer's current pin and restarts both sides. Historical pins
+verify stored DSSE origin; only the current uncompromised key authenticates HTTP
+and fresh feed tokens. `historical_keys` maps exact key IDs to public key objects;
+`compromised_keyids` explicitly marks known compromised pins. Backdated payload
+timestamps never exempt a compromised key. Such history remains inspectable but
+cannot authorize admission: qualify returns UNKNOWN pending new checks/version.
+Rotation retains the database, artifacts, original call IDs and budgets. It does
+not automatically distribute trust, requalify an old scope or undo external effects.
+
+The generated installed runtime configuration shape is
+[config.json](../src/collective_intelligence_overlay/schemas/config.json).
+`load_config` additionally accepts `database_url_file` instead of `database_url`;
+these two credential sources are mutually exclusive. Relative local paths are
+resolved against the config file's parent.
+
+`metrics --config PATH --operational` queries the authenticated owner endpoint.
+It reports physical request/blocking work, authoritative invocation states,
+unresolved held effects, expired running invocations, remaining allowance,
+completed source prefixes, retained record counts, actual database size and CAS
+usage. `last_allocation` is the configured finite loop's last observation, not a
+measurement of all current work. Missing CPU/model/token/currency/provider timing
+is reported as unavailable; remaining allowance is not measured consumption.
+Service or authorization errors exit 2. This mode cannot combine history/query
+flags; existing event/cohort/current-admission metric semantics remain separate.
+
+The service CLI configures standard JSON logging in `log_directory` (default:
+the protected identity directory's `logs` child). `log_segment_bytes` defaults
+to 8388608 and `log_backup_segments` to seven: at most eight retained segments.
+The formatter emits bounded owner/reason/state/correlation/numeric metadata and
+exception type, excluding library message bodies, headers and tracebacks.
+SDK imports do not reconfigure an application's logging. Custom application
+handlers remain the trusted host's responsibility. Protect native Windows
+directories with OS ACLs; POSIX mode bits do not establish Windows isolation.
+
+`Artifacts` defaults to 1048576 bytes per object, 268435456 bytes total and 65536
+files. Trusted applications can pass `max_bytes`, `capacity_bytes` and `max_files`
+to its constructor. `Config.artifacts()` applies the owner's configured
+`artifact_capacity_bytes` and `artifact_max_files` to each standard service instance;
+the production profile keeps their defaults. Raising capacity is not acceptance
+of a larger workload. Standard native file locking serializes capacity checks and
+atomic publication; identical content replay remains allowed at capacity.
+Capacity refusal retains existing bytes. `usage()` reports a 90-percent warning;
+it never purges signed evidence, withdrawal, call mappings or uncertain leases.
+Backup/archive retained history before adjusting limits; deleting such rows is
+not a supported retention operation.

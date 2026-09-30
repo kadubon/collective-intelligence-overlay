@@ -1,14 +1,17 @@
 """Operator-owned configuration; credentials are referenced by local path."""
 
+from __future__ import annotations
+
 import json
 import ssl
 from pathlib import Path
 from typing import Any
 
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from pydantic import Field, SecretStr
+from pydantic import Field, SecretStr, model_validator
 from securesystemslib.signer import CryptoSigner, Key  # type: ignore[attr-defined]
 
+from .artifacts import Artifacts
 from .models import Identifier, Model
 from .overlay import Overlay
 from .policy import Policy, PolicySettings
@@ -26,6 +29,20 @@ class TrustedIdentity(Model):
     key: dict[str, Any]
     trust_group: Identifier
     methods: tuple[Identifier, ...] = ()
+    historical_keys: dict[str, dict[str, Any]] = Field(default_factory=dict, max_length=16)
+    compromised_keyids: tuple[str, ...] = Field(default=(), max_length=17)
+
+    @model_validator(mode="after")
+    def known_keyring(self) -> TrustedIdentity:
+        if (
+            self.keyid in self.historical_keys
+            or len(set(self.compromised_keyids)) != len(self.compromised_keyids)
+            or not set(self.compromised_keyids) <= {self.keyid, *self.historical_keys}
+        ):
+            raise ValueError("keyring must contain unique explicitly pinned keys")
+        for keyid, key in self.historical_keys.items():
+            Key.from_dict(keyid, dict(key))
+        return self
 
 
 class Config(Model):
@@ -41,6 +58,8 @@ class Config(Model):
     identities: dict[Identifier, TrustedIdentity] = Field(max_length=128)
     policy: PolicySettings = Field(default_factory=PolicySettings)
     max_concurrency: int = Field(default=4, ge=1, le=32)
+    max_owner_requests: int = Field(default=16, ge=1, le=256)
+    max_caller_requests: int = Field(default=4, ge=1, le=64)
     max_unresolved: int = Field(default=32, ge=1, le=1024)
     max_steps: int = Field(default=20, ge=1, le=1000)
     max_children: int = Field(default=4, ge=0, le=32)
@@ -51,6 +70,19 @@ class Config(Model):
     application_settings: Path | None = None
     listen_port: int | None = Field(default=None, ge=1024, le=65535)
     tls_ca_certificate: Path | None = None
+    log_directory: Path | None = None
+    log_segment_bytes: int = Field(default=8388608, ge=4096, le=67108864)
+    log_backup_segments: int = Field(default=7, ge=1, le=31)
+    artifact_capacity_bytes: int = Field(default=268435456, ge=1048576, le=8589934592)
+    artifact_max_files: int = Field(default=65536, ge=1, le=65536)
+
+    def artifacts(self) -> Artifacts:
+        """Construct the owner's configured CAS; this does not connect to the DB."""
+        return Artifacts(
+            self.artifact_directory,
+            capacity_bytes=self.artifact_capacity_bytes,
+            max_files=self.artifact_max_files,
+        )
 
     def tls_context(self) -> ssl.SSLContext:
         """System trust or an explicit operator CA; hostname verification stays on."""
@@ -64,7 +96,13 @@ class Config(Model):
                 raise ValueError("peer is not pinned")
         principals = {
             name: Principal(
-                Key.from_dict(item.keyid, dict(item.key)), item.trust_group, frozenset(item.methods)
+                Key.from_dict(item.keyid, dict(item.key)),
+                item.trust_group,
+                frozenset(item.methods),
+                tuple(
+                    Key.from_dict(keyid, dict(key)) for keyid, key in item.historical_keys.items()
+                ),
+                frozenset(item.compromised_keyids),
             )
             for name, item in self.identities.items()
         }
@@ -72,6 +110,8 @@ class Config(Model):
         signer = CryptoSigner(key)
         if self.owner not in principals or signer.public_key != principals[self.owner].key:
             raise ValueError("private key does not match configured owner")
+        if signer.public_key.keyid in principals[self.owner].compromised_keyids:
+            raise ValueError("compromised current key cannot sign or authenticate")
         identity = Identity(self.owner, signer)
         return identity, Overlay(
             Store(self.database_url.get_secret_value(), self.owner, principals),
@@ -99,7 +139,13 @@ def load_config(path: Path) -> Config:
         if source.stat().st_size > 8192:
             raise ValueError("database credential file too large")
         data["database_url"] = source.read_text(encoding="utf-8").strip()
-    for name in ("private_key", "artifact_directory", "application_settings", "tls_ca_certificate"):
+    for name in (
+        "private_key",
+        "artifact_directory",
+        "application_settings",
+        "tls_ca_certificate",
+        "log_directory",
+    ):
         if data.get(name) is not None:
             value = Path(data[name])
             if not value.is_absolute():

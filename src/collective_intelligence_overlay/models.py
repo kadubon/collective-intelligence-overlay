@@ -268,11 +268,46 @@ class WorkObservation(Model):
         return self
 
 
+class ReconciliationReceipt(Model):
+    """Owner's observation of an original call, never a semantic PASS or refund."""
+
+    caller: Identifier
+    call_key: Digest
+    provider: Identifier
+    provider_invocation_id: Identifier
+    local_binding_digest: Digest
+    provider_binding_digest: Digest
+    request_fingerprint: Digest
+    arguments_digest: Digest | None
+    provider_request_fingerprint: Digest | None
+    provider_result_digest: Digest | None
+    original_invocation_id: Identifier | None = None
+    original_receipt: ReceiptRef | None = None
+    reported_state: Literal["completed", "running", "unknown", "cancelled", "rejected", "absent"]
+    effect: Literal["confirmed", "absent", "unknown"] = "unknown"
+    independent_verification: Literal["UNKNOWN"] = "UNKNOWN"
+    reason: Identifier
+    query_response_digest: Digest | None = None
+    effect_observation_digest: Digest | None = None
+    reconciler_binding_digest: Digest | None = None
+
+    @model_validator(mode="after")
+    def effect_proof(self) -> Self:
+        if self.effect != "unknown" and (
+            self.effect_observation_digest is None or self.reconciler_binding_digest is None
+        ):
+            raise ValueError(
+                "confirmed effect requires an explicit installed reconciler observation"
+            )
+        return self
+
+
 class Event(RecordModel):
-    schema_version: Literal["1", "2", "3"] = "1"
+    schema_version: Literal["1", "2", "3", "4"] = "1"
     execution: ExecutionReceipt | None = None
     formation: FormationReceipt | None = None
     work: WorkObservation | None = None
+    reconciliation: ReconciliationReceipt | None = None
     kind: Literal["event"] = "event"
     id: Identifier = Field(default_factory=uid)
     issuer: Identifier
@@ -302,6 +337,17 @@ class Event(RecordModel):
     @model_validator(mode="after")
     def receipt_version(self) -> Self:
         count = int(self.execution is not None) + int(self.formation is not None)
+        if self.schema_version == "4":
+            if (
+                count
+                or self.work is not None
+                or self.reconciliation is None
+                or self.action != "recommendation"
+                or self.outcome is not None
+            ):
+                raise ValueError("v4 reconciliation requires one observation and no truth claim")
+        elif self.reconciliation is not None:
+            raise ValueError("reconciliation observations require event v4")
         if self.schema_version == "3":
             if (
                 count

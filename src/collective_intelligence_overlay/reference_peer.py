@@ -6,7 +6,6 @@ import time
 from decimal import Decimal
 from typing import Any, Literal
 
-from .artifacts import Artifacts
 from .bindings import Binding, ExecutionContext, Target, fingerprint
 from .config import Config
 from .models import Capability, Cost, Event, Subject, UseRequest, Verdict
@@ -20,7 +19,7 @@ from .storage import Conflict
 class ReferencePeerService(PeerService):
     def __init__(self, config: Config) -> None:
         super().__init__(config)
-        self.artifacts = Artifacts(config.artifact_directory)
+        self.artifacts = config.artifacts()
         self.reference_cache: dict[str, Any] = {}
         self.registered = register_reference(
             self.registry,

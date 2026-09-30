@@ -27,27 +27,60 @@ Do not relax this profile after seeing measurements. Preserve failed reports and
 fix the implementation, then run the complete affected protocol again. A separately
 motivated future profile needs a new identity and cannot retroactively pass this one.
 
+The prepublication gate requires all operating, security, distribution and research
+work. Only P31's actual publication/post-publication verification and P32's final
+results report can remain as explicitly named post-publication actions after their
+prepublication paths pass. This avoids requiring already published results to
+authorize the first publication; it does not waive soak, experiment or native gates.
+
 No 0.4.0 production implementation or acceptance run preceded this declaration.
 
 The declaration was committed as `aa8cfe8` before production source changes.
-Current development adds an operator-selected installed application factory,
-separate public config/secret DSN files, packaged starter assets, explicit DB
-bootstrap with a restricted runtime role, owner process locking, dependency
-readiness, drain, bounded physical DB-thread tracking and an authenticated MCP
-client injection path. Lease creation, expiry comparison and settlement now use
-the database clock. These additions are under validation; the complete loop,
-reconciliation, recovery, keys, retention, promotion, native installed gates, soak
-and matched experiments remain required in the register.
+Current development connects the installed application factory, separate secret
+DSN/public config, packaged starter, restricted runtime role, owner process lock,
+dependency readiness, drain and tracked physical DB work. It also adds bounded
+HTTP capacity/read-only retry, original-ID remote reconciliation, offline coherent
+backup, durable restore closure and explicit business review/resume, current versus
+historical/compromised keys, standard redacted rotating logs and finite atomic CAS
+publication. These compose the existing Registry/Executor/Store/signed events.
+See [API](api.md) for their authority, failure states and exact commands.
 
-Initial Windows/CPython 3.12 development observations: 14 focused setup/application/
-role/operational/thread tests passed with real PostgreSQL and OPA; one real MCP
-token-verifier/client injection test passed. The earlier 25-test cleanup/concurrency
-run overlaps these tests and is not an additional whole-suite result. Lint,
-format, strict typing and existing generated-schema/local-link checks passed.
-The full source regression is running; no full 0.4.0 matrix acceptance is inferred.
+Windows/CPython 3.12 development observations are partial evidence:
 
-Caddy 2.11.4 (Apache-2.0 primary license) has been selected as the external proxy.
-The native Windows release archive and binary version were verified against the
-official release digest. Its official CycloneDX SBOM identifies 149 components,
-of which 148 have no license field. Transitive license review and actual proxy
-behavior are still pending; the SBOM's existence is not license acceptance.
+- A full source regression passed 316 tests in 1288.17 seconds, with zero failures,
+  errors or skips. It preceded the later recovery review, CAS capacity and logging
+  additions and used the subsequently rejected official proxy binary.
+- The updated recovery/reconciliation/quota/sync/migration/operations group passed
+  27 tests in 56.33 seconds. Real restoration into a new PostgreSQL database retained
+  UNKNOWN, original signed bytes and allowance, refused incomplete synchronization
+  and external-budget mismatch, remained closed across restart and required explicit
+  resume. Local DB completion time handles restore ordering without comparing
+  clocks from different peers; source timestamps still govern evidence freshness.
+- Eight focused logging/CAS/HTTPS/backup/recovery tests passed in 22.17 seconds
+  using the audited custom Caddy build. Known bearer/DSN/raw input values were absent
+  from service logs; four actual processes could not race CAS capacity. The preceding
+  run had seven passes and one test-teardown variable-shadowing failure; its report
+  was retained and the test corrected before the complete group was repeated.
+- Routine/compromise key and withdrawal tests passed as a five-test group. Historical
+  origin remains inspectable; compromised signatures cannot authorize current use.
+
+These groups overlap and are not an additional complete-suite count. Local tests
+do not establish all native installed profiles, networked three-peer recovery,
+the full application formation loop, promotion, the hour-long soak or ten matched
+experiment arms. Those gates remain open in the requirement register.
+
+The official Caddy 2.11.4 release binary was rejected after standard govulncheck
+reported 28 affecting vulnerabilities. Its functional test and verified archive
+digest do not override that result. Its SBOM also omitted most license fields.
+Both findings and original reports remain part of the development evidence.
+
+The reference proxy is now explicitly `v2.11.4+cio.1`: the same pinned upstream
+commit, a frozen security-updated Go dependency graph, two public CEL API type
+adjustments and native Go 1.27.1. This is a reviewed custom build, not an official
+Caddy release binary. The Windows build passed upstream HTTP/TLS tests, standard
+module verification, go-licenses check/notice collection, govulncheck and CycloneDX
+package/file/license SBOM generation. One module-only OpenPGP advisory remains
+visible and was reviewed as nonapplicable because no affected package is imported;
+there were zero package/symbol findings. See [proxy build and license review](../scripts/proxy/README.md).
+The font OFL and MySQL MPL obligations are retained explicitly. Other native
+proxy builds and the complete Python resolution audits remain required.

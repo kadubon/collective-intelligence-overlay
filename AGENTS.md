@@ -26,6 +26,13 @@ after await cancellation, retain the owner session lock until physical work ends
 and keep restored intake closed until verification/sync/reconciliation. Runtime DB
 roles have DML privileges and no DDL or database ownership. DDL uses a separate
 explicit operator connection. Preserve old signed bytes and uncertain allowances.
+Additive 0016-0019 projections retain legacy argument ambiguity, durable restored
+intake closure and local database sync completion time. Recovery review uses a
+registered read-only external-state query and existing signed events; echoing
+restored state is insufficient. Explicit resume rechecks the unchanged proof.
+Keep source-declared freshness distinct from local restore/sync ordering.
+Service logging uses standard bounded rotation and excludes library bodies;
+capacity warnings never authorize automatic signed-history or mapping deletion.
 Keep source frozen resolution separate from normal installed-artifact resolution.
 All stable Linux/Windows and native Mac Intel/arm64 jobs use `scripts/ci_validate.py`, with the same fixed
 candidate hashes, actual child/build interpreter reports and zero mandatory skips.

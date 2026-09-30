@@ -116,3 +116,26 @@ concurrency and time limits; paid model calls require explicit opt-in.
 For database recovery, read [deployment](../../../docs/deployment.md): `restore-state`
 is offline operator recovery, not routine synchronization or permission to replay
 post-backup work.
+
+On main's unreleased 0.4.0 path, use owner `remote-calls` to find original mappings
+and `reconcile` with a stable operator observation command ID. Read the API's
+candidate section for exact flags. Reported completion, confirmed effect and
+independent PASS are different fields. Reconciliation never resends or refunds.
+Keep missing legacy argument identity and insufficient observations UNKNOWN.
+Use explicit installed read-only reconciler bindings; generated text grants none.
+Offline `backup`/`verify-backup` protect secret files and check bytes only.
+Restored intake persists closed across restart. Inspect `recovery-state`, complete
+full post-restore source sync, and use `recovery-review` with the application's
+explicitly registered read-only external-state query. UNKNOWN exits 2 and stays
+closed; a matched signed observation still requires separate owner `resume`,
+which rechecks unchanged state and query authority. A query that merely echoes
+restored data cannot establish post-backup consistency. Missing external work,
+consumption or call provenance requires UNKNOWN and operator diagnosis. Do not
+clear its flag to make resume pass. `key-rotate` prepares an
+operator bundle; the operator updates current peer pins. Historical origin does
+not grant current HTTP authority, and compromised/backdated signatures require
+new checks. These additions do not imply completed 0.4.0 production acceptance.
+Use `metrics --operational` for owner-only process/database/CAS observations;
+allowance is not measured consumption. Standard service logs omit raw bodies and
+exceptions. Capacity warnings require owner backup/archival planning, never silent
+purge of signed records, withdrawal, call mappings or held uncertain work.

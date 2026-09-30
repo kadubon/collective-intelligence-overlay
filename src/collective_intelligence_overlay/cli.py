@@ -43,6 +43,8 @@ def main() -> int:
         "starter", help="generate installed application and TLS assets"
     )
     starter_cmd.add_argument("--directory", type=Path, required=True)
+    backup_check = commands.add_parser("verify-backup", help="verify offline backup file digests")
+    backup_check.add_argument("--directory", type=Path, required=True)
     for name in (
         "check-config",
         "migrate",
@@ -65,14 +67,61 @@ def main() -> int:
         "step",
         "run",
         "database-bootstrap",
+        "remote-calls",
+        "reconcile",
+        "backup",
+        "key-rotate",
+        "recovery-state",
+        "recovery-review",
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
+        if name == "key-rotate":
+            cmd.add_argument("--directory", type=Path, required=True)
+            cmd.add_argument("--compromised-key-id", action="append", default=[])
+        if name == "backup":
+            cmd.add_argument("--directory", type=Path, required=True)
+            cmd.add_argument("--database-url-env", default="CIO_BACKUP_DATABASE_URL")
+            cmd.add_argument(
+                "--pg-prefix-file",
+                type=Path,
+                help="explicit JSON argv prefix for native client wrapper",
+            )
+            cmd.add_argument("--tls-private-key", type=Path)
         if name == "database-bootstrap":
             cmd.add_argument("--database-url-env", default="CIO_BOOTSTRAP_DATABASE_URL")
             cmd.add_argument("--allowance-work", required=True)
-        if name in {"status", "drain", "resume", "goals", "opportunities", "step", "run"}:
+        if name in {
+            "status",
+            "drain",
+            "resume",
+            "goals",
+            "opportunities",
+            "step",
+            "run",
+            "remote-calls",
+            "reconcile",
+            "recovery-state",
+            "recovery-review",
+        }:
             cmd.add_argument("--peer", help="configured destination; defaults to the owner")
+        if name == "remote-calls":
+            scope = cmd.add_mutually_exclusive_group(required=True)
+            scope.add_argument("--invocation-id")
+            scope.add_argument("--call-scope")
+            cmd.add_argument("--limit", type=int, default=32)
+            cmd.add_argument("--after")
+        if name == "reconcile":
+            cmd.add_argument("--call-key", required=True)
+            cmd.add_argument("--command-id", required=True)
+            cmd.add_argument("--invocation-id")
+            cmd.add_argument(
+                "--reconciler", help="operator-installed read-only effect query binding"
+            )
+        if name == "recovery-review":
+            cmd.add_argument("--command-id", required=True)
+            cmd.add_argument("--checker", required=True)
+            cmd.add_argument("--arguments-file", type=Path, required=True)
         if name in {"opportunities", "run"}:
             cmd.add_argument("--max-candidates", type=int, default=8)
         if name == "opportunities":
@@ -105,6 +154,8 @@ def main() -> int:
             cmd.add_argument("--cursor-file", type=Path)
             cmd.add_argument("--page-size", type=int, default=128)
         if name == "metrics":
+            cmd.add_argument("--operational", action="store_true")
+            cmd.add_argument("--peer", help="operational owner endpoint")
             cmd.add_argument("--work", action="store_true", help="report scoped opportunity work")
             cmd.add_argument(
                 "--requests-file", type=Path, help="evaluate up to 32 explicit UseRequests"
@@ -183,6 +234,10 @@ def main() -> int:
             from .setup import starter
 
             result = starter(args.directory)
+        elif args.command == "verify-backup":
+            from .recovery import verify_backup
+
+            result = verify_backup(args.directory)
         elif args.command == "demo":
             from .demo import initialize, run_demo
 
@@ -194,6 +249,17 @@ def main() -> int:
             result = asyncio.run(run_demo(args.directory, configs))
         else:
             config = load_config(args.config)
+            if args.command == "key-rotate":
+                from .setup import rotate_key
+
+                print(
+                    json.dumps(
+                        rotate_key(
+                            config, args.directory, compromised=tuple(args.compromised_key_id)
+                        )
+                    )
+                )
+                return 0
             identity, overlay = config.runtime()
             if args.command == "check-config":
                 result = {"valid": True, "owner": config.owner}
@@ -222,11 +288,36 @@ def main() -> int:
                     migrate(overlay.store.engine)
                 result = {"migration": "head"}
             elif args.command == "restore-state":
+                from .operations import OwnerLock
+
+                lock = OwnerLock(overlay.store)
+                try:
+                    lock.acquire()
+                    generation = overlay.store.reset_sync_after_restore()
+                finally:
+                    lock.close()
                 result = {
-                    "generation": overlay.store.reset_sync_after_restore(),
+                    "generation": generation,
                     "freshness": "invalidated",
+                    "intake": "closed across process restarts",
                     "required": "reconcile post-backup work and resynchronize before use",
                 }
+            elif args.command == "backup":
+                from .recovery import backup
+
+                operator_url = os.environ.get(args.database_url_env)
+                if not operator_url:
+                    raise ValueError("separate backup operator DSN environment variable required")
+                prefix = _json_file(args.pg_prefix_file) if args.pg_prefix_file else []
+                if not isinstance(prefix, list) or not all(isinstance(arg, str) for arg in prefix):
+                    raise ValueError("PostgreSQL client prefix must be JSON argv")
+                result = backup(
+                    config,
+                    args.directory,
+                    operator_url=operator_url,
+                    pg_prefix=tuple(prefix),
+                    tls_private_key=args.tls_private_key,
+                )
             elif args.command == "invocation-cleanup":
                 from .invocations import InvocationStore
 
@@ -259,13 +350,33 @@ def main() -> int:
                 "opportunities",
                 "step",
                 "run",
+                "remote-calls",
+                "reconcile",
+                "recovery-state",
+                "recovery-review",
             }:
                 from .adapters.a2a import send
 
-                operation = {"operation": args.command}
-                for name in ("max_candidates", "start", "opportunity_id", "max_steps", "seconds"):
+                operation = {"operation": args.command.replace("-", "_")}
+                for name in (
+                    "max_candidates",
+                    "start",
+                    "opportunity_id",
+                    "max_steps",
+                    "seconds",
+                    "invocation_id",
+                    "call_scope",
+                    "limit",
+                    "after",
+                    "call_key",
+                    "command_id",
+                    "reconciler",
+                    "checker",
+                ):
                     if hasattr(args, name):
                         operation[name] = getattr(args, name)
+                if args.command == "recovery-review":
+                    operation["arguments"] = _json_file(args.arguments_file)
                 result = asyncio.run(send(config, identity, args.peer or config.owner, operation))
                 if result.get("error"):
                     print(json.dumps(result))
@@ -311,6 +422,10 @@ def main() -> int:
             elif args.command == "peer":
                 import uvicorn
 
+                from .observability import configure_logging
+
+                configure_logging(config)
+
                 from .adapters.a2a import application
                 from .peer import PeerService
 
@@ -346,6 +461,7 @@ def main() -> int:
                         log_level="warning",
                         limit_concurrency=config.max_concurrency + 8,
                         timeout_graceful_shutdown=30,
+                        log_config=None,
                     )
                 finally:
                     if lifecycle is not None:
@@ -359,6 +475,21 @@ def main() -> int:
                     query, cursor=cursor, limit=args.page_size
                 ).model_dump(mode="json")
             elif args.command == "metrics":
+                if args.operational:
+                    from .adapters.a2a import send
+
+                    if args.work or args.query_file or args.cursor_file or args.requests_file:
+                        raise ValueError("operational metrics cannot combine history/query modes")
+                    result = asyncio.run(
+                        send(
+                            config,
+                            identity,
+                            args.peer or config.owner,
+                            {"operation": "operational_metrics"},
+                        )
+                    )
+                    print(json.dumps(result, default=str))
+                    return 2 if result.get("error") else 0
                 if args.requests_file:
                     if (
                         args.work
@@ -399,6 +530,8 @@ def main() -> int:
                     print(json.dumps(result))
                     return 2
         print(json.dumps(result, ensure_ascii=False, default=str))
+        if args.command == "recovery-review" and result.get("business_state") != "matched":
+            return 2
         if args.command in {"invoke", "invocation", "cancel-invocation"}:
             if result.get("error"):
                 return 2

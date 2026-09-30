@@ -7,6 +7,7 @@ import re
 from typing import Any
 
 from .bindings import Binding, ExecutionContext
+from .blocking import run_blocking
 from .config import Config
 from .models import Capability, Opportunity
 from .operations import Operations, OwnerLock
@@ -20,6 +21,8 @@ from .proposal_exchange import (
     collect,
 )
 from .queries import RecordQuery
+from .reconciliation import Reconciliations
+from .recovery import Recovery
 from .steps import Steps
 
 
@@ -36,6 +39,8 @@ class ApplicationHost(PeerService):
         self.steps: Steps | None = None
         self._goal_ids: tuple[str, ...] = ()
         self.operations: Operations | None = None
+        self.reconciliations = Reconciliations(self.registry, config, self.identity)
+        self.recovery = Recovery(self.registry, config, self.identity)
 
     def close(self) -> None:
         if self.operations is not None:
@@ -101,6 +106,40 @@ class ApplicationHost(PeerService):
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
         operation = data.get("operation")
+        if operation in {"recovery_state", "recovery_review"}:
+            if caller != self.config.owner:
+                raise ValueError("recovery operations are owner-only")
+            if operation == "recovery_state":
+                return await run_blocking(self.recovery.inspect)
+            return await self.recovery.review(
+                caller, str(data["command_id"]), str(data["checker"]), data.get("arguments", {})
+            )
+        if operation in {"remote_calls", "reconcile"}:
+            if caller != self.config.owner:
+                raise ValueError("original-call recovery is owner-only")
+            if operation == "remote_calls":
+                calls = await run_blocking(
+                    self.registry.remote_calls,
+                    ExecutionContext(caller=caller, environment=self.config.execution_environment),
+                    invocation_id=data.get("invocation_id"),
+                    call_scope=data.get("call_scope"),
+                    limit=int(data.get("limit", 32)),
+                    after=data.get("after"),
+                )
+                return {"calls": [call.model_dump(mode="json") for call in calls]}
+            event = await self.reconciliations.observe(
+                caller,
+                str(data["call_key"]),
+                str(data["command_id"]),
+                invocation_id=data.get("invocation_id"),
+                reconciler=data.get("reconciler"),
+            )
+            return {
+                "event": event.model_dump(mode="json"),
+                "envelope": self.identity.sign(event),
+                "invocation_unchanged": True,
+                "allowance_unchanged": True,
+            }
         if operation not in {"goals", "opportunities", "step", "run"}:
             return await super().handle(caller, data)
         if caller != self.config.owner or self.opportunities is None or self.steps is None:
@@ -121,8 +160,10 @@ class ApplicationHost(PeerService):
             ).model_dump(mode="json")
         if operation == "step":
             opportunity_id = str(data["opportunity_id"])
-            reference = self.overlay.store.reference("opportunity", caller, opportunity_id)
-            opportunity = self.overlay.store.resolve_reference(reference)
+            reference = await run_blocking(
+                self.overlay.store.reference, "opportunity", caller, opportunity_id
+            )
+            opportunity = await run_blocking(self.overlay.store.resolve_reference, reference)
             if not isinstance(opportunity, Opportunity):
                 raise ValueError("expected registered opportunity")
             return (
