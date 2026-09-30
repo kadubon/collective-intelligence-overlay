@@ -16,6 +16,8 @@
 - Closing a killed owner session invalidates its connection if the final unlock
   detects the disconnect, retaining closed intake and avoiding a broken pooled
   session or shutdown failure.
+  Native Mac also exposed a direct socket reset from pg8000's read boundary;
+  readiness closes intake for that error and shutdown discards the lost session.
 - Trusted local read-only bindings can be staged without replacing the active
   version. Explicit probes use existing grants/Executor; finite ordinary admission
   checks precede promotion or rollback and preserve the old entry on refusal.

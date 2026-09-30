@@ -86,7 +86,7 @@ class OwnerLock:
             if not held:
                 self._lost = True
             return bool(held)
-        except DBAPIError:
+        except (DBAPIError, OSError):
             self._lost = True
             return False
         finally:
@@ -97,10 +97,13 @@ class OwnerLock:
             # A pooled connection must not retain a session advisory lock.
             conn, self.connection = self.connection, None
             try:
+                if self._lost:
+                    conn.invalidate()
+                    return
                 if not conn.closed and not conn.invalidated:
                     conn.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": self.key})
                     conn.commit()
-            except DBAPIError as error:
+            except (DBAPIError, OSError) as error:
                 # A lost session may be detected only by this final query. Never
                 # return its broken, potentially locked connection to the pool.
                 self._lost = True

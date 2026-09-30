@@ -136,7 +136,7 @@
         "src/collective_intelligence_overlay/blocking.py"
       ],
       "test": "Delayed DB commit, owner kill/restart and drain new call; no false stopped/completed claim",
-      "observed": "Cancelled await retains physical work and capacity; shutdown stays draining/UNKNOWN until work returns",
+      "observed": "Cancelled await retains physical work and capacity; shutdown stays draining/UNKNOWN until work returns Native Mac socket-reset follow-up: run 36777327407 at 34ad395 reported 334 passed and two owner-session failures on arm64 Python 3.13.15. pg8000 exposed raw ConnectionResetError during socket reads. Readiness now treats DBAPI/OSError as lost authority, and shutdown invalidates the lost session after physical work ends rather than returning it to the pool. Five Windows PostgreSQL operation tests passed 9.68 seconds; native reset revalidation remains pending. Raw failed CI logs and artifacts are retained.",
       "remaining": [
         "bounded daemon exit, remaining children/commit/fault cases and all-native checks"
       ],
