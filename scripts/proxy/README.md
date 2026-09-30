@@ -20,6 +20,9 @@ native binary and saves licenses and a CycloneDX SBOM. CI uses pinned setup-go t
 install this exact toolchain. The executable is `.local/proxy-build/caddy`
 (`caddy.exe` on Windows); use it with the packaged Caddyfile. Build tools and the
 proxy remain separate from the Python wheel and its runtime dependencies.
+The checkout uses `.local/proxy-build/caddy-source`; the executable is a separate
+`caddy`/`caddy.exe`. The first 0.4.0 native CI run exposed the previous POSIX name
+collision before security or application gates ran. Its failure remains retained.
 
 The packaged listener explicitly enables HTTP/1.1 and HTTP/2 using the standard
 [Caddy server protocols option](https://caddyserver.com/docs/caddyfile/options#protocols).

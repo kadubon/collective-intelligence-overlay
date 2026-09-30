@@ -69,7 +69,9 @@ def build(go_bin: Path) -> dict:
     native_os = "darwin" if system == "Darwin" else system.lower()
     if version != f"go version go1.27.1 {native_os}/{cpu}":
         raise ValueError("proxy requires the exact native Go 1.27.1 toolchain")
-    source = root / "caddy"
+    # POSIX binaries have no .exe suffix. Keep the checkout separate from
+    # root/caddy so Go never treats the executable output as a directory.
+    source = root / "caddy-source"
     if not source.exists():
         run(
             [
