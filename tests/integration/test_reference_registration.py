@@ -91,6 +91,7 @@ async def test_reference_peer_publishes_registered_candidates_and_durable_probes
     from decimal import Decimal
     from types import SimpleNamespace
 
+    from collective_intelligence_overlay.artifacts import Artifacts
     from collective_intelligence_overlay.reference_peer import ReferencePeerService
 
     config = SimpleNamespace(
@@ -102,6 +103,7 @@ async def test_reference_peer_publishes_registered_candidates_and_durable_probes
         execution_environment={"reference": "1"},
         policy=overlay.policy.settings,
         runtime=lambda: (identities["receiver"], overlay),
+        artifacts=lambda: Artifacts(tmp_path / "artifacts"),
     )
     service = ReferencePeerService(config)
     assert service.executor.allowance.max_concurrent == 2

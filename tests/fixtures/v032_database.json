@@ -1,0 +1,1215 @@
+{
+  "created_by": "collective-intelligence-overlay==0.3.2",
+  "release_commit": "b172c0d0ef208ede4ae3a663a158f1713d7f49a0",
+  "wheel_sha256": "cc4086d5e27cbdc1d13d2d79b7438e4c787cea208b9e321b8fc0fcbc4e279ae9",
+  "principals": {
+    "producer": {
+      "keyid": "244f54bcc6d58346e917c2ed60a80cb000d9c8055aa46753d8c1a6ea58f51e7b",
+      "key": {
+        "keytype": "ed25519",
+        "scheme": "ed25519",
+        "keyval": {
+          "public": "5f13ba755cf829c9e123bd5fb5dcb0caa4494d05add736f7320bf1bbf82e2120"
+        }
+      },
+      "trust_group": "producer",
+      "methods": [
+        "csv-check"
+      ]
+    },
+    "verifier": {
+      "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+      "key": {
+        "keytype": "ed25519",
+        "scheme": "ed25519",
+        "keyval": {
+          "public": "90c989d7305e088764d6add4a90c9054c7cb96a88e2d8c3d2c0a2c7bd9754078"
+        }
+      },
+      "trust_group": "verifier",
+      "methods": [
+        "csv-check"
+      ]
+    },
+    "receiver": {
+      "keyid": "8d0b7d6952a3b990d03d86f42d64ca0b227a952b89f83d31a31eeef36234c3de",
+      "key": {
+        "keytype": "ed25519",
+        "scheme": "ed25519",
+        "keyval": {
+          "public": "79bb1c91537f2985818431a09e24910a1b1628b529ed4d681f059467c987fad2"
+        }
+      },
+      "trust_group": "receiver",
+      "methods": [
+        "csv-check"
+      ]
+    }
+  },
+  "tables": {
+    "leases": [
+      {
+        "task_id": "invoke-230da36e1d9c247e83d92a4697106c86b8998e0a51b5f9416674db19795b14b7",
+        "worker": "898c9e17-6706-49e6-92d0-6e9f341966d0",
+        "fence": 1,
+        "expires_at": "2026-10-01 03:15:36.065190+09:00",
+        "state": "cancelled",
+        "reservation": "1.000000000",
+        "unit": "work",
+        "actual": null
+      },
+      {
+        "task_id": "invoke-6525bbeeb18ce3a7904363fe4083a6c6edfdb70f206aeee7439cc53cd8a8cdfe",
+        "worker": "67e1afac-c4d9-4a10-b157-b868177b5cdb",
+        "fence": 1,
+        "expires_at": "2026-10-31 03:15:06.157889+09:00",
+        "state": "active",
+        "reservation": "1.000000000",
+        "unit": "work",
+        "actual": null
+      },
+      {
+        "task_id": "invoke-79b3949ca27403b530a12d8ebae6190a8ffd2eaf2782d9b6db3da5a2d4e816a1",
+        "worker": "c4b84dec-2a9e-47dd-89b6-d319e0590921",
+        "fence": 1,
+        "expires_at": "2026-10-31 03:15:06.157889+09:00",
+        "state": "active",
+        "reservation": "1.000000000",
+        "unit": "work",
+        "actual": null
+      },
+      {
+        "task_id": "invoke-79e9230591007c2980062ac5000252b7f85bf2405a4a76b31e2b5720049836b5",
+        "worker": "da403802-adcc-482c-97f4-a6927fed09e9",
+        "fence": 2,
+        "expires_at": "2026-10-01 03:15:36.013792+09:00",
+        "state": "cancelled",
+        "reservation": "1.000000000",
+        "unit": "work",
+        "actual": null
+      },
+      {
+        "task_id": "invoke-f27f28911927099ce5629c8130b7fe194ee9ae431df852aaa39ee0f1911ba963",
+        "worker": "b7ed4b8f-568a-4012-8545-b865c3661b82",
+        "fence": 1,
+        "expires_at": "2026-10-01 03:15:35.929741+09:00",
+        "state": "complete",
+        "reservation": "1.000000000",
+        "unit": "work",
+        "actual": null
+      }
+    ],
+    "budgets": [
+      {
+        "unit": "work",
+        "remaining": "6.000000000"
+      }
+    ],
+    "dependencies": [],
+    "feed_state": [
+      {
+        "id": 1,
+        "generation": "f3fc3dc868484b7f9e5fdb19850f59c4",
+        "sequence": 14
+      }
+    ],
+    "subject_revisions": [
+      {
+        "subject_key": "9950534b7a68af0bfea53fe9bf93e411ff3b4bfb34267b50df0a3c433cd122ad",
+        "revision": 4
+      },
+      {
+        "subject_key": "9c4fb314ada9a380ddc8fce271b80d7e8dc33a2dd52c9c063193de0832d78d45",
+        "revision": 4
+      },
+      {
+        "subject_key": "dd642ca36aff9e6e38d457fc34a934a9769c2be6e7173e985a5653a8f947dc3c",
+        "revision": 4
+      }
+    ],
+    "sync_checkpoints": [],
+    "decisions": [],
+    "records": [
+      {
+        "kind": "capability",
+        "issuer": "producer",
+        "record_id": "producer/csv-sum@1",
+        "body": {
+          "schema_version": "1",
+          "kind": "capability",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "1",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "issuer": "producer",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "entrypoint": "csv-sum",
+          "claim": "reference-contract",
+          "dependencies": [],
+          "evidence": [],
+          "license": "Apache-2.0",
+          "provenance": "operator-installed collective-intelligence-overlay reference application",
+          "classification": "declared-new",
+          "created_at": "2026-09-30T18:15:05.646380Z",
+          "expires_at": "2026-10-30T18:15:05.646380Z",
+          "obligations": []
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJraW5kIjoiY2FwYWJpbGl0eSIsInN1YmplY3QiOnsic2NoZW1hX3ZlcnNpb24iOiIxIiwiaWQiOiJwcm9kdWNlci9jc3Ytc3VtIiwidmVyc2lvbiI6IjEiLCJkaWdlc3QiOiJlNTFlYjJlZjhlZWMzMGMyMWYwY2ZkNjMxNGQyYzc0OTY4NzE5YjE4NDdlODEwOTM1NjJjNzIzODYwYjM0ZDM5In0sImlzc3VlciI6InByb2R1Y2VyIiwic2NvcGUiOnsic2NoZW1hX3ZlcnNpb24iOiIxIiwidGFzayI6ImNzdi1zdW0iLCJpbnB1dF9jb250cmFjdCI6ImNzdi5jYXRlZ29yeS1hbW91bnQudjEiLCJvdXRwdXRfY29udHJhY3QiOiJzdW1tYXJ5LnYxIiwiZW52aXJvbm1lbnQiOnsicmVmZXJlbmNlIjoiMSJ9LCJwZXJtaXNzaW9ucyI6W119LCJlbnRyeXBvaW50IjoiY3N2LXN1bSIsImNsYWltIjoicmVmZXJlbmNlLWNvbnRyYWN0IiwiZGVwZW5kZW5jaWVzIjpbXSwiZXZpZGVuY2UiOltdLCJsaWNlbnNlIjoiQXBhY2hlLTIuMCIsInByb3ZlbmFuY2UiOiJvcGVyYXRvci1pbnN0YWxsZWQgY29sbGVjdGl2ZS1pbnRlbGxpZ2VuY2Utb3ZlcmxheSByZWZlcmVuY2UgYXBwbGljYXRpb24iLCJjbGFzc2lmaWNhdGlvbiI6ImRlY2xhcmVkLW5ldyIsImNyZWF0ZWRfYXQiOiIyMDI2LTA5LTMwVDE4OjE1OjA1LjY0NjM4MFoiLCJleHBpcmVzX2F0IjoiMjAyNi0xMC0zMFQxODoxNTowNS42NDYzODBaIiwib2JsaWdhdGlvbnMiOltdfQ==",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v1+json",
+          "signatures": [
+            {
+              "keyid": "244f54bcc6d58346e917c2ed60a80cb000d9c8055aa46753d8c1a6ea58f51e7b",
+              "sig": "PY1KPpPyfAt4mmzzqffZkY6BN2ahiaYxdiyz6RdcqOXL4Q6hw2CA0zN/lPUIjuF6LOtfz5D8s9PGa69PBQ8vCg=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.650723+09:00",
+        "sequence": 1,
+        "subject_key": "dd642ca36aff9e6e38d457fc34a934a9769c2be6e7173e985a5653a8f947dc3c",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "1",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.646380+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "capability",
+        "issuer": "producer",
+        "record_id": "producer/csv-sum@2",
+        "body": {
+          "schema_version": "2",
+          "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "capability",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "2",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "issuer": "producer",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "entrypoint": "csv-sum",
+          "claim": "reference-contract",
+          "dependencies": [],
+          "dependency_issuers": [],
+          "evidence": [],
+          "license": "Apache-2.0",
+          "provenance": "operator-installed collective-intelligence-overlay reference application",
+          "classification": "declared-new",
+          "created_at": "2026-09-30T18:15:05.646380Z",
+          "expires_at": "2026-10-30T18:15:05.701119Z",
+          "obligations": []
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjIiLCJiaW5kaW5nX2RpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiY2FwYWJpbGl0eSIsInN1YmplY3QiOnsic2NoZW1hX3ZlcnNpb24iOiIxIiwiaWQiOiJwcm9kdWNlci9jc3Ytc3VtIiwidmVyc2lvbiI6IjIiLCJkaWdlc3QiOiJlNTFlYjJlZjhlZWMzMGMyMWYwY2ZkNjMxNGQyYzc0OTY4NzE5YjE4NDdlODEwOTM1NjJjNzIzODYwYjM0ZDM5In0sImlzc3VlciI6InByb2R1Y2VyIiwic2NvcGUiOnsic2NoZW1hX3ZlcnNpb24iOiIxIiwidGFzayI6ImNzdi1zdW0iLCJpbnB1dF9jb250cmFjdCI6ImNzdi5jYXRlZ29yeS1hbW91bnQudjEiLCJvdXRwdXRfY29udHJhY3QiOiJzdW1tYXJ5LnYxIiwiZW52aXJvbm1lbnQiOnsicmVmZXJlbmNlIjoiMSJ9LCJwZXJtaXNzaW9ucyI6W119LCJlbnRyeXBvaW50IjoiY3N2LXN1bSIsImNsYWltIjoicmVmZXJlbmNlLWNvbnRyYWN0IiwiZGVwZW5kZW5jaWVzIjpbXSwiZGVwZW5kZW5jeV9pc3N1ZXJzIjpbXSwiZXZpZGVuY2UiOltdLCJsaWNlbnNlIjoiQXBhY2hlLTIuMCIsInByb3ZlbmFuY2UiOiJvcGVyYXRvci1pbnN0YWxsZWQgY29sbGVjdGl2ZS1pbnRlbGxpZ2VuY2Utb3ZlcmxheSByZWZlcmVuY2UgYXBwbGljYXRpb24iLCJjbGFzc2lmaWNhdGlvbiI6ImRlY2xhcmVkLW5ldyIsImNyZWF0ZWRfYXQiOiIyMDI2LTA5LTMwVDE4OjE1OjA1LjY0NjM4MFoiLCJleHBpcmVzX2F0IjoiMjAyNi0xMC0zMFQxODoxNTowNS43MDExMTlaIiwib2JsaWdhdGlvbnMiOltdfQ==",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v2+json",
+          "signatures": [
+            {
+              "keyid": "244f54bcc6d58346e917c2ed60a80cb000d9c8055aa46753d8c1a6ea58f51e7b",
+              "sig": "WPM6m2D5UqRvOhFqM7hnbsMYxJIuyjpBvVG9tyBDkJ2ZlXfw2YUWUX5Txnacz5E7Qa5wvBuu8C+XuGiX/Jk8CQ=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.704828+09:00",
+        "sequence": 5,
+        "subject_key": "9950534b7a68af0bfea53fe9bf93e411ff3b4bfb34267b50df0a3c433cd122ad",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "2",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.646380+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "capability",
+        "issuer": "producer",
+        "record_id": "producer/csv-sum@3",
+        "body": {
+          "schema_version": "3",
+          "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "capability",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "3",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "issuer": "producer",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "entrypoint": "csv-sum",
+          "claim": "reference-contract",
+          "dependencies": [],
+          "dependency_issuers": [],
+          "formation_inputs": [],
+          "evidence": [],
+          "license": "Apache-2.0",
+          "provenance": "operator-installed collective-intelligence-overlay reference application",
+          "classification": "declared-new",
+          "created_at": "2026-09-30T18:15:05.646380Z",
+          "expires_at": "2026-10-30T18:15:05.763671Z",
+          "obligations": []
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjMiLCJiaW5kaW5nX2RpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiY2FwYWJpbGl0eSIsInN1YmplY3QiOnsic2NoZW1hX3ZlcnNpb24iOiIxIiwiaWQiOiJwcm9kdWNlci9jc3Ytc3VtIiwidmVyc2lvbiI6IjMiLCJkaWdlc3QiOiJlNTFlYjJlZjhlZWMzMGMyMWYwY2ZkNjMxNGQyYzc0OTY4NzE5YjE4NDdlODEwOTM1NjJjNzIzODYwYjM0ZDM5In0sImlzc3VlciI6InByb2R1Y2VyIiwic2NvcGUiOnsic2NoZW1hX3ZlcnNpb24iOiIxIiwidGFzayI6ImNzdi1zdW0iLCJpbnB1dF9jb250cmFjdCI6ImNzdi5jYXRlZ29yeS1hbW91bnQudjEiLCJvdXRwdXRfY29udHJhY3QiOiJzdW1tYXJ5LnYxIiwiZW52aXJvbm1lbnQiOnsicmVmZXJlbmNlIjoiMSJ9LCJwZXJtaXNzaW9ucyI6W119LCJlbnRyeXBvaW50IjoiY3N2LXN1bSIsImNsYWltIjoicmVmZXJlbmNlLWNvbnRyYWN0IiwiZGVwZW5kZW5jaWVzIjpbXSwiZGVwZW5kZW5jeV9pc3N1ZXJzIjpbXSwiZm9ybWF0aW9uX2lucHV0cyI6W10sImV2aWRlbmNlIjpbXSwibGljZW5zZSI6IkFwYWNoZS0yLjAiLCJwcm92ZW5hbmNlIjoib3BlcmF0b3ItaW5zdGFsbGVkIGNvbGxlY3RpdmUtaW50ZWxsaWdlbmNlLW92ZXJsYXkgcmVmZXJlbmNlIGFwcGxpY2F0aW9uIiwiY2xhc3NpZmljYXRpb24iOiJkZWNsYXJlZC1uZXciLCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS42NDYzODBaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNzYzNjcxWiIsIm9ibGlnYXRpb25zIjpbXX0=",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v3+json",
+          "signatures": [
+            {
+              "keyid": "244f54bcc6d58346e917c2ed60a80cb000d9c8055aa46753d8c1a6ea58f51e7b",
+              "sig": "+1OvT6DNHdvvFFvAWcvgECEnfQUNRwXtYJq7icJrFS75+OLV30Bmx/kE/KFcvl2s8GhxTvJRg/r2j5nj1D/OBQ=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.766894+09:00",
+        "sequence": 9,
+        "subject_key": "9c4fb314ada9a380ddc8fce271b80d7e8dc33a2dd52c9c063193de0832d78d45",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "3",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.646380+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "event",
+        "issuer": "receiver",
+        "record_id": "46a49506-ebe2-4022-a8ef-775cf71994f3",
+        "body": {
+          "schema_version": "1",
+          "kind": "event",
+          "id": "46a49506-ebe2-4022-a8ef-775cf71994f3",
+          "issuer": "receiver",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "3",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "action": "failure",
+          "task_id": "uncertain",
+          "attempt_id": "invoke-230da36e1d9c247e83d92a4697106c86b8998e0a51b5f9416674db19795b14b7",
+          "correlation_id": "uncertain",
+          "causation_id": null,
+          "occurred_at": "2026-09-30T18:15:06.123311Z",
+          "costs": [],
+          "outcome": null,
+          "duration_seconds": null
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJraW5kIjoiZXZlbnQiLCJpZCI6IjQ2YTQ5NTA2LWViZTItNDAyMi1hOGVmLTc3NWNmNzE5OTRmMyIsImlzc3VlciI6InJlY2VpdmVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMyIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiYWN0aW9uIjoiZmFpbHVyZSIsInRhc2tfaWQiOiJ1bmNlcnRhaW4iLCJhdHRlbXB0X2lkIjoiaW52b2tlLTIzMGRhMzZlMWQ5YzI0N2U4M2Q5MmE0Njk3MTA2Yzg2Yjg5OThlMGE1MWI1Zjk0MTY2NzRkYjE5Nzk1YjE0YjciLCJjb3JyZWxhdGlvbl9pZCI6InVuY2VydGFpbiIsImNhdXNhdGlvbl9pZCI6bnVsbCwib2NjdXJyZWRfYXQiOiIyMDI2LTA5LTMwVDE4OjE1OjA2LjEyMzMxMVoiLCJjb3N0cyI6W10sIm91dGNvbWUiOm51bGwsImR1cmF0aW9uX3NlY29uZHMiOm51bGx9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v1+json",
+          "signatures": [
+            {
+              "keyid": "8d0b7d6952a3b990d03d86f42d64ca0b227a952b89f83d31a31eeef36234c3de",
+              "sig": "JdATieh237ESnGxfZhIhCH3wTwyK+EhHKqxXyc4IAjPpRpts7hHyoH1C5a5W0wPirQTT6lLU1Iq11A/Zlmr0Cg=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:06.129341+09:00",
+        "sequence": 14,
+        "subject_key": "9c4fb314ada9a380ddc8fce271b80d7e8dc33a2dd52c9c063193de0832d78d45",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "3",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": null,
+        "evidence_id": null,
+        "scope_digest": null,
+        "receivers": [],
+        "task_id": "uncertain",
+        "attempt_id": "invoke-230da36e1d9c247e83d92a4697106c86b8998e0a51b5f9416674db19795b14b7",
+        "occurred_at": "2026-10-01 03:15:06.123311+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "event",
+        "issuer": "receiver",
+        "record_id": "d55264b4-e7c1-4f8e-be71-5856bd45a007",
+        "body": {
+          "schema_version": "1",
+          "kind": "event",
+          "id": "d55264b4-e7c1-4f8e-be71-5856bd45a007",
+          "issuer": "receiver",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "3",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "action": "reuse",
+          "task_id": "completed",
+          "attempt_id": "invoke-f27f28911927099ce5629c8130b7fe194ee9ae431df852aaa39ee0f1911ba963",
+          "correlation_id": "completed",
+          "causation_id": null,
+          "occurred_at": "2026-09-30T18:15:05.949891Z",
+          "costs": [],
+          "outcome": null,
+          "duration_seconds": null
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJraW5kIjoiZXZlbnQiLCJpZCI6ImQ1NTI2NGI0LWU3YzEtNGY4ZS1iZTcxLTU4NTZiZDQ1YTAwNyIsImlzc3VlciI6InJlY2VpdmVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMyIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiYWN0aW9uIjoicmV1c2UiLCJ0YXNrX2lkIjoiY29tcGxldGVkIiwiYXR0ZW1wdF9pZCI6Imludm9rZS1mMjdmMjg5MTE5MjcwOTljZTU2MjljODEzMGI3ZmUxOTRlZTlhZTQzMWRmODUyYWFhMzllZTBmMTkxMWJhOTYzIiwiY29ycmVsYXRpb25faWQiOiJjb21wbGV0ZWQiLCJjYXVzYXRpb25faWQiOm51bGwsIm9jY3VycmVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS45NDk4OTFaIiwiY29zdHMiOltdLCJvdXRjb21lIjpudWxsLCJkdXJhdGlvbl9zZWNvbmRzIjpudWxsfQ==",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v1+json",
+          "signatures": [
+            {
+              "keyid": "8d0b7d6952a3b990d03d86f42d64ca0b227a952b89f83d31a31eeef36234c3de",
+              "sig": "ef7tqUcqX1WnUifbE2YfqbTSxs0PD3HnL+3zuI59ATELUGRLlc1DIpvgcohbzrMVL6FLKQ4M/iUjWKEp0wu1Cw=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.960891+09:00",
+        "sequence": 13,
+        "subject_key": "9c4fb314ada9a380ddc8fce271b80d7e8dc33a2dd52c9c063193de0832d78d45",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "3",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": null,
+        "evidence_id": null,
+        "scope_digest": null,
+        "receivers": [],
+        "task_id": "completed",
+        "attempt_id": "invoke-f27f28911927099ce5629c8130b7fe194ee9ae431df852aaa39ee0f1911ba963",
+        "occurred_at": "2026-10-01 03:15:05.949891+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "0de9f605-91fc-475e-894c-c581aa915942",
+        "body": {
+          "schema_version": "2",
+          "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "evidence",
+          "id": "0de9f605-91fc-475e-894c-c581aa915942",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "3",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "FAIL",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.783517Z",
+          "expires_at": "2026-10-30T18:15:05.782518Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjIiLCJiaW5kaW5nX2RpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6IjBkZTlmNjA1LTkxZmMtNDc1ZS04OTRjLWM1ODFhYTkxNTk0MiIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMyIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiRkFJTCIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS43ODM1MTdaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNzgyNTE4WiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v2+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "5J9L8XtPE+r+jTYVCN2rSmEZnvfuyMPAg3yYffGoWNO6Ul4O6gW4IspO4kn5tXcQdKavIk8nG7omWwtkFDxNAA=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.785531+09:00",
+        "sequence": 11,
+        "subject_key": "9c4fb314ada9a380ddc8fce271b80d7e8dc33a2dd52c9c063193de0832d78d45",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "3",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.783517+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "23fe07a1-286d-4914-af23-3adcd547fd2e",
+        "body": {
+          "schema_version": "1",
+          "kind": "evidence",
+          "id": "23fe07a1-286d-4914-af23-3adcd547fd2e",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "1",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "PASS",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.671312Z",
+          "expires_at": "2026-10-30T18:15:05.671312Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6IjIzZmUwN2ExLTI4NmQtNDkxNC1hZjIzLTNhZGNkNTQ3ZmQyZSIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMSIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiUEFTUyIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS42NzEzMTJaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNjcxMzEyWiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v1+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "RltZTBVIs969Q5Wi3HW9kPZ74ZEBZH1qQz3pwQ/sP6T9xl7aqajjnxlZ1dpR66ZmOs1tdCeuoiJ8fwoCCZEPAQ=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.674516+09:00",
+        "sequence": 2,
+        "subject_key": "dd642ca36aff9e6e38d457fc34a934a9769c2be6e7173e985a5653a8f947dc3c",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "1",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.671312+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "32167ff4-e853-4be4-8125-ef9078f769e4",
+        "body": {
+          "schema_version": "2",
+          "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "evidence",
+          "id": "32167ff4-e853-4be4-8125-ef9078f769e4",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "2",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "UNKNOWN",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.729904Z",
+          "expires_at": "2026-10-30T18:15:05.729904Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjIiLCJiaW5kaW5nX2RpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6IjMyMTY3ZmY0LWU4NTMtNGJlNC04MTI1LWVmOTA3OGY3NjllNCIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMiIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiVU5LTk9XTiIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS43Mjk5MDRaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNzI5OTA0WiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v2+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "z3aj3BKXO+cqQxJG/7j6KXM2c3QsgFSPBkGsjbnlhs4LmLMWseU8CYgniTgKK/cXJUgRDmN4E1UdCeracjW3DA=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.729904+09:00",
+        "sequence": 8,
+        "subject_key": "9950534b7a68af0bfea53fe9bf93e411ff3b4bfb34267b50df0a3c433cd122ad",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "2",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.729904+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "49065671-c365-48b2-9b26-563724f9fbb3",
+        "body": {
+          "schema_version": "1",
+          "kind": "evidence",
+          "id": "49065671-c365-48b2-9b26-563724f9fbb3",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "1",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "UNKNOWN",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.690808Z",
+          "expires_at": "2026-10-30T18:15:05.690808Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6IjQ5MDY1NjcxLWMzNjUtNDhiMi05YjI2LTU2MzcyNGY5ZmJiMyIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMSIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiVU5LTk9XTiIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS42OTA4MDhaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNjkwODA4WiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v1+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "75EdtEesb5GdCKl+xwQ82T9bIg9pQ9g/vwzCyS1Q1zitiaVd+UG2G17s7IvV25/osobi1hcYvblYq8x+uF7MDA=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.693816+09:00",
+        "sequence": 4,
+        "subject_key": "dd642ca36aff9e6e38d457fc34a934a9769c2be6e7173e985a5653a8f947dc3c",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "1",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.690808+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "7baa0613-f4a0-4155-9353-7f61ff645dd6",
+        "body": {
+          "schema_version": "1",
+          "kind": "evidence",
+          "id": "7baa0613-f4a0-4155-9353-7f61ff645dd6",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "1",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "FAIL",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.681470Z",
+          "expires_at": "2026-10-30T18:15:05.681470Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6IjdiYWEwNjEzLWY0YTAtNDE1NS05MzUzLTdmNjFmZjY0NWRkNiIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMSIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiRkFJTCIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS42ODE0NzBaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNjgxNDcwWiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v1+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "WSm48iufvttahxWgEPKUMgJIZVfrpbGlhTEJ5vO8IpvLwO5Tanu7a/VWDPcxlhgeNFJgtWC+n6ZHgtDHQtjHBQ=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.684477+09:00",
+        "sequence": 3,
+        "subject_key": "dd642ca36aff9e6e38d457fc34a934a9769c2be6e7173e985a5653a8f947dc3c",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "1",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.681470+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "923d0a3b-2ff7-4dfc-89ba-8340b2a30190",
+        "body": {
+          "schema_version": "2",
+          "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "evidence",
+          "id": "923d0a3b-2ff7-4dfc-89ba-8340b2a30190",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "3",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "UNKNOWN",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.792375Z",
+          "expires_at": "2026-10-30T18:15:05.791368Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjIiLCJiaW5kaW5nX2RpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6IjkyM2QwYTNiLTJmZjctNGRmYy04OWJhLTgzNDBiMmEzMDE5MCIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMyIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiVU5LTk9XTiIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS43OTIzNzVaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNzkxMzY4WiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v2+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "dTeHvk/e4WRM3kKdlfxdMNA1kmFL5JnnptdSkb4JFUSIBTiqpgv6I39eGpSKpiYgaXOPi8Ms31LpBkS1ZNVmDQ=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.794132+09:00",
+        "sequence": 12,
+        "subject_key": "9c4fb314ada9a380ddc8fce271b80d7e8dc33a2dd52c9c063193de0832d78d45",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "3",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.792375+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "b239048f-db87-411e-a992-70ea2427cf66",
+        "body": {
+          "schema_version": "2",
+          "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "evidence",
+          "id": "b239048f-db87-411e-a992-70ea2427cf66",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "2",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "PASS",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.711910Z",
+          "expires_at": "2026-10-30T18:15:05.711391Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjIiLCJiaW5kaW5nX2RpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6ImIyMzkwNDhmLWRiODctNDExZS1hOTkyLTcwZWEyNDI3Y2Y2NiIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMiIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiUEFTUyIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS43MTE5MTBaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNzExMzkxWiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v2+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "qc/woGuYgZQ0X3D51QPevmvKqMvFAVgNrcr+ZiPMB9m4/QwBF9KPhg/HaTQh24b4iEOAyxDr1RGQ2IqWcSzsDw=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.715087+09:00",
+        "sequence": 6,
+        "subject_key": "9950534b7a68af0bfea53fe9bf93e411ff3b4bfb34267b50df0a3c433cd122ad",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "2",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.711910+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "b990e623-5969-43b9-9b9a-3df79e259e19",
+        "body": {
+          "schema_version": "2",
+          "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "evidence",
+          "id": "b990e623-5969-43b9-9b9a-3df79e259e19",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "2",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "FAIL",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.721965Z",
+          "expires_at": "2026-10-30T18:15:05.721965Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjIiLCJiaW5kaW5nX2RpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6ImI5OTBlNjIzLTU5NjktNDNiOS05YjlhLTNkZjc5ZTI1OWUxOSIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMiIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiRkFJTCIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS43MjE5NjVaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNzIxOTY1WiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v2+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "wFmzPhEz3SrypGbV9Q4TUVyo+O+j3wlPaE5294RhpoVG+4BdduE/okciStejqhLH6WTs04UklIUrT+TlW8muAw=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.725137+09:00",
+        "sequence": 7,
+        "subject_key": "9950534b7a68af0bfea53fe9bf93e411ff3b4bfb34267b50df0a3c433cd122ad",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "2",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.721965+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      },
+      {
+        "kind": "evidence",
+        "issuer": "verifier",
+        "record_id": "bec9aeb0-b2e6-4517-8380-a7aa1f404b01",
+        "body": {
+          "schema_version": "2",
+          "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "evidence",
+          "id": "bec9aeb0-b2e6-4517-8380-a7aa1f404b01",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "producer/csv-sum",
+            "version": "3",
+            "digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39"
+          },
+          "claim": "reference-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "csv-sum",
+            "input_contract": "csv.category-amount.v1",
+            "output_contract": "summary.v1",
+            "environment": {
+              "reference": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "PASS",
+          "method": "csv-check",
+          "verifier_version": "1",
+          "artifact_digest": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [],
+          "declared_origin": {},
+          "created_at": "2026-09-30T18:15:05.773323Z",
+          "expires_at": "2026-10-30T18:15:05.773323Z"
+        },
+        "envelope": {
+          "payload": "eyJzY2hlbWFfdmVyc2lvbiI6IjIiLCJiaW5kaW5nX2RpZ2VzdCI6ImFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWFhYWEiLCJraW5kIjoiZXZpZGVuY2UiLCJpZCI6ImJlYzlhZWIwLWIyZTYtNDUxNy04MzgwLWE3YWExZjQwNGIwMSIsImlzc3VlciI6InZlcmlmaWVyIiwic3ViamVjdCI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJpZCI6InByb2R1Y2VyL2Nzdi1zdW0iLCJ2ZXJzaW9uIjoiMyIsImRpZ2VzdCI6ImU1MWViMmVmOGVlYzMwYzIxZjBjZmQ2MzE0ZDJjNzQ5Njg3MTliMTg0N2U4MTA5MzU2MmM3MjM4NjBiMzRkMzkifSwiY2xhaW0iOiJyZWZlcmVuY2UtY29udHJhY3QiLCJzY29wZSI6eyJzY2hlbWFfdmVyc2lvbiI6IjEiLCJ0YXNrIjoiY3N2LXN1bSIsImlucHV0X2NvbnRyYWN0IjoiY3N2LmNhdGVnb3J5LWFtb3VudC52MSIsIm91dHB1dF9jb250cmFjdCI6InN1bW1hcnkudjEiLCJlbnZpcm9ubWVudCI6eyJyZWZlcmVuY2UiOiIxIn0sInBlcm1pc3Npb25zIjpbXX0sInJlY2VpdmVycyI6WyJyZWNlaXZlciJdLCJ2ZXJkaWN0IjoiUEFTUyIsIm1ldGhvZCI6ImNzdi1jaGVjayIsInZlcmlmaWVyX3ZlcnNpb24iOiIxIiwiYXJ0aWZhY3RfZGlnZXN0IjoiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYmJiYiIsInNvdXJjZXMiOltdLCJldmlkZW5jZV9kZXBlbmRlbmNpZXMiOltdLCJvYmplY3Rpb25zIjpbXSwib2JsaWdhdGlvbnMiOltdLCJkZWNsYXJlZF9vcmlnaW4iOnt9LCJjcmVhdGVkX2F0IjoiMjAyNi0wOS0zMFQxODoxNTowNS43NzMzMjNaIiwiZXhwaXJlc19hdCI6IjIwMjYtMTAtMzBUMTg6MTU6MDUuNzczMzIzWiJ9",
+          "payloadType": "application/vnd.collective-intelligence-overlay.record.v2+json",
+          "signatures": [
+            {
+              "keyid": "cfbe4f1c7975185bcc27c75f21c77a932b63b68cfc7b089e9f4936ef0ee69d4b",
+              "sig": "XctT5bWchiRUx3bGMY7nWDKJ53OCDtsMd0r1yPKH0bhRKATp3w1N2KWEdFGHlkxvpKmBb7gzQVFLKRT5aeKwCg=="
+            }
+          ]
+        },
+        "received_at": "2026-10-01 03:15:05.776507+09:00",
+        "sequence": 10,
+        "subject_key": "9c4fb314ada9a380ddc8fce271b80d7e8dc33a2dd52c9c063193de0832d78d45",
+        "subject_id": "producer/csv-sum",
+        "subject_version": "3",
+        "subject_digest": "e51eb2ef8eec30c21f0cfd6314d2c74968719b1847e81093562c723860b34d39",
+        "claim": "reference-contract",
+        "evidence_id": null,
+        "scope_digest": "399a3c518da3ae73dc5fea0afe50d2435ad7e40b6b23ea9181c8b5eb74ff8640",
+        "receivers": [
+          "receiver"
+        ],
+        "task_id": null,
+        "attempt_id": null,
+        "occurred_at": "2026-10-01 03:15:05.773323+09:00",
+        "policy_digest": null,
+        "dependency_refs": []
+      }
+    ],
+    "invocations": [
+      {
+        "caller": "receiver",
+        "id": "completed",
+        "owner": "receiver",
+        "fingerprint": "0d0a4be21e46ab0cd054b6de6b9f943c80b5ac5f5976aff0d79723abc736c7f4",
+        "binding_id": "old-binding",
+        "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "request": {
+          "caller": "receiver",
+          "arguments": {
+            "value": 7
+          }
+        },
+        "lease_id": "invoke-f27f28911927099ce5629c8130b7fe194ee9ae431df852aaa39ee0f1911ba963",
+        "worker": "b7ed4b8f-568a-4012-8545-b865c3661b82",
+        "fence": 1,
+        "state": "completed",
+        "phase": "dispatched",
+        "result": {
+          "value": 7
+        },
+        "result_digest": "9d709bba0358da8fdf5600bb3692fa32d0aa2a19a08152cf4307e0b4240e71ac",
+        "reason": null,
+        "created_at": "2026-10-01 03:15:05.932930+09:00",
+        "updated_at": "2026-10-01 03:15:05.968450+09:00",
+        "receipt_id": "d55264b4-e7c1-4f8e-be71-5856bd45a007",
+        "reservation_state": "consumed",
+        "release_reason": null
+      },
+      {
+        "caller": "receiver",
+        "id": "dispatched",
+        "owner": "receiver",
+        "fingerprint": "0d0a4be21e46ab0cd054b6de6b9f943c80b5ac5f5976aff0d79723abc736c7f4",
+        "binding_id": "old-binding",
+        "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "request": {
+          "caller": "receiver",
+          "arguments": {
+            "value": 7
+          }
+        },
+        "lease_id": "invoke-79b3949ca27403b530a12d8ebae6190a8ffd2eaf2782d9b6db3da5a2d4e816a1",
+        "worker": "c4b84dec-2a9e-47dd-89b6-d319e0590921",
+        "fence": 1,
+        "state": "running",
+        "phase": "dispatched",
+        "result": null,
+        "result_digest": null,
+        "reason": null,
+        "created_at": "2026-10-01 03:15:05.863501+09:00",
+        "updated_at": "2026-10-01 03:15:05.890103+09:00",
+        "receipt_id": null,
+        "reservation_state": "held",
+        "release_reason": null
+      },
+      {
+        "caller": "receiver",
+        "id": "released",
+        "owner": "receiver",
+        "fingerprint": "0d0a4be21e46ab0cd054b6de6b9f943c80b5ac5f5976aff0d79723abc736c7f4",
+        "binding_id": "old-binding",
+        "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "request": {
+          "caller": "receiver",
+          "arguments": {
+            "value": 7
+          }
+        },
+        "lease_id": "invoke-79e9230591007c2980062ac5000252b7f85bf2405a4a76b31e2b5720049836b5",
+        "worker": "da403802-adcc-482c-97f4-a6927fed09e9",
+        "fence": 1,
+        "state": "cancelled",
+        "phase": "reserved",
+        "result": null,
+        "result_digest": null,
+        "reason": "cancelled_by_caller",
+        "created_at": "2026-10-01 03:15:06.017251+09:00",
+        "updated_at": "2026-10-01 03:15:06.038926+09:00",
+        "receipt_id": null,
+        "reservation_state": "released",
+        "release_reason": "cancelled_by_caller"
+      },
+      {
+        "caller": "receiver",
+        "id": "reserved",
+        "owner": "receiver",
+        "fingerprint": "0d0a4be21e46ab0cd054b6de6b9f943c80b5ac5f5976aff0d79723abc736c7f4",
+        "binding_id": "old-binding",
+        "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "request": {
+          "caller": "receiver",
+          "arguments": {
+            "value": 7
+          }
+        },
+        "lease_id": "invoke-6525bbeeb18ce3a7904363fe4083a6c6edfdb70f206aeee7439cc53cd8a8cdfe",
+        "worker": "67e1afac-c4d9-4a10-b157-b868177b5cdb",
+        "fence": 1,
+        "state": "running",
+        "phase": "reserved",
+        "result": null,
+        "result_digest": null,
+        "reason": null,
+        "created_at": "2026-10-01 03:15:05.825540+09:00",
+        "updated_at": "2026-10-01 03:15:05.825540+09:00",
+        "receipt_id": null,
+        "reservation_state": "held",
+        "release_reason": null
+      },
+      {
+        "caller": "receiver",
+        "id": "uncertain",
+        "owner": "receiver",
+        "fingerprint": "0d0a4be21e46ab0cd054b6de6b9f943c80b5ac5f5976aff0d79723abc736c7f4",
+        "binding_id": "old-binding",
+        "binding_digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "request": {
+          "caller": "receiver",
+          "arguments": {
+            "value": 7
+          }
+        },
+        "lease_id": "invoke-230da36e1d9c247e83d92a4697106c86b8998e0a51b5f9416674db19795b14b7",
+        "worker": "898c9e17-6706-49e6-92d0-6e9f341966d0",
+        "fence": 1,
+        "state": "unknown",
+        "phase": "dispatched",
+        "result": null,
+        "result_digest": null,
+        "reason": "response_lost",
+        "created_at": "2026-10-01 03:15:06.065190+09:00",
+        "updated_at": "2026-10-01 03:15:06.134176+09:00",
+        "receipt_id": "46a49506-ebe2-4022-a8ef-775cf71994f3",
+        "reservation_state": "held",
+        "release_reason": null
+      }
+    ],
+    "work_opportunity_instances": [],
+    "work_reobservations": [],
+    "work_selections": [],
+    "remote_calls": [
+      {
+        "owner": "receiver",
+        "caller": "receiver",
+        "call_key": "3388866f50a5d2ca7c630f88a14fe28b2371a225371b13cfa875f54790b2d3d2",
+        "call_id": "child-original-id",
+        "call_scope": "persisted-session",
+        "parent_context": "230da36e1d9c247e83d92a4697106c86b8998e0a51b5f9416674db19795b14b7",
+        "invocation_context": "230da36e1d9c247e83d92a4697106c86b8998e0a51b5f9416674db19795b14b7",
+        "request_fingerprint": "0d0a4be21e46ab0cd054b6de6b9f943c80b5ac5f5976aff0d79723abc736c7f4",
+        "lineage_fingerprint": "af8e46c0ee39c6606f111ed1e88ae506a08b0c6162f248a7ff12286ba665ff3c",
+        "provider": "producer",
+        "endpoint": "https://provider.example/",
+        "binding_id": "old-remote",
+        "binding_digest": "50c3870387aebe8d225f51f11fb7c2fdd4ba8972bd24acd88cb2cef0116268de",
+        "provider_binding_id": "old-provider-binding",
+        "provider_binding_digest": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+        "remote_invocation_id": "call-3388866f50a5d2ca7c630f88a14fe28b2371a225371b13cfa875f54790b2d3d2",
+        "created_at": "2026-10-01 03:15:06.164676+09:00"
+      }
+    ]
+  }
+}

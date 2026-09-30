@@ -33,6 +33,7 @@ def seed_release(store, version):
         "021": ("0009", "3026c39b7cb3a4808e4b1eaf45332b1b81f4df8a"),
         "030": ("0012", "a2fc32b5511b3c3cec4f2e15fcd6375eb9540c67"),
         "031": ("0014", "e7e245920be3687eebb4b0a0817d60a82ed2c1b9"),
+        "032": ("0015", "b172c0d0ef208ede4ae3a663a158f1713d7f49a0"),
     }[version]
     fixture = json.loads(
         (Path(__file__).parents[1] / f"fixtures/v{version}_database.json").read_text()
@@ -66,6 +67,94 @@ def seed_release(store, version):
                 else:
                     conn.execute(insert(table).values(**values))
     return fixture
+
+
+@pytest.mark.parametrize("interrupted", [False, True])
+def test_actual_published_032_upgrade_and_old_dump_preserve_originals(
+    unmigrated_store, interrupted
+):
+    from collective_intelligence_overlay.calls import remote_calls
+    from collective_intelligence_overlay.invocations import InvocationStore, invocations
+
+    store = unmigrated_store
+    fixture = seed_release(store, "032")
+    assert fixture["wheel_sha256"] == (
+        "cc4086d5e27cbdc1d13d2d79b7438e4c787cea208b9e321b8fc0fcbc4e279ae9"
+    )
+    old = MetaData()
+    old.reflect(store.engine)
+
+    def snapshot(target):
+        with target.engine.connect() as conn:
+            return {
+                name: [
+                    dict(row)
+                    for row in conn.execute(
+                        select(table).order_by(*table.primary_key.columns)
+                    ).mappings()
+                ]
+                for name, table in old.tables.items()
+                if name != "alembic_version"
+            }
+
+    original = snapshot(store)
+    assert len(original["records"]) == 14 and len(original["remote_calls"]) == 1
+    assert {r["state"] for r in original["invocations"]} == {
+        "running",
+        "completed",
+        "cancelled",
+        "unknown",
+    }
+    assert original["budgets"][0]["remaining"] == 6
+    # Restore an actual old-schema PostgreSQL dump, then migrate that copy.
+    with database_copy(store) as restored:
+        assert snapshot(restored) == original
+        migrate(restored.engine)
+        assert snapshot(restored) == original
+        restored.reset_sync_after_restore()
+        assert restored.restore_pending()
+        ledger = InvocationStore(restored)
+        assert ledger.get("receiver", "uncertain")["state"] == "unknown"
+        assert ledger.get("receiver", "uncertain")["reservation_state"] == "held"
+        assert ledger.get("receiver", "completed")["result"] == {"value": 7}
+        with restored.engine.connect() as conn:
+            assert conn.execute(select(budgets.c.remaining)).scalar_one() == 6
+            assert conn.execute(select(remote_calls.c.arguments_digest)).scalar_one() is None
+        for row in original["records"]:
+            verify(row["envelope"], restored.principals)
+    if interrupted:
+
+        def interrupt(conn, cursor, statement, parameters, context, executemany):
+            if "ALTER TABLE remote_calls ADD COLUMN arguments_digest" in statement:
+                raise RuntimeError("interrupted reconciliation projection migration")
+
+        event.listen(store.engine, "after_cursor_execute", interrupt)
+        try:
+            with pytest.raises(RuntimeError, match="reconciliation projection"):
+                migrate(store.engine)
+        finally:
+            event.remove(store.engine, "after_cursor_execute", interrupt)
+        assert snapshot(store) == original
+        with store.engine.connect() as conn:
+            assert (
+                conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0015"
+            )
+            assert "arguments_digest" not in {
+                column["name"] for column in inspect(conn).get_columns("remote_calls")
+            }
+    migrate(store.engine)
+    migrate(store.engine)
+    assert snapshot(store) == original
+    assert {e.verdict for e in store.evidence()} == {"PASS", "FAIL", "UNKNOWN"}
+    with store.engine.connect() as conn:
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0019"
+        assert conn.execute(select(remote_calls.c.arguments_digest)).scalar_one() is None
+        assert (
+            conn.execute(
+                select(invocations.c.reservation_state).where(invocations.c.id == "uncertain")
+            ).scalar_one()
+            == "held"
+        )
 
 
 @pytest.mark.parametrize("interrupted", [False, True])

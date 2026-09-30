@@ -203,7 +203,7 @@ class PreparedCall:
     request: UseRequest
 
 
-def callable_digest(operation: Operation) -> str:
+def callable_digest(operation: Callable[..., Any]) -> str:
     """Installed source identity, not an attestation of its dependencies or correctness."""
     return digest(inspect.getsource(operation).encode())
 

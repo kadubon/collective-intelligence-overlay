@@ -63,10 +63,26 @@ Windows/CPython 3.12 development observations are partial evidence:
   was retained and the test corrected before the complete group was repeated.
 - Routine/compromise key and withdrawal tests passed as a five-test group. Historical
   origin remains inspectable; compromised signatures cannot authorize current use.
+- A frozen source run at `275c49d` retained 320 passes and two failures in 1115.50
+  seconds: a fixture lacked Config's new artifacts helper, and native Windows
+  concurrent creators wrote an empty lock file before holding its lock. Both were
+  corrected. The deterministic native capacity group passed three tests in 1.30
+  seconds. This failed full-suite report is retained; it is not a complete pass.
+- The packaged document implementation passed its existing 15-test group in 304.01
+  seconds. Standard host formation/check/reuse/restart/withdrawal and checker
+  bottleneck cases passed two tests in 70.36 seconds. A later six-test host group
+  passed in 80.64 seconds, including exact-pin restart with 24 unrelated retained
+  candidates, unchanged signed envelopes and original-signature observation reads.
+  These three peers still used loopback development URLs and demo database roles.
+- A ten-test host/native-lock/actual-HTTPS group passed in 21.07 seconds with the
+  audited custom proxy. The actual published 0.3.2 wheel produced a fixture with
+  14 original signed records and one original remote mapping. Fresh PostgreSQL
+  dump/restore and ordinary/interrupted migration passed two tests in 8.23 seconds.
+  That fixture regression does not establish the full live three-peer upgrade.
 
 These groups overlap and are not an additional complete-suite count. Local tests
 do not establish all native installed profiles, networked three-peer recovery,
-the full application formation loop, promotion, the hour-long soak or ten matched
+the complete production application protocol, promotion, the hour-long soak or ten matched
 experiment arms. Those gates remain open in the requirement register.
 
 The official Caddy 2.11.4 release binary was rejected after standard govulncheck

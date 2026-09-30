@@ -270,17 +270,37 @@ declarations and self inputs are rejected. `FormationSession.publish` accepts v3
 and validates its inputs against real local completed-use receipts. See
 [semantics](semantics.md) for expiry, withdrawal and requalification behavior.
 
-The external [document application](../examples/adaptive_documents.py) connects
+The installed `collective_intelligence_overlay.starter.adaptive_documents`
+application connects
 discovery, A2A alternatives, durable selection and actual formation. Its
 `configure_application(configs, training_text)` installs application templates and
-writes owner goals plus public proposer contracts. Serve each existing owner with
-`uv run python examples/adaptive_documents.py --config PATH`. The owner-only A2A
+writes owner goals, exact installed binding pins and public proposer contracts.
+The source example is a small launcher for this same implementation. The owner-only A2A
 operation `adaptive-run` accepts `max_steps` from 1 to 16 (also bounded by config).
 It returns a reason and observed history; it creates at most the two registered
 application candidates, with at most eight child calls per formation (or the lower
 configured `max_children`) and a 120-second run deadline. Owner concurrency also
 respects configuration; `max_rechecks=0` disables new checks. Concurrent requests
 to the same service return `already_running`.
+For the standard production host, set the operator-owned `Config.application` to
+`collective_intelligence_overlay.starter.adaptive_documents:configure` and
+`application_settings` to the prepared application JSON. Start each owner with
+`collective-intelligence-overlay peer --config PATH`; use the existing owner `run`
+operation. `run` selects the installed application's static or adaptive allocation
+mode and returns its `reason` and `history`. The application-specific operations
+have the `app.` prefix. Standard `invoke`, `sync`, `qualify` and the other existing
+operations keep their existing names. Runtime requests cannot select a factory.
+The package requires the `agents` extra for this application, but core import
+does not load it. Development loopback tests do not establish the complete HTTPS,
+restricted-role, native production profile.
+
+At restart, new settings restore exact saved bindings from finite CAS manifests;
+they do not select the newest historical candidate or scan all retained history.
+Changed source, subject, parameters, components or binding digest require explicit
+requalification. Pins grant no PASS or admission. Legacy settings without pins
+retain their bounded compatibility lookup and refuse oversized history rather
+than silently choose an incomplete page. Upgrade those settings by explicitly
+reviewing and recording the intended installed bindings.
 The owner-only `static-run` operation accepts the same finite bounds and uses
 the fixed control order described in [evaluation](evaluation.md). Its history
 contains actual invocations, formation receipts and checker evidence, without
@@ -811,11 +831,27 @@ CLI that loads executable code named by an untrusted manifest.
 
 ## 0.4.0 candidate operations
 
-These operations are implemented on main and under validation; they are not a
+These operations are implemented in the unreleased candidate and under validation; they are not a
 claim that the complete production profile has passed. The public
 `ApplicationHost` uses the existing Registry/Executor/Opportunities/Steps. An
 operator-selected installed `module:factory` receives the host and returns None.
 Remote inputs cannot select that factory or register executable code.
+
+Factories can call `host.register_operation("app.NAME", async_handler, callers=(...))`
+for at most 32 application operations. Names must have that prefix, be unique and
+use explicitly pinned caller identities. They cannot replace standard operations.
+The handler receives the authenticated caller and request object. These operations
+share standard request capacity, readiness and drain; drain refuses them before
+the callback. This registration grants only that application route, not execution
+of arbitrary bindings or changes to goals, policy or budgets.
+
+After `host.register_goals(goals)`, an installed factory can call
+`host.register_goal_runner(async_runner)` once. The runner accepts `max_steps` and
+`max_candidates`, uses the same Steps/Executor and returns an application dictionary.
+Standard owner `run` applies its configured step/window/time limits to that runner.
+Its output schema is application-specific; the default generic Steps runner retains
+its existing RunResult schema. Cancellation/timeouts still require physical work
+and UNKNOWN reconciliation; the hook is not a new workflow engine.
 
 `remote-calls --config PATH --invocation-id ORIGINAL` queries one bounded page of
 the owner's saved child mappings. Alternatively use `--call-scope SCOPE` for a
@@ -823,7 +859,8 @@ persisted standalone host scope. A full page continues with `--after LAST_CALL_K
 an empty page proves no absence of legacy effects. `reconcile --config PATH
 --call-key KEY --command-id OBSERVATION --invocation-id ORIGINAL` queries the exact
 saved provider ID. Repeat the same command ID to recover its historical signed
-observation; use a new operator command ID for a new observation.
+observation and original stored DSSE envelope without signing it again; use a new
+operator command ID for a new observation.
 
 Reconciliation matches caller, provider, binding, argument digest, result digest
 and original parent. Event v4 retains the local request fingerprint, provider

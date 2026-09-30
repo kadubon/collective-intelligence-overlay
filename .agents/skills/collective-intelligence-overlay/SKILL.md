@@ -135,6 +135,11 @@ clear its flag to make resume pass. `key-rotate` prepares an
 operator bundle; the operator updates current peer pins. Historical origin does
 not grant current HTTP authority, and compromised/backdated signatures require
 new checks. These additions do not imply completed 0.4.0 production acceptance.
+The installed document reference uses the standard `peer` host with the explicit
+factory and settings described in the API. Its business operations have the
+`app.` prefix; standard owner `run` uses the installed allocation mode. Exact
+installed pins retain operator intent across restart without choosing the latest
+history record. Pins and generated candidates do not grant PASS or reuse.
 Use `metrics --operational` for owner-only process/database/CAS observations;
 allowance is not measured consumption. Standard service logs omit raw bodies and
 exceptions. Capacity warnings require owner backup/archival planning, never silent

@@ -35,9 +35,6 @@ class Artifacts:
             raise ValueError("unsafe artifact lock")
         with lock_path.open("a+b") as lock:
             os.chmod(lock_path, 0o600)
-            if lock.seek(0, 2) == 0:
-                lock.write(b"0")
-                lock.flush()
             deadline = time.monotonic() + 5
             while True:
                 try:
@@ -56,6 +53,12 @@ class Artifacts:
                         raise TimeoutError("artifact lock time bound exceeded") from None
                     time.sleep(0.01)
             try:
+                # Windows permits locking beyond EOF. Initialize only while
+                # holding that range: another creator can observe an empty file
+                # before the first process flushes its initial byte.
+                if lock.seek(0, 2) == 0:
+                    lock.write(b"0")
+                    lock.flush()
                 yield
             finally:
                 if sys.platform == "win32":

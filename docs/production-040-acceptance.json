@@ -30,12 +30,15 @@
       "id": "P03",
       "requirement": "Thin host composes existing Registry/Executor/Overlay/Store/Steps; no replacement runtime, budget or protocol",
       "implementation": [
-        "src/collective_intelligence_overlay/application.py"
+        "src/collective_intelligence_overlay/application.py",
+        "src/collective_intelligence_overlay/starter/documents.py",
+        "src/collective_intelligence_overlay/starter/adaptive_documents.py"
       ],
       "test": "Public factory registration and arbitrary application contracts",
-      "observed": "Installed factory connects existing Registry/Executor; stable probe result and generated status survive restart",
+      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile.",
       "remaining": [
-        "full arbitrary goal/builder/checker path and 3-peer loop"
+        "complete HTTPS/restricted-role/native/MCP production protocol",
+        "clean installed wheel application and complete operational/cost/lineage acceptance"
       ],
       "status": "partial; complete acceptance pending"
     },
@@ -68,40 +71,50 @@
     {
       "id": "P06",
       "requirement": "Trusted installed application factory adds tools/builders/checkers/goals without received imports",
-      "implementation": [],
-      "test": "Two differing application contracts through same public API; no registry-only empty production host",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests",
-        "starter"
+      "implementation": [
+        "src/collective_intelligence_overlay/application.py",
+        "src/collective_intelligence_overlay/starter/documents.py",
+        "src/collective_intelligence_overlay/starter/adaptive_documents.py"
       ],
-      "status": "pending"
+      "test": "Two differing application contracts through same public API; no registry-only empty production host",
+      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile.",
+      "remaining": [
+        "complete HTTPS/restricted-role/native/MCP production protocol",
+        "clean installed wheel application and complete operational/cost/lineage acceptance"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P07",
       "requirement": "Three-peer alternative discovery, isolated bad proposals, capacity-aware choice and actual MAF formation",
-      "implementation": [],
-      "test": "Changed inputs and checker bottleneck alter bounded choices; valid siblings continue",
-      "observed": null,
-      "remaining": [
-        "connect existing Steps",
-        "real-service tests"
+      "implementation": [
+        "src/collective_intelligence_overlay/application.py",
+        "src/collective_intelligence_overlay/starter/documents.py",
+        "src/collective_intelligence_overlay/starter/adaptive_documents.py"
       ],
-      "status": "pending"
+      "test": "Changed inputs and checker bottleneck alter bounded choices; valid siblings continue",
+      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile.",
+      "remaining": [
+        "complete HTTPS/restricted-role/native/MCP production protocol",
+        "clean installed wheel application and complete operational/cost/lineage acceptance"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P08",
       "requirement": "Independent check, receiver-qualified reuse, subsequent formation and withdrawal/requalification",
-      "implementation": [],
-      "test": "Production public 8-step loop with observed-use receipts, no fixed core IDs/results",
-      "observed": null,
-      "remaining": [
-        "application",
-        "E2E",
-        "cost/lineage evidence"
+      "implementation": [
+        "src/collective_intelligence_overlay/application.py",
+        "src/collective_intelligence_overlay/starter/documents.py",
+        "src/collective_intelligence_overlay/starter/adaptive_documents.py"
       ],
-      "status": "pending"
+      "test": "Production public 8-step loop with observed-use receipts, no fixed core IDs/results",
+      "observed": "One packaged implementation shares standard host Registry/Executor/Store/Steps; actual three CLI peer processes complete MAF formation, independent checking, reuse, subsequent formation, restart and withdrawal; changed input/checker bottleneck are tested. Six-test host/original-signature/exact-pin group passed 80.64 seconds; 24 unrelated retained candidates do not change restart pins or signed history. Development loopback URLs and demo DB roles do not establish the formal production profile.",
+      "remaining": [
+        "complete HTTPS/restricted-role/native/MCP production protocol",
+        "clean installed wheel application and complete operational/cost/lineage acceptance"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P09",
@@ -372,9 +385,10 @@
         "src/collective_intelligence_overlay/migrations/versions/0019_sync_completion.py"
       ],
       "test": "Fresh and installed-old-version offline upgrade; protected business cases; no inferred rolling support",
-      "observed": "Additive projections retain legacy NULL arguments and historical DSSE bytes; migration and actual restore focused regressions pass",
+      "observed": "Actual immutable PyPI 0.3.2 wheel installed normally and generated fixture with 14 original signed records and one original remote mapping; real PostgreSQL old-schema dump/restore, ordinary/interrupted/repeated 0015-to-0019 migrations preserve all old columns, allowance, three verdicts and missing legacy arguments. Two tests passed 8.23 seconds.",
       "remaining": [
-        "actual installed 0.3.2 offline upgrade and protected checker/policy regression"
+        "live installed 0.3.2 drain/coherent backup/networked upgrade/reconciliation/explicit resume",
+        "protected checker/policy regression and all native validation"
       ],
       "status": "partial; complete acceptance pending"
     },

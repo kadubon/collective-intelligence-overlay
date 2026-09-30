@@ -4,12 +4,15 @@ from __future__ import annotations
 
 import importlib
 import re
+from collections.abc import Awaitable, Callable
 from typing import Any
+
+from pydantic import TypeAdapter
 
 from .bindings import Binding, ExecutionContext
 from .blocking import run_blocking
 from .config import Config
-from .models import Capability, Opportunity
+from .models import Capability, Identifier, Opportunity
 from .operations import Operations, OwnerLock
 from .opportunities import Goal, Opportunities
 from .peer import PeerService
@@ -39,8 +42,41 @@ class ApplicationHost(PeerService):
         self.steps: Steps | None = None
         self._goal_ids: tuple[str, ...] = ()
         self.operations: Operations | None = None
+        self._application_operations: dict[
+            str, tuple[Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]], frozenset[str]]
+        ] = {}
+        self._goal_runner: Callable[[int, int], Awaitable[dict[str, Any]]] | None = None
         self.reconciliations = Reconciliations(self.registry, config, self.identity)
         self.recovery = Recovery(self.registry, config, self.identity)
+
+    def register_operation(
+        self,
+        name: str,
+        handler: Callable[[str, dict[str, Any]], Awaitable[dict[str, Any]]],
+        *,
+        callers: tuple[str, ...],
+    ) -> None:
+        """Install one explicitly granted application operation; no runtime registration."""
+        TypeAdapter(Identifier).validate_python(name)
+        if (
+            not name.startswith("app.")
+            or name in self._application_operations
+            or len(self._application_operations) >= 32
+            or not callers
+            or not set(callers) <= set(self.config.identities)
+        ):
+            raise ValueError("application operation needs a unique namespace and pinned callers")
+        self._application_operations[name] = handler, frozenset(callers)
+
+    def register_goal_runner(self, runner: Callable[[int, int], Awaitable[dict[str, Any]]]) -> None:
+        """Connect an installed application's materialization loop to owner run bounds.
+
+        The runner must use the existing Steps/Executor and retain uncertain work.
+        This hook does not grant registration, budget, verification or tool authority.
+        """
+        if self._goal_runner is not None or self.steps is None:
+            raise ValueError("register goals before their single installed runner")
+        self._goal_runner = runner
 
     def close(self) -> None:
         if self.operations is not None:
@@ -106,6 +142,11 @@ class ApplicationHost(PeerService):
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
         operation = data.get("operation")
+        if operation in self._application_operations:
+            handler, callers = self._application_operations[operation]
+            if caller not in callers:
+                raise ValueError("caller has no application operation grant")
+            return await handler(caller, data)
         if operation in {"recovery_state", "recovery_review"}:
             if caller != self.config.owner:
                 raise ValueError("recovery operations are owner-only")
@@ -136,7 +177,12 @@ class ApplicationHost(PeerService):
             )
             return {
                 "event": event.model_dump(mode="json"),
-                "envelope": self.identity.sign(event),
+                "envelope": await run_blocking(
+                    self.overlay.store.signed_record,
+                    await run_blocking(
+                        self.overlay.store.reference, "event", event.issuer, event.id
+                    ),
+                ),
                 "invocation_unchanged": True,
                 "allowance_unchanged": True,
             }
@@ -175,6 +221,14 @@ class ApplicationHost(PeerService):
             self.config.max_seconds, 300
         ):
             raise ValueError("requested run exceeds the configured owner bounds")
+        if self._goal_runner is not None:
+            import asyncio
+
+            max_candidates = int(data.get("max_candidates", 8))
+            if not 1 <= max_candidates <= 32:
+                raise ValueError("observation window exceeds owner bounds")
+            async with asyncio.timeout(seconds):
+                return await self._goal_runner(max_steps, max_candidates)
         return (
             await self.steps.run(
                 self._collect,

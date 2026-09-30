@@ -16,18 +16,29 @@ from collective_intelligence_overlay.storage import budgets
 
 
 @pytest.mark.parametrize(
-    "training_text,work_allowance,mode,connection_mismatch",
+    "training_text,work_allowance,mode,connection_mismatch,host_mode",
     [
-        ("calibration vocabulary", 50, "adaptive-run", False),
-        ("a longer calibration document", 50, "adaptive-run", False),
-        ("bounded checker calibration", 5, "adaptive-run", False),
-        ("calibration vocabulary", 50, "static-run", False),
-        ("calibration vocabulary", 50, "adaptive-run", True),
-        ("calibration vocabulary", 50, "static-run", True),
+        ("calibration vocabulary", 50, "adaptive-run", False, False),
+        ("a longer calibration document", 50, "adaptive-run", False, False),
+        ("bounded checker calibration", 5, "adaptive-run", False, False),
+        ("calibration vocabulary", 50, "static-run", False, False),
+        ("calibration vocabulary", 50, "adaptive-run", True, False),
+        ("calibration vocabulary", 50, "static-run", True, False),
+        pytest.param("shared 文書 calibration", 50, "adaptive-run", False, True, id="host-normal"),
+        pytest.param(
+            "bounded checker calibration", 5, "adaptive-run", False, True, id="host-bottleneck"
+        ),
     ],
 )
 async def test_peer_selected_document_formation_restart_and_withdrawal(
-    tmp_path, policy, monkeypatch, training_text, work_allowance, mode, connection_mismatch
+    tmp_path,
+    policy,
+    monkeypatch,
+    training_text,
+    work_allowance,
+    mode,
+    connection_mismatch,
+    host_mode,
 ):
     url = os.environ.get("CIO_TEST_DATABASE_URL")
     if not url:
@@ -36,13 +47,25 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
     monkeypatch.syspath_prepend(str(examples))
     from adaptive_documents import ENVIRONMENT, configure_application, write_json
 
+    from collective_intelligence_overlay.starter.documents import (
+        APPLICATION_FACTORY,
+        APPLICATION_OPERATIONS,
+    )
+
     opa = await asyncio.to_thread(os.path.abspath, policy.binary)
     configs = await asyncio.to_thread(
         initialize, tmp_path / "application", url, opa, work_allowance=Decimal(work_allowance)
     )
     for name, original in configs.items():
         config = original.model_copy(
-            update={"execution_environment": ENVIRONMENT, "max_seconds": 300}
+            update={
+                "execution_environment": ENVIRONMENT,
+                "max_seconds": 120 if host_mode else 300,
+                "application": APPLICATION_FACTORY if host_mode else None,
+                "application_settings": original.private_key.parent / "application.json"
+                if host_mode
+                else None,
+            }
         )
         configs[name] = config
         data = config.model_dump(mode="json")
@@ -58,6 +81,11 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
     logs = []
 
     async def call(owner, **data):
+        if host_mode:
+            if data["operation"] in {"adaptive-run", "static-run"}:
+                data = {**data, "operation": "run"}
+            elif data["operation"] in APPLICATION_OPERATIONS:
+                data = {**data, "operation": "app." + data["operation"]}
         return await send(configs[owner], identities[owner], owner, data)
 
     async def start(name):
@@ -67,7 +95,11 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
         logs.append(log)
         process = await asyncio.create_subprocess_exec(
             sys.executable,
-            str(examples / "adaptive_documents.py"),
+            *(
+                ["-m", "collective_intelligence_overlay.cli", "peer"]
+                if host_mode
+                else [str(examples / "adaptive_documents.py")]
+            ),
             "--config",
             str(config.private_key.parent / "config.json"),
             cwd=tmp_path,
@@ -80,7 +112,10 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 if process.returncode is not None:
                     raise AssertionError(log_path.read_text(encoding="utf-8"))
                 try:
-                    await call(name, operation="metrics")
+                    observed = await call(name, operation="status" if host_mode else "metrics")
+                    if host_mode and observed["state"] != "ready":
+                        await asyncio.sleep(0.1)
+                        continue
                     return
                 except (httpx.HTTPError, ConnectionError, AgentCardResolutionError):
                     await asyncio.sleep(0.1)
@@ -230,7 +265,49 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             # Resume with a formed but still unverified C3. The harness supplies
             # no next-task instruction after restarting the owner process.
             await stop("receiver")
+            if host_mode:
+                # Restore explicit pins even when unrelated retained candidates
+                # exceed both the old 16-record and the transport byte window.
+                from collective_intelligence_overlay.models import Capability, Subject
+                from collective_intelligence_overlay.queries import RecordQuery
+
+                local_identity, retained = configs["receiver"].runtime()
+                try:
+                    original = retained.store.record_page(
+                        RecordQuery(
+                            kinds=("capability",),
+                            issuer="receiver",
+                            subject=Subject.model_validate(c3["subject"]),
+                        )
+                    ).items[0]
+                    assert isinstance(original, Capability)
+                    unrelated = []
+                    for index in range(24):
+                        candidate = original.model_copy(
+                            update={
+                                "subject": original.subject.model_copy(
+                                    update={"id": f"retained.unrelated-{index}"}
+                                ),
+                                "entrypoint": f"unrelated-{index}",
+                            }
+                        )
+                        envelope = local_identity.sign(candidate)
+                        retained.store.put(envelope)
+                        reference = retained.store.reference(
+                            "capability", "receiver", candidate.subject.key
+                        )
+                        unrelated.append((reference, envelope))
+                finally:
+                    retained.store.close()
             await start("receiver")
+            if host_mode:
+                _, retained = configs["receiver"].runtime()
+                try:
+                    assert all(
+                        retained.store.signed_record(ref) == envelope for ref, envelope in unrelated
+                    )
+                finally:
+                    retained.store.close()
             result = await call("receiver", operation=mode, max_steps=8)
             assert result["reason"] == "goals_satisfied", result
             history = first["history"] + result["history"]
@@ -297,7 +374,9 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             await stop("verifier")
             await start("verifier")
             check_request = {
-                "operation": "request-document-check",
+                "operation": "app.request-document-check"
+                if host_mode
+                else "request-document-check",
                 "name": "report",
                 "attempt": ("check-" + history[1]["opportunity"])
                 if mode == "adaptive-run"

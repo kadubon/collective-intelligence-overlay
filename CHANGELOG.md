@@ -5,6 +5,16 @@
 - Operator-selected installed application host, packaged starter, separate secret
   files, restricted runtime DB bootstrap, owner locking, dependency readiness,
   drain and tracked physical blocking work compose the existing execution APIs.
+- The existing document application is packaged, with source launchers using the
+  same implementation. Explicitly granted `app.*` operations and a bounded owner
+  runner connect its actual MAF formation/check/reuse loop to standard host intake.
+  Exact installed pins restore without scanning unrelated retained history.
+- Native CAS publication locks before initializing an empty lock file, preventing
+  the observed Windows concurrent-creator failure. A deterministic process test
+  retains the originally empty locked file until its holder releases it.
+- An actual installed immutable 0.3.2 wheel generated the retained upgrade fixture;
+  PostgreSQL dump/restore, interrupted migration and repeated upgrade preserve its
+  original signed records, allowance and remote mapping without inferred identity.
 - Bounded authenticated HTTP capacity and read-only retries preserve operation
   identity. Original provider-ID reconciliation appends provenance observations,
   separates reported completion/effect/PASS and retains UNKNOWN and allowance.
