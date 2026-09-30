@@ -20,7 +20,7 @@ from pydantic import BaseModel, ConfigDict, Field, JsonValue, model_validator
 
 from .artifacts import Artifacts
 from .blocking import run_blocking
-from .models import Digest, Identifier, ReceiptRef, Scope, Subject, UseRequest
+from .models import Decision, Digest, Identifier, ReceiptRef, Scope, Subject, UseRequest
 from .overlay import Overlay
 from .security import Identity, allowed_url, digest
 
@@ -230,15 +230,19 @@ class Registry:
         self.overlay = overlay
         self._entries: dict[str, _Registration] = {}
         self._digests: dict[str, _Registration] = {}
+        self._staged: set[str] = set()
+        self._retained: set[str] = set()
 
-    def register_local(self, binding: Binding, operation: Operation, assess: Assessment) -> None:
+    def register_local(
+        self, binding: Binding, operation: Operation, assess: Assessment, *, staged: bool = False
+    ) -> None:
         if binding.binding_schema != "1":
             raise ValueError("persisted bindings require register_artifact")
         if binding.target.kind != "local":
             raise ValueError("local registration requires local binding")
         if callable_digest(operation) != binding.target.interface_digest:
             raise ValueError("installed callable does not match binding")
-        self._register(binding, operation, assess)
+        self._register(binding, operation, assess, staged=staged)
 
     def register_artifact(
         self,
@@ -300,6 +304,7 @@ class Registry:
         assess: Assessment,
         *,
         remote_identity: bool = False,
+        staged: bool = False,
     ) -> None:
         if binding.registrar != self.overlay.store.owner:
             raise ValueError("registration belongs to the local operator")
@@ -308,10 +313,37 @@ class Registry:
         previous = self._entries.get(binding.id)
         if previous and previous.binding.revision == binding.revision:
             raise ValueError("binding revision already registered")
+        if staged:
+            if (
+                binding.effects != "read-only"
+                or binding.target.kind != "local"
+                or previous is not None
+                and previous.binding.effects != "read-only"
+            ):
+                raise ValueError("staged trials require an installed read-only local binding")
+            retained = self._retained | {binding.digest}
+            if previous is not None:
+                retained.add(previous.digest)
+            if len(self._staged) >= 8 or len(retained) > 16:
+                raise ValueError("staged/retained binding capacity exhausted")
+            if any(
+                entry.binding.id == binding.id and entry.binding.revision == binding.revision
+                for entry in self._digests.values()
+            ):
+                raise ValueError("binding revision already retained")
+        elif any(self._digests[key].binding.id == binding.id for key in self._retained):
+            raise ValueError("staged binding requires explicit promotion")
         # Pydantic frozen models can contain mutable dicts: own an isolated copy and
         # compare its original fingerprint again at the actuator boundary.
         owned = binding.model_copy(deep=True)
         entry = _Registration(owned, owned.digest, operation, assess, remote_identity)
+        if staged:
+            self._staged.add(entry.digest)
+            self._retained.add(entry.digest)
+            if previous is not None:
+                self._retained.add(previous.digest)
+            self._digests[entry.digest] = entry
+            return
         if previous is not None:
             self._digests.pop(previous.digest, None)
         self._entries[binding.id] = entry
@@ -334,8 +366,69 @@ class Registry:
             self._check_components(component.binding, path | {binding.digest}, checked)
         checked.add(binding.digest)
 
-    def inspect(self, binding_id: str) -> Binding:
-        return self._entry(binding_id).binding.model_copy(deep=True)
+    def inspect(self, binding_id: str, *, expected_digest: str | None = None) -> Binding:
+        entry = (
+            self._entry(binding_id)
+            if expected_digest is None
+            else self._version(binding_id, expected_digest)
+        )
+        return entry.binding.model_copy(deep=True)
+
+    def _version(self, binding_id: str, expected_digest: str) -> _Registration:
+        entry = self._digests.get(expected_digest)
+        if entry is None or entry.binding.id != binding_id or entry.binding.digest != entry.digest:
+            raise ValueError("unknown or changed installed binding version")
+        return entry
+
+    def _selected(
+        self, binding_id: str, expected_digest: str, context: ExecutionContext
+    ) -> _Registration:
+        if context.purpose == "verification" and expected_digest in self._staged:
+            return self._version(binding_id, expected_digest)
+        return self._entry(binding_id)
+
+    async def promote(
+        self,
+        binding_id: str,
+        expected_digest: str,
+        protected_inputs: tuple[dict[str, Any], ...],
+        context: ExecutionContext,
+        *,
+        expected_active: str | None,
+    ) -> tuple[Decision, ...]:
+        """Trusted host choice after ordinary admission of bounded protected inputs.
+
+        Qualification never executes a trial or fabricates independent evidence.
+        All decisions are persisted by Overlay. Failed/UNKNOWN inputs leave the
+        active entry unchanged; explicit retained versions can be checked again
+        for rollback. Applications persist their own operator configuration.
+        """
+        if context.caller != self.overlay.store.owner or context.purpose != "reuse":
+            raise ValueError("binding promotion is a local operator choice")
+        if not 1 <= len(protected_inputs) <= 8:
+            raise ValueError("promotion needs one to eight protected inputs")
+        protected_inputs = copy.deepcopy(protected_inputs)
+        context = context.model_copy(deep=True)
+        if expected_digest not in self._retained:
+            raise ValueError("binding version was not explicitly staged")
+        entry = self._version(binding_id, expected_digest)
+        previous = self._entries.get(binding_id)
+        if (previous.digest if previous else None) != expected_active:
+            raise ValueError("active binding changed before promotion")
+        decisions = []
+        for arguments in protected_inputs:
+            prepared = self._prepare(entry, expected_digest, arguments, context)
+            decisions.append(await self.overlay.qualify(prepared.request))
+        if any(decision.outcome != "ACCEPT" for decision in decisions):
+            return tuple(decisions)
+        if self._entries.get(binding_id) is not previous:
+            raise ValueError("active binding changed during promotion")
+        self._version(binding_id, expected_digest)
+        self._entries[binding_id] = entry
+        self._staged.discard(entry.digest)
+        if previous is not None and previous is not entry:
+            self._staged.add(previous.digest)
+        return tuple(decisions)
 
     def _entry(self, binding_id: str) -> _Registration:
         entry = self._entries.get(binding_id)
@@ -352,7 +445,16 @@ class Registry:
         arguments: dict[str, Any],
         context: ExecutionContext,
     ) -> PreparedCall:
-        entry = self._entry(binding_id)
+        entry = self._selected(binding_id, expected_digest, context)
+        return self._prepare(entry, expected_digest, arguments, context)
+
+    def _prepare(
+        self,
+        entry: _Registration,
+        expected_digest: str,
+        arguments: dict[str, Any],
+        context: ExecutionContext,
+    ) -> PreparedCall:
         binding = entry.binding
         self._check_components(binding)
         parent = active_binding.get()
@@ -429,7 +531,7 @@ class Registry:
             else:
                 assert frame is not None
                 await run_blocking(RemoteCalls(self.overlay.store).check, frame)
-        entry = self._entry(binding_id)
+        entry = self._selected(binding_id, expected_digest, context)
         if entry.remote_identity and identity_missing:
             raise MissingCallIdentity(
                 "A2A calls require call_id and persisted call_scope, or a stable Executor parent"
@@ -437,7 +539,7 @@ class Registry:
         prepared = self.prepare(binding_id, expected_digest, arguments, context)
 
         async def actuator() -> Any:
-            current = self._entry(binding_id)
+            current = self._selected(binding_id, expected_digest, context)
             if current is not entry or current.digest != prepared.binding_digest:
                 raise ValueError("binding changed before execution")
             checked = self.prepare(binding_id, expected_digest, prepared.arguments, context)

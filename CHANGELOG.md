@@ -16,6 +16,10 @@
 - Closing a killed owner session invalidates its connection if the final unlock
   detects the disconnect, retaining closed intake and avoiding a broken pooled
   session or shutdown failure.
+- Trusted local read-only bindings can be staged without replacing the active
+  version. Explicit probes use existing grants/Executor; finite ordinary admission
+  checks precede promotion or rollback and preserve the old entry on refusal.
+  Retained versions stay bounded. Durable application promotion remains pending.
 - The existing document application is packaged, with source launchers using the
   same implementation. Explicitly granted `app.*` operations and a bounded owner
   runner connect its actual MAF formation/check/reuse loop to standard host intake.

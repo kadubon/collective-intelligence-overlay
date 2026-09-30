@@ -301,15 +301,17 @@
     {
       "id": "P22",
       "requirement": "Candidate/shadow or limited trial/independent check/operator scoped promotion and rollback",
-      "implementation": [],
-      "test": "FAIL/UNKNOWN/protected regression retains old binding; shadow has no duplicate effect; checker meaning comparison recorded",
-      "observed": null,
-      "remaining": [
-        "implementation",
-        "tests",
-        "docs"
+      "implementation": [
+        "src/collective_intelligence_overlay/bindings.py"
       ],
-      "status": "pending"
+      "test": "FAIL/UNKNOWN/protected regression retains old binding; shadow has no duplicate effect; checker meaning comparison recorded",
+      "observed": "Trusted read-only local staging preserves the active revision, permits only explicit granted verification through Executor and retains bounded versions. Ordinary per-input admission precedes an explicit process-local promotion/rollback; refusals preserve the old entry. Fifteen real PostgreSQL/OPA Registry/MAF/MCP and persisted-binding tests passed 31.50 seconds. Four strengthened stage cases passed 15.11 seconds: PASS, independently reported FAIL/UNKNOWN and missing application assessment; wrong probe callers are denied, original invocation receipts survive and promotion creates no new reservation. Earlier FAIL-after-first-check stopped later probes conservatively; the finite test trial batch now finishes before evidence publication. These are local SDK primitives, not complete durable reference-application production acceptance.",
+      "remaining": [
+        "durable signed operator choices and reference-application active/candidate restoration",
+        "actual protected regression and checker-comparability records in the network production path",
+        "all native installed promotion/rollback fault protocols"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P23",

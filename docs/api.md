@@ -881,6 +881,33 @@ explicit caller key without loading the owner key or constructing a Store.
 credentials with separate OS accounts/ACLs; these flags do not install filesystem
 isolation. Error exit 2 and successful JSON exit 0 retain the existing CLI behavior.
 
+For trusted installed local read-only operations,
+`Registry.register_local(binding, operation, assess, staged=True)` retains the
+active binding and stages a distinct revision. At most eight versions are staged
+and sixteen retained. `registry.inspect(id, expected_digest=digest)` returns the
+exact installed version. Ordinary execution still requires the active digest;
+only an explicit `verification` context with that version's caller/probe grants
+can execute a staged version through the same Executor. Registration and a
+completed probe produce no independent PASS.
+
+After independently checking the candidate, a trusted host can call
+`await registry.promote(id, digest, protected_inputs, context,
+expected_active=old_digest)`. The context must be local-owner ordinary `reuse`;
+one to eight argument dictionaries are copied and assessed against the actual
+candidate, then qualified by the existing policy. The returned tuple contains all
+persisted Decisions. Every result must be ACCEPT before the active entry changes;
+FAIL, UNKNOWN or other refusal preserves the old entry. Concurrent active changes
+refuse the switch. The old version stays retained for explicit rollback through
+the same current admission checks; changing the pointer undoes no earlier effect.
+Once staged management begins, direct registration cannot bypass promotion.
+
+This primitive performs no trial, independent verification or application-specific
+regression comparison itself. The installed checker must justify its scoped
+evidence on the actual protected cases. An application must persist the operator
+choice, scope, checker basis and installed configuration for restart; these
+registry pointers are process-local. Complete production promotion, checker
+comparability and durable reference-application integration remain under validation.
+
 Factories can call `host.register_operation("app.NAME", async_handler, callers=(...))`
 for at most 32 application operations. Names must have that prefix, be unique and
 use explicitly pinned caller identities. They cannot replace standard operations.

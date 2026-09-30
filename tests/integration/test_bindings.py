@@ -1,6 +1,7 @@
 import asyncio
 import json
 import sys
+from decimal import Decimal
 
 import httpx
 import httpx2
@@ -16,8 +17,10 @@ from agent_framework import (
 from jsonschema import ValidationError
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
+from sqlalchemy import select
 
 from collective_intelligence_overlay.adapters.maf import bound_tool
+from collective_intelligence_overlay.artifacts import Artifacts
 from collective_intelligence_overlay.bindings import (
     Binding,
     ExecutionContext,
@@ -27,13 +30,23 @@ from collective_intelligence_overlay.bindings import (
     fingerprint,
 )
 from collective_intelligence_overlay.demo import free_port
+from collective_intelligence_overlay.invocations import Executor, Reservation
 from collective_intelligence_overlay.models import Capability, Evidence, Revocation, Subject
 from collective_intelligence_overlay.overlay import AdmissionDenied
 from collective_intelligence_overlay.security import verify
+from collective_intelligence_overlay.storage import budgets
 
 
 async def transform(arguments):
     return {"total": str(sum(arguments["amounts"]))}
+
+
+async def transform_revision(arguments):
+    return {"total": str(sum(value for value in arguments["amounts"]))}
+
+
+async def transform_regression(arguments):
+    return {"total": str(sum(arguments["amounts"]) + 1)}
 
 
 def setup_binding(overlay, identities, records, *, legacy=False):
@@ -138,6 +151,144 @@ async def test_issuer_and_binding_change_cannot_reuse_accept(overlay, identities
         await registry.execute(binding.id, binding.digest, args, context)
     with pytest.raises(AdmissionDenied):
         await registry.execute(binding.id, newer.digest, args, context)
+
+
+@pytest.mark.parametrize(
+    "checker_state,unassessed_input",
+    [("PASS", False), ("FAIL", False), ("UNKNOWN", False), ("PASS", True)],
+)
+async def test_staged_readonly_trial_admission_promotion_and_rollback(
+    overlay, identities, records, tmp_path, checker_state, unassessed_input
+):
+    registry, original, context = setup_binding(overlay, identities, records)
+    overlay.store.set_budget("work", Decimal(20))
+    executor = Executor(registry, identities["receiver"], Reservation())
+    inputs = (
+        {"amounts": [1, 2], "tenant": "tenant-a"},
+        {"amounts": [-3, 5], "tenant": "tenant-a"},
+    )
+    saved = await executor.invoke("old-original", original.id, original.digest, inputs[0], context)
+    assert saved["state"] == "completed"
+    operation = transform_regression if checker_state == "FAIL" else transform_revision
+    subject = original.subject.model_copy(
+        update={"version": "3", "digest": callable_digest(operation)}
+    )
+    candidate = original.model_copy(
+        update={
+            "revision": "2",
+            "subject": subject,
+            "target": original.target.model_copy(
+                update={"interface_digest": callable_digest(operation)}
+            ),
+            "callers": ("receiver", "verifier"),
+            "verification_callers": ("verifier",),
+        }
+    )
+    registry.register_local(
+        candidate,
+        operation,
+        lambda arguments: not unassessed_input or arguments["amounts"] == [1, 2],
+        staged=True,
+    )
+    assert registry.inspect(original.id) == original
+    assert registry.inspect(candidate.id, expected_digest=candidate.digest) == candidate
+    with pytest.raises(ValueError, match="binding changed"):
+        registry.prepare(candidate.id, candidate.digest, inputs[0], context)
+    with pytest.raises(ValueError, match="caller not authorized"):
+        registry.prepare(
+            candidate.id,
+            candidate.digest,
+            inputs[0],
+            context.model_copy(update={"caller": "other", "purpose": "verification"}),
+        )
+    with pytest.raises(ValueError, match="verification grant"):
+        registry.prepare(
+            candidate.id,
+            candidate.digest,
+            inputs[0],
+            context.model_copy(update={"purpose": "verification"}),
+        )
+    with pytest.raises(ValueError, match="explicit promotion"):
+        registry.register_local(
+            candidate.model_copy(update={"revision": "3"}), operation, lambda _: True
+        )
+    capability = records[0].model_copy(
+        update={
+            "schema_version": "2",
+            "subject": subject,
+            "binding_digest": candidate.digest,
+            "classification": "replicated",
+        }
+    )
+    overlay.store.put(identities["producer"].sign(capability))
+    not_checked = await registry.promote(
+        candidate.id, candidate.digest, inputs, context, expected_active=original.digest
+    )
+    assert any(decision.outcome != "ACCEPT" for decision in not_checked)
+    assert registry.inspect(original.id) == original
+    cas = Artifacts(tmp_path / "trial-proofs")
+    verifier_context = context.model_copy(update={"caller": "verifier", "purpose": "verification"})
+    checks = []
+    for index, arguments in enumerate(inputs):
+        trial = await executor.invoke(
+            f"protected-trial-{index}", candidate.id, candidate.digest, arguments, verifier_context
+        )
+        assert trial["state"] == ("completed" if not unassessed_input or index == 0 else "unknown")
+        expected = {"total": "3" if index == 0 else "2"}
+        verdict = (
+            "UNKNOWN"
+            if checker_state == "UNKNOWN" or trial["state"] != "completed"
+            else "PASS"
+            if trial["result"] == expected
+            else "FAIL"
+        )
+        proof = cas.put(
+            json.dumps({"arguments": arguments, "observed": trial, "expected": expected}).encode()
+        )
+        evidence = Evidence.model_validate(
+            {
+                **records[1].model_dump(),
+                "schema_version": "2",
+                "id": f"protected-check-{index}",
+                "subject": subject,
+                "binding_digest": candidate.digest,
+                "verdict": verdict,
+                "artifact_digest": proof,
+            }
+        )
+        checks.append(identities["verifier"].sign(evidence))
+    for envelope in checks:
+        overlay.store.put(envelope)
+    with overlay.store.engine.connect() as conn:
+        balance = conn.execute(select(budgets.c.remaining)).scalar_one()
+    result = await registry.promote(
+        candidate.id, candidate.digest, inputs, context, expected_active=original.digest
+    )
+    accepted = checker_state == "PASS" and not unassessed_input
+    assert all(decision.outcome == "ACCEPT" for decision in result) is accepted
+    assert registry.inspect(original.id) == (candidate if accepted else original)
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == balance
+    assert executor.store.get("receiver", "old-original") == saved
+    if accepted:
+        activated = await executor.invoke(
+            "activated", candidate.id, candidate.digest, inputs[1], context
+        )
+        assert activated["state"] == "completed" and activated["result"] == {"total": "2"}
+        with pytest.raises(ValueError, match="active binding changed"):
+            await registry.promote(
+                original.id, original.digest, inputs, context, expected_active=original.digest
+            )
+        rollback = await registry.promote(
+            original.id, original.digest, inputs, context, expected_active=candidate.digest
+        )
+        assert all(decision.outcome == "ACCEPT" for decision in rollback)
+        assert registry.inspect(original.id) == original
+        assert executor.store.get("receiver", "activated") == activated
+    assert (
+        await executor.invoke("old-original", original.id, original.digest, inputs[0], context)
+        == saved
+    )
 
 
 async def test_registry_owns_nested_manifest_and_arguments(overlay, identities, records):

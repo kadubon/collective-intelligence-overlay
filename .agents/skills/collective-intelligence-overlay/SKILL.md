@@ -151,3 +151,10 @@ separate CLI control signer. This grant confers no binding permission; keep its
 key protected outside the runtime account. Empty configuration retains legacy
 owner control. Recovery review remains owner-signed and explicit resume rechecks
 that original receipt and unchanged state even for a distinct control caller.
+
+For trusted local read-only updates, an installed host can use staged Registry
+registration and explicit `promote` after independently checking protected inputs.
+Read the API for grants, finite bounds, ordinary admission and retained rollback.
+Generated candidates/probe completion grant no PASS. The registry switch is
+process-local; persist operator choice and checker basis in the application before
+restart. Complete durable production promotion remains under validation.
