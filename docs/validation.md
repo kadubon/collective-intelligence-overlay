@@ -1,6 +1,6 @@
 # Validation status
 
-## 0.3.2 native pre-publication validation
+## 0.3.2 released-artifact and actual-index validation
 
 Implementation commit `a03a59e3b5ac94425785a3e8d3e3d944699db6bc` passed
 [main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36700000778).
@@ -16,11 +16,42 @@ Minimum/latest installed peers passed actual HTTP in both directions. These are
 shared-artifact cross-platform checks and within-runner HTTP, not cross-host
 public networking or independent external audit.
 
-The complete reports were also downloaded and checked with `check_matrix.py`.
-Native safety gates are complete; tag/OIDC publication and actual-PyPI checks
-remain required. The documentation-finalized tag must test its own single original
-pair before publication. Exact runtime observations are in
-[compatibility](compatibility.md), and publication state is in [releasing](releasing.md).
+The documentation-finalized release commit
+`b172c0d0ef208ede4ae3a663a158f1713d7f49a0` subsequently passed the same complete
+gates in [tag CI, attempt 2](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36705746853).
+Only documentation changed after the earlier implementation commit. Tag reports
+were downloaded by immutable artifact ID, their archive digests checked, and the
+complete matrix revalidated locally with `check_matrix.py`. The official OIDC job
+published the original wheel/sdist; actual PyPI downloads match their bytes and
+hashes. Exact tag observations are in [compatibility](compatibility.md).
+
+The first tag attempt failed **two Mac Intel / CPython 3.14.7 source cases:
+291 total / 289 passed / two failures / zero errors or skips**. The adaptive
+document test timed out on an A2A mode request after receiver restart; the lost-real-
+HTTP-response restart test's provider did not become ready within its polling
+window. Root causes remain unestablished. Its installed profiles did not run after
+the source gate failed. All 17 cleanup cases passed in each of the 12 source XML
+reports, including that failed overall suite; this does not make the first attempt
+a passed matrix. Original failure reports, XML hashes and job logs were retained.
+An unchanged failed-job retry passed 291 source, 290 installed agents, one model
+and 41 rebuilt-sdist tests. The original candidate and test deadlines were retained;
+the other 11 successful native jobs were reused. A later pass does not explain
+the earlier failures.
+
+[Actual-index native verification](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36716542836)
+passed with the original tag candidate on the same 12 identities, without retries.
+Fresh cache-disabled normal PyPI core/agents/model installs repeated 291 source,
+290 installed agents, one model and 41 rebuilt-sdist tests each; all suites had zero
+failures/errors/skips. All 36 installed profiles passed complete root-inclusive
+known-vulnerability audits, reviewed licensing and SBOM checks, matching actual
+resolved names/versions. Child/backend patch/CPU checks, four readers, mixed HTTP
+and final matrix/hash validation also passed. The manual publish job was skipped.
+The [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.2)
+attaches the original PyPI pair and 641 sanitized reports, including representative
+stress and the first tag failure summary. ZIP CRC and report-hash checks passed;
+all public asset digests match the verified local files. Raw logs/configs/private
+keys are excluded and local operator account prefixes are redacted.
+Current publication state and exact hashes are in [releasing](releasing.md).
 
 CIO-031-01 was reproduced on Windows CPython 3.12.14 with real PostgreSQL
 16.15 under WSL: two expired reserved/dispatched cases refused a distinct ID with
@@ -76,7 +107,8 @@ are in [mixed history](measurements/scale-032-100000.json) and
 CIO-031-02 adds native OPA assets, atomic explicit installation, isolated native
 PostgreSQL and one 12-pair manifest. Windows actual OPA installation passed in a
 Unicode/space directory. **Native Mac CI, the complete 12-pair implementation
-matrix and cross-platform reports passed. Tag and actual-PyPI checks remain pending.**
+matrix and cross-platform reports passed. The tag gates and OIDC publication also
+passed, followed by the complete actual-PyPI native matrix.**
 Platform mocks are unit failure checks, not Mac execution evidence. Paid inference,
 independent external audit and v0.4.0 production behavior remain unrun.
 

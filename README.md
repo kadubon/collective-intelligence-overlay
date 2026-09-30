@@ -37,7 +37,7 @@ execution remain explicit stopping conditions. The tested release is available o
 
 ## What works
 
-The 0.3.2 implementation passed all 12 Linux/Windows/Mac Intel/Mac arm64 native
+The 0.3.2 release passed all 12 Linux/Windows/Mac Intel/Mac arm64 native
 CI pairs: 291 source tests, 290 installed agents tests, one model test and 41
 rebuilt-sdist tests, plus core import/CLI/resources, with zero failures/errors/skips.
 Four native readers verified shared artifacts/signatures from every producer;
@@ -132,7 +132,7 @@ Install the latest published release from
 Python >=3.12 environment:
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]'
+uv pip install 'collective-intelligence-overlay[agents]==0.3.2'
 collective-intelligence-overlay --version
 ```
 

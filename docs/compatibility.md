@@ -1,29 +1,31 @@
 # Compatibility and licensing
 
-## 0.3.2 native implementation validation (2026-09-30)
+## 0.3.2 native release validation (2026-09-30)
 
-All 12 mandatory native pairs passed the implementation's
-[main CI at a03a59e](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36700000778),
-including source and normally resolved installed artifacts. The table below is
-that pre-publication observation, distinct from the final tag's original pair and
-actual-index checks. Every suite has zero failures/errors/skips; core smoke,
+All 12 mandatory native pairs passed the immutable release commit `b172c0d` in
+[tag CI, attempt 2](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36705746853),
+including source and normally resolved installed artifacts. The table below records
+that tag's original pair; completed actual-index native checks are reported below.
+The first attempt's two Mac Intel 3.14.7 source failures,
+unchanged retry and reused successful jobs are retained in [validation](validation.md).
+Every completed tag suite has zero failures/errors/skips; core smoke,
 actual child/build runtime, licensing, known-vulnerability and SBOM checks passed.
 Source elapsed times are observations, not normalized performance comparisons.
 
 | Actual native runtime | Frozen source | Installed agents | Model | Rebuilt sdist | Resolved core/agents/model |
 | --- | --- | --- | --- | --- | --- |
-| Darwin amd64 / 3.12.14 | 291; 1558.045 s | 290 | 1 | 41 | 31/63/66 |
-| Darwin amd64 / 3.13.15 | 291; 1247.515 s | 290 | 1 | 41 | 31/59/63 |
-| Darwin amd64 / 3.14.7 | 291; 1083.010 s | 290 | 1 | 41 | 31/59/63 |
-| Darwin arm64 / 3.12.14 | 291; 662.717 s | 290 | 1 | 41 | 31/63/66 |
-| Darwin arm64 / 3.13.15 | 291; 608.533 s | 290 | 1 | 41 | 31/59/63 |
-| Darwin arm64 / 3.14.7 | 291; 546.765 s | 290 | 1 | 41 | 31/59/63 |
-| Linux amd64 / 3.12.14 | 291; 548.940 s | 290 | 1 | 41 | 31/63/66 |
-| Linux amd64 / 3.13.15 | 291; 571.829 s | 290 | 1 | 41 | 31/59/63 |
-| Linux amd64 / 3.14.7 | 291; 500.001 s | 290 | 1 | 41 | 31/59/63 |
-| Windows amd64 / 3.12.14 | 291; 876.232 s | 290 | 1 | 41 | 31/64/67 |
-| Windows amd64 / 3.13.15 | 291; 1001.677 s | 290 | 1 | 41 | 31/60/64 |
-| Windows amd64 / 3.14.7 | 291; 699.660 s | 290 | 1 | 41 | 31/60/64 |
+| Darwin amd64 / 3.12.14 | 291; 1670.429 s | 290 | 1 | 41 | 31/63/66 |
+| Darwin amd64 / 3.13.15 | 291; 979.676 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin amd64 / 3.14.7 | 291; 1285.354 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin arm64 / 3.12.14 | 291; 571.807 s | 290 | 1 | 41 | 31/63/66 |
+| Darwin arm64 / 3.13.15 | 291; 533.946 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin arm64 / 3.14.7 | 291; 492.769 s | 290 | 1 | 41 | 31/59/63 |
+| Linux amd64 / 3.12.14 | 291; 606.759 s | 290 | 1 | 41 | 31/63/66 |
+| Linux amd64 / 3.13.15 | 291; 561.461 s | 290 | 1 | 41 | 31/59/63 |
+| Linux amd64 / 3.14.7 | 291; 646.362 s | 290 | 1 | 41 | 31/59/63 |
+| Windows amd64 / 3.12.14 | 291; 618.986 s | 290 | 1 | 41 | 31/64/67 |
+| Windows amd64 / 3.13.15 | 291; 1006.430 s | 290 | 1 | 41 | 31/60/64 |
+| Windows amd64 / 3.14.7 | 291; 548.555 s | 290 | 1 | 41 | 31/60/64 |
 
 Native Mac hosts reported macOS 15.7.9; Windows reported Server 2025.
 Linux PostgreSQL was 16.15, native Windows/Homebrew PostgreSQL was 17.11,
@@ -31,6 +33,28 @@ and native OPA was 1.21.0. Four native readers passed all 12 producers' shared
 golden artifacts and signatures; minimum/latest installed HTTP peers passed both
 directions. Future interpreters, PyPy, free-threaded and other OS/CPU combinations
 remain unverified. Actual tag/PyPI status is maintained in [releasing](releasing.md).
+
+Fresh cache-disabled normal [actual-PyPI validation](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36716542836)
+passed on the same 12 identities and original hashes. Every suite has zero
+failures/errors/skips; all 36 installed profiles include the published root in
+audit/license/SBOM checks. Actual child/backend interpreters, four readers, mixed
+HTTP and final report validation also passed. Resolved counts include the root.
+The source elapsed observations below do not measure normalized performance.
+
+| Actual PyPI native runtime | Frozen source | Installed agents | Model | Rebuilt sdist | Resolved core/agents/model |
+| --- | --- | --- | --- | --- | --- |
+| Darwin amd64 / 3.12.14 | 291; 1048.877 s | 290 | 1 | 41 | 31/63/66 |
+| Darwin amd64 / 3.13.15 | 291; 1025.786 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin amd64 / 3.14.7 | 291; 1107.395 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin arm64 / 3.12.14 | 291; 612.003 s | 290 | 1 | 41 | 31/63/66 |
+| Darwin arm64 / 3.13.15 | 291; 633.354 s | 290 | 1 | 41 | 31/59/63 |
+| Darwin arm64 / 3.14.7 | 291; 456.039 s | 290 | 1 | 41 | 31/59/63 |
+| Linux amd64 / 3.12.14 | 291; 580.317 s | 290 | 1 | 41 | 31/63/66 |
+| Linux amd64 / 3.13.15 | 291; 484.147 s | 290 | 1 | 41 | 31/59/63 |
+| Linux amd64 / 3.14.7 | 291; 478.190 s | 290 | 1 | 41 | 31/59/63 |
+| Windows amd64 / 3.12.14 | 291; 632.577 s | 290 | 1 | 41 | 31/64/67 |
+| Windows amd64 / 3.13.15 | 291; 592.107 s | 290 | 1 | 41 | 31/60/64 |
+| Windows amd64 / 3.14.7 | 291; 676.119 s | 290 | 1 | 41 | 31/60/64 |
 
 The manifest table at the end declares required identities.
 Its authority is `scripts/runtime-matrix.json`; Actions and report validation load

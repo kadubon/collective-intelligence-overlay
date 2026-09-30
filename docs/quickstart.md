@@ -9,7 +9,7 @@ Start with Python >=3.12 and uv. Minimum-version development uses the
 The 0.3.2 source installer selects Windows/Linux x86_64 and native macOS
 x86_64/arm64 official assets. Size, SHA-256, version and CPU are checked before
 atomic replacement. Import/pip install does not download OPA. An installed 0.3.2
-candidate also exposes `collective-intelligence-overlay opa-install --target PATH`;
+distribution also exposes `collective-intelligence-overlay opa-install --target PATH`;
 0.3.1 does not. Unsupported platforms and Rosetta stop clearly.
 
 ## Native macOS development without Docker
@@ -43,7 +43,8 @@ Expect `ACCEPT`, sum `117.00`, changed-environment `REQUALIFY`, and withdrawal
 `"$pg_bin/pg_ctl" -D .local/mac-pg -m fast -w stop` stops only this cluster and
 retains its data for restart. CI removes its separately owned temporary cluster
 only after confirming stop. These trust-auth steps are not production SCRAM/TLS;
-see [deployment](deployment.md). Native runner results are still required.
+see [deployment](deployment.md). Native GitHub runner results and tested versions
+are recorded in [compatibility](compatibility.md).
 
 ## Other dedicated development PostgreSQL configurations
 

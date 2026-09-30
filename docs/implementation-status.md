@@ -11,10 +11,13 @@
 | Distribution/runtime gates | Single candidate, 12-pair manifest, full source/installed/rebuilt-sdist gates, mixed HTTP peers and four installed cross-platform readers | Hashes, actual child/build runtimes and zero mandatory skips are required; current completion and publication state are in the linked records |
 | Representative stress | Completed mixed-history, exact authenticated revoke, work-history and invocation-cleanup 100k profiles | Separate run outcomes are retained; bounded fixture work is not a general latency or resource guarantee |
 
-See [validation](validation.md), [compatibility](compatibility.md),
-[scale reports](scale.md) and [release state](releasing.md) for completed runs and
-pending gates. No v0.4.0 production behavior or empirical intelligence improvement
-is claimed by this patch.
+The immutable tag at `b172c0d` passed all 12 native gates, four shared readers,
+mixed HTTP and OIDC publication. The original pair then passed fresh actual-PyPI
+verification on every native identity, including 36 root-inclusive supply-chain
+profiles. The GitHub Release includes the exact distributions and 641 selected
+sanitized reports. See [validation](validation.md), [compatibility](compatibility.md),
+[scale reports](scale.md) and [release state](releasing.md). No v0.4.0 production
+behavior or empirical intelligence improvement is claimed by this patch.
 
 ## 0.3.1 audit follow-up
 

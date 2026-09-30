@@ -1,15 +1,42 @@
 # Release procedure and current state
 
-## 0.3.2 candidate publication gates
+## 0.3.2 published and verified on 2026-09-30
 
-0.3.2 is not yet published. The implementation at `a03a59e` passed all 12
-native source/installed gates, four shared-artifact readers, mixed-Python HTTP
-and final report/hash validation in
-[main CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36700000778).
-Documentation finalization precedes the matching immutable tag; that tag's single
-original pair must pass the same gates before OIDC publication, followed by actual
-PyPI verification. [Validation](validation.md) retains intermediate failures and
-representative completed 100k stress results.
+Release commit `b172c0d0ef208ede4ae3a663a158f1713d7f49a0`, immutable annotated
+tag `v0.3.2`, passed all 12 native source/installed gates, four shared-artifact
+readers, mixed-Python HTTP and final report/hash validation in
+[tag CI / OIDC publication, attempt 2](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36705746853).
+The official PyPA job published the original pair to
+[PyPI](https://pypi.org/project/collective-intelligence-overlay/0.3.2/).
+Actual PyPI downloads were checked byte-for-byte against that original candidate.
+
+The first tag attempt had two Mac Intel / CPython 3.14.7 source failures;
+their causes remain unestablished. The same immutable commit, original candidate,
+test inputs and deadlines passed the failed-job retry. The other 11 successful
+native jobs were reused, not reexecuted. Original failures and the completed
+representative 100k stress results are retained in [validation](validation.md).
+
+[Actual-index native verification](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36716542836)
+passed against this same release pair on all 12 identities. Each passed 291 source,
+290 installed agents, one model and 41 rebuilt-sdist tests, plus core smoke and
+actual child/backend patch/CPU checks, with zero mandatory failures/errors/skips.
+All 36 installed profiles passed published-root audits, reviewed licensing and
+SBOM; four readers, mixed HTTP and final report validation passed. A manual run
+cannot publish and its publish job was skipped.
+
+The [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.3.2)
+attaches the exact PyPI wheel/sdist and 641 selected sanitized reports with a
+report-byte hash manifest. Archive SHA-256 is
+`b02a97c07915d62657b148766818d65fe5c4c52b4e136380f840c5058c259a1b`;
+all three public asset digests match the local verified files. This patch contains
+no v0.4.0 production features. Paid inference and independent external audit were not run.
+
+Published SHA-256 values:
+
+```text
+cc4086d5e27cbdc1d13d2d79b7438e4c787cea208b9e321b8fc0fcbc4e279ae9  collective_intelligence_overlay-0.3.2-py3-none-any.whl
+1baf14abad570f7f5e209af23c3c29252ab2932d19843414cb64dd02c045773d  collective_intelligence_overlay-0.3.2.tar.gz
+```
 
 One Linux build fixes the original wheel/sdist hashes.
 All 12 native OS/CPU/patch/full-scope jobs must pass source, real services/E2E,
@@ -28,10 +55,10 @@ installs and major regressions are required on both native Mac CPUs and represen
 Linux/Windows, with hashes compared to this same pair. Do not start v0.4.0 features
 until 0.3.2's safety gates pass; publication order remains 0.3.2 then 0.4.0.
 
-Run the same native gates against actual PyPI after the tag run publishes:
+The actual-index run was dispatched with:
 
 ```sh
-gh workflow run workflow.yml --ref main -f candidate_run_id=ORIGINAL_TAG_RUN_ID
+gh workflow run workflow.yml --ref main -f candidate_run_id=36705746853
 ```
 
 The manual run restores that run's `candidate-distributions`, downloads the actual

@@ -1,6 +1,6 @@
 # Python API and CLI
 
-## 0.3.2 candidate: bounded invocation cleanup
+## 0.3.2: bounded invocation cleanup
 
 `InvocationStore.cleanup_expired(owner=..., limit=32, seconds=5, dry_run=False)`
 is an operator-local operation; owner must equal Store.owner. Bounds are 1–128

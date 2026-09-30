@@ -17,7 +17,7 @@ Mac向けOPA導入を追加しています。旧workerをfenceし、未dispatch�
 
 ## できること
 
-0.3.2の実装は、Linux・Windows・Mac Intel・Mac arm64の12環境すべてでnative CIを
+0.3.2のreleaseは、Linux・Windows・Mac Intel・Mac arm64の12環境すべてでnative CIを
 通過しました。各環境でsource 291件、installed agents 290件、model 1件、
 再build sdist 41件とcore import・CLI・resource検査が通過し、failure・error・skipは0件です。
 4環境のnative readerが全producerのartifact・署名を検証し、最低版・最新版の
@@ -78,7 +78,7 @@ C3を合成・検証し、その出力からC4を形成して、再起動と元�
 配布物のhash一致と公開後検証は上記の公開記録を参照してください。
 
 ```sh
-uv pip install 'collective-intelligence-overlay[agents]'
+uv pip install 'collective-intelligence-overlay[agents]==0.3.2'
 collective-intelligence-overlay --version
 ```
 

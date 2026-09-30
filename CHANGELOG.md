@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.3.2
+## 0.3.2 (2026-09-30)
 
 - CIO-031-01: owner-bounded expiry cleanup shares the existing fenced transition
   with get. New capacity/budget refusals make one maintenance pass and retry once.
@@ -22,7 +22,7 @@
   compatibility shim that explicitly closes its buffer after a failed protocol
   flush; original DB errors propagate. Real transport-disconnect tests retain
   strict finalizer-warning checks. Dependencies and license exceptions are unchanged.
-- All 12 native implementation profiles passed 291 source, 290 installed agents,
+- All 12 native release profiles passed 291 source, 290 installed agents,
   one model and 41 rebuilt-sdist tests with zero failures/errors/skips. Four native
   readers and mixed-Python HTTP passed. Representative 100k profiles completed;
   tag publication and actual-index status remain recorded separately in Docs.
