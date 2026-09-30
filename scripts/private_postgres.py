@@ -7,6 +7,7 @@ import shutil
 import socket
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
@@ -32,13 +33,21 @@ owned = {"data": str(data), "bin": str(binary)}
 
 
 def run(name, *arguments, check=True):
-    result = subprocess.run(
-        [str(binary / (name + suffix)), *map(str, arguments)],
-        check=False,
-        timeout=70,
-        capture_output=True,
-        text=True,
-    )
+    # A Windows postmaster can inherit pg_ctl's PIPE handles. communicate() then
+    # waits for the daemon even after pg_ctl exits, including its timeout cleanup.
+    # Files retain diagnostics while wait/timeout observes only this tool process.
+    with tempfile.TemporaryFile() as output, tempfile.TemporaryFile() as errors:
+        result = subprocess.run(
+            [str(binary / (name + suffix)), *map(str, arguments)],
+            check=False,
+            timeout=70,
+            stdout=output,
+            stderr=errors,
+        )
+        output.seek(0)
+        errors.seek(0)
+        result.stdout = output.read().decode("utf-8", errors="replace")
+        result.stderr = errors.read().decode("utf-8", errors="replace")
     if check and result.returncode:
         print(result.stdout[-4096:], file=sys.stderr)
         print(result.stderr[-4096:], file=sys.stderr)
