@@ -557,8 +557,8 @@ class Recovery:
             )
 
     def authorize_resume(self, caller: str) -> None:
-        if caller != self.store.owner:
-            raise ValueError("recovery resume is owner-only")
+        if caller not in self.config.operators():
+            raise ValueError("recovery resume requires operator control grant")
         with self.store.engine.connect() as conn:
             gate = conn.execute(select(feed_state).where(feed_state.c.id == 1)).mappings().one()
         if not gate["recovery_receipt"] or not gate["recovery_digest"]:
@@ -566,7 +566,7 @@ class Recovery:
         proof = json.loads(self.artifacts.get(gate["recovery_digest"]))
         if proof.get("matched") is not True:
             raise ValueError("business recovery remains UNKNOWN")
-        reference = self.store.reference("event", caller, gate["recovery_receipt"])
+        reference = self.store.reference("event", self.store.owner, gate["recovery_receipt"])
         record = verify(self.store.signed_record(reference), self.store.principals)
         if (
             not isinstance(record, Event)

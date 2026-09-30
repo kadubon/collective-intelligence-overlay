@@ -57,14 +57,23 @@ class BlockingWork:
         self._pending.add(future)
 
         def finished(done: asyncio.Future[T]) -> None:
-            self._pending.discard(done)
+            if done not in self._pending:
+                return
+            self._pending.remove(done)
             self.completed += 1
             self.elapsed_seconds += time.perf_counter() - started
             if done.cancelled() or done.exception() is not None:
                 self.failed += 1
 
         future.add_done_callback(finished)
-        return await asyncio.shield(future)
+        try:
+            return await asyncio.shield(future)
+        finally:
+            # An already-completed Future can return without yielding to its
+            # scheduled callback. Release only confirmed physical completion,
+            # before a sequential caller submits the next bounded operation.
+            if future.done():
+                finished(future)
 
     async def wait(self, seconds: float) -> bool:
         if not 0 <= seconds <= 30:

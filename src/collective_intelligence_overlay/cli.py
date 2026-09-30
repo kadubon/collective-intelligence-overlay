@@ -76,6 +76,9 @@ def main() -> int:
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
+        if name in {"status", "drain", "resume"}:
+            cmd.add_argument("--identity-name", help="explicit current pinned control caller")
+            cmd.add_argument("--identity-private-key", type=Path, help="separate caller PEM key")
         if name == "key-rotate":
             cmd.add_argument("--directory", type=Path, required=True)
             cmd.add_argument("--compromised-key-id", action="append", default=[])
@@ -249,6 +252,24 @@ def main() -> int:
             result = asyncio.run(run_demo(args.directory, configs))
         else:
             config = load_config(args.config)
+            if args.command in {"status", "drain", "resume"} and (
+                args.identity_name is not None or args.identity_private_key is not None
+            ):
+                if args.identity_name is None or args.identity_private_key is None:
+                    raise ValueError("explicit control identity needs both its name and PEM key")
+                from .adapters.a2a import send
+
+                caller_identity = config.identity(args.identity_name, args.identity_private_key)
+                result = asyncio.run(
+                    send(
+                        config,
+                        caller_identity,
+                        args.peer or config.owner,
+                        {"operation": args.command},
+                    )
+                )
+                print(json.dumps(result, default=str))
+                return 2 if result.get("error") else 0
             if args.command == "key-rotate":
                 from .setup import rotate_key
 

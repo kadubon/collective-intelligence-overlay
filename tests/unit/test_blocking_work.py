@@ -60,3 +60,34 @@ async def test_blocking_context_and_exceptions_remain_owner_scoped():
     finally:
         if not work.pending:
             work.close()
+
+
+async def test_already_finished_future_releases_capacity_before_callback(monkeypatch):
+    loop = asyncio.get_running_loop()
+    work = BlockingWork(1)
+
+    def immediate(executor, function, *arguments):
+        future = loop.create_future()
+        try:
+            future.set_result(function(*arguments))
+        except RuntimeError as error:
+            future.set_exception(error)
+        return future
+
+    monkeypatch.setattr(loop, "run_in_executor", immediate)
+    try:
+        with work.scope():
+            assert await run_blocking(lambda: "physical return") == "physical return"
+            assert work.pending == 0 and work.completed == 1
+
+            def failure():
+                raise RuntimeError("physical failure")
+
+            with pytest.raises(RuntimeError, match="physical failure"):
+                await run_blocking(failure)
+            assert work.pending == 0 and work.completed == 2 and work.failed == 1
+        # Deferred callbacks must not count either completion twice.
+        await asyncio.sleep(0)
+        assert work.completed == 2 and work.failed == 1
+    finally:
+        work.close()

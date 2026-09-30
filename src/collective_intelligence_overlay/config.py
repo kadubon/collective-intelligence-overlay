@@ -56,6 +56,7 @@ class Config(Model):
     share_records: bool = False
     peers: tuple[Peer, ...] = Field(default=(), max_length=64)
     identities: dict[Identifier, TrustedIdentity] = Field(max_length=128)
+    operator_callers: tuple[Identifier, ...] = Field(default=(), max_length=32)
     policy: PolicySettings = Field(default_factory=PolicySettings)
     max_concurrency: int = Field(default=4, ge=1, le=32)
     max_owner_requests: int = Field(default=16, ge=1, le=256)
@@ -75,6 +76,32 @@ class Config(Model):
     log_backup_segments: int = Field(default=7, ge=1, le=31)
     artifact_capacity_bytes: int = Field(default=268435456, ge=1048576, le=8589934592)
     artifact_max_files: int = Field(default=65536, ge=1, le=65536)
+
+    @model_validator(mode="after")
+    def operator_pins(self) -> Config:
+        if len(set(self.operator_callers)) != len(self.operator_callers) or not set(
+            self.operator_callers
+        ) <= set(self.identities):
+            raise ValueError("operator callers must be unique explicitly pinned identities")
+        return self
+
+    def operators(self) -> frozenset[str]:
+        """Explicit control grants; empty retains the legacy owner-only contract."""
+        return frozenset(self.operator_callers or (self.owner,))
+
+    def identity(self, name: str, private_key: Path) -> Identity:
+        """Load an explicitly supplied current signer, without opening a database."""
+        entry = self.identities.get(name)
+        if entry is None or private_key.stat().st_size > 8192:
+            raise ValueError("explicit caller identity/key is not pinned or exceeds bound")
+        key = load_pem_private_key(private_key.read_bytes(), password=None)
+        signer = CryptoSigner(key)
+        if (
+            signer.public_key != Key.from_dict(entry.keyid, dict(entry.key))
+            or entry.keyid in entry.compromised_keyids
+        ):
+            raise ValueError("private key does not match a current uncompromised caller pin")
+        return Identity(name, signer)
 
     def artifacts(self) -> Artifacts:
         """Construct the owner's configured CAS; this does not connect to the DB."""
@@ -106,13 +133,7 @@ class Config(Model):
             )
             for name, item in self.identities.items()
         }
-        key = load_pem_private_key(self.private_key.read_bytes(), password=None)
-        signer = CryptoSigner(key)
-        if self.owner not in principals or signer.public_key != principals[self.owner].key:
-            raise ValueError("private key does not match configured owner")
-        if signer.public_key.keyid in principals[self.owner].compromised_keyids:
-            raise ValueError("compromised current key cannot sign or authenticate")
-        identity = Identity(self.owner, signer)
+        identity = self.identity(self.owner, self.private_key)
         return identity, Overlay(
             Store(self.database_url.get_secret_value(), self.owner, principals),
             Policy(self.opa_binary, self.policy),

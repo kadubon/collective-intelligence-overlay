@@ -13,7 +13,7 @@ from sqlalchemy import select, text
 from collective_intelligence_overlay.application import load_application
 from collective_intelligence_overlay.blocking import run_blocking
 from collective_intelligence_overlay.models import now
-from collective_intelligence_overlay.operations import OwnerAlreadyRunning
+from collective_intelligence_overlay.operations import OwnerAlreadyRunning, OwnerLock
 from collective_intelligence_overlay.storage import Conflict, leases
 
 
@@ -48,7 +48,7 @@ async def test_duplicate_process_drain_and_dependency_failure(app_config, tmp_pa
         assert b"OwnerAlreadyRunning" in process.stderr
         await control.start()
         assert control.state == "ready"
-        with pytest.raises(ValueError, match="owner-only"):
+        with pytest.raises(ValueError, match="operator control grant"):
             await control.handle("producer", {"operation": "status"})
         drained = await control.handle("receiver", {"operation": "drain"})
         assert drained["state"] == "draining"
@@ -90,6 +90,25 @@ async def test_production_readiness_rejects_developer_ddl_role(app_config):
     finally:
         await control.stop()
         host.close()
+
+
+def test_closing_killed_owner_session_without_an_intervening_check(store):
+    lock = OwnerLock(store)
+    replacement = OwnerLock(store)
+    try:
+        lock.acquire()
+        with store.engine.begin() as conn:
+            assert conn.execute(
+                text("SELECT pg_terminate_backend(:pid)"), {"pid": lock.backend}
+            ).scalar_one()
+        # No readiness query has yet detected the cut-off socket.
+        lock.close()
+        assert lock.connection is None
+        replacement.acquire()
+        assert replacement.check()
+    finally:
+        lock.close()
+        replacement.close()
 
 
 async def test_shutdown_does_not_claim_cancelled_db_thread_finished(app_config):

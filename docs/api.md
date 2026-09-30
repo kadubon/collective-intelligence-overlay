@@ -857,6 +857,30 @@ claim that the complete production profile has passed. The public
 operator-selected installed `module:factory` receives the host and returns None.
 Remote inputs cannot select that factory or register executable code.
 
+`Config.operator_callers` grants only `drain` and `resume` to unique pinned
+identities (at most 32). A nonempty tuple replaces the owner's control grant;
+an empty tuple retains legacy owner control. `status` permits the owner and these
+callers. It does not grant execution or access to owner-only recovery review,
+original-call queries, metrics or installed application operations.
+
+The CLI's `status`, `drain` and `resume` accept the paired flags
+`--identity-name NAME --identity-private-key PATH` for a separate control signer.
+The current uncompromised public key must match that identity's configured pin.
+For example, after pinning `operator` and setting `operator_callers: ["operator"]`:
+
+```console
+collective-intelligence-overlay drain --config owner/config.json --identity-name operator --identity-private-key control/operator.pem
+collective-intelligence-overlay status --config owner/config.json --identity-name operator --identity-private-key control/operator.pem
+collective-intelligence-overlay resume --config owner/config.json --identity-name operator --identity-private-key control/operator.pem
+```
+
+These commands use the same authenticated A2A client and configured HTTPS peer;
+`--peer NAME` overrides the destination owner. They load config, TLS trust and the
+explicit caller key without loading the owner key or constructing a Store.
+`load_config` still resolves its configured secret DSN file. Protect control
+credentials with separate OS accounts/ACLs; these flags do not install filesystem
+isolation. Error exit 2 and successful JSON exit 0 retain the existing CLI behavior.
+
 Factories can call `host.register_operation("app.NAME", async_handler, callers=(...))`
 for at most 32 application operations. Names must have that prefix, be unique and
 use explicitly pinned caller identities. They cannot replace standard operations.
@@ -951,7 +975,7 @@ digest, independently established balances and uncertain original caller/ID pair
 The signed receipt and private proof retain UNKNOWN or mismatch. Reusing its
 command ID returns the original historical observation without another query.
 UNKNOWN exits 2; matched exits 0 but still leaves intake closed. `resume --config
-PATH` is a separate owner operation: it rechecks the exact inspected state and
+PATH` is a separate control-granted operation: it rechecks the exact inspected state and
 query authority before opening intake. A restart does not bypass this check;
 changed budgets, records, artifacts, sync or settings require a new review.
 These operations never rewrite the original UNKNOWN, refund allowance, issue

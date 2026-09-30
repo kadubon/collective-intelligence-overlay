@@ -28,6 +28,9 @@ def restored_database(config, dump):
         with admin.connect() as conn:
             conn.execute(text(f'CREATE DATABASE "{name}"'))
         prefix = json.loads(os.environ.get("CIO_PG_TOOL_PREFIX", "[]"))
+        environment = os.environ.copy()
+        if url.password:
+            environment["PGPASSWORD"] = url.password
         with dump.open("rb") as source:
             subprocess.run(
                 [
@@ -49,6 +52,7 @@ def restored_database(config, dump):
                 capture_output=True,
                 check=True,
                 timeout=60,
+                env=environment,
             )
         yield config.model_copy(
             update={
@@ -110,8 +114,17 @@ def register_query(host, witness, calls):
     return binding.id
 
 
-async def test_actual_backup_restore_review_restart_and_explicit_resume(app_config, tmp_path):
-    config = app_config.model_copy(update={"local_development": True})
+@pytest.mark.parametrize("separate_operator", [False, True])
+async def test_actual_backup_restore_review_restart_and_explicit_resume(
+    app_config, tmp_path, separate_operator
+):
+    config = app_config.model_copy(
+        update={
+            "local_development": True,
+            "operator_callers": ("other",) if separate_operator else (),
+        }
+    )
+    resume_caller = "other" if separate_operator else "receiver"
     source = load_application(config)
     source.overlay.store.set_budget("work", Decimal(25))
     witness = {
@@ -148,7 +161,7 @@ async def test_actual_backup_restore_review_restart_and_explicit_resume(app_conf
         operations = host.operations
         await operations.start()
         try:
-            assert (await operations.handle("receiver", {"operation": "resume"}))[
+            assert (await operations.handle(resume_caller, {"operation": "resume"}))[
                 "state"
             ] == "degraded"
             witness["state"] = "unknown"
@@ -162,7 +175,7 @@ async def test_actual_backup_restore_review_restart_and_explicit_resume(app_conf
             assert unknown["business_state"] == "unknown"
             assert await operations.handle("receiver", request) == unknown
             assert len(queries) == 1
-            assert (await operations.handle("receiver", {"operation": "resume"}))[
+            assert (await operations.handle(resume_caller, {"operation": "resume"}))[
                 "state"
             ] == "degraded"
             # A lower external allowance cannot be replaced by the restored balance.
@@ -198,7 +211,13 @@ async def test_actual_backup_restore_review_restart_and_explicit_resume(app_conf
             assert control.state == "degraded"
             assert await control.handle("receiver", request) == accepted
             assert len(queries) == 3
-            assert (await control.handle("receiver", {"operation": "resume"}))["state"] == "ready"
+            if separate_operator:
+                with pytest.raises(ValueError, match="operator control grant"):
+                    await control.handle("receiver", {"operation": "resume"})
+                assert restarted.overlay.store.restore_pending()
+            assert (await control.handle(resume_caller, {"operation": "resume"}))[
+                "state"
+            ] == "ready"
             assert not restarted.overlay.store.restore_pending()
             assert restarted.executor.store.get("receiver", "original-unknown") == original
             assert restarted.executor.store.get("receiver", "before-resume") is None

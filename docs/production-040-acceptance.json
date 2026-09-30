@@ -230,10 +230,13 @@
       "requirement": "Execution/check/proposal/observation/operator grants and per-caller/owner limits; private health/artifact protection",
       "implementation": [
         "src/collective_intelligence_overlay/adapters/http_limits.py",
-        "src/collective_intelligence_overlay/adapters/a2a.py"
+        "src/collective_intelligence_overlay/adapters/a2a.py",
+        "src/collective_intelligence_overlay/config.py",
+        "src/collective_intelligence_overlay/operations.py",
+        "src/collective_intelligence_overlay/recovery.py"
       ],
       "test": "Unauthenticated/unauthorized denial, verification-only grants and resource/URL/tenant/egress checks",
-      "observed": "Authenticated owner/caller capacity and owner-only reconciliation/recovery/metrics combine with existing explicit execution/verification grants",
+      "observed": "Authenticated owner/caller capacity and owner-only reconciliation/recovery/metrics combine with existing explicit execution/verification grants. An explicit pinned control caller replaces owner drain/resume authority and inherits no execution grant. Eighteen native Windows Python 3.12 focused tests passed 47.02 seconds: actual HTTPS SDK/CLI denial and control, missing owner client key, matched owner-signed restore review with separate resume caller, and physical-work cancellation/capacity. Three Python 3.14 blocking tests passed 0.21 seconds. Five subsequent PostgreSQL owner-operation tests passed 12.19 seconds, including close after backend termination before any readiness check. Earlier failing test/CI logs are retained; all-native acceptance remains pending.",
       "remaining": [
         "complete proposal/observation grants, heavy-work quotas, egress and native fault protocol"
       ],

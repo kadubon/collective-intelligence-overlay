@@ -5,6 +5,17 @@
 - Operator-selected installed application host, packaged starter, separate secret
   files, restricted runtime DB bootstrap, owner locking, dependency readiness,
   drain and tracked physical blocking work compose the existing execution APIs.
+- Explicit pinned control callers can replace owner drain/resume authority.
+  SDK/CLI control uses a separate current signer without loading the owner key;
+  no execution grant is inherited. Recovery resumes against the original
+  owner-signed review, preserving matched-state checks and closed intake.
+- Physically finished thread work releases capacity before a deferred callback,
+  without releasing still-running work after cancellation or double-counting it.
+  Native CI exposed this race; the restore test also now passes the configured
+  PostgreSQL password to the standard client rather than relying on local trust.
+- Closing a killed owner session invalidates its connection if the final unlock
+  detects the disconnect, retaining closed intake and avoiding a broken pooled
+  session or shutdown failure.
 - The existing document application is packaged, with source launchers using the
   same implementation. Explicitly granted `app.*` operations and a bounded owner
   runner connect its actual MAF formation/check/reuse loop to standard host intake.

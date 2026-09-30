@@ -100,6 +100,11 @@ class OwnerLock:
                 if not conn.closed and not conn.invalidated:
                     conn.execute(text("SELECT pg_advisory_unlock(:key)"), {"key": self.key})
                     conn.commit()
+            except DBAPIError as error:
+                # A lost session may be detected only by this final query. Never
+                # return its broken, potentially locked connection to the pool.
+                self._lost = True
+                conn.invalidate(error)
             finally:
                 conn.close()
 
@@ -252,8 +257,12 @@ class Operations:
     async def _handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
         operation = data.get("operation")
         if operation in {"status", "drain", "resume"}:
-            if caller != self.service.config.owner:
-                raise ValueError("operator operation is owner-only")
+            config = self.service.config
+            allowed = (
+                config.operators() | {config.owner} if operation == "status" else config.operators()
+            )
+            if caller not in allowed:
+                raise ValueError("caller has no operator control grant")
             if operation == "drain":
                 self.state, self.reason = "draining", "OPERATOR_DRAIN"
             elif operation == "resume":

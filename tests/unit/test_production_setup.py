@@ -3,8 +3,54 @@ import os
 
 import pytest
 
-from collective_intelligence_overlay.config import load_config
+from collective_intelligence_overlay.config import Config, load_config
 from collective_intelligence_overlay.setup import initialize, starter
+
+
+def test_explicit_operator_pins_and_signer_need_no_runtime_database(tmp_path, monkeypatch):
+    paths = [
+        initialize(
+            tmp_path / name,
+            owner=name,
+            url=f"https://{name}.example.test/",
+            database_url="postgresql+pg8000://runtime@localhost/absent",
+            opa="opa",
+        )
+        for name in ("owner", "operator")
+    ]
+    owner, operator = (load_config(path) for path in paths)
+    data = owner.model_dump()
+    data["identities"] = {**owner.identities, **operator.identities}
+    data["operator_callers"] = ("operator",)
+    config = Config.model_validate(data)
+    assert owner.operators() == {"owner"}
+    assert config.operators() == {"operator"}
+
+    def database_forbidden(*args, **kwargs):
+        pytest.fail("control signer loading opened the runtime database")
+
+    monkeypatch.setattr("collective_intelligence_overlay.config.Store", database_forbidden)
+    loaded = config.identity("operator", operator.private_key)
+    assert loaded.name == "operator"
+    assert loaded.signer.public_key.keyid == config.identities["operator"].keyid
+    for callers in (("unknown",), ("operator", "operator")):
+        with pytest.raises(ValueError, match="unique explicitly pinned"):
+            Config.model_validate({**data, "operator_callers": callers})
+    with pytest.raises(ValueError, match="not pinned"):
+        config.identity("unknown", operator.private_key)
+    with pytest.raises(ValueError, match="uncompromised caller pin"):
+        config.identity("operator", owner.private_key)
+    entry = config.identities["operator"]
+    compromised = config.model_copy(
+        update={
+            "identities": {
+                **config.identities,
+                "operator": entry.model_copy(update={"compromised_keyids": (entry.keyid,)}),
+            }
+        }
+    )
+    with pytest.raises(ValueError, match="uncompromised caller pin"):
+        compromised.identity("operator", operator.private_key)
 
 
 def test_setup_separates_secret_and_resolves_paths_without_overwrite(tmp_path, monkeypatch):

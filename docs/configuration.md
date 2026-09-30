@@ -11,6 +11,7 @@ by that command; generated files must be protected with OS ownership/ACLs.
 | database_url | PostgreSQL pg8000 URL for this owner's database role |
 | private_key | Operator-controlled Ed25519 PKCS8 PEM path |
 | identities | Pinned public keys, authenticated trust groups, allowed verifier methods |
+| operator_callers | Explicit pinned identities allowed to drain/resume; empty retains owner-only control |
 | artifact_directory | Owner-only local storage; no remote URL fetch |
 | opa_binary | Trusted OPA executable path |
 | url / peers | Exact configured A2A endpoints and pinned identity names |
@@ -20,6 +21,15 @@ by that command; generated files must be protected with OS ownership/ACLs.
 | max_concurrency | A2A work concurrency, default 4 |
 | max_steps / max_children | Demo per-peer application requests / child-process bound |
 | max_rechecks / max_seconds | Demo requalification allowance / overall deadline |
+
+In the unreleased 0.4.0 candidate, a nonempty `operator_callers` replaces the
+owner's drain/resume grant. The owner can still inspect status and run the
+registered application. Each control caller must have its own current public key
+in `identities`; keep its private key outside the runtime account's readable files.
+This grant confers no binding execution, verification or application-operation
+permission. Existing grants remain explicit at their respective boundaries.
+The empty default preserves existing configurations and does not establish
+runtime/operator separation. See [API](api.md) for authenticated control commands.
 
 The reference worker handles one attempt per request and starts no child agents.
 MAF composition is limited to three workflow iterations. Model examples set their

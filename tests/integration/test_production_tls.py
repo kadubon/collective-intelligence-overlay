@@ -57,7 +57,10 @@ def tls_fixture(directory):
     return cert_path, key_path
 
 
-async def test_actual_caddy_https_application_drain_and_process_restart(app_config, tmp_path):
+@pytest.mark.parametrize("separate_operator", [False, True])
+async def test_actual_caddy_https_application_drain_and_process_restart(
+    app_config, tmp_path, identities, separate_operator
+):
     executable = os.environ.get("CIO_CADDY")
     if executable is None:
         pytest.skip("CIO_CADDY required: actual production reverse-proxy test not run")
@@ -86,12 +89,45 @@ async def test_actual_caddy_https_application_drain_and_process_restart(app_conf
             "listen_port": private_port,
             "tls_ca_certificate": cert,
             "peers": (Peer(identity=app_config.owner, url=endpoint),),
+            "operator_callers": ("other",) if separate_operator else (),
         }
     )
     config_path = tmp_path / "config.json"
     data = config.model_dump(mode="json")
     data["database_url"] = config.database_url.get_secret_value()
     config_path.write_text(json.dumps(data))
+    control_key = tmp_path / "operator.pem"
+    control_key.write_bytes(identities["other"].signer.private_bytes)
+    client_path = tmp_path / "control-client.json"
+    client_data = {**data, "private_key": str(tmp_path / "absent-owner-key.pem")}
+    client_path.write_text(json.dumps(client_data))
+
+    async def control_cli(operation, caller, pem, expected):
+        completed = await asyncio.to_thread(
+            subprocess.run,
+            [
+                sys.executable,
+                "-m",
+                "collective_intelligence_overlay.cli",
+                operation,
+                "--config",
+                str(client_path),
+                "--identity-name",
+                caller,
+                "--identity-private-key",
+                str(pem),
+            ],
+            cwd=tmp_path,
+            capture_output=True,
+            timeout=40,
+            env=os.environ.copy(),
+        )
+        assert completed.returncode == expected, completed.stderr.decode(errors="replace")
+        response = json.loads(completed.stdout or completed.stderr)
+        if expected == 2:
+            assert response["error"] == "InternalError"
+        return response
+
     caddy_path = tmp_path / "Caddyfile"
     caddy_path.write_bytes(
         (files("collective_intelligence_overlay") / "starter/Caddyfile").read_bytes()
@@ -254,9 +290,31 @@ async def test_actual_caddy_https_application_drain_and_process_restart(app_conf
         assert token not in logged and config.database_url.get_secret_value() not in logged
         assert request["arguments"]["text"] not in logged
         assert overlay.store.evidence() == []
-        assert (await send(config, identity, config.owner, {"operation": "drain"}))[
-            "state"
-        ] == "draining"
+        if separate_operator:
+            assert (await control_cli("status", "other", control_key, 0))["state"] == "ready"
+            await control_cli("drain", config.owner, config.private_key, 2)
+            assert (await send(config, identity, config.owner, {"operation": "status"}))[
+                "state"
+            ] == "ready"
+            ungranted = await send(
+                config,
+                identities["other"],
+                config.owner,
+                {**request, "invocation_id": "operator-ungranted-probe"},
+            )
+            assert ungranted["state"] == "rejected"
+            assert (await control_cli("drain", "other", control_key, 0))["state"] == "draining"
+            await control_cli("resume", config.owner, config.private_key, 2)
+            assert (await send(config, identities["other"], config.owner, {"operation": "resume"}))[
+                "state"
+            ] == "ready"
+            assert (await send(config, identities["other"], config.owner, {"operation": "drain"}))[
+                "state"
+            ] == "draining"
+        else:
+            assert (await send(config, identity, config.owner, {"operation": "drain"}))[
+                "state"
+            ] == "draining"
         denied = await send(
             config, identity, config.owner, {**request, "invocation_id": "drained-new"}
         )

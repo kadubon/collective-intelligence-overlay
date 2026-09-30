@@ -144,3 +144,10 @@ Use `metrics --operational` for owner-only process/database/CAS observations;
 allowance is not measured consumption. Standard service logs omit raw bodies and
 exceptions. Capacity warnings require owner backup/archival planning, never silent
 purge of signed records, withdrawal, call mappings or held uncertain work.
+
+When `Config.operator_callers` is explicit, only those pinned identities can
+drain/resume. Supply both `--identity-name` and `--identity-private-key` for a
+separate CLI control signer. This grant confers no binding permission; keep its
+key protected outside the runtime account. Empty configuration retains legacy
+owner control. Recovery review remains owner-signed and explicit resume rechecks
+that original receipt and unchanged state even for a distinct control caller.
