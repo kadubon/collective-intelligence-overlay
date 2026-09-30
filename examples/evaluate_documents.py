@@ -398,12 +398,56 @@ async def compare(directory: Path, admin_url: str, opa: str, seed: int = 0) -> d
     return {"protocol": protocol, "arms": results}
 
 
-def validate_results(directory: Path) -> dict[str, Any]:
-    """Verify saved public observations and isolation, not universal business truth."""
+def validate_owner_observations(
+    report: dict[str, Any], owner: str, initial_allowance: Decimal
+) -> dict[str, Any]:
+    """Shared original-signature and allowance check for saved experiment exports."""
     from securesystemslib.signer import Key
 
     from collective_intelligence_overlay.models import Evidence
     from collective_intelligence_overlay.security import Principal, verify
+
+    if report["owner"] != owner:
+        raise ValueError("owner export mismatch")
+    principals = {
+        name: Principal(
+            Key.from_dict(value["keyid"], value["key"]),
+            value["trust_group"],
+            frozenset(value["methods"]),
+        )
+        for name, value in report["public_identities"].items()
+    }
+    evidence = {}
+    events = {}
+    for envelope in report["signed_records"]:
+        item = verify(envelope, principals)
+        if isinstance(item, Evidence):
+            evidence[item.issuer, item.id] = item
+        if item.kind == "event":
+            events[item.issuer, item.id] = item
+    invocations_by_lease = {item["lease_id"]: item for item in report["invocations"]}
+    held_or_consumed = sum(
+        (
+            Decimal(item["reservation"])
+            for item in report["reservations"]
+            if invocations_by_lease.get(item["task"], {}).get("reservation_state") != "released"
+        ),
+        Decimal(0),
+    )
+    if Decimal(report["remaining"]["work"]) + held_or_consumed != initial_allowance:
+        raise ValueError("allowance conservation violated")
+    return {
+        "database_identity": report["database_identity"],
+        "keyids": {value["keyid"] for value in report["public_identities"].values()},
+        "evidence": evidence,
+        "events": events,
+        "verified_signed_records": len(report["signed_records"]),
+    }
+
+
+def validate_results(directory: Path) -> dict[str, Any]:
+    """Verify saved public observations and isolation, not universal business truth."""
+    from collective_intelligence_overlay.models import Evidence
 
     protocol = json.loads((directory / "protocol.json").read_text(encoding="utf-8"))
     saved = json.loads((directory / "results.json").read_text(encoding="utf-8"))
@@ -439,37 +483,15 @@ def validate_results(directory: Path) -> dict[str, Any]:
             report = json.loads(
                 (directory / arm["directory"] / summary["report"]).read_text(encoding="utf-8")
             )
-            if report["owner"] != owner or report["database_identity"] in databases:
-                raise ValueError("owner/database isolation violated")
-            databases.add(report["database_identity"])
-            principals = {
-                name: Principal(
-                    Key.from_dict(value["keyid"], value["key"]),
-                    value["trust_group"],
-                    frozenset(value["methods"]),
-                )
-                for name, value in report["public_identities"].items()
-            }
-            current_keys.update(value["keyid"] for value in report["public_identities"].values())
-            for envelope in report["signed_records"]:
-                item = verify(envelope, principals)
-                verified_records += 1
-                if isinstance(item, Evidence):
-                    evidence[item.issuer, item.id] = item
-            invocations_by_lease = {item["lease_id"]: item for item in report["invocations"]}
-            held_or_consumed = sum(
-                (
-                    Decimal(item["reservation"])
-                    for item in report["reservations"]
-                    if invocations_by_lease.get(item["task"], {}).get("reservation_state")
-                    != "released"
-                ),
-                Decimal(0),
+            checked = validate_owner_observations(
+                report, owner, Decimal(arm["initial_allowance"][owner])
             )
-            if Decimal(report["remaining"]["work"]) + held_or_consumed != Decimal(
-                arm["initial_allowance"][owner]
-            ):
-                raise ValueError("allowance conservation violated")
+            if checked["database_identity"] in databases:
+                raise ValueError("owner/database isolation violated")
+            databases.add(checked["database_identity"])
+            current_keys.update(checked["keyids"])
+            evidence.update(checked["evidence"])
+            verified_records += checked["verified_signed_records"]
         if current_keys & prior_keys:
             raise ValueError("signing identities reused between arms")
         prior_keys.update(current_keys)

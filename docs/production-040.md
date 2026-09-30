@@ -22,6 +22,9 @@ All offered work, failure, UNKNOWN, refusal and censored outcomes stay in report
 The performance bounds are targets for the declared workload and hardware envelope;
 they are not a universal SLA. Positive adaptive benefit is not a release gate.
 Paid inference is disabled in mandatory validation.
+The [matched experiment runner](production-experiments.md) documents its fixed
+assignments, actual production path, original-result validation and resource limits.
+Development fixture runs remain separate from the formal five pairs.
 
 Do not relax this profile after seeing measurements. Preserve failed reports and
 fix the implementation, then run the complete affected protocol again. A separately

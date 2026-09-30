@@ -278,7 +278,7 @@
         "src/collective_intelligence_overlay/operations.py"
       ],
       "test": "Known secret/raw inputs absent; DB/OPA/provider failures, UNKNOWN/check age/freshness/drain observable",
-      "observed": "8-test focused group passed with actual TLS metrics and secret-free standard rotated logs; authoritative states/held uncertainty/source completion/DB/CAS observed, missing resources explicit Standard os.times process CPU and actual PID/parent PID are now separate from historical budget projections; Windows child CPU and RSS remain unavailable. Public SQLAlchemy cursor events and existing OPA/A2A paths emit redacted monotonic monitoring durations without raw SQL, input or secrets. The actual native Windows TLS/owner/retry group passed eight tests in 34.47 seconds; this precedes the additional cursor-error assertion. Earlier PID-launcher and nonexistent-test-path failures are retained. Full lifecycle/native resource acceptance remains pending.",
+      "observed": "8-test focused group passed with actual TLS metrics and secret-free standard rotated logs; authoritative states/held uncertainty/source completion/DB/CAS observed, missing resources explicit Standard os.times process CPU and actual PID/parent PID are now separate from historical budget projections; Windows child CPU and RSS remain unavailable. Public SQLAlchemy cursor events and existing OPA/A2A paths emit redacted monotonic monitoring durations without raw SQL, input or secrets. The actual native Windows TLS/owner/retry group passed eight tests in 34.47 seconds; this precedes the additional cursor-error assertion. Earlier PID-launcher and nonexistent-test-path failures are retained. Full lifecycle/native resource acceptance remains pending. The additional actual cursor-error/redaction test passed one case in 2.34 seconds, preserving the original DBAPI error and next-query recovery.",
       "remaining": [
         "current verification backlog/age, OPA/provider lifecycle timings and complete native protocol metrics"
       ],
@@ -322,7 +322,7 @@
         "tests/integration/test_production_recovery_review.py"
       ],
       "test": "Profile fault_protocol and all existing 0.3.0-0.3.2 tests; zero mandatory skips",
-      "observed": "Full source 316 passed before latest recovery/quota/logging additions; later focused 27- and 8-test groups passed, overlap not summed; DB-clock +/-30 day regression retained Frozen fbc1273 source later passed all 340 tests in 1339.88 seconds, zero failures/errors/skips; this precedes recorded-choice integration. Prior 34ad native Intel macOS 3.14 also exposed one cold provider startup timeout in its six-second test harness in addition to socket resets. Startup readiness now uses the existing 30-second bound with process/runtime diagnostics; one lost-response/restart test passed 20.52 seconds. Failed logs are retained; native confirmation and updated full source remain pending. Frozen source 0a6ce62693c4 passed all 340 tests in 1539.23 seconds, zero failures/errors/skips, with unraisable pytest warnings treated as errors. This covers recorded choices and startup diagnostics but precedes later checker-contract and CPU/timing observations.",
+      "observed": "Full source 316 passed before latest recovery/quota/logging additions; later focused 27- and 8-test groups passed, overlap not summed; DB-clock +/-30 day regression retained Frozen fbc1273 source later passed all 340 tests in 1339.88 seconds, zero failures/errors/skips; this precedes recorded-choice integration. Prior 34ad native Intel macOS 3.14 also exposed one cold provider startup timeout in its six-second test harness in addition to socket resets. Startup readiness now uses the existing 30-second bound with process/runtime diagnostics; one lost-response/restart test passed 20.52 seconds. Failed logs are retained; native confirmation and updated full source remain pending. Frozen source 0a6ce62693c4 passed all 340 tests in 1539.23 seconds, zero failures/errors/skips, with unraisable pytest warnings treated as errors. This covers recorded choices and startup diagnostics but precedes later checker-contract and CPU/timing observations. Frozen d3cf921 source then passed all 341 tests in 1357.35 seconds, zero failures/errors/skips, including checker source/data pins and standard CPU/DB/OPA/A2A observations. Native fbc1273 completed all 12 source=340/installed agents=339/model=1/sdist=57 profiles with zero mandatory failures/errors/skips and one identical artifact pair; mixed and two cross readers passed. After preserving every completed artifact, its two queued Mac cross jobs were cancelled to allocate runners to newer source. This cancelled workflow is not an overall matrix pass and predates recorded choices/checker/observation changes.",
       "remaining": [
         "updated full source/native matrix and complete predeclared fault protocol"
       ],
@@ -344,15 +344,20 @@
     {
       "id": "P25",
       "requirement": "Five isolated matched production-path experiment pairs with strong cache-capable baseline and full costs",
-      "implementation": [],
-      "test": "Profile matched_experiment; all failures/censoring included; positive effect unnecessary",
-      "observed": null,
-      "remaining": [
-        "runner",
-        "ten actual arms",
-        "raw analysis"
+      "implementation": [
+        "scripts/run_production_experiment.py",
+        "scripts/validate_production_experiment.py",
+        "examples/evaluate_documents.py",
+        "docs/production-experiments.md"
       ],
-      "status": "pending"
+      "test": "Profile matched_experiment; all failures/censoring included; positive effect unnecessary",
+      "observed": "Source-only runner uses installed standard CLI peers and public actual PostgreSQL/OPA/HTTPS/authenticated MCP/MAF/A2A paths; per-arm keys/databases/CAS are separate, all held-out outcomes and resource periods remain explicit. Development-only seed 1009 completed two normal arms with 24/24 independently checked tasks each; six distinct databases, 992 original signed records and conserved allowances validated. Three modified report copies were denied for denominator/result/artifact tampering. Development-only seed 1013 checker-pressure arms retained 3/24 PASS each but final protocol JSON digest validation failed; the full raw run is retained. Integer-key normalization was corrected and a before-run JSON round-trip guard added. Existing negative pilot validator regressions passed two tests in 3.63 seconds after sharing original-signature/allowance validation. No formal seed has yet been run.",
+      "remaining": [
+        "complete runner development/installed-wheel checks",
+        "ten actual formal arms",
+        "complete raw/resource/statistical validation on the final fixed candidate"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P26",
@@ -423,7 +428,7 @@
         "scripts/check_package.py"
       ],
       "test": "Existing 12-profile workflow plus production/docs gates and cross-platform readers",
-      "observed": "Native Go setup/custom proxy audit integrated; package guard requires additive migrations; complete production/soak/experiment report guard added, unpublished 0.4.0 remains closed",
+      "observed": "Native Go setup/custom proxy audit integrated; package guard requires additive migrations; complete production/soak/experiment report guard added, unpublished 0.4.0 remains closed Completed fbc1273 native artifacts verify one fixed pair across all 12 source/installed profiles; two cross readers and mixed also completed. Queued Mac cross was cancelled after saving completed reports; no complete pipeline or current candidate acceptance is claimed.",
       "remaining": [
         "same final candidate pair through all source/wheel/extras/sdist/cross/mixed/native production gates"
       ],
