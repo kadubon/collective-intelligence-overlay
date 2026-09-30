@@ -1,0 +1,408 @@
+{
+  "profile": "profiles/production-040.json",
+  "target": "0.4.0",
+  "status": "not accepted",
+  "requirements": [
+    {
+      "id": "P01",
+      "requirement": "0.3.2 immutable publication and all native regression evidence",
+      "implementation": [
+        "docs/validation.md",
+        "docs/releasing.md"
+      ],
+      "test": "0.3.2 tag and actual-PyPI all 12 profiles",
+      "observed": "Published b172c0d0; tag run 36705746853 attempt 2 and PyPI run 36716542836 passed; first-attempt failure retained",
+      "remaining": [],
+      "status": "verified baseline"
+    },
+    {
+      "id": "P02",
+      "requirement": "Predeclared complete operating, numerical, fault, soak and experiment protocol",
+      "implementation": [
+        "docs/profiles/production-040.json"
+      ],
+      "test": "JSON parse and completeness review before production code",
+      "observed": "JSON parsed; 32 unique requirements; 3600-second soak and five paired seeds declared before production implementation",
+      "remaining": [],
+      "status": "declared"
+    },
+    {
+      "id": "P03",
+      "requirement": "Thin host composes existing Registry/Executor/Overlay/Store/Steps; no replacement runtime, budget or protocol",
+      "implementation": [],
+      "test": "Public factory registration and arbitrary application contracts",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P04",
+      "requirement": "Installed core/agents/model onboarding, secrets/public metadata, no overwrite, explicit OPA and actual interpreter selection",
+      "implementation": [],
+      "test": "Clean installed CLI setup and packaged starter outside checkout on all native profiles",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests",
+        "docs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P05",
+      "requirement": "Bootstrap DDL role separated from restricted per-owner runtime; no developer superuser requirement",
+      "implementation": [],
+      "test": "Runtime DML succeeds; DDL/foreign-owner boundary denied; backup role explicit",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "real PostgreSQL tests",
+        "docs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P06",
+      "requirement": "Trusted installed application factory adds tools/builders/checkers/goals without received imports",
+      "implementation": [],
+      "test": "Two differing application contracts through same public API; no registry-only empty production host",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests",
+        "starter"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P07",
+      "requirement": "Three-peer alternative discovery, isolated bad proposals, capacity-aware choice and actual MAF formation",
+      "implementation": [],
+      "test": "Changed inputs and checker bottleneck alter bounded choices; valid siblings continue",
+      "observed": null,
+      "remaining": [
+        "connect existing Steps",
+        "real-service tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P08",
+      "requirement": "Independent check, receiver-qualified reuse, subsequent formation and withdrawal/requalification",
+      "implementation": [],
+      "test": "Production public 8-step loop with observed-use receipts, no fixed core IDs/results",
+      "observed": null,
+      "remaining": [
+        "application",
+        "E2E",
+        "cost/lineage evidence"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P09",
+      "requirement": "Starting/ready/degraded/draining/stopped; real dependency readiness distinct from business UNKNOWN",
+      "implementation": [],
+      "test": "DB/schema/OPA/key/config failures and recovery; authorized health privacy",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "fault tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P10",
+      "requirement": "Drain closes new effects while query/revoke/cleanup work; bounded tracked physical tasks, DB commits and shutdown",
+      "implementation": [],
+      "test": "Delayed DB commit, owner kill/restart and drain new call; no false stopped/completed claim",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "fault tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P11",
+      "requirement": "Operation timeouts and bounded 429/503 Retry-After handling preserve stable call IDs and single reservations",
+      "implementation": [],
+      "test": "Real HTTP rate limits/overload; readonly retry differs from effect queries",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P12",
+      "requirement": "Original provider-ID/binding/fingerprint reconciliation never invokes; append-only provenance/version receipt",
+      "implementation": [],
+      "test": "Lost response/provider restart; changed mapping rejected; insufficient evidence stays UNKNOWN/held",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "real-service tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P13",
+      "requirement": "Reported completion, confirmed effect and independent PASS separate; no automatic new attempt/refund",
+      "implementation": [],
+      "test": "Reconciliation does not create PASS or release without authority; explicit new attempt requires positive proof",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests",
+        "operator docs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P14",
+      "requirement": "Duplicate owner boot denied; coherent DB/artifacts/config/key/goals/version/feed backup and standard restore",
+      "implementation": [],
+      "test": "Two processes; interrupted pg_dump/snapshot; integrity and owned-resource handling",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "real backup tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P15",
+      "requirement": "Restored intake closed; history/UNKNOWN/maps/budget verification, restore-state, sync/reconcile before explicit resume",
+      "implementation": [],
+      "test": "Post-backup effect is not erased; structural restore is not unconditional business readiness",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests",
+        "recovery docs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P16",
+      "requirement": "One actual reviewed OSS reverse proxy, real HTTPS/hostname verification and bounded headers/body/stream/timeout",
+      "implementation": [],
+      "test": "Installed deploy assets; authorization/A2A extension forwarding; untrusted/wrong-hostname rejection",
+      "observed": null,
+      "remaining": [
+        "primary API/license review",
+        "implementation",
+        "real TLS tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P17",
+      "requirement": "Execution/check/proposal/observation/operator grants and per-caller/owner limits; private health/artifact protection",
+      "implementation": [],
+      "test": "Unauthenticated/unauthorized denial, verification-only grants and resource/URL/tenant/egress checks",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P18",
+      "requirement": "Official MCP auth/client injection without token passthrough or credential manifests",
+      "implementation": [],
+      "test": "Real authenticated MCP through injected public client; no upstream identity inheritance",
+      "observed": null,
+      "remaining": [
+        "primary API review",
+        "implementation",
+        "tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P19",
+      "requirement": "Routine versus compromise key rotation; historical origin versus current authority; no created_at precompromise inference",
+      "implementation": [],
+      "test": "Both peers restart with current and historical pins; original receipts/maps/budget survive; compromised evidence rechecks",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests",
+        "incident docs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P20",
+      "requirement": "Structured redacted standard logs and authorized operational metrics including physical work and lifecycle costs",
+      "implementation": [],
+      "test": "Known secret/raw inputs absent; DB/OPA/provider failures, UNKNOWN/check age/freshness/drain observable",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P21",
+      "requirement": "Finite artifact/log capacities and retention warnings without unsafe signed history purge",
+      "implementation": [],
+      "test": "Capacity/rotation boundary; signed bytes, withdrawals, mappings and uncertain leases retained",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests",
+        "archival docs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P22",
+      "requirement": "Candidate/shadow or limited trial/independent check/operator scoped promotion and rollback",
+      "implementation": [],
+      "test": "FAIL/UNKNOWN/protected regression retains old binding; shadow has no duplicate effect; checker meaning comparison recorded",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "tests",
+        "docs"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P23",
+      "requirement": "All old safety regressions plus required real-service faults and DB clock checks",
+      "implementation": [],
+      "test": "Profile fault_protocol and all existing 0.3.0-0.3.2 tests; zero mandatory skips",
+      "observed": null,
+      "remaining": [
+        "implementation",
+        "native short production gates"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P24",
+      "requirement": "Actual 60-minute predeclared soak; all latency/outcome/throughput/RSS/DB/OPA/disk/queue bounds",
+      "implementation": [],
+      "test": "Profile release_soak; retain raw samples, failures and exact environment",
+      "observed": null,
+      "remaining": [
+        "runner",
+        "actual run",
+        "gate assessment"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P25",
+      "requirement": "Five isolated matched production-path experiment pairs with strong cache-capable baseline and full costs",
+      "implementation": [],
+      "test": "Profile matched_experiment; all failures/censoring included; positive effect unnecessary",
+      "observed": null,
+      "remaining": [
+        "runner",
+        "ten actual arms",
+        "raw analysis"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P26",
+      "requirement": "Beginner English/Japanese README and tutorial/how-to/reference/explanation docs with identical working commands",
+      "implementation": [],
+      "test": "Sequential README/quickstart clean-wheel blocks in fresh directories; generated help/schema/link checks",
+      "observed": null,
+      "remaining": [
+        "rewrite/consolidate",
+        "installed execution checks"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P27",
+      "requirement": "Developer AGENTS, user canonical SKILL and slills entry links remain distinct and accurate",
+      "implementation": [],
+      "test": "Relative links/names, documented operations and instruction boundaries",
+      "observed": null,
+      "remaining": [
+        "update",
+        "validate"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P28",
+      "requirement": "Minimal additive migrations, old DSSE bytes and APIs preserved, actual 0.3.2 upgrade and semantic checker/policy regression",
+      "implementation": [],
+      "test": "Fresh and installed-old-version offline upgrade; protected business cases; no inferred rolling support",
+      "observed": null,
+      "remaining": [
+        "migration",
+        "tests",
+        "upgrade guide"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P29",
+      "requirement": "Apache-2.0 new code, upstream provenance/NOTICE, every resolved dependency and external binary license/security/SBOM",
+      "implementation": [],
+      "test": "Profile distribution_gates.supply_chain on all 12 actual resolutions",
+      "observed": null,
+      "remaining": [
+        "dependency reviews",
+        "full audit"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P30",
+      "requirement": "Same candidate pair validates all native source/wheel/extras/sdist/cross signatures and production assets",
+      "implementation": [],
+      "test": "Existing 12-profile workflow plus production/docs gates and cross-platform readers",
+      "observed": null,
+      "remaining": [
+        "CI integration",
+        "actual all-profile validation"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P31",
+      "requirement": "Immutable v0.4.0 OIDC publication only after complete gates; actual no-cache PyPI verification and GitHub Release",
+      "implementation": [],
+      "test": "Tag/main/version/hash identity, all gate evidence, PyPI installed production path",
+      "observed": null,
+      "remaining": [
+        "all preceding gates",
+        "publish",
+        "post-publication verification"
+      ],
+      "status": "pending"
+    },
+    {
+      "id": "P32",
+      "requirement": "Primary research/API review maps principle to behavior/test/metric/limits; truthful final Japanese report",
+      "implementation": [
+        "docs/research-mapping.md"
+      ],
+      "test": "No unread theorem, universal SLA, unexecuted soak or general advantage claim",
+      "observed": null,
+      "remaining": [
+        "current primary source reading",
+        "mapping update",
+        "final actual results"
+      ],
+      "status": "pending"
+    }
+  ]
+}
