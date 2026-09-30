@@ -1,9 +1,12 @@
 # Deployment, backup and upgrades
 
-The reference network deployment uses Python 3.12, PostgreSQL 16, an OPA 1.21.0
+The candidate requires Python >=3.12, PostgreSQL, an OPA 1.21.0
 executable, and an HTTPS reverse proxy. No broker is needed. Local tests can use
 Windows clients plus PostgreSQL under WSL. Container operation is described in the
 tutorial; validation results distinguish binary tests from container tests.
+The default development database is PostgreSQL 16.15. See
+[compatibility](compatibility.md) for exact tested Python/OS combinations; the
+metadata range is distinct from measured runtime support.
 
 Provision one database and restricted runtime role per owner. The bootstrap account
 creates roles/databases and is not used by peer processes. Revoke cross-owner CONNECT

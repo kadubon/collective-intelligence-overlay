@@ -1,5 +1,54 @@
 # Compatibility and licensing
 
+## 0.3.1 candidate Python extension (2026-09-30)
+
+Candidate metadata is `Requires-Python: >=3.12`, without an upper bound. The
+[official release list](https://www.python.org/downloads/) was checked on
+2026-09-30: stable CPython 3.12.14, 3.13.15 and 3.14.7 are mandatory. Python 3.15
+was still prerelease; recheck before publication. Future Python, PyPy,
+free-threaded builds and macOS are not verified support claims.
+
+| Actual runtime / OS | Source | Core / agents / model wheel and sdist | State |
+| --- | --- | --- | --- |
+| Windows CPython 3.12.14 | Three-process lifecycle reproduced the purpose-forwarding regression | Mandatory full candidate checks pending | Candidate only |
+| Windows CPython 3.13.15 | 258 passed, zero failures/errors/skips, 1,103.00 seconds; frozen all extras | Mandatory full candidate checks pending | Source passed |
+| Windows CPython 3.14.7 | Initial complete run: 248 passed, 10 failed; corrected targeted service/scale and all eight E2Es passed | Prototype core smoke, agents 30 unit tests, model 1, rebuilt sdist 31 passed; all three prototype license/audit/SBOM gates passed | Final complete matrix pending |
+| Linux, each of the three stable patches | Required full service suite configured | Same fixed candidate, independent profiles and explicit build interpreter configured | CI execution pending |
+| Windows, each of the three stable patches | Required full service suite configured, private runner PostgreSQL | Same fixed candidate and profile gates configured | CI execution pending |
+
+Windows local services are PostgreSQL 16.15 under WSL and OPA 1.21.0. Prototype
+artifacts are not the final release candidate. The six jobs use the same
+`ci_validate.py` definition, actual interpreter reports and separate coverage,
+resolved-dependency, license, audit and SBOM artifacts. No required-service skip
+passes the gate. `check_package.py --python` controls fresh venvs and records
+actual CLI, pytest, demo children and PEP 517 backend interpreters. A test-only
+startup guard contains no CIO application source and rejects checkout imports.
+
+An ordinary-resolution installed-wheel test passed in both 3.12.14→3.14.7 and
+3.14.7→3.12.14 directions: all 19 original 0.3.0 v1/v2/v3 DSSE payloads remained
+byte-identical, each interpreter's 19 new signatures verified on the other,
+and golden binding/request/call/manifest hashes matched. It covers large JSON
+integers, Unicode, null, object/list ordering, explicit Decimal strings and aware
+timestamps; raw Decimal arguments remain rejected by the existing JSON hash
+contract. Saved parameterized bindings executed after cross-interpreter
+reconstruction and real Numeric/timestamp/JSON PostgreSQL round trips. Real mixed
+A2A peers synchronized evidence, returned samples 1/2/1 for two calls plus retry,
+queried both saved IDs and blocked execution after withdrawal. This establishes
+tested interpreter interoperability, not rolling old-package interoperability.
+
+`uv.lock` retains every previously resolved dependency version; only the project
+version and additional platform/interpreter wheels changed. Ordinary resolution
+is separate: the prototype also selected PyJWT 2.15.1, OpenAI 3.22.1, google-api-core
+2.40.0, google-auth 2.59.0, proto-plus 1.29.0 and sse-starlette 3.5.0. Python 3.12
+includes SDK marker dependencies aiologic/culsans/wrapt that newer minors omit.
+Each actual profile is audited; no new allowlist exception or dependency range was
+introduced. Prototype uv_build 0.12.21 remained within the existing backend range.
+
+`.python-version` remains the minimum development pin. Select a different patch
+with both `uv sync --python 3.14.7 --all-extras --frozen` and
+`uv run --python 3.14.7 ...`. Pinned setup-uv v6's public `python-version` input sets
+`UV_PYTHON` for CI; each matrix job also checks the observed exact patch.
+
 The unreleased 0.3.1 changes add migrations 0013/0014, not a new DSSE,
 binding or A2A format. Cause grouping and command receipts stay in owner-local
 tables. Initial semantic observation fingerprints and original signed bytes are
@@ -28,7 +77,7 @@ loads the new relationships through the existing bounded indexed subject closure
 the existing reverse `dependency` query continues to mean runtime dependencies.
 This record version is distinct from package, binding, database and A2A versions.
 
-Observed 2026-09-28. `pyproject.toml` is authoritative for supported ranges;
+Historical 0.3.0 resolution, observed 2026-09-28. `pyproject.toml` is authoritative for supported ranges;
 `uv.lock` fixes the tested resolution. Initial interpreter support is Python 3.12.
 Local checks used Windows CPython 3.12.10 and PostgreSQL 16.15 on WSL Ubuntu.
 

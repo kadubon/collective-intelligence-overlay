@@ -70,7 +70,26 @@ proposals, selection reasons and the original invocation ID before another attem
 Host materialization and `select_target` persist actual bindings; they create no
 PASS. Obtain independent scoped checks before ordinary use. Unverified backlog,
 checker unavailability, protected allowance, no progress and deadlines can defer
-or stop the finite loop. A lost reply/UNKNOWN must not start a fresh-ID retry.
+or stop the finite loop. A lost reply or UNKNOWN after dispatch must not start a
+fresh-ID retry.
+
+For 0.3.1, keep rejected proposal categories separate from peer unavailability and
+allowance shortage; retain valid siblings using the complete collected batch.
+Discovery excludes expired/superseded instances. Explicit owner `reobserve` with
+trusted goals qualifies a fresh basis and retains bounded counts/cooldowns/receipts.
+Retry its command ID for the original receipt; a later observation needs a new
+owner command. Changed target/checker revisions do not hide old uncertain work.
+A new attempt requires explicit intent and positive persisted undispatched/fenced/
+released proof; completed reuse also needs matching signed observation and content.
+See the API for SDK/CLI arguments and refusal reasons.
+
+Assign distinct host call IDs to distinct Registry A2A child operations, even with
+equal inputs; retry uses the same ID and persisted scope/parent. Executor supplies
+its existing identity. MAF tools read public call context, not identity arguments
+from the model. Persist host/session scope before tool use. After restart, query
+saved remote references by original parent invocation or scope; never retry a
+nested call as a new standalone operation. Empty legacy maps prove no absence of
+effects: preserve and query original provider IDs. Stop old writers for 0013/0014.
 
 Use `metrics --work --query-file PATH` for a local scope/policy/creation-period
 cohort, event pages for attempt/owner resource observations and explicit request

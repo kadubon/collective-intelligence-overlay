@@ -31,6 +31,14 @@ separately, retry preserves the remote ID, and changed content conflicts. Missin
 remote identity fails clearly. Migration 0014 preserves legacy IDs without inventing
 missing mappings. Querying a completed child never settles an uncertain parent.
 
+Python metadata is >=3.12 without an upper bound. Explicit interpreter selection
+reaches clean core/agents/model environments, CLI, demos, pytest and PEP 517
+sdist rebuilds. Required stable Linux/Windows matrix jobs share one candidate
+build, unique reports and a final hash gate; publication stays in one OIDC job.
+The existing frozen dependency versions and original content hashes are retained.
+Mixed installed 3.12.14/3.14.7 peers pass both signature/hash and real HTTP exchange
+directions. Local proxy verification preserves provider reuse admission.
+
 Release gates and publication remain pending; 0.3.0 is the latest verified release.
 
 ## 0.3.0

@@ -30,6 +30,31 @@ execution remain explicit stopping conditions. The tested release is available o
 
 ## What works
 
+The **0.3.1 candidate is not published**. It fixes four operational paths: bounded
+exact-owner revocation for large histories; per-alternative rejection in proposal
+collection/selection; explicit owner reobservation of expired opportunities; and
+distinct logical A2A calls with saved retry/query IDs through Registry/Executor/MAF.
+See the [API examples](docs/api.md) for revoke, rejection categories, `reobserve`
+and `call_id`/`call_scope`, and [current results](docs/validation.md) for before/after
+tests. The four source fixes have separate commits; the mandatory multi-Python/OS,
+installed-artifact and publication gates remain pending. Mixed installed
+3.12.14/3.14.7 peers passed both directions; Windows 3.13.15 full source passed
+258 tests with zero failures/errors/skips.
+
+Candidate metadata requires **Python >=3.12**, with no upper bound. The release
+matrix requires current stable CPython 3.12.14/3.13.15/3.14.7 on Linux
+and Windows; metadata does not mean all future interpreters are tested. Exact
+runtime/profile results belong in [compatibility](docs/compatibility.md).
+`.python-version` pins minimum-version development, not users' Python upper bound.
+Select another interpreter explicitly with `uv sync --python 3.14.7 --all-extras --frozen`
+and `uv run --python 3.14.7 ...`.
+
+To upgrade from 0.3.0, stop old writers, back up and apply migrations 0013/0014.
+Keep signed records, old remote IDs and UNKNOWN reservations; an empty new call
+mapping never proves non-execution. [Offline upgrade/recovery](docs/deployment.md)
+describes reconciliation and restart. This patch does not change the retained
+negative pilot results or prove faster collective capability formation.
+
 - Signed, versioned capability and evidence records, including PASS / FAIL / UNKNOWN.
 - Receiver-specific OPA decisions: ACCEPT / REQUALIFY / REJECT / UNKNOWN.
 - PostgreSQL persistence, duplicate/conflict detection, budgets and fenced result commits.
@@ -51,7 +76,7 @@ statistically independent evidence. This software does not prove intelligence gr
 
 ## Run from source
 
-Python 3.12, [uv](https://docs.astral.sh/uv/), PostgreSQL 16 and the OPA binary are
+Python >=3.12, [uv](https://docs.astral.sh/uv/), PostgreSQL 16 and the OPA binary are
 required for the reference path. No model API key is needed. There is no broker,
 vector database, mandatory cloud service or always-running OPA server.
 

@@ -1,5 +1,45 @@
 # Release procedure and current state
 
+## 0.3.1 candidate, unpublished
+
+The four audit fixes are committed locally; Python extension and final gates are
+in progress. The required stable matrix is Linux/Windows × CPython
+3.12.14/3.13.15/3.14.7, plus minimum/latest mixed installed peers. No successful
+0.3.1 CI, tag, GitHub Release or PyPI publication is claimed yet. See
+[validation](validation.md) and [exact runtime scope](compatibility.md).
+
+`candidate` builds one wheel/sdist pair on explicit CPython 3.12.14, runs strict
+twine and records SHA-256. Every OS/minor downloads those files. The common
+`scripts/ci_validate.py` runs frozen full source/service tests, lint/format/type,
+docs and supply-chain gates, then normal-resolution independent core, agents and
+agents/model installed checks. Each sdist rebuild uses an observed explicit
+PEP 517 interpreter; its rebuilt wheel is never substituted for the publish file.
+Windows starts a private loopback cluster from the runner's PostgreSQL binaries;
+Linux uses PostgreSQL 16.15. Required service tests cannot be skipped.
+
+`mixed` uses the same candidate in two fresh installed interpreters and tests both
+directions. `ready` requires exactly six complete OS/patch reports, zero mandatory
+failures/errors/skips, matching candidate hashes and the passing mixed report.
+`publish` depends on all of those jobs, rechecks the original hashes, and transfers
+only the original pair to official PyPA OIDC publishing. Only that job has
+`id-token: write` and the protected `pypi` environment. No matrix job publishes.
+Exact tag/version and `main` ancestry checks remain required before publication.
+
+Local example, with real services configured:
+
+```sh
+uv build --force-pep517 --python 3.12.14 --out-dir .local/candidate/dist
+uv run --python 3.14.7 python scripts/check_package.py --python 3.14.7 --dist-dir .local/candidate/dist --test-scope full --report .local/package-3.14.7.json --supply-chain-dir .local/supply-3.14.7
+```
+
+The checker rejects a missing requested interpreter, a wrong minor/patch and a
+candidate hash mismatch. CLI, pytest, demo subprocesses and backend startup must
+use the selected executable and import CIO from their fresh site-packages.
+Publication requires fresh actual-PyPI core/agents/model installs on every stable
+minor, minimum/latest installed audit regressions, and actual downloaded wheel/
+sdist hashes matching the tested candidate. Historical release results below are
+not evidence for this candidate.
+
 ## 0.3.0 published and verified on 2026-09-30
 
 - Release commit `a2fc32b5511b3c3cec4f2e15fcd6375eb9540c67`, annotated tag `v0.3.0`.
@@ -127,8 +167,9 @@ rebuild its distributions. The `pypi` GitHub environment exists; future releases
 remain subject to the configured GitHub/PyPI permissions and protection rules.
 
 The only publication workflow is `.github/workflows/workflow.yml`. It requires
-successful Linux integration/E2E/package/security/docs checks and Windows unit/package
-checks. Tags must equal `v<pyproject version>` and their commit must be in `main`.
+successful mandatory stable Linux/Windows source/service/package/security/docs
+matrix and mixed-interpreter checks. Tags must equal `v<pyproject version>` and
+their commit must be in `main`.
 Only the tag-push publish job receives `id-token: write`, and only that job uses the
 `pypi` environment. PRs cannot enter publishing. `pull_request_target` is not used.
 
@@ -157,17 +198,18 @@ For local checks alongside historical artifacts, build into a separate directory
 with `uv build --out-dir .local/dist-candidate` and run
 `uv run python scripts/check_package.py --dist-dir .local/dist-candidate`.
 Use a fresh directory per version; never mix two releases in the publish artifact.
-The checker verifies packaged schemas/migrations/licenses, installs core outside the
-checkout, verifies the installed version and path, then runs tests with `agents`
-before adding `model` for its mocked provider test. It rebuilds and installs the
-sdist wheel, and prints hashes of the original tested release artifacts. CI uses
-the default `dist` directory and publishes only those original distributions.
+The checker verifies packaged schemas/migrations/licenses and uses independent
+fresh core, agents and agents/model environments outside checkout. It verifies
+the installed version/path/CLI, runs agents tests and the mocked provider test,
+then rebuilds/reinstalls the sdist wheel. It reports the unchanged original release
+hashes and actual resolved profiles. CI uses `.local/candidate/dist` and publishes
+only that originally built pair; a manifest sits outside the publish directory.
 
 If name ownership conflicts, OIDC is rejected or environment approval is required,
 stop that operation and record the exact error here. Never rename the project,
 disable protections, request an API token or overwrite an existing distribution.
 
-After verifying publication, activate a fresh Python 3.12 environment and substitute
+After verifying publication, activate a fresh environment for each tested Python and substitute
 the version just published (for example the verified 0.3.0). The historical
 0.1.0 hashes above are not the version selector for a future release:
 

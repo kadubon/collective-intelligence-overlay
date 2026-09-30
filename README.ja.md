@@ -11,6 +11,26 @@
 
 ## できること
 
+**0.3.1は未公開の候補版です。** 大量履歴でのowner・Subject完全一致のrevoke、
+無効提案の個別隔離、期限切れ機会のownerによる明示的再観測、Registry・Executor・MAFを
+通る論理A2A call IDと再送・照会の対応を修正しています。
+[APIの例](docs/api.md)でrevoke、拒否category、`reobserve`、`call_id`・`call_scope`を、
+[検証記録](docs/validation.md)で修正前後の実測を確認できます。4件は別commitで保存済みですが、
+必須Python/OS matrix、配布物、公開のゲートは未完了です。通常installした
+3.12.14・3.14.7の混在peerは両方向で通過し、Windows 3.13.15の全sourceテストは
+258 pass、failure・skipなしでした。
+
+候補版のmetadataは**Python >=3.12**で上限を設けません。Linux・Windowsの安定系列
+3.12.14・3.13.15・3.14.7へ検証を拡張中です。将来のPythonまで検証済みという意味ではありません。
+厳密な版・extras・OSの結果は[compatibility](docs/compatibility.md)に集約します。
+`.python-version`は最低版での開発用pinです。別系列は
+`uv sync --python 3.14.7 --all-extras --frozen`と`uv run --python 3.14.7 ...`で明示します。
+
+0.3.0からは旧writerを停止し、backup後にmigration 0013/0014を適用します。
+署名原文・旧remote ID・UNKNOWN・予約を保存し、新しい対応表が空でも未実行とは判断しません。
+[移行・照合・復旧](docs/deployment.md)に従ってください。過去の負のpilot結果は保持しており、
+このpatchで集団的能力形成の加速を証明したとは扱いません。
+
 0.2.1 では、DB で未 dispatch と所有権を確認し、以後の dispatch を封じた
 予約だけを一度だけ解放します。検査に使った費用は残り、実行可能性が残る予約と
 旧履歴は保持します。[移行・復旧](docs/deployment.md)と[公開状態](docs/releasing.md)を
@@ -53,7 +73,7 @@ collective-intelligence-overlay --version
 
 デモと開発環境の再現には、以下のソース手順を使用します。
 
-Python 3.12、uv、PostgreSQL 16、OPAが必要です。有料モデルは不要です。
+候補版のソースはPython >=3.12、uv、PostgreSQL 16、OPAが必要です。有料モデルは不要です。
 ```sh
 git clone https://github.com/kadubon/collective-intelligence-overlay.git
 cd collective-intelligence-overlay

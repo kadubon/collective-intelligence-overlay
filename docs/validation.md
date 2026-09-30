@@ -84,8 +84,33 @@ held allowance, queryable by original caller/ID, with an empty new mapping.
 The preceding broader run had 98 passes and three fixture errors (unchanged binding
 revision and wrong legacy caller); those errors were fixed, not marked skip/xfail.
 
-These local observations do not establish the new multi-Python, installed-artifact
-or release gates. The complete new-Python suite and support extension are pending.
+The first complete CPython 3.14.7 frozen source run had **248 passes and 10
+failures in 880.61 seconds**, with two subprocess transport warnings. All eight
+E2Es exposed an unintended C4 purpose-forwarding change: local proxy verification
+had started requiring a separate provider verification grant. The same three-peer
+failure reproduced on 3.12.14. The fix retains local purpose in the content hash,
+but preserves the original provider reuse contract, without enlarging any grant.
+Two scale fixtures had changed revisions of the original Goal; stable cause
+grouping correctly superseded it. Fresh benchmark profiles now use distinct Goal
+IDs while keeping the original live deduplication assertions. Pipe cleanup joins
+`communicate()` after provider termination; warnings are not ignored.
+
+Corrected Windows 3.14.7 service/scale gates passed 18 tests (one new Revocation
+fixture construction error was corrected separately); the provider-grant regression
+plus all eight E2Es then passed **9 tests in 371.11 seconds**, zero skips, with
+unraisable subprocess warnings treated as errors. Complete frozen Windows 3.13.15
+source passed **258 tests in 1,103.00 seconds**, zero failures/errors/skips, under
+the same strict warning setting. The installed-wheel mixed 3.12.14/3.14.7 test
+passed both directions, including original DSSE bytes, golden content/identity
+hashes, persisted reconstruction and actual HTTP sync/invoke/query/revoke.
+
+These local observations do not establish the final six-pair multi-Python,
+installed-artifact or release gates. Those gates remain pending; see
+[the runtime table](compatibility.md). Prototype distribution checks are distinct
+from the final candidate: 3.14.7 core smoke, 30 agents unit tests, one model test,
+31 rebuilt-sdist tests, three license/audit/SBOM profiles, and actual child/build
+interpreter recording passed. No paid model or native-backend interpreter shortcut
+was used.
 Existing released-version facts below are historical evidence.
 
 ## 0.3.0 released artifacts

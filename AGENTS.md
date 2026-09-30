@@ -17,6 +17,11 @@ the WSL test client). The default suite runs 1,000/10,000-record scale profiles;
 assertions on bounded rows, signature checks and query counts. See `docs/scale.md`.
 Check generated schemas/docs with `uv run python scripts/check_docs.py`, and clean
 artifacts with `uv run python scripts/check_package.py` after `uv build`.
+The 0.3.1 metadata is >=3.12; explicitly select the runtime for nonminimum checks.
+Keep source frozen resolution separate from normal installed-artifact resolution.
+All stable Linux/Windows jobs use `scripts/ci_validate.py`, with the same fixed
+candidate hashes, actual child/build interpreter reports and zero mandatory skips.
+Do not publish until every required matrix and mixed-interpreter gate passes.
 
 Preserve generated != verified != reusable. UNKNOWN never becomes PASS because of
 delivery, timeout or missing data. Authentication is not truth. Retain dissent,
