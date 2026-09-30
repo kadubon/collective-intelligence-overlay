@@ -8,7 +8,7 @@ import sys
 import threading
 import time
 from datetime import timedelta
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from http.server import BaseHTTPRequestHandler
 from pathlib import Path
 
 import httpx
@@ -17,6 +17,7 @@ from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
+from native_http_server import LoopbackHTTPServer
 from process_control import stop_owned_process
 
 from collective_intelligence_overlay.artifacts import Artifacts
@@ -57,37 +58,31 @@ def test_native_subprocess_termination_restart_and_port_reuse(tmp_path):
         port = free.getsockname()[1]
     home = tmp_path / "実 process directory"
     home.mkdir()
-    script = """
-import sys
-from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-class Handler(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.end_headers()
-        self.wfile.write(b'owned process')
-    def log_message(self, *args): pass
-ThreadingHTTPServer(('127.0.0.1', int(sys.argv[1])), Handler).serve_forever()
-"""
+    script = Path(__file__).with_name("native_http_server.py")
     for _ in range(2):
-        process = subprocess.Popen(
-            [sys.executable, "-c", script, str(port)],
-            cwd=home,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
-        )
-        try:
-            deadline = time.monotonic() + 10
-            with httpx.Client(trust_env=False, timeout=1) as client:
-                while True:
-                    try:
-                        response = client.get(f"http://127.0.0.1:{port}")
-                        assert response.text == "owned process"
-                        break
-                    except httpx.TransportError:
-                        assert process.poll() is None and time.monotonic() < deadline
-                        time.sleep(0.02)
-        finally:
-            stop_owned_process(process)
+        error_path = home / "server-errors.log"
+        with error_path.open("wb") as error_output:
+            process = subprocess.Popen(
+                [sys.executable, str(script), str(port)],
+                cwd=home,
+                stdout=subprocess.DEVNULL,
+                stderr=error_output,
+            )
+            try:
+                deadline = time.monotonic() + 10
+                with httpx.Client(trust_env=False, timeout=1) as client:
+                    while True:
+                        try:
+                            response = client.get(f"http://127.0.0.1:{port}")
+                            assert response.text == "owned process"
+                            break
+                        except httpx.TransportError:
+                            assert process.poll() is None and time.monotonic() < deadline, (
+                                error_path.read_text(errors="replace")
+                            )
+                            time.sleep(0.02)
+            finally:
+                stop_owned_process(process)
     with socket.socket() as probe:
         assert probe.connect_ex(("127.0.0.1", port)) != 0
 
@@ -127,7 +122,7 @@ def test_native_certificate_store_rejects_untrusted_and_wrong_hostname(tmp_path)
         def log_message(self, *args):
             pass
 
-    server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+    server = LoopbackHTTPServer(("127.0.0.1", 0), Handler)
     context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
     context.load_cert_chain(certificate_path, key_path)
     server.socket = context.wrap_socket(server.socket, server_side=True)

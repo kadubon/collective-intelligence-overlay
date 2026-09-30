@@ -6,6 +6,7 @@ import os
 import shutil
 import socket
 import subprocess
+import sys
 from pathlib import Path
 
 parser = argparse.ArgumentParser()
@@ -31,13 +32,22 @@ owned = {"data": str(data), "bin": str(binary)}
 
 
 def run(name, *arguments, check=True):
-    return subprocess.run(
+    result = subprocess.run(
         [str(binary / (name + suffix)), *map(str, arguments)],
-        check=check,
+        check=False,
         timeout=70,
         capture_output=True,
         text=True,
     )
+    if check and result.returncode:
+        print(result.stdout[-4096:], file=sys.stderr)
+        print(result.stderr[-4096:], file=sys.stderr)
+        if name == "pg_ctl" and "start" in arguments and (data / "server.log").is_file():
+            # Startup precedes test/application queries; retain this bounded diagnosis.
+            log = (data / "server.log").read_text(encoding="utf-8", errors="replace")[-4096:]
+            print(log, file=sys.stderr)
+        result.check_returncode()
+    return result
 
 
 if args.operation == "start":
@@ -46,7 +56,11 @@ if args.operation == "start":
         assert probe.connect_ex(("127.0.0.1", args.port)) != 0, "private CI port already occupied"
     run("initdb", "-D", data, "-U", "postgres", "-A", "trust", "--encoding=UTF8")
     marker.write_text(json.dumps(owned), encoding="utf-8")
-    # No Unix socket in a shared directory. This cluster is loopback/test-only.
+    # Windows has no shared Unix socket. POSIX explicitly disables its default
+    # /tmp socket; shell single quotes must not be passed through Windows pg_ctl.
+    options = f"-h 127.0.0.1 -p {args.port}"
+    if os.name != "nt":
+        options += " -c unix_socket_directories=''"
     run(
         "pg_ctl",
         "-D",
@@ -54,7 +68,7 @@ if args.operation == "start":
         "-l",
         data / "server.log",
         "-o",
-        f"-h 127.0.0.1 -p {args.port} -c unix_socket_directories=''",
+        options,
         "-w",
         "-t",
         "60",

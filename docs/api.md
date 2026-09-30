@@ -30,6 +30,10 @@ old caller/ID, state, phase, reason, reservation, lease and planned action, omit
 arguments/results/credentials. Logical slot recovery is separate from physical
 task status (`not_observed`) and external effects (`unconfirmed`). Cleanup never
 invokes, implicitly queries a provider, creates PASS or proves process termination.
+Each item's `observed_at` is the PostgreSQL time of the locked inspection.
+A dry-run's `not_dispatched` describes that snapshot; it does not fence the worker
+or grant permission to retry. Apply cleanup and inspect the committed state before
+relying on release proof.
 
 New claims make one bounded cleanup pass only after budget/capacity refusal, then
 retry once. Existing IDs always retain the original request/result; changed content

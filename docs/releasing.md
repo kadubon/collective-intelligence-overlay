@@ -19,6 +19,19 @@ installs and major regressions are required on both native Mac CPUs and represen
 Linux/Windows, with hashes compared to this same pair. Do not start v0.4.0 features
 until 0.3.2's safety gates pass; publication order remains 0.3.2 then 0.4.0.
 
+Run the same native gates against actual PyPI after the tag run publishes:
+
+```sh
+gh workflow run workflow.yml --ref main -f candidate_run_id=ORIGINAL_TAG_RUN_ID
+```
+
+The manual run restores that run's `candidate-distributions`, downloads the actual
+published wheel/sdist and checks both hashes before proceeding. Each native job
+then uses cache-disabled normal PyPI resolution (`--from-pypi`), retaining root
+package audit and interpreter/CPU checks. A manual run cannot publish. Use the
+actual immutable tag run ID; a failed or different candidate must not substitute
+for the published pair.
+
 ## 0.3.1 published on 2026-09-30
 
 Release commit `e7e245920be3687eebb4b0a0817d60a82ed2c1b9`, immutable annotated

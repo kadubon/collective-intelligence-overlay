@@ -118,4 +118,5 @@ run(
     str(output / "package.json"),
     "--supply-chain-dir",
     str(output / "installed-supply-chain"),
+    *(["--from-pypi"] if os.environ.get("CIO_FROM_PYPI") == "true" else []),
 )

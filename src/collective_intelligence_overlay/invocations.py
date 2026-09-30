@@ -355,6 +355,7 @@ class InvocationStore:
                         "reason": row["reason"],
                         "lease_state": lease["state"],
                         "lease_expires_at": lease["expires_at"].isoformat(),
+                        "observed_at": observed.isoformat(),
                         "eligible": eligible,
                         "action": action,
                         "logical_slot_recovered": eligible and not dry_run,

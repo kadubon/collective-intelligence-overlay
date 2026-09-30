@@ -97,11 +97,15 @@ async def test_reference_peer_publishes_registered_candidates_and_durable_probes
         owner="receiver",
         artifact_directory=tmp_path / "artifacts",
         max_seconds=30,
+        max_concurrency=2,
+        max_unresolved=1,
         execution_environment={"reference": "1"},
         policy=overlay.policy.settings,
         runtime=lambda: (identities["receiver"], overlay),
     )
     service = ReferencePeerService(config)
+    assert service.executor.allowance.max_concurrent == 2
+    assert service.executor.allowance.max_unresolved == 1
     with pytest.raises(ValueError, match="owner-only"):
         await service.handle("other", {"operation": "reference-register"})
     registrations = await service.handle("receiver", {"operation": "reference-register"})
@@ -142,3 +146,28 @@ async def test_reference_peer_publishes_registered_candidates_and_durable_probes
         "receiver", {"operation": "invocation", "invocation_id": "ordinary"}
     )
     assert lookup["invocation"] == result
+    # A dispatched cancellation retains held uncertainty.
+    # New independent work stops with its policy reason; original IDs stay queryable.
+    ledger = restarted.executor.store
+    claim, fresh = ledger.claim(
+        "receiver",
+        "uncertain-effect",
+        binding.id,
+        binding.digest,
+        request["arguments"],
+        restarted.executor.allowance,
+    )
+    assert fresh
+    ledger.dispatched(claim)
+    uncertain = ledger.cancel("receiver", "uncertain-effect")
+    assert uncertain["state"] == "unknown" and uncertain["reservation_state"] == "held"
+    blocked = await restarted.handle("receiver", {**request, "invocation_id": "independent"})
+    assert blocked["error"] == "OWNER_UNRESOLVED_EFFECTS_LIMIT"
+    assert (
+        await restarted.handle(
+            "receiver", {"operation": "invocation", "invocation_id": "uncertain-effect"}
+        )
+    )["invocation"] == uncertain
+    assert (
+        await restarted.handle("receiver", {"operation": "invocation", "invocation_id": "ordinary"})
+    )["invocation"] == result

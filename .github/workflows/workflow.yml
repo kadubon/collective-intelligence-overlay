@@ -5,6 +5,11 @@ on:
     tags: ['v*']
   pull_request:
   workflow_dispatch:
+    inputs:
+      candidate_run_id:
+        description: 'Post-publication verification: original tag run artifact ID; empty builds a new candidate'
+        required: false
+        type: string
 
 permissions:
   contents: read
@@ -12,6 +17,9 @@ permissions:
 jobs:
   candidate:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
     outputs:
       linux: ${{ steps.matrix.outputs.linux }}
       windows: ${{ steps.matrix.outputs.windows }}
@@ -19,6 +27,7 @@ jobs:
       cross: ${{ steps.matrix.outputs.cross }}
       minimum: ${{ steps.matrix.outputs.minimum }}
       latest: ${{ steps.matrix.outputs.latest }}
+      from_pypi: ${{ steps.pypi.outputs.from_pypi }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -38,11 +47,30 @@ jobs:
             uv run python -c "import os,tomllib; v=tomllib.load(open('pyproject.toml','rb'))['project']['version']; assert os.environ['GITHUB_REF_NAME']=='v'+v"
             git merge-base --is-ancestor HEAD origin/main
           fi
-      - run: uv build --force-pep517 --python '${{ steps.matrix.outputs.minimum }}' --out-dir .local/candidate/dist
+      - if: github.event_name != 'workflow_dispatch' || inputs.candidate_run_id == ''
+        run: uv build --force-pep517 --python '${{ steps.matrix.outputs.minimum }}' --out-dir .local/candidate/dist
       - run: uv run twine check --strict .local/candidate/dist/*
+        if: github.event_name != 'workflow_dispatch' || inputs.candidate_run_id == ''
       - name: Fix candidate hashes once
+        if: github.event_name != 'workflow_dispatch' || inputs.candidate_run_id == ''
         run: |
           uv run python -c "import hashlib,json; from pathlib import Path; p=Path('.local/candidate'); (p/'artifacts.json').write_text(json.dumps({f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in (p/'dist').iterdir() if f.name.endswith(('.whl','.tar.gz'))},indent=2)+'\n')"
+      - name: Restore the originally tested publication candidate
+        if: github.event_name == 'workflow_dispatch' && inputs.candidate_run_id != ''
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: candidate-distributions
+          path: .local/candidate
+          run-id: ${{ inputs.candidate_run_id }}
+          github-token: ${{ github.token }}
+      - name: Compare actual PyPI bytes with the original candidate
+        id: pypi
+        if: github.event_name == 'workflow_dispatch' && inputs.candidate_run_id != ''
+        shell: bash
+        run: |
+          version="$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")"
+          uv run python scripts/fetch_pypi_release.py --version "$version" --hash-file .local/candidate/artifacts.json --output .local/pypi/dist --report .local/candidate/pypi-download.json
+          echo 'from_pypi=true' >> "$GITHUB_OUTPUT"
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: candidate-distributions
@@ -70,6 +98,7 @@ jobs:
       CIO_TEST_DATABASE_URL: postgresql+pg8000://postgres:test-only-password@127.0.0.1:5432/postgres
       CIO_OPA: ${{ github.workspace }}/.local/bin/opa
       CIO_SCALE_REPORT_DIR: .local/reports/scale
+      CIO_FROM_PYPI: ${{ needs.candidate.outputs.from_pypi }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -104,6 +133,7 @@ jobs:
       CIO_TEST_DATABASE_URL: postgresql+pg8000://postgres@127.0.0.1:55439/postgres
       CIO_OPA: ${{ github.workspace }}/.local/bin/opa.exe
       CIO_SCALE_REPORT_DIR: .local/reports/scale
+      CIO_FROM_PYPI: ${{ needs.candidate.outputs.from_pypi }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -148,6 +178,7 @@ jobs:
       CIO_TEST_DATABASE_URL: postgresql+pg8000://postgres@127.0.0.1:55439/postgres
       CIO_OPA: ${{ github.workspace }}/.local/bin/opa
       CIO_SCALE_REPORT_DIR: .local/reports/scale
+      CIO_FROM_PYPI: ${{ needs.candidate.outputs.from_pypi }}
       HOMEBREW_NO_AUTO_UPDATE: '1'
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
