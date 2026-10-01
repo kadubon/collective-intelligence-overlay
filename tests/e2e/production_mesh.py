@@ -20,7 +20,6 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
-from process_control import stop_owned_process
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
@@ -32,6 +31,13 @@ from collective_intelligence_overlay.setup import bootstrap_database, initialize
 
 
 def stop_process(process):
+    # This harness is also imported by standalone soak/experiment drivers,
+    # without pytest's collected integration-module paths.
+    helpers = str(Path(__file__).parents[1] / "integration")
+    if helpers not in sys.path:
+        sys.path.insert(0, helpers)
+    from process_control import stop_owned_process
+
     stop_owned_process(process)
 
 
