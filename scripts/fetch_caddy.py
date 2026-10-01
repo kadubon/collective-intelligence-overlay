@@ -229,7 +229,7 @@ def build(go_bin: Path) -> dict:
         "vulnerability_module_findings": findings,
         "module_review": "scripts/proxy/README.md#security-review",
         "license_review": "scripts/proxy/README.md#license-review",
-        "saved_notices": str(notices.relative_to(report)),
+        "saved_notices": notices.relative_to(report).as_posix(),
         "audits_passed": True,
     }
     (report / "proxy.json").write_text(json.dumps(result, indent=2) + "\n", encoding="utf-8")

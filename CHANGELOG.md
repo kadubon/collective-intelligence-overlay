@@ -2,6 +2,9 @@
 
 ## 0.4.0 (unreleased)
 
+- Native proxy notice reports use portable relative paths; the aggregate reviewer
+  also accepts retained Windows separators and rejects paths outside the native
+  report. Original reports and the tested distribution pair remain unchanged.
 - Owner operational metrics warn at configurable database size and local history
   age thresholds without deleting signed records or changing evidence authority.
 - Native installed-artifact gates execute the actual English/Japanese README and

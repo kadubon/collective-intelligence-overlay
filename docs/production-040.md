@@ -361,3 +361,24 @@ repair requires explicit resume. Every profile also passes the seven operation
 regressions and actual authorized/private TLS health cases. Archive provenance and
 unchanged source hash are retained in `readiness-review12-v1.json`. P09 is verified;
 this does not replace the full updated settings-fault/native/cross gates or publication.
+
+## Portable native notice review failure and correction
+
+The formal repeat's twelve native jobs and all four cross readers completed
+successfully; each reader verified 228 original signatures from all twelve origins.
+Its ready job `110412664876` then failed at `check_proxy_sources.py:140` before
+integrated production assessment or the acceptance-register check. Windows native
+`saved_notices` values used backslashes, which Linux treated as part of one filename.
+The original failure log is retained with SHA256
+`ff412a3efe00e0f0cc08456d730a4ac1f651ca298cc1c5712dfa17e90fad70d9`.
+This whole workflow is not a pass.
+
+The reviewer now reads both native relative separator forms while rejecting empty,
+absolute, drive-qualified, parent-traversing and missing paths. New proxy reports
+write portable forward slashes. The original native reports are not rewritten.
+Eight release/path guard tests pass. An actual Linux review of all twelve coherent
+formal-repeat native originals passes with 2,814 retained files, no unresolved
+literal assembly includes, and source/notice ZIP SHA256
+`dd0b69b10b5e1e6b192ea3204a820bb95ca0cfb49654333158fea091656dc3d6`.
+The frozen wheel/sdist and every formal driver remain unchanged. The complete
+updated native/cross gates, integrated acceptance and publication remain required.

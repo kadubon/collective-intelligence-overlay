@@ -9,13 +9,22 @@ import hashlib
 import json
 import re
 import zipfile
-from pathlib import Path
+from pathlib import Path, PureWindowsPath
 
 from runtime_matrix import combinations
 
 
 def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def notice_directory(proxy, saved_notices):
+    relative = PureWindowsPath(saved_notices)
+    assert relative.parts and not relative.drive and not relative.root
+    assert ".." not in relative.parts
+    notices = proxy.joinpath(*relative.parts)
+    assert notices.resolve().is_relative_to(proxy.resolve()) and notices.is_dir()
+    return notices
 
 
 def review(reports, candidate, cache, goroot, output):
@@ -136,8 +145,7 @@ def review(reports, candidate, cache, goroot, output):
         # Full original module notices, including OFL/MPL, stay with each native
         # report; add the exact toolchain LICENSE and per-file source notices.
         retain(goroot / "LICENSE", "std@go1.27.1", goroot, assembly_input=False)
-        notices = proxy / metadata["saved_notices"]
-        assert notices.resolve().is_relative_to(proxy.resolve()) and notices.is_dir()
+        notices = notice_directory(proxy, metadata["saved_notices"])
         notice_hashes = {}
         for notice in notices.rglob("*"):
             if notice.is_file():
