@@ -13,7 +13,7 @@ from a2a.client import AgentCardResolutionError
 from sqlalchemy import func, select
 
 from collective_intelligence_overlay.adapters.a2a import send
-from collective_intelligence_overlay.bindings import fingerprint
+from collective_intelligence_overlay.bindings import Binding, fingerprint
 from collective_intelligence_overlay.config import Config
 from collective_intelligence_overlay.demo import initialize
 from collective_intelligence_overlay.storage import budgets, leases
@@ -224,8 +224,6 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             from adaptive_documents import checker_binding
 
             source = (await call("receiver", operation="describe", name="remote-words"))["binding"]
-            from collective_intelligence_overlay.bindings import Binding
-
             before_checker_test = await send(
                 configs["receiver"],
                 identities["receiver"],
@@ -410,6 +408,54 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             outcome = await call("receiver", **request)
             assert outcome["state"] == "completed"
             assert outcome["result"] == {"long": True, "threshold": len(training_text.split())}
+            if host_mode and mesh is not None:
+                remote = (await call("receiver", operation="describe", name="remote-words"))[
+                    "binding"
+                ]
+                original_request = {
+                    "operation": "invoke",
+                    "invocation_id": "original-document-query",
+                    "binding_id": remote["id"],
+                    "binding_digest": Binding.model_validate(remote).digest,
+                    "arguments": {"text": "reference 文書 Δ"},
+                }
+                original_result = await call("receiver", **original_request)
+                assert original_result["state"] == "completed"
+                assert original_result["result"] == {"words": 3}
+                mappings = await call(
+                    "receiver",
+                    operation="remote_calls",
+                    invocation_id=original_request["invocation_id"],
+                )
+                assert len(mappings["calls"]) == 1
+                control = {
+                    "operation": "reconcile",
+                    "call_key": mappings["calls"][0]["call_key"],
+                    "command_id": "original-document-observation",
+                    "invocation_id": original_request["invocation_id"],
+                    "reconciler": "document-original-result",
+                }
+                charges = {
+                    name: await asyncio.to_thread(balance, name)
+                    for name in ("producer", "receiver")
+                }
+                effects = mesh.mcp_audit.read_bytes()
+                observation = await call("receiver", **control)
+                receipt = observation["event"]["reconciliation"]
+                assert receipt["reported_state"] == "completed"
+                assert receipt["effect"] == "confirmed"
+                assert receipt["reason"] == "ORIGINAL_DOCUMENT_RESULT_MATCHED"
+                assert receipt["independent_verification"] == "UNKNOWN"
+                assert await call("receiver", **control) == observation
+                assert (
+                    await call(
+                        "receiver",
+                        operation="invocation",
+                        invocation_id=original_request["invocation_id"],
+                    )
+                )["invocation"] == original_result
+                assert mesh.mcp_audit.read_bytes() == effects
+                assert {name: await asyncio.to_thread(balance, name) for name in charges} == charges
             if mesh is not None:
                 from production_mesh import stop_process
 

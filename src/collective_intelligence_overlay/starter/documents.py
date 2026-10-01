@@ -23,6 +23,7 @@ import httpx2
 import uvicorn
 from agent_framework import WorkflowBuilder, WorkflowContext, tool
 from agent_framework import executor as maf_executor
+from sqlalchemy import select
 
 from collective_intelligence_overlay.adapters.a2a import application, synchronize
 from collective_intelligence_overlay.adapters.a2a import send as protocol_send
@@ -36,8 +37,10 @@ from collective_intelligence_overlay.bindings import (
     fingerprint,
 )
 from collective_intelligence_overlay.blocking import run_blocking
+from collective_intelligence_overlay.calls import RemoteCall, RemoteCalls
 from collective_intelligence_overlay.config import Config, load_config
 from collective_intelligence_overlay.demo import initialize
+from collective_intelligence_overlay.invocations import invocations
 from collective_intelligence_overlay.lineage import FormationSession
 from collective_intelligence_overlay.models import (
     Capability,
@@ -51,6 +54,7 @@ from collective_intelligence_overlay.models import (
 )
 from collective_intelligence_overlay.peer import PeerService
 from collective_intelligence_overlay.queries import RecordQuery
+from collective_intelligence_overlay.reconciliation import EffectObservation
 from collective_intelligence_overlay.storage import Conflict
 
 ENVIRONMENT = {"documents": "1"}
@@ -266,6 +270,114 @@ class DocumentService(PeerService):
                     raise ValueError(
                         "installed application changed; candidate requalification required"
                     )
+            if host is not None:
+                self.register_original_query(host)
+
+    def register_original_query(self, host: ApplicationHost) -> None:
+        """Install the receiver's finite read-only query, never an execution retry."""
+        source = callable_digest(self.inspect_original_result)
+        binding = Binding(
+            id="document-original-result",
+            revision="1",
+            issuer=self.config.owner,
+            registrar=self.config.owner,
+            subject=Subject(id="document-original-result", version=source[:16], digest=source),
+            scope=Scope(
+                task="document-original-result",
+                input_contract="document-original-query.in.v1",
+                output_contract="document-original-query.out.v1",
+                environment=ENVIRONMENT,
+            ),
+            target=Target(
+                kind="local",
+                name="document-original-result",
+                interface_digest=source,
+                implementation_identity="installed",
+            ),
+            input_schema={
+                "type": "object",
+                "required": ["call", "provider_report"],
+                "properties": {"call": {"type": "object"}, "provider_report": {"type": "object"}},
+                "additionalProperties": False,
+            },
+            output_schema=EffectObservation.model_json_schema(),
+            callers=(self.config.owner,),
+            verification_callers=(self.config.owner,),
+            effects="read-only",
+        )
+        self.registry.register_local(binding, self.inspect_original_result, lambda _: True)
+        self.publish(binding, imported=True)
+        host.reconciliations.register(binding.id)
+
+    async def inspect_original_result(self, arguments: dict[str, Any]) -> dict[str, Any]:
+        """Check the original whitespace count, not arbitrary provider effects or truth."""
+        call = RemoteCall.model_validate(arguments["call"])
+        report = arguments["provider_report"]
+        if (
+            call.owner != self.config.owner
+            or call.caller != self.config.owner
+            or call.binding_id != "remote-words"
+            or call.provider_binding_id != "words"
+            or call.invocation_context is None
+            or call.arguments_digest is None
+        ):
+            raise ValueError("original document call identity is unavailable or unsupported")
+
+        lease_id = "invoke-" + call.invocation_context
+
+        def original() -> dict[str, Any] | None:
+            if RemoteCalls(self.overlay.store).get(self.config.owner, call.call_key) != call:
+                raise ValueError("query does not identify the saved original mapping")
+            with self.overlay.store.engine.connect() as conn:
+                saved = (
+                    conn.execute(select(invocations).where(invocations.c.lease_id == lease_id))
+                    .mappings()
+                    .one_or_none()
+                )
+                return dict(saved) if saved is not None else None
+
+        row = await run_blocking(original)
+        if (
+            row is None
+            or row["owner"] != call.owner
+            or row["caller"] != call.caller
+            or fingerprint([row["owner"], row["caller"], row["id"]]) != call.invocation_context
+            or row["binding_digest"] != call.binding_digest
+            or fingerprint(row["request"]["arguments"]) != call.arguments_digest
+            or report.get("id") != call.remote_invocation_id
+            or report.get("owner") != call.provider
+            or report.get("caller") != call.owner
+            or report.get("binding_digest") != call.provider_binding_digest
+            or report.get("arguments_digest") != call.arguments_digest
+        ):
+            raise ValueError("query original arguments or provider identity mismatch")
+        text = row["request"]["arguments"].get("text")
+        result = report.get("result")
+        confirmed = (
+            isinstance(text, str)
+            and 1 <= len(text) <= 4096
+            and report.get("state") == "completed"
+            and isinstance(result, dict)
+            and type(result.get("words")) is int
+            and result == {"words": len(text.split())}
+            and report.get("result_digest") == fingerprint(result)
+        )
+        return EffectObservation(
+            provider_invocation_id=call.remote_invocation_id,
+            provider_binding_digest=call.provider_binding_digest,
+            arguments_digest=call.arguments_digest,
+            effect="confirmed" if confirmed else "unknown",
+            observation_digest=fingerprint(
+                {
+                    "original_request": row["fingerprint"],
+                    "provider_report": report,
+                    "criteria": callable_digest(self.inspect_original_result),
+                }
+            ),
+            reason="ORIGINAL_DOCUMENT_RESULT_MATCHED"
+            if confirmed
+            else "DOCUMENT_RESULT_UNCONFIRMED",
+        ).model_dump(mode="json")
 
     def make_binding(
         self,

@@ -130,6 +130,9 @@ candidate section for exact flags. Reported completion, confirmed effect and
 independent PASS are different fields. Reconciliation never resends or refunds.
 Keep missing legacy argument identity and insufficient observations UNKNOWN.
 Use explicit installed read-only reconciler bindings; generated text grants none.
+The document receiver's `document-original-result` checks the original
+`remote-words` text and provider word-count result. A matched read-only count
+does not prove physical execution, hidden effect absence or independent PASS.
 Offline `backup`/`verify-backup` protect secret files and check bytes only.
 Restored intake persists closed across restart. Inspect `recovery-state`, complete
 full post-restore source sync, and use `recovery-review` with the application's

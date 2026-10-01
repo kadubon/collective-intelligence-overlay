@@ -160,10 +160,11 @@
       "requirement": "Original provider-ID/binding/fingerprint reconciliation never invokes; append-only provenance/version receipt",
       "implementation": [
         "src/collective_intelligence_overlay/reconciliation.py",
-        "src/collective_intelligence_overlay/calls.py"
+        "src/collective_intelligence_overlay/calls.py",
+        "src/collective_intelligence_overlay/starter/documents.py"
       ],
       "test": "Lost response/provider restart; changed mapping rejected; insufficient evidence stays UNKNOWN/held",
-      "observed": "Actual PostgreSQL/OPA/A2A lost-response and mapping/digest-tamper tests pass; original-ID query appends Event v4 without invoking",
+      "observed": "Actual PostgreSQL/OPA/A2A lost-response and mapping/digest-tamper tests pass; original-ID query appends Event v4 without invoking. The installed document receiver's registered original-result query passed the actual native Windows three-peer HTTPS/A2A/MCP host-normal test in 128.48 seconds, retaining original invocation/envelope, allowance and unchanged MCP audit bytes across repeated observation. A four-test PostgreSQL/A2A group passed in 24.99 seconds, including 15 document result/identity negative controls. Earlier test-fixture initialization failures are retained; they are not provider evidence. A confirmed whitespace-count result does not prove physical execution, hidden effect absence or independent PASS.",
       "remaining": [
         "native provider restart/lifecycle protocol and complete observation costs"
       ],
@@ -173,7 +174,8 @@
       "id": "P13",
       "requirement": "Reported completion, confirmed effect and independent PASS separate; no automatic new attempt/refund",
       "implementation": [
-        "src/collective_intelligence_overlay/reconciliation.py"
+        "src/collective_intelligence_overlay/reconciliation.py",
+        "src/collective_intelligence_overlay/starter/documents.py"
       ],
       "test": "Reconciliation does not create PASS or release without authority; explicit new attempt requires positive proof",
       "observed": "Explicit read-only effect query keeps reported completion/effect/PASS separate; legacy missing arguments stay UNKNOWN and original allowance is held",

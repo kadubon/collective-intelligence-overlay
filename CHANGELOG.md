@@ -2,6 +2,10 @@
 
 ## 0.4.0 (unreleased)
 
+- The installed document receiver reconciles original mapped word-count results
+  with an explicitly registered read-only query. Exact original arguments, caller,
+  provider, binding and result digest are checked. Unconfirmed results stay UNKNOWN;
+  reconciliation does not resend, refund, rewrite the original or create PASS.
 - Dispatched parents retain actual nested owner budget/capacity refusal reasons
   and distinguish observed timeout/cancellation from generic UNKNOWN. No exception
   text, effect-absence claim or allowance refund is inferred from those reasons.

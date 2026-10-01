@@ -1023,6 +1023,17 @@ only that explicitly registered binding. Mismatched or missing observations stay
 UNKNOWN. Neither query path invokes the original uncertain action, changes its
 result, releases its reservation, issues a fresh attempt or creates PASS.
 
+The installed document receiver registers `document-original-result`. Supply
+`--reconciler document-original-result` with the receiver's original
+`remote-words` invocation. This query verifies the saved mapping and original
+arguments against the provider's original `words` report, then compares its
+integer count and result digest with the whitespace count of that exact text.
+`ORIGINAL_DOCUMENT_RESULT_MATCHED` confirms this read-only result;
+`DOCUMENT_RESULT_UNCONFIRMED` retains UNKNOWN. This does not establish physical
+provider execution, hidden effect absence, general business validity or independent
+PASS. Unsupported caller/operation identity and missing legacy argument identity
+are refused. The query never reruns the counter or changes the original allowance.
+
 Authenticated ASGI capacity defaults to 16 owner requests and four per caller,
 including reads, proposals and body receipt. The configuration fields are
 `max_owner_requests` and `max_caller_requests`. Refusals use standard HTTP 503 or
