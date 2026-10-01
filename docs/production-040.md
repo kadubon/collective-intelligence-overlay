@@ -25,6 +25,8 @@ Paid inference is disabled in mandatory validation.
 The [matched experiment runner](production-experiments.md) documents its fixed
 assignments, actual production path, original-result validation and resource limits.
 Development fixture runs remain separate from the formal five pairs.
+The [soak driver](production-soak.md) records the fixed offered mix, faults,
+resource measurements and retained development failures; release validation is pending.
 
 Do not relax this profile after seeing measurements. Preserve failed reports and
 fix the implementation, then run the complete affected protocol again. A separately

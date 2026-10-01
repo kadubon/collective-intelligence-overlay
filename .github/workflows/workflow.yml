@@ -326,7 +326,8 @@ jobs:
         with:
           pattern: reports-*
           path: .local/reports
-      - run: uv run --no-project --python '${{ needs.candidate.outputs.minimum }}' python scripts/check_matrix.py --candidate .local/candidate --reports .local/reports
+      - run: uv sync --frozen --python '${{ needs.candidate.outputs.minimum }}'
+      - run: uv run --frozen python scripts/check_matrix.py --candidate .local/candidate --reports .local/reports
 
   publish:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'kadubon/collective-intelligence-overlay'

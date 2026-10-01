@@ -7,8 +7,9 @@ It reuses the HTTPS test setup and original signed-observation exporter. It does
 not implement another executor, budget, planner or checker.
 
 The [predeclared profile](profiles/production-040.json) is the acceptance authority.
-Current development observations are not the completed five-pair experiment and
-do not establish a general adaptive benefit. Model calls remain off.
+The five-pair installed run below is an observed experiment; complete production
+acceptance remains pending. It does not establish a general adaptive benefit.
+Model calls remain off.
 
 ## Fixed protocol
 
@@ -122,3 +123,33 @@ repeat validated six distinct databases, 698 signed records and conserved
 allowances, with 3/24 independent PASS in each arm. The completed connection
 development condition at seed 1019 validated 998 signed records and 24/24 PASS
 per arm. These are separate development fixtures, not additional formal pairs.
+
+## Installed five-pair observation
+
+One fixed candidate wheel/sdist pair completed all ten arms on native WSL Linux
+CPython 3.12.14. All 83 installed wheel files matched the candidate. Thirty distinct
+restricted owner databases and distinct signing identities were verified; 4,679
+original signed records, original check artifacts, execution receipts and allowance
+conservation passed the saved-result validator. All 240 held-out observations remain
+in their original denominators.
+
+| Seed | Condition | Static independent PASS | Adaptive independent PASS |
+| --- | --- | --- | --- |
+| 17 | Normal | 24/24 | 24/24 |
+| 29 | Verification bottleneck | 3/24 | 3/24 |
+| 43 | Connection mismatch | 24/24 | 24/24 |
+| 71 | Normal | 24/24 | 24/24 |
+| 101 | Normal | 24/24 | 24/24 |
+
+All five paired differences were zero. The descriptive paired-bootstrap interval
+was [0, 0]; its degeneracy is not evidence that other inputs, systems or workloads
+cannot differ. End-to-end arm times including export ranged from 83.33 to 175.76
+seconds. The shorter pressure arms refused many checks, so they do not establish
+faster successful processing. OS CPU/RSS, nested monitoring durations and typed
+signed costs remain separate raw series, with their documented missing resources.
+
+Wheel SHA256: `c763fbe65dd34ec7a42a1ba466d37c028a1c8e058f8dfb433ce256d7a8a4b4f4`.
+Sdist SHA256: `f64fd08b323f762c3791c46211b5c25d06a6d1f5c3c87d618d72c8d2cf17f554`.
+Protocol SHA256: `fa5e46f4f414495eb5391ce0efbc5554404abf3b35d448fcfefc1690b1502d68`.
+These artifacts are still unpublished candidates. Full resource/profile assessment
+and final release-candidate matching are required before accepting P25.

@@ -331,15 +331,21 @@
     {
       "id": "P24",
       "requirement": "Actual 60-minute predeclared soak; all latency/outcome/throughput/RSS/DB/OPA/disk/queue bounds",
-      "implementation": [],
-      "test": "Profile release_soak; retain raw samples, failures and exact environment",
-      "observed": null,
-      "remaining": [
-        "runner",
-        "actual run",
-        "gate assessment"
+      "implementation": [
+        "scripts/run_production_soak.py",
+        "scripts/production_session.py",
+        "scripts/production_soak_faults.py",
+        "scripts/validate_production_soak.py",
+        "docs/production-soak.md"
       ],
-      "status": "pending"
+      "test": "Profile release_soak; retain raw samples, failures and exact environment",
+      "observed": "Separate-seed 1409 development: five-second warmup, 360 measured seconds, 90 regular/176 burst/one warmup offered outcomes retained. Ten predeclared fault injections executed; missing reconciliation failed because the fixture confused a composed workflow root with a direct A2A parent. Source and failed raw observations are retained. Three independent owner exports validated 470 original signed records and conserved allowance. Updated driver adds reciprocal owner sync, an original direct A2A fixture, exact current report/triage capability metrics, original CAS exports and rotated-log/secret checks. These updates and the full 60-minute profile remain unaccepted.",
+      "remaining": [
+        "complete driver/proof development",
+        "actual 300-second warmup plus 3600-second run",
+        "complete all predeclared quantitative and safety gate assessment"
+      ],
+      "status": "partial; complete acceptance pending"
     },
     {
       "id": "P25",
@@ -351,11 +357,9 @@
         "docs/production-experiments.md"
       ],
       "test": "Profile matched_experiment; all failures/censoring included; positive effect unnecessary",
-      "observed": "Source-only runner uses installed standard CLI peers and public actual PostgreSQL/OPA/HTTPS/authenticated MCP/MAF/A2A paths; per-arm keys/databases/CAS are separate, all held-out outcomes and resource periods remain explicit. Development-only seed 1009 completed two normal arms with 24/24 independently checked tasks each; six distinct databases, 992 original signed records and conserved allowances validated. Three modified report copies were denied for denominator/result/artifact tampering. Development-only seed 1013 checker-pressure arms retained 3/24 PASS each but final protocol JSON digest validation failed; the full raw run is retained. Integer-key normalization was corrected and a before-run JSON round-trip guard added. Existing negative pilot validator regressions passed two tests in 3.63 seconds after sharing original-signature/allowance validation. No formal seed has yet been run. Connection-mismatch development seed 1019 then validated both 24/24 arms, six independent databases and 998 original signed records. The next checker-pressure repeat failed the post-run transcript guard because completion order differs from offer order under concurrency; that raw failure is retained. Unique observation indices now match every completion to its original offer. A third complete seed 1013 repeat validated 698 original signed records and conserved allowance across six databases, with 3/24 independent PASS in each arm. Neither a failed transcript nor development-only cases count as formal pairs.",
+      "observed": "Source-only runner uses installed standard CLI peers and public actual PostgreSQL/OPA/HTTPS/authenticated MCP/MAF/A2A paths; per-arm keys/databases/CAS are separate, all held-out outcomes and resource periods remain explicit. Development-only seed 1009 completed two normal arms with 24/24 independently checked tasks each; six distinct databases, 992 original signed records and conserved allowances validated. Three modified report copies were denied for denominator/result/artifact tampering. Development-only seed 1013 checker-pressure arms retained 3/24 PASS each but final protocol JSON digest validation failed; the full raw run is retained. Integer-key normalization was corrected and a before-run JSON round-trip guard added. Existing negative pilot validator regressions passed two tests in 3.63 seconds after sharing original-signature/allowance validation. Connection-mismatch development seed 1019 then validated both 24/24 arms, six independent databases and 998 original signed records. The next checker-pressure repeat failed the post-run transcript guard because completion order differs from offer order under concurrency; that raw failure is retained. Unique observation indices now match every completion to its original offer. A third complete seed 1013 repeat validated 698 original signed records and conserved allowance across six databases, with 3/24 independent PASS in each arm. Neither a failed transcript nor development-only cases count as formal pairs. The installed five-pair run completed ten arms against a fixed wheel/sdist pair, checking all 83 installed wheel files. Thirty distinct restricted databases and independent identities, 4679 original signed records, original execution/check artifacts and conserved allowances validated. Seeds 17/43/71/101 each retained 24/24 PASS in both arms; pressure seed 29 retained 3/24 in both. All five paired differences and the descriptive bootstrap endpoints were zero; no general benefit claim. Inclusive arm elapsed ranged 83.33-175.76 seconds. Raw resource/profile assessment and final release-candidate matching remain pending.",
       "remaining": [
-        "complete runner development/installed-wheel checks",
-        "ten actual formal arms",
-        "complete raw/resource/statistical validation on the final fixed candidate"
+        "complete raw/resource/statistical and allowance-unit profile assessment on the final fixed candidate"
       ],
       "status": "partial; complete acceptance pending"
     },
@@ -428,7 +432,7 @@
         "scripts/check_package.py"
       ],
       "test": "Existing 12-profile workflow plus production/docs gates and cross-platform readers",
-      "observed": "Native Go setup/custom proxy audit integrated; package guard requires additive migrations; complete production/soak/experiment report guard added, unpublished 0.4.0 remains closed Completed fbc1273 native artifacts verify one fixed pair across all 12 source/installed profiles; two cross readers and mixed also completed. Queued Mac cross was cancelled after saving completed reports; no complete pipeline or current candidate acceptance is claimed.",
+      "observed": "Native Go setup/custom proxy audit integrated; package guard requires additive migrations; complete production/soak/experiment report guard added, unpublished 0.4.0 remains closed Completed fbc1273 native artifacts verify one fixed pair across all 12 source/installed profiles; two cross readers and mixed also completed. Queued Mac cross was cancelled after saving completed reports; no complete pipeline or current candidate acceptance is claimed. Frozen 0a6ce62 CI 36784860682 subsequently completed all twelve native, all four cross-platform and mixed-interpreter jobs successfully. All final artifacts are retained. Its ready job failed because --no-project provided no packaging dependency, before reaching the unaccepted production register. Workflow now uses frozen project resolution for that existing aggregation script; publication remains closed and the fix is not yet a complete passing pipeline.",
       "remaining": [
         "same final candidate pair through all source/wheel/extras/sdist/cross/mixed/native production gates"
       ],
