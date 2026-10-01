@@ -2,6 +2,10 @@
 
 ## 0.4.0 (unreleased)
 
+- An optional document recovery query compares a restored database/CAS with an
+  operator-pinned preserved original through read-only transactions and the
+  existing owner lock. Missing post-backup originals/allowance remain UNKNOWN;
+  an available unrewound original and explicit resume are required.
 - The installed document receiver reconciles original mapped word-count results
   with an explicitly registered read-only query. Exact original arguments, caller,
   provider, binding and result digest are checked. Unconfirmed results stay UNKNOWN;

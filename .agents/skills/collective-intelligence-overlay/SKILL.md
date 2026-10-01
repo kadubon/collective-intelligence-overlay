@@ -141,7 +141,11 @@ closed; a matched signed observation still requires separate owner `resume`,
 which rechecks unchanged state and query authority. A query that merely echoes
 restored data cannot establish post-backup consistency. Missing external work,
 consumption or call provenance requires UNKNOWN and operator diagnosis. Do not
-clear its flag to make resume pass. `key-rotate` prepares an
+clear its flag to make resume pass. The optional document query
+`document-recovery-state` uses an operator-pinned preserved original database/CAS;
+configure its private `recovery_reference_config` before backup and keep that
+original owner stopped through review/resume. Lost/unavailable originals remain
+UNKNOWN. See the API for its scope and limits. `key-rotate` prepares an
 operator bundle; the operator updates current peer pins. Historical origin does
 not grant current HTTP authority, and compromised/backdated signatures require
 new checks. These additions do not imply completed 0.4.0 production acceptance.

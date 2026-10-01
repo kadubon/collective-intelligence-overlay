@@ -272,6 +272,11 @@ class DocumentService(PeerService):
                     )
             if host is not None:
                 self.register_original_query(host)
+                if reference_path := data.get("recovery_reference_config"):
+                    from .document_recovery import register
+
+                    path = Path(reference_path)
+                    register(host, path if path.is_absolute() else settings.parent / path)
 
     def register_original_query(self, host: ApplicationHost) -> None:
         """Install the receiver's finite read-only query, never an execution retry."""

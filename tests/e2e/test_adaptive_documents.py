@@ -98,6 +98,11 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
     if mesh is not None:
         await mesh.configure_mcp(configs["producer"])
     configure_application(configs, training_text, connection_mismatch=connection_mismatch)
+    if host_mode:
+        settings = configs["receiver"].application_settings
+        data = json.loads(settings.read_text(encoding="utf-8"))
+        data["recovery_reference_config"] = "config.json"
+        write_json(settings, data)
     identities = {}
     for name, config in configs.items():
         identity, overlay = config.runtime()

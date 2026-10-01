@@ -1094,6 +1094,31 @@ These operations never rewrite the original UNKNOWN, refund allowance, issue
 independent PASS, or imply that structural restoration recovered external effects.
 The complete native production recovery protocol remains an acceptance gate.
 
+For document rollback recovery with a preserved original database, the installed
+receiver can additionally set `recovery_reference_config` in its private application
+settings to an operator-protected original config path (relative to the settings
+file or absolute). Preserve that config and its original database/CAS outside the
+restore destination. Configure this before the coherent backup. The factory then
+registers `document-recovery-state`; use it as `--checker` with an arguments file
+containing `{}`. No request can choose the reference database or file.
+
+This optional query opens the original through the existing Store, acquires its
+owner lock, uses read-only repeatable-read transactions and compares actual
+invocations, leases, remote mappings, allowance, original owner DSSE and CAS bytes.
+Recovery observations of the exact restored generation remain separate measured
+overhead. Missing artifacts, maps, work or consumption produce
+`REFERENCE_POST_BACKUP_MISMATCH`. An active original owner, unavailable original
+or another closed restored generation produces UNKNOWN. Exact original artifact
+bytes can be transferred explicitly before a new review; this creates no PASS.
+
+Keep the original owner stopped and its database/CAS protected from writes through
+review and explicit resume. Resume rechecks the saved local proof and query pin;
+it does not monitor subsequent changes to that external reference. This query
+supports rollback with an available unrewound original. It cannot establish
+business consistency after loss of that original, recover arbitrary external
+effects or account for inference outside the read-only document contract. Those
+cases require a different installed authoritative query and remain closed/UNKNOWN.
+
 `key-rotate --config PATH --directory NEW [--compromised-key-id PINNED_ID]` prepares
 an offline key/config/public-pin bundle without overwriting the old files. The
 operator updates each peer's current pin and restarts both sides. Historical pins
