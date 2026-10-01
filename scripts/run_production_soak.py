@@ -7,6 +7,7 @@ import json
 import os
 import platform
 import random
+import subprocess
 import sys
 import time
 from pathlib import Path
@@ -106,6 +107,7 @@ async def main(args):
         Path(__file__).with_name("production_session.py"),
         Path(__file__).with_name("production_soak_faults.py"),
         Path(__file__).with_name("run_production_experiment.py"),
+        Path(__file__).with_name("validate_production_soak.py"),
         ROOT / "tests/e2e/production_mesh.py",
         ROOT / "examples/evaluate_documents.py",
         ROOT / "tests/integration/authenticated_mcp_application.py",
@@ -142,6 +144,13 @@ async def main(args):
         ),
         "maximum_operation_seconds": 180,
         "initialization": "actual primitive checks, checker calibration and finite formation",
+        "operator_training_text": "calibration 文書 alpha Δ data 42",
+        "operator_threshold": 6,
+        "source_commit": (
+            await asyncio.to_thread(
+                subprocess.check_output, ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
+            )
+        ).strip(),
         "warmup": "same mix and rate; excluded from measured latency/throughput only",
         "costs": "OS process CPU/RSS, inclusive client wall, DB/OPA/A2A monitoring are separate",
         "missing_resources": [

@@ -1,6 +1,7 @@
 """Recompute quantitative soak observations; no inferred safety or release approval."""
 
 import argparse
+import base64
 import hashlib
 import json
 import math
@@ -10,6 +11,7 @@ from decimal import Decimal
 from pathlib import Path
 
 from collective_intelligence_overlay.bindings import fingerprint
+from collective_intelligence_overlay.models import Evidence
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "examples"))
@@ -44,7 +46,14 @@ def validate(directory):
         raise ValueError("regular offered inputs were lost, added or changed")
     if len(regular) != protocol["regular_offers"]:
         raise ValueError("regular offered denominator changed")
-    databases, signed_count = set(), 0
+    databases, signed_count, evidence, events, original_cas, owner_exports = (
+        set(),
+        0,
+        {},
+        {},
+        {},
+        {},
+    )
     for owner in ("producer", "verifier", "receiver"):
         observed = json.loads((directory / f"{owner}-observations.json").read_text())
         checked = validate_owner_observations(
@@ -52,6 +61,19 @@ def validate(directory):
         )
         databases.add(checked["database_identity"])
         signed_count += checked["verified_signed_records"]
+        owner_exports[owner] = observed
+        evidence.update(checked["evidence"])
+        events.update(checked["events"])
+        artifact_file = directory / f"{owner}-artifacts.json"
+        if artifact_file.exists():
+            artifact_report = json.loads(artifact_file.read_text())
+            for key, encoded in artifact_report["original_bytes_base64"].items():
+                raw = base64.b64decode(encoded, validate=True)
+                if hashlib.sha256(raw).hexdigest() != key:
+                    raise ValueError("original CAS artifact digest mismatch")
+                previous = original_cas.setdefault(key, raw)
+                if previous != raw:
+                    raise ValueError("different bytes under one artifact digest")
     if len(databases) != 3:
         raise ValueError("three distinct owner databases are required")
     samples = [json.loads(line) for line in (directory / "samples.jsonl").read_text().splitlines()]
@@ -63,6 +85,49 @@ def validate(directory):
     measured = [row for row in offers if row["phase"] == "measurement"]
     gates, observations = {}, {}
     limits = profile["release_soak"]["gates"]
+    checked_artifacts = 0
+    for call in calls:
+        returned = call.get("result", {})
+        if call["operation"] == "invoke" and returned.get("state") == "completed":
+            event = events.get((call["owner"], returned.get("receipt_id")))
+            receipt = event.execution if event is not None else None
+            if (
+                receipt is None
+                or receipt.invocation_id != call["request"]["invocation_id"]
+                or receipt.caller != call["owner"]
+                or receipt.binding_digest != call["request"]["binding_digest"]
+                or receipt.arguments_digest != fingerprint(call["request"]["arguments"])
+                or receipt.result_digest != fingerprint(returned["result"])
+            ):
+                raise ValueError("completed operation differs from its original signed receipt")
+        if call["operation"] != "app.verify" or "evidence" not in returned:
+            continue
+        claim = Evidence.model_validate(returned["evidence"])
+        if claim != evidence.get((claim.issuer, claim.id)) or claim.issuer != "verifier":
+            raise ValueError("business check has no matching original independent Evidence")
+        if not original_cas:
+            continue  # Early development export; reported as pending below.
+        proof = json.loads(original_cas[claim.artifact_digest])
+        if (
+            proof["observed"] != returned["observed"]
+            or proof["request"]["arguments"] != call["request"]["arguments"]
+            or proof["request"]["provider"] != call["request"]["provider"]
+            or proof["request"]["name"] != call["request"]["name"]
+            or proof["binding"] != claim.binding_digest
+        ):
+            raise ValueError("independent proof differs from the original requested operation")
+        if claim.verdict == "PASS" and proof["observed"].get("state") != "completed":
+            raise ValueError("UNKNOWN/missing observation was promoted to independent PASS")
+        if claim.verdict == "PASS" and call["request"]["name"] == "triage":
+            text_input = call["request"]["arguments"]["text"]
+            expected = {
+                "long": len(text_input.split()) > protocol.get("operator_threshold", 6),
+                "threshold": protocol.get("operator_threshold", 6),
+            }
+            if proof["observed"].get("result") != expected:
+                raise ValueError("independent PASS differs from the fixed operator triage contract")
+        checked_artifacts += 1
+    observations["original_check_artifacts_verified"] = checked_artifacts
 
     def upper(name, value, maximum):
         observations[name] = value
@@ -111,10 +176,21 @@ def validate(directory):
         max((row["wall_seconds"] for row in measured), default=None),
         limits["operation_absolute_seconds_max"],
     )
+
+    def classified(row):
+        if row["status"] != "returned":
+            return False
+        value = row.get("result", {})
+        if row["kind"] == "formation_check":
+            return all("error_type" not in value.get(key, {}) for key in ("run", "check"))
+        if row["kind"] == "discovery" and "owner_syncs" in value:
+            return all("error_type" not in item for item in value["owner_syncs"])
+        return "error_type" not in value
+
     normal_offers = [row for row in measured if normal(row)]
     lower(
         "normal_window_classified_response_fraction_min",
-        sum(row["status"] == "returned" for row in normal_offers) / len(normal_offers)
+        sum(classified(row) for row in normal_offers) / len(normal_offers)
         if normal_offers
         else None,
         limits["normal_window_classified_response_fraction_min"],
@@ -132,8 +208,7 @@ def validate(directory):
             union.append([begin, end])
     normal_seconds = protocol["measurement_seconds"] - sum(end - begin for begin, end in union)
     completed_normal = sum(
-        row["status"] == "returned"
-        and 0 <= row["completed_seconds"] - start <= protocol["measurement_seconds"]
+        classified(row) and 0 <= row["completed_seconds"] - start <= protocol["measurement_seconds"]
         for row in normal_offers
     )
     lower(
@@ -189,6 +264,40 @@ def validate(directory):
         max(unresolved, default=None),
         limits["unresolved_effects_count_max"],
     )
+    if "rotated_owner_log_bytes" in result:
+        upper(
+            "rotated_log_total_bytes_max",
+            max(result["rotated_owner_log_bytes"].values()),
+            limits["rotated_log_total_bytes_max"],
+        )
+        gates["secret_or_raw_input_log_disclosures"] = not result["secret_log_disclosures"]
+    current_targets = [
+        row["observation"]
+        for row in operations
+        if row["owner"] == "receiver-current-targets"
+        and "verification_backlog" in row["observation"]
+    ]
+    if current_targets:
+        upper(
+            "unverified_candidates_count_max",
+            max(row["verification_backlog"] for row in current_targets),
+            limits["unverified_candidates_count_max"],
+        )
+        observations["backlog_scope"] = protocol["verification_backlog_basis"]
+        observations["current_candidate_ages_seconds"] = [
+            [item["candidate_observed_age_seconds"] for item in row["targets"]]
+            for row in current_targets
+        ]
+    gaps = [
+        right["seconds"] - left["seconds"]
+        for left, right in zip(measured_samples, measured_samples[1:], strict=False)
+    ]
+    observations["os_sample_interval_seconds"] = {
+        "count": len(gaps),
+        "maximum": max(gaps, default=None),
+        "nominal": 5,
+        "late_by_seconds": [max(0, gap - 5) for gap in gaps],
+    }
     faults = result["faults"]
     upper(
         "resolved_fault_recovery_seconds_max",
@@ -206,13 +315,16 @@ def validate(directory):
     gates["minimum_offers"] = len(regular) >= 900
     # Do not imply these facts from a clean driver exit or aggregate row counts.
     pending = [
-        "rotated_log_total_bytes",
-        "unverified_candidate_count_and_age",
         "unexplained_backlog_growth",
         "all_original_effect_and_signature_safety_invariants",
-        "complete_original_check_artifact_and_execution_receipt_validation",
         "uninterrupted_five_second_sample_coverage",
     ]
+    if "rotated_owner_log_bytes" not in result:
+        pending.append("rotated_log_total_bytes")
+    if not current_targets:
+        pending.append("unverified_candidate_count_and_age")
+    if not original_cas:
+        pending.append("complete_original_check_artifact_validation")
     return {
         "validator": "production-soak-observation.v1",
         "profile_id": protocol["profile_id"],

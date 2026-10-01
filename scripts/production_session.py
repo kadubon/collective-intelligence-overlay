@@ -281,6 +281,15 @@ class ProductionSession:
                     self.mesh.mcp_token.encode(),
                     b"BEGIN PRIVATE KEY",
                 ]
+                # Public deterministic fixture inputs also must not leak into
+                # standard service logs. Keep raw and JSON-escaped spellings.
+                texts = {self.training}
+                texts.update(
+                    call["request"].get("arguments", {}).get("text", "") for call in self.calls
+                )
+                for value in texts:
+                    if isinstance(value, str) and len(value) >= 16:
+                        forbidden.extend([value.encode(), json.dumps(value)[1:-1].encode()])
                 for path in log_files:
                     content = path.read_bytes()
                     if any(value in content for value in forbidden):
