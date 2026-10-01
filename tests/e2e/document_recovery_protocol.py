@@ -5,7 +5,9 @@ import json
 import os
 import re
 import shutil
+import subprocess
 import sys
+import time
 from contextlib import ExitStack
 from pathlib import Path
 
@@ -83,7 +85,17 @@ def originals(config):
     try:
         with overlay.store.engine.connect() as conn:
             return (
-                dict(conn.execute(select(records.c.record_id, records.c.envelope)).all()),
+                {
+                    (kind, issuer, record_id): envelope
+                    for kind, issuer, record_id, envelope in conn.execute(
+                        select(
+                            records.c.kind,
+                            records.c.issuer,
+                            records.c.record_id,
+                            records.c.envelope,
+                        )
+                    )
+                },
                 dict(conn.execute(select(budgets.c.unit, budgets.c.remaining)).all()),
             )
     finally:
@@ -113,6 +125,91 @@ def close_restored_intake(config):
     assert json.loads(result.stdout)
 
 
+def interrupt_actual_backup(original, root, operator, prefix):
+    """Terminate only the real pg_dump connection blocked on this owned DB."""
+    from production_mesh import stop_process
+
+    database = make_url(original.database_url.get_secret_value()).database
+    assert re.fullmatch(r"cio_mesh_[0-9a-f]{32}", database)
+    admin = create_engine(make_url(operator).set(database=database), hide_parameters=True)
+    directory = root / "recovery-interrupted-backup"
+    prefix_path = root / "pg-tool-prefix.json"
+    prefix_path.write_text(json.dumps(prefix), encoding="utf-8")
+    process = None
+    before = originals(original)
+    try:
+        with admin.connect() as blocker, admin.connect() as control:
+            blocker.execute(text("LOCK TABLE records IN ACCESS EXCLUSIVE MODE"))
+            process = subprocess.Popen(
+                [
+                    sys.executable,
+                    "-m",
+                    "collective_intelligence_overlay.cli",
+                    "backup",
+                    "--config",
+                    str(original.private_key.parent / "config.json"),
+                    "--directory",
+                    str(directory),
+                    "--database-url-env",
+                    "CIO_TEST_DATABASE_URL",
+                    "--pg-prefix-file",
+                    str(prefix_path),
+                ],
+                cwd=root,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+            )
+            deadline = time.monotonic() + 20
+            blocked = []
+            while time.monotonic() < deadline:
+                blocked = (
+                    control.execute(
+                        text(
+                            "SELECT pid FROM pg_stat_activity WHERE datname=:database "
+                            "AND application_name='pg_dump' AND wait_event_type='Lock'"
+                        ),
+                        {"database": database},
+                    )
+                    .scalars()
+                    .all()
+                )
+                control.commit()
+                if blocked:
+                    break
+                if process.poll() is not None:
+                    raise AssertionError("backup exited before the physical interruption")
+                time.sleep(0.05)
+            assert len(blocked) == 1
+            assert control.execute(
+                text("SELECT pg_terminate_backend(:pid)"), {"pid": blocked[0]}
+            ).scalar_one()
+            control.commit()
+            output, errors = process.communicate(timeout=10)
+            assert process.returncode == 2 and not output
+            error = json.loads(errors)
+            assert error["error"] == "ValueError"
+            blocker.rollback()
+        assert directory.exists() and (directory / "database.dump").exists()
+        assert not (directory / "manifest.json").exists()
+        try:
+            verify_backup(directory)
+        except FileNotFoundError:
+            pass
+        else:
+            raise AssertionError("interrupted backup accepted")
+        assert originals(original) == before
+        return {
+            "injection": "backup interruption",
+            "terminated_pg_dump_pid": blocked[0],
+            "cli_exit": process.returncode,
+            "manifest_absent": True,
+        }
+    finally:
+        if process is not None:
+            stop_process(process)
+        admin.dispose()
+
+
 async def run(configs, identities, start, stop, call, sync, root, mesh):
     original = configs["receiver"]
     audit = mesh.mcp_audit
@@ -129,6 +226,10 @@ async def run(configs, identities, start, stop, call, sync, root, mesh):
         await stop("receiver")
 
     await drained()
+    trace.append(await asyncio.to_thread(interrupt_actual_backup, original, root, operator, prefix))
+    (root / "network-recovery-observations.json").write_text(
+        json.dumps(trace, indent=2), encoding="utf-8"
+    )
     old = root / "recovery-old-backup"
     await asyncio.to_thread(backup, original, old, operator_url=operator, pg_prefix=prefix)
     assert await asyncio.to_thread(verify_backup, old)

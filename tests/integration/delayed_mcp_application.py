@@ -40,9 +40,9 @@ def main():
         log_level="WARNING",
     )
 
-    def audit_call(path):
+    def audit_call(path, value=b"call\n"):
         with Path(path).open("ab") as audit:
-            audit.write(b"call\n")
+            audit.write(value)
 
     async def words(text: str) -> dict[str, int]:
         delay = float(await asyncio.to_thread(args.delay_file.read_text))
@@ -50,7 +50,16 @@ def main():
             raise ValueError("finite private operator delay required")
         if path := os.environ.get("CIO_TEST_MCP_CALL_AUDIT"):
             await asyncio.to_thread(audit_call, path)
-        await asyncio.sleep(delay)
+        try:
+            await asyncio.sleep(delay)
+        except asyncio.CancelledError:
+            if path := os.environ.get("CIO_TEST_MCP_RESULT_AUDIT"):
+                # A cancelled AnyIO scope also cancels a cleanup await. Record
+                # this tiny owned fixture witness before propagating cancellation.
+                audit_call(path, b"cancelled\n")
+            raise
+        if path := os.environ.get("CIO_TEST_MCP_RESULT_AUDIT"):
+            await asyncio.to_thread(audit_call, path, b"completed\n")
         return {"words": len(text.split())}
 
     server.tool(name="words")(words)

@@ -170,11 +170,11 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 except (httpx.HTTPError, ConnectionError, AgentCardResolutionError):
                     await asyncio.sleep(0.1)
 
-    async def stop(name):
+    async def stop(name, *, crash=False):
         from production_mesh import stop_process
 
         process = processes[name]
-        await asyncio.to_thread(stop_process, process)
+        await asyncio.to_thread(stop_process, process, kill=crash)
 
     async def sync(owner, source):
         assert (await call(owner, operation="sync", peer=source, page_size=4))["complete"]
@@ -748,6 +748,21 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 finally:
                     inspected.store.close()
             if host_mode and work_allowance >= 50:
+                from owned_document_faults import run as owned_faults
+
+                await owned_faults(
+                    configs,
+                    identities,
+                    processes,
+                    mesh,
+                    start,
+                    stop,
+                    call,
+                    words["binding"],
+                    original_request,
+                    original_result,
+                    tmp_path,
+                )
                 from document_recovery_protocol import run as recovery_protocol
 
                 await recovery_protocol(

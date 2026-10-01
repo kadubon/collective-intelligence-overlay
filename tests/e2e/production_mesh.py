@@ -30,7 +30,7 @@ from collective_intelligence_overlay.models import Scope, Subject, now
 from collective_intelligence_overlay.setup import bootstrap_database, initialize
 
 
-def stop_process(process):
+def stop_process(process, *, kill=False):
     # This harness is also imported by standalone soak/experiment drivers,
     # without pytest's collected integration-module paths.
     helpers = str(Path(__file__).parents[1] / "integration")
@@ -38,7 +38,7 @@ def stop_process(process):
         sys.path.insert(0, helpers)
     from process_control import stop_owned_process
 
-    stop_owned_process(process)
+    stop_owned_process(process, kill=kill)
 
 
 class ProductionMesh:
@@ -210,8 +210,12 @@ class ProductionMesh:
         endpoint = origin + "mcp"
         log = (home / "service.log").open("ab")
         self.mcp_audit = home / "calls"
+        self.mcp_results = home / "results"
+        self.mcp_delay = home / "delay-seconds"
+        self.mcp_delay.write_text("0", encoding="utf-8")
+        self.mcp_delay.chmod(0o600)
         self.logs.append(log)
-        script = Path(__file__).parents[1] / "integration" / "authenticated_mcp_application.py"
+        script = Path(__file__).parents[1] / "integration" / "delayed_mcp_application.py"
         self.workers.append(
             subprocess.Popen(
                 [
@@ -223,11 +227,14 @@ class ProductionMesh:
                     endpoint,
                     "--tool",
                     "words",
+                    "--delay-file",
+                    str(self.mcp_delay),
                 ],
                 env={
                     **os.environ,
                     "CIO_TEST_MCP_TOKEN": token,
                     "CIO_TEST_MCP_CALL_AUDIT": str(self.mcp_audit),
+                    "CIO_TEST_MCP_RESULT_AUDIT": str(self.mcp_results),
                 },
                 cwd=self.directory,
                 stdout=log,
@@ -249,6 +256,7 @@ class ProductionMesh:
                     **os.environ,
                     "CIO_TEST_MCP_TOKEN": self.mcp_token,
                     "CIO_TEST_MCP_CALL_AUDIT": str(self.mcp_audit),
+                    "CIO_TEST_MCP_RESULT_AUDIT": str(self.mcp_results),
                 },
                 cwd=self.directory,
                 stdout=log,
