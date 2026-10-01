@@ -132,7 +132,9 @@ Windows/CPython 3.12 development observations are partial evidence:
 - Native Linux custom Caddy passed standard upstream/module/license/vulnerability/
   SBOM checks with Go 1.27.1 and 1007 linked packages. Its separate report ZIP is
   retained. The WSL Linux fixture observed 16 logical CPUs and about 30,988 MiB
-  memory without caps; this is not bare-metal validation or an executed hour soak.
+  memory without caps; these build reports do not establish bare-metal or accepted
+  hour-long operation. The later [first full-duration soak](production-soak.md)
+  preserves its failed RSS bound and two failed fault fixtures.
 
 The preceding development reports remain retained: two successful HTTPS business
 cases with one 5-second administrative teardown timeout; two MCP manifest failures
@@ -145,8 +147,10 @@ by this profile. These fixes do not lower the acceptance targets.
 
 These groups overlap and are not an additional complete-suite count. Local tests
 do not establish all native installed profiles, networked three-peer recovery,
-the complete production application protocol, all-native promotion faults, the hour-long soak or ten matched
-experiment arms. Those gates remain open in the requirement register.
+the complete production application protocol or all-native promotion faults.
+The later full-duration soak failed acceptance; ten matched arms executed but
+their allowance-unit/profile assessment remains open. Those gates remain unaccepted
+in the requirement register.
 
 The official Caddy 2.11.4 release binary was rejected after standard govulncheck
 reported 28 affecting vulnerabilities. Its functional test and verified archive

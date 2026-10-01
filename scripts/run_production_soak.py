@@ -51,7 +51,9 @@ def workload(seed, count):
                 "index": index,
                 "kind": block[index % len(block)],
                 "text": document,
-                "render_parameter": rng.randrange(0, 2048),
+                # This value actually reaches the registered render component
+                # through words -> report -> triage, rather than an unused draw.
+                "render_parameter": len(document.split()),
             }
         )
     return result
@@ -106,6 +108,7 @@ async def main(args):
         Path(__file__),
         Path(__file__).with_name("production_session.py"),
         Path(__file__).with_name("production_soak_faults.py"),
+        Path(__file__).with_name("quiesced_evidence_withdrawal.py"),
         Path(__file__).with_name("run_production_experiment.py"),
         Path(__file__).with_name("validate_production_soak.py"),
         ROOT / "tests/e2e/production_mesh.py",
@@ -146,6 +149,7 @@ async def main(args):
         "initialization": "actual primitive checks, checker calibration and finite formation",
         "operator_training_text": "calibration 文書 alpha Δ data 42",
         "operator_threshold": 6,
+        "composition_parameter": "render.words is the generated document word count",
         "source_commit": (
             await asyncio.to_thread(
                 subprocess.check_output, ["git", "rev-parse", "HEAD"], cwd=ROOT, text=True
@@ -268,11 +272,19 @@ async def main(args):
 
         async def sample():
             next_sample = time.monotonic()
+            slot = 0
             pending = {}
             while True:
                 # Slow or unavailable HTTP/DB observations cannot delay OS RSS
                 # sampling or generate an unbounded stack of monitoring requests.
-                await session.sample(operational=False)
+                await session.sample(
+                    operational=False,
+                    schedule={
+                        "slot": slot,
+                        "due_session_seconds": next_sample - session.started,
+                        "interval_seconds": 5,
+                    },
+                )
                 for owner in session.configs:
                     previous = pending.get(owner)
                     if previous is None or previous.done():
@@ -339,6 +351,7 @@ async def main(args):
                             )
                     return
                 next_sample += 5
+                slot += 1
                 try:
                     await asyncio.wait_for(
                         sampling_stop.wait(), max(0, next_sample - time.monotonic())
@@ -355,7 +368,14 @@ async def main(args):
                         value = await inject(session, fault["index"], completed)
                     row = {**fault, "status": "executed", **value}
                 except Exception as error:
-                    row = {**fault, "status": "failed", "error_type": type(error).__name__}
+                    row = {
+                        **fault,
+                        "status": "failed",
+                        "error_type": type(error).__name__,
+                        "elapsed_seconds": session.seconds()
+                        - measurement_session_seconds
+                        - fault["at_seconds"],
+                    }
                 fault_results.append(row)
                 write_json(output / f"fault-{fault['index']:02}.json", row)
                 print(

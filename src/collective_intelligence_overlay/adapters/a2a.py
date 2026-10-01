@@ -13,7 +13,7 @@ import jwt
 from a2a.client import ClientConfig, create_client
 from a2a.server.agent_execution import AgentExecutor, RequestContext
 from a2a.server.events import EventQueue
-from a2a.server.request_handlers import DefaultRequestHandler
+from a2a.server.request_handlers import LegacyRequestHandler
 from a2a.server.routes import create_agent_card_routes, create_jsonrpc_routes
 from a2a.server.tasks import InMemoryTaskStore
 from a2a.types import (
@@ -177,7 +177,8 @@ class ExtensionExecutor(AgentExecutor):
         await event_queue.enqueue_event(response)
 
     async def cancel(self, context: RequestContext, event_queue: EventQueue) -> None:
-        # The SDK cancels the running execute coroutine before calling this hook.
+        # The SDK owns cancellation. This response alone proves neither physical
+        # termination nor absence of a dispatched external effect.
         await event_queue.enqueue_event(
             Message(
                 message_id=uid(),
@@ -216,7 +217,11 @@ def application(
             )
         ],
     )
-    request_handler = DefaultRequestHandler(
+    # The pinned SDK's V2 handler retains producer/consumer queues for a future
+    # message even after a Message-only exchange. This host deliberately uses
+    # one response per HTTP operation; durable business state stays in Store.
+    # Its public legacy handler finishes that physical request and queue.
+    request_handler = LegacyRequestHandler(
         ExtensionExecutor(handler, config.max_concurrency, config.max_seconds),
         InMemoryTaskStore(),
         card,
@@ -337,13 +342,23 @@ async def _send(
                 extensions=[EXTENSION],
             )
         )
-        async for response in client.send_message(request):
-            if response.HasField("message"):
+        result = None
+        try:
+            # This client is explicitly nonstreaming. Exhaust its one response
+            # iterator so SDK request frames finish before the HTTP context exits.
+            # Returning from the first yield leaves that lifecycle to later GC.
+            async for response in client.send_message(request):
+                if not response.HasField("message") or result is not None:
+                    raise InvalidPeerResponse("A2A requires one nonstreaming message result")
                 reply = response.message
                 if list(reply.extensions) != [EXTENSION] or len(reply.parts) != 1:
                     raise InvalidPeerResponse("invalid extension response")
-                return read_extension_data(reply.parts[0].data)
-        raise InvalidPeerResponse("A2A completed without an overlay result")
+                result = read_extension_data(reply.parts[0].data)
+            if result is None:
+                raise InvalidPeerResponse("A2A completed without an overlay result")
+            return result
+        finally:
+            await client.close()
 
 
 async def synchronize(

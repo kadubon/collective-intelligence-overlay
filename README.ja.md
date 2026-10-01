@@ -1,143 +1,129 @@
 # Collective Intelligence Overlay
 
-**証拠は共有し、受入判断は各参加者が保持します。**
+agent同士で、証拠と利用条件を付けてtoolや手順を共有するPython packageです。
+例えば、あるagentが文書workflowを提供し、別のcheckerが検査します。受け手は、
+その版が自分のデータと権限に合うか判断します。各参加者は自分の鍵・DB・policy・
+予算を保持します。**証拠は共有し、受入判断は各参加者が保持します。**
 
-生成した結果、検証された結果、利用先に適合した能力を区別するPython製のoverlayです。
-既存agentに追加し、能力候補・証拠・費用を交換します。各peerは自分の鍵、DB、
-予算、受入ポリシーを保持し、他者の成果を拒否できます。
+既存のMicrosoft Agent Framework（MAF）、A2A、MCP連携に、利用適合性の判定と
+永続的な操作記録を追加します。実行とworkflow合成は既存SDKが担い、各ownerが
+自分の仕事を選びます。集団全体のmanagerは必須ではありません。
+hostとDBの管理者を信頼する構成です。
 
-実行はMicrosoft Agent Framework（MAF）、通信はA2A、tool接続はMCPを利用します。
-集団全体を管理するagentや独自workflow engineは必要ありません。
+[English](README.md) · [Tutorial](docs/quickstart.md) · [API・CLI](docs/api.md)
 
-公開版は**0.3.2**です。mainでは、[事前定義した本番profile](docs/production-040.md)に
-沿って**0.4.0**を開発しています。受入検査と公開は未完了です。
+公開版は**0.3.2**です。mainには**未公開の0.4.0 candidate**があります。
+[本番profileと受入表](docs/production-040.md)は未完了です。
+[公開記録](docs/releasing.md)に変更しない版別履歴、hash、公開後検査を保持します。
 
-**0.3.2**では、ownerに限定した有限のinvocation整理と、Intel／Apple Silicon
-Mac向けOPA導入を追加しています。旧workerをfenceし、未dispatchを正に確認できた予約だけを
-解放します。dispatch済みの作用はUNKNOWN・予算拘束として残ります。
-[native導入](docs/quickstart.md)、[cleanup API](docs/api.md)、[検証状況](docs/validation.md)を参照してください。
-実際の公開状態と検査済み配布物のhashは[公開記録](docs/releasing.md)に集約します。
+## 提供する機能
 
-## できること
+- 版付きの能力と、独立した主体が発行するPASS・FAIL・UNKNOWNの証拠。
+- 正確なbinding、実際の入力、環境、権限、証拠の鮮度、既知の撤回を確認するOPA判定。
+- ownerごとのPostgreSQL記録、有限のallowance、fence付きlease、安定したinvocation ID。
+- 登録したlocal関数、MAF workflow、MCP tool、A2A service。受信コードをimportしません。
+- 既存executorを通じた有限の探索・提案選択・形成・検証。
+- 0.4.0 candidateでは、配布済みfactory、readiness・drain、元IDでの照合、
+  一貫したbackup、受付を閉じたrestore、scope付きの変更trial。
 
-0.3.2のreleaseは、Linux・Windows・Mac Intel・Mac arm64の12環境すべてでnative CIを
-通過しました。各環境でsource 291件、installed agents 290件、model 1件、
-再build sdist 41件とcore import・CLI・resource検査が通過し、failure・error・skipは0件です。
-4環境のnative readerが全producerのartifact・署名を検証し、最低版・最新版の
-installed HTTP peerも両方向で通過しました。[検証記録](docs/validation.md)に正確なcommit、
-途中の失敗、完了した100k stressを保持します。[公開記録](docs/releasing.md)では、
-これらの検査とtag公開・実PyPIからの検証を区別しています。
+生成済み、検証済み、再利用可能は別状態です。署名は発行主体を示し、remoteの完了は
+操作の状態を示します。どちらも業務結果の真実性を認定しません。証拠不足と外部作用の
+不確実性はUNKNOWNとして保持します。[意味論](docs/semantics.md)と[security](docs/security.md)
+に、アプリケーションの範囲、インフラ信頼、remote情報の鮮度を記載しています。
 
-0.3.1のowner・Subject完全一致のrevoke、無効提案の個別隔離、ownerによる明示的再観測、
-Registry・Executor・MAFを通る永続的な論理A2A call IDも回帰対象です。
-[APIの例](docs/api.md)で`reobserve`、cleanup、拒否理由、`call_id`・`call_scope`を確認できます。
+## 公開packageでの初回実行
 
-配布metadataは**Python >=3.12**で上限を設けません。Linux・Windows
-とnative Mac両CPUの安定系列3.12.14・3.13.15・3.14.7で検証済みです。
-将来のPythonまで検証済みという意味ではありません。
-厳密な版・extras・OSの結果は[compatibility](docs/compatibility.md)に集約します。
-`.python-version`は最低版での開発用pinです。別系列は
-`uv sync --python 3.14.7 --all-extras --frozen`と`uv run --python 3.14.7 ...`で明示します。
-
-0.3.1からは旧writerを停止し、backup後にindexだけを追加するmigration 0015を適用します。
-0.3.0からは0013/0014も適用します。
-署名原文・旧remote ID・UNKNOWN・予約を保存し、新しい対応表が空でも未実行とは判断しません。
-[移行・照合・復旧](docs/deployment.md)に従ってください。過去の負のpilot結果は保持しており、
-このpatchで集団的能力形成の加速を証明したとは扱いません。
-
-0.2.1 では、DB で未 dispatch と所有権を確認し、以後の dispatch を封じた
-予約だけを一度だけ解放します。検査に使った費用は残り、実行可能性が残る予約と
-旧履歴は保持します。[移行・復旧](docs/deployment.md)と[公開状態](docs/releasing.md)を
-確認してください。
-
-**0.3.0**では、ownerのgoal、署名付きの機会・peerの提案、局所的な
-仕事選択を追加しています。hostが用途・導入済みbuilder・独立検証済みcheckerを
-登録すると、観測に応じて形成・接続・検証を既存Executor上で有限に進めます。
-証拠不足、checker不在、予算不足、実行結果不明は停止理由として保持します。
-この追加機能を含む0.3.0のwheelとsdistを公開し、実PyPIからの導入も検証済みです。
-[API](docs/api.md)、[外部アプリの登録例](examples/adaptive_documents.py)、
-[実装と検証範囲](docs/implementation-status.md)を参照してください。
-
-署名付きの能力・証拠を保存し、受け手・用途・環境版・権限・期限に基づいてOPAで
-再利用を判定します。UNKNOWNや異論は消さず、既知の依存失効を実行前に検査します。
-PostgreSQLで重複、費用、leaseと古いworkerの結果を管理します。
-
-APIキー不要のデモでは、別プロセスの3 peerがCSV集計とHTMLレポートを登録し、
-別主体による検証、A2A bindingの導入と再検証、合成利用、依存失効を一巡させます。
-処理コードは移転せず、提供側の登録能力を呼び出します。
-0.2.0では、登録binding、永続invocation、ページ同期・履歴、形成receiptを
-追加しています。[外部の文書処理例](examples/document_application.py)では、3プロセスで
-C3を合成・検証し、その出力からC4を形成して、再起動と元能力の撤回まで確認します。
-[手順](docs/quickstart.md)と[検証範囲](docs/implementation-status.md)を参照してください。
-実際の公開状況は[release記録](docs/releasing.md)に、0.1.0からの移行と復旧は
-[deployment](docs/deployment.md)に記載しています。
-ローカルの別identityは、別組織や統計的独立性の証明ではありません。
-署名、配送成功、schema一致だけで成果の正しさを認定するものでもありません。
-
-## 最短の確認
-
-[PyPI](https://pypi.org/project/collective-intelligence-overlay/)の最新公開版を、
-有効化したPython >=3.12環境へ次のコマンドで導入できます。
-配布物のhash一致と公開後検証は上記の公開記録を参照してください。
+Python **>=3.12**と[uv](https://docs.astral.sh/uv/)を使います。0.3.2の実測対象は
+CPython 3.12.14・3.13.15・3.14.7と、Linux x86_64、Windows x86_64、native macOS Intel・arm64
+です。将来のinterpreterまで検証したという意味ではありません。
+新しいdirectoryで、Linux・macOSでは次を実行します。
 
 ```sh
+uv venv --python 3.12.14 .venv
+. .venv/bin/activate
 uv pip install 'collective-intelligence-overlay[agents]==0.3.2'
 collective-intelligence-overlay --version
+collective-intelligence-overlay opa-install --target ./bin/opa
 ```
 
-デモと開発環境の再現には、以下のソース手順を使用します。
+Windows PowerShellでは次を実行します。
 
-ソースはPython >=3.12、uv、PostgreSQL、OPAが必要です。有料モデルは不要です。
-```sh
-git clone https://github.com/kadubon/collective-intelligence-overlay.git
-cd collective-intelligence-overlay
-uv sync --all-extras --frozen
-uv run python scripts/fetch_opa.py
+```powershell
+uv venv --python 3.12.14 .venv
+. .venv/Scripts/Activate.ps1
+uv pip install 'collective-intelligence-overlay[agents]==0.3.2'
+collective-intelligence-overlay --version
+collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```
 
-専用の開発用PostgreSQLを準備し、`CIO_TEST_DATABASE_URL`と`CIO_OPA`を設定します。
-OS別の手順は[quickstart](docs/quickstart.md)を参照してください。
-```sh
-uv run collective-intelligence-overlay demo --directory .local/demo
-```
-
-期待する結果は、受入`ACCEPT`、評価用CSVの合計`117.00`、環境版変更後`REQUALIFY`、
-依存失効後`REJECT`です。実行後もDBとartifactを保持します。
-
-文書処理で静的方式と適応方式を比較する場合は、同じサービス設定と
-新しい出力先を使います。
+reference demoには、専用の開発用PostgreSQL clusterと、試験DB・roleを作成できるoperator
+も必要です。[OS別native導入](docs/quickstart.md)に従ってください。Docker Desktopは不要です。
+そのURLを`CIO_TEST_DATABASE_URL`へ設定して、次を実行します。
 
 ```sh
-uv run python examples/evaluate_documents.py --directory .local/document-comparison --opa "$CIO_OPA" --seed 0
+collective-intelligence-overlay demo --directory ./demo-run --opa ./bin/opa
 ```
 
-PowerShellでは`--opa "$env:CIO_OPA"`を指定します。有料モデルを呼ばず、
-6つの分離された3-peer実験を実行します。記録済みの単回比較では、通常・入力接続
-条件は両方式とも後続課題3件に合格し、検証資源不足では課題到達前に停止しました。
-成果数とallowance消費の改善はなく、適応方式の実測時間は長くなりました。
-[生データと限界](docs/evaluation.md)に、機能検証と効果の測定を分けて記載しています。
+Windowsでは`--opa ./bin/opa.exe`を使います。checkoutとmodel keyは不要です。
+期待する値は`processes: 3`、`admission: ACCEPT`、report合計`117.00`、
+`changed_environment: REQUALIFY`、`after_dependency_revocation: REJECT`です。
+child processは停止し、秘密鍵・DB・artifactを保持します。再実行には新しい出力先を
+使います。demoの認証とDB設定は開発用です。[本番deployment](docs/deployment.md)では
+restricted roleとHTTPSを使います。
 
-## 既存agentへの追加
+coreはrecord・policy・CLI、`agents` extraはMAF・MCP・A2A連携、`model` extraは
+任意の実model例を提供します。有料推論は標準でOFFで、明示的なopt-inが必要です。
+PostgreSQLとOPAは外部要件です。install・importでservice起動やbinary downloadをしません。
 
-hostがbinding、導入済み関数、入力評価器、実行contextを指定し、そのRegistryに
-接続した永続Executorを使います。
+## 自分のアプリケーションを登録する
+
+0.4.0 candidateのwheelには、完全なlocal登録例があります。
+candidateをinstallした後、starterの雛形を生成します。
+
+```sh
+collective-intelligence-overlay starter --directory ./my-application
+```
+
+生成した`application.py`には、schema、callerの許可、Registry登録、candidate公開が
+含まれます。配布済みの同等factoryは
+`collective_intelligence_overlay.starter.application:configure`です。
+自分のレビュー済み・install済みpackageで変更し、owner設定でfactoryを明示的に選びます。
+この完全な例のtool本体は次の関数です。
 
 ```python
-registry.register_local(binding, operation, assess)
-invocation = await executor.invoke(
-    "caller-stable-operation-id", binding.id, binding.digest, arguments, context
-)
+async def count_words(arguments: dict) -> dict:
+    return {"words": len(arguments["text"].split())}
 ```
 
-通常利用の前に対応する候補を公開し、独立した検証を受けます。実行時には実際の
-入力と権限を再検査し、ownerの予算を予約して同じIDに結果を保存します。
-実行完了は検証PASSではありません。[MAF/MCP/A2A連携](docs/integrations.md)と
-[API/CLI](docs/api.md)に具体例があります。model呼出しには明示的なopt-inが必要です。
+登録で独立したPASSは作りません。用途に合うcheckerを登録し、通常利用の前にscope付き
+証拠を取得します。[連携](docs/integrations.md)にはRegistry・ExecutorとMAF・MCP・A2Aの
+完全な接続例、[API](docs/api.md)にはfactory設定と永続的なcall IDを記載しています。
 
-DBとhostの管理者を信頼する構成です。[セキュリティ境界](docs/security.md)、
-[運用・復旧](docs/deployment.md)、[検証状況](docs/validation.md)を確認してください。
-長期運転、外部監査、複数組織運用、一般的な知能成長は実証していません。
+配布済みの文書referenceは3 peerを接続し、代替案探索、MAF report形成、独立検証、
+reportを再利用したclassifier形成、受け手による利用適合性判定を行います。
+既知の撤回後は、有効な新しい証拠と受入が成立するまで後続利用を止めます。
+正しさはアプリケーションの契約で判断し、coreをこの業務例に限定しません。
 
-テストは`uv run pytest`、buildは`uv build`です。サービス不足によるskipを成功扱いしません。
-ライセンスはApache-2.0です。[依存版とライセンス](docs/compatibility.md)、
-[研究との対応](docs/research-mapping.md)、[公開状況](docs/releasing.md)を参照してください。
+## 運用と評価
+
+初期profileは3つのpermissioned owner、ownerごとの単一service processとrestricted DB role、
+設定済みHTTPS peer、導入済みtool、有料推論OFFです。HA、同一ownerの複数active writer、
+外部exactly-once、普遍的SLAの主張は範囲外です。
+
+[設定](docs/configuration.md)、[deployment・復旧](docs/deployment.md)、
+[troubleshooting](docs/troubleshooting.md)に従ってください。candidateの`drain`は新しい作用を
+止め、元の結果照会を続けます。restore後は検証、source全体の同期、業務固有の照合、
+ownerの明示的resumeまで受付を閉じます。照合は保存したprovider IDを照会する操作であり、
+再送や自動返金は行いません。
+
+[検証](docs/validation.md)にはnative検査と失敗、[soak](docs/production-soak.md)にはすべての
+要求結果があります。[比較実験](docs/production-experiments.md)では、独立したpair、負の結果、
+異なる資源単位を区別します。一般的な適応方式の優位や知能成長は証明していません。
+
+source開発ではrepositoryをcloneし、`uv sync --all-extras --frozen`を実行して
+[contributing](CONTRIBUTING.md)に従います。必須service不足によるskipはrelease検証の成功と
+扱いません。
+
+新規コードはApache-2.0です。[LICENSE](LICENSE)、[NOTICE](NOTICE)、
+[互換性・license](docs/compatibility.md)、[研究との対応](docs/research-mapping.md)、
+[公開・移行履歴](docs/releasing.md)を参照してください。

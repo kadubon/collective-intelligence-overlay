@@ -210,8 +210,11 @@ class ProductionSession:
             attempt=attempt,
         )
 
-    async def sample(self, *, operational=True):
+    async def sample(self, *, operational=True, schedule=None):
         row = {"seconds": self.seconds(), "phase": self.phase}
+        if schedule is not None:
+            row["schedule"] = schedule
+            row["sampling_started_seconds"] = self.seconds()
         if sys.platform == "linux":
             snapshot, vanished = await asyncio.to_thread(process_sample)
             row.update(
@@ -238,6 +241,8 @@ class ProductionSession:
             row["operational"] = dict(zip(self.configs, values, strict=True))
         else:
             row["operational"] = "separate bounded monitoring requests; unavailable while pending"
+        if schedule is not None:
+            row["sampling_completed_seconds"] = self.seconds()
         self.samples.append(row)
         with (self.output / "samples.jsonl").open("a", encoding="utf-8") as stream:
             stream.write(json.dumps(row, ensure_ascii=False) + "\n")

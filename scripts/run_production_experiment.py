@@ -177,6 +177,7 @@ async def run_arm(private_home, results, admin_url, opa, caddy, seed, mode, cond
     }
     mesh, configs, identities, processes, logs = None, {}, {}, {}, []
     snapshots = []
+    owner_lifetimes = {}
     stage = "setup"
     sampler = None
     stop_sampling = asyncio.Event()
@@ -256,6 +257,10 @@ async def run_arm(private_home, results, admin_url, opa, caddy, seed, mode, cond
                 stdout=log,
                 stderr=subprocess.STDOUT,
             )
+            owner_lifetimes[owner] = {
+                "started_seconds": time.monotonic() - started,
+                "pid": processes[owner].pid,
+            }
             async with asyncio.timeout(30):
                 while True:
                     if processes[owner].poll() is not None:
@@ -288,7 +293,10 @@ async def run_arm(private_home, results, admin_url, opa, caddy, seed, mode, cond
                 report["time_to_first_checked_task_seconds"] = time.monotonic() - started
 
         try:
-            async with asyncio.timeout(maximum):
+            # The profile's seconds allowance is a wall-time envelope, separate
+            # from the existing work-credit ledger. Include setup/idle/all work
+            # and reserve the declared 30 seconds for concurrent physical stop.
+            async with asyncio.timeout(min(maximum, 500 - 30)):
                 initializing = asyncio.create_task(
                     asyncio.to_thread(ProductionMesh, private_home, admin_url, opa, caddy, 500)
                 )
@@ -425,8 +433,23 @@ async def run_arm(private_home, results, admin_url, opa, caddy, seed, mode, cond
             stop_sampling.set()
             if sampler is not None:
                 await sampler
-            for process in processes.values():
+
+            async def stop_owner(owner, process):
                 await asyncio.to_thread(stop_process, process)
+                owner_lifetimes[owner].update(
+                    stopped_seconds=time.monotonic() - started,
+                    physical_stop_confirmed=process.poll() is not None,
+                )
+
+            await asyncio.gather(*(stop_owner(owner, p) for owner, p in processes.items()))
+            report["owner_time_allowance"] = {
+                "unit": "wall_seconds",
+                "quantity": 500,
+                "basis": "common arm deadline begins before setup; includes owner idle and work",
+                "work_deadline_seconds": min(maximum, 500 - 30),
+                "physical_shutdown_reserve_seconds": 30,
+                "owners": owner_lifetimes,
+            }
             for log in logs:
                 log.close()
             report["owners"] = {}
@@ -533,6 +556,12 @@ async def main(args):
             "ordinary admission and own durable cache"
         ),
         "maximum_arm_seconds": specification["maximum_elapsed_seconds_per_arm"],
+        "owner_time_allowance": {
+            "unit": "wall_seconds",
+            "quantity": specification["allowance_per_owner_seconds"],
+            "basis": "common monotonic arm deadline including setup; 30 seconds reserved for stop",
+            "work_credits_are_separate": True,
+        },
         "cost_basis": (
             "original signed events plus separate OS process and monotonic call/log observations; "
             "no sum of nested durations or allowance as consumption"

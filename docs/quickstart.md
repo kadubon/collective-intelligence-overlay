@@ -1,5 +1,71 @@
 # Quickstart and tutorial
 
+## Start outside a source checkout
+
+The [README](../README.md#first-run-from-the-published-package) starts with the
+published 0.3.2 wheel in a fresh directory. Activate that environment before
+using this section. Run installed commands directly; `uv run` commands further
+below are for source development. The 0.4.0 candidate's additional operational
+commands are specified in [API/CLI](api.md); they are not in the published 0.3.2.
+
+Install native PostgreSQL using the [official OS downloads](https://www.postgresql.org/download/).
+On Windows the [official download page](https://www.postgresql.org/download/windows/)
+links to an external installer; its installer and optional component terms are
+separate from the PostgreSQL and overlay licenses. Make the selected installation's
+`pg_config`, `initdb`, `pg_ctl` and `pg_isready` available in your shell. Verify the
+actual version against [compatibility](compatibility.md). Do not replace or stop
+an existing cluster for this tutorial.
+
+The following creates a fresh loopback-only development cluster with trust
+authentication. It is an API-key-free demonstration, not production setup.
+[Production deployment](deployment.md) requires protected credentials, restricted
+roles and HTTPS. The activated Python and installed CLI suffice; no checkout or
+Docker Desktop is required. On Linux/macOS:
+
+```sh
+set -e
+pg_bin="$(pg_config --bindir)"
+"$pg_bin/initdb" --version
+python -c "import socket; s=socket.socket(); s.bind(('127.0.0.1',55439)); s.close()"
+test ! -e ./tutorial-pg
+"$pg_bin/initdb" -D ./tutorial-pg -U cio_dev -A trust --encoding=UTF8
+"$pg_bin/pg_ctl" -D ./tutorial-pg -l ./tutorial-pg.log -o "-h 127.0.0.1 -p 55439 -c unix_socket_directories=''" -w start
+"$pg_bin/pg_isready" -h 127.0.0.1 -p 55439 -U cio_dev
+export CIO_TEST_DATABASE_URL='postgresql+pg8000://cio_dev@127.0.0.1:55439/postgres'
+collective-intelligence-overlay demo --directory ./demo-run --opa ./bin/opa
+collective-intelligence-overlay doctor --config ./demo-run/receiver/config.json
+```
+
+On native Windows PowerShell, after activating the README environment:
+
+```powershell
+$pgBin = (& pg_config.exe --bindir).Trim()
+& (Join-Path $pgBin 'initdb.exe') --version
+python -c "import socket; s=socket.socket(); s.bind(('127.0.0.1',55439)); s.close()"
+if ($LASTEXITCODE -ne 0) { throw 'Choose an unused dedicated port' }
+if (Test-Path -LiteralPath './tutorial-pg') { throw 'Use a fresh cluster directory' }
+& (Join-Path $pgBin 'initdb.exe') -D ./tutorial-pg -U cio_dev -A trust --encoding=UTF8
+if ($LASTEXITCODE -ne 0) { throw 'initdb failed' }
+& (Join-Path $pgBin 'pg_ctl.exe') -D ./tutorial-pg -l ./tutorial-pg.log -o '-h 127.0.0.1 -p 55439' -w start
+if ($LASTEXITCODE -ne 0) { throw 'Cluster startup failed' }
+& (Join-Path $pgBin 'pg_isready.exe') -h 127.0.0.1 -p 55439 -U cio_dev
+if ($LASTEXITCODE -ne 0) { throw 'Cluster not ready' }
+$env:CIO_TEST_DATABASE_URL='postgresql+pg8000://cio_dev@127.0.0.1:55439/postgres'
+collective-intelligence-overlay demo --directory ./demo-run --opa ./bin/opa.exe
+collective-intelligence-overlay doctor --config ./demo-run/receiver/config.json
+```
+
+Expect three processes, `ACCEPT`, total `117.00`, changed-environment `REQUALIFY`
+and withdrawal `REJECT`. Preserve generated keys/configs privately. Stop only this
+cluster after inspection: `"$pg_bin/pg_ctl" -D ./tutorial-pg -m fast -w stop` on
+Linux/macOS, or `& (Join-Path $pgBin 'pg_ctl.exe') -D ./tutorial-pg -m fast -w stop`
+on Windows. Its data remains available for restart. CLI success does not imply
+all arbitrary future inputs are checked. [PostgreSQL's initdb reference](https://www.postgresql.org/docs/current/app-initdb.html)
+explains cluster initialization and authentication choices.
+
+The remaining sections cover source development, existing application examples
+and detailed finite-formation wiring. They are not prerequisites for this first run.
+
 Start with Python >=3.12 and uv. Minimum-version development uses the
 `.python-version` pin; choose another interpreter explicitly, for example
 `uv sync --python 3.14.7 --all-extras --frozen` and

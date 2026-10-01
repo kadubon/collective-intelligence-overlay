@@ -1,4 +1,5 @@
 import asyncio
+import json
 import os
 import subprocess
 import sys
@@ -9,12 +10,13 @@ from pathlib import Path
 import httpx
 import pytest
 from a2a.client import AgentCardResolutionError
-from sqlalchemy import select
+from sqlalchemy import func, select
 
 from collective_intelligence_overlay.adapters.a2a import send
+from collective_intelligence_overlay.bindings import fingerprint
 from collective_intelligence_overlay.config import Config
 from collective_intelligence_overlay.demo import initialize
-from collective_intelligence_overlay.storage import budgets
+from collective_intelligence_overlay.storage import budgets, leases
 
 
 @pytest.mark.parametrize(
@@ -112,23 +114,34 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 data = {**data, "operation": "app." + data["operation"]}
         return await send(configs[owner], identities[owner], owner, data)
 
-    async def start(name):
+    async def start(name, *, clock_offset=None):
         config: Config = configs[name]
         log_path = config.private_key.parent / "adaptive.log"
         log = log_path.open("ab")
         logs.append(log)
-        process = await asyncio.to_thread(
-            subprocess.Popen,
-            [
+        command = [
+            sys.executable,
+            *(
+                ["-m", "collective_intelligence_overlay.cli", "peer"]
+                if host_mode
+                else [str(examples / "adaptive_documents.py")]
+            ),
+            "--config",
+            str(config.private_key.parent / "config.json"),
+        ]
+        if clock_offset is not None:
+            assert host_mode
+            command = [
                 sys.executable,
-                *(
-                    ["-m", "collective_intelligence_overlay.cli", "peer"]
-                    if host_mode
-                    else [str(examples / "adaptive_documents.py")]
-                ),
+                str(Path(__file__).parents[1] / "integration" / "clock_offset_peer.py"),
+                "--offset-seconds",
+                str(clock_offset),
                 "--config",
                 str(config.private_key.parent / "config.json"),
-            ],
+            ]
+        process = await asyncio.to_thread(
+            subprocess.Popen,
+            command,
             cwd=tmp_path,
             stdout=log,
             stderr=log,
@@ -274,8 +287,6 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             assert imported_checker_test["evidence"]["verdict"] == "PASS", imported_checker_test
             await sync("receiver", "producer")
             if connection_mismatch:
-                import json
-
                 application = json.loads(
                     (configs["receiver"].private_key.parent / "application.json").read_text()
                 )
@@ -471,6 +482,14 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             )
             assert replayed_check["evidence"] == history[1]["evidence"]
             assert replayed_check["observed"]["state"] == "completed"
+            checker_contract = checker_binding(calibration_threshold=len(training_text.split()))
+            assert replayed_check["evidence"]["verifier_version"] == (
+                "document-check." + checker_contract.subject.version
+            )
+            check_proof = json.loads(
+                configs["verifier"].artifacts().get(replayed_check["evidence"]["artifact_digest"])
+            )
+            assert check_proof["verifier_version"] == replayed_check["evidence"]["verifier_version"]
             changed_request = await send(
                 configs["receiver"],
                 identities["receiver"],
@@ -482,6 +501,53 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             await start("receiver")
             assert processes["receiver"].pid != old_pid
             assert await call("receiver", **request) == outcome
+            if host_mode and work_allowance >= 50:
+                # Shift only this owned peer's Python record clock. The same
+                # installed host, actual HTTPS/MCP/MAF and DB lease authority
+                # remain in use. Skewed JWT issuance is refused by the unchanged
+                # verifier clock; refusal must not create independent PASS.
+                for offset in (60, -60):
+                    await stop("verifier")
+                    await start("verifier", clock_offset=offset)
+                    attempt = f"clock-offset-{offset}"
+                    allowance_before = await asyncio.to_thread(balance, "verifier")
+                    with pytest.raises(Exception) as refused_clock:
+                        await call(
+                            "verifier",
+                            operation="app.verify",
+                            provider="receiver",
+                            name="triage",
+                            attempt=attempt,
+                            arguments={"text": "clock offset protected 文書"},
+                            binding_digest=Binding.model_validate(c4).digest,
+                        )
+                    assert type(refused_clock.value).__name__ == "InternalError"
+                    assert "(HTTP 400)" in str(refused_clock.value)
+                    _, observed_overlay = configs["verifier"].runtime()
+                    try:
+                        with observed_overlay.store.engine.connect() as connection:
+                            saved_lease = connection.execute(
+                                select(
+                                    leases.c.state,
+                                    leases.c.expires_at > func.clock_timestamp(),
+                                ).where(leases.c.task_id == attempt)
+                            ).one()
+                        assert saved_lease == ("cancelled", True)
+                        from collective_intelligence_overlay.queries import RecordQuery
+
+                        assert not observed_overlay.store.record_page(
+                            RecordQuery(
+                                kinds=("evidence",),
+                                issuer="verifier",
+                                record_id="checked-" + fingerprint(["verifier", attempt]),
+                            ),
+                            limit=1,
+                        ).items
+                    finally:
+                        observed_overlay.store.close()
+                    assert await asyncio.to_thread(balance, "verifier") == allowance_before - 1
+                await stop("verifier")
+                await start("verifier")
             restarted = await call("receiver", operation=mode, max_steps=8)
             assert restarted["reason"] == "goals_satisfied" and not restarted["history"]
             if host_mode:

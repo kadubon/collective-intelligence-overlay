@@ -6,6 +6,20 @@ host, actual HTTPS/official A2A, authenticated official MCP, MAF workflows and t
 restricted owner databases. It creates no alternative executor, checker or queue.
 Neither a clean driver exit nor a development run establishes production acceptance.
 
+The revised driver saves a consecutive slot number and nominal deadline with
+each OS sample, together with its actual start/end. The original-ID export also
+retains complete invocation projections and remote mappings. Run
+`python scripts/assess_production_soak.py /fresh/results` after quantitative
+validation to audit these observations. Missing old projections remain pending;
+unknown execution causes still require review. Sampling jitter is disclosed,
+and a sample begun after its following nominal slot fails coverage. Original
+requests and signed records are public deterministic fixtures in this harness;
+these exports are not a safe default for private application data.
+
+The generated render parameter is the document's actual word count. It reaches
+the registered render component through the words/report/triage composition;
+the protocol records this relationship rather than storing an unused random value.
+
 The release run has a 300-second warmup and 3,600 measured seconds. Seed 401 fixes
 900 regular offers at 0.25 requests/second in the declared 15/20/20/25/15/5 mix.
 Each 20-offer block has those exact proportions. Fixed 16-request bursts at each
@@ -78,3 +92,51 @@ a replacement mapping. The initial quantitative-validator attempt used the wrong
 The corrected assessment still leaves full-duration, sample coverage, uncertainty
 explanation and complete safety assessment unaccepted. Short results are not
 extrapolated into an hour-long observation.
+
+## Preserved first full-duration result
+
+The first formal seed-401 run completed 300 warmup and 3,600 measurement seconds
+against the candidate hashes reported in [the matched experiment](production-experiments.md).
+It retained 75 warmup, 900 regular and 176 burst offers: 1,151 total.
+Original exports verified 3,592 signed records, 149 independent check artifacts,
+completed invocation receipts and conserved allowances. No offered row was removed.
+
+| Measured bound | Observation | Result |
+| --- | --- | --- |
+| Read-only p95 / p99 | 0.452 / 0.704 seconds | Within 2 / 5 seconds |
+| Invoke p99, all outcomes | 2.991 seconds | Within 35 seconds |
+| Finite loop/check p95 / p99 | 3.651 / 8.487 seconds | Within 120 / 180 seconds |
+| Absolute operation wall | 21.967 seconds | Within 180 seconds |
+| Normal classified fraction / throughput | 1.0 / 0.25 per second | Within declared targets |
+| Owner RSS peak | 312,582,144 bytes | Within 768 MiB |
+| Owner RSS growth after warmup | 142,512,128 bytes | **Exceeds 128 MiB** |
+| Known uncertainty / current unverified targets | 13 / 1 maximum | Within 32 / 8 |
+
+This is a failed acceptance run. Withdrawal and drain injections failed, and
+complete safety/sample/backlog assessment remains open. During the withdrawal
+snapshot/delivery, a regular independent check issued fresh PASS evidence. Its
+original DSSE and CAS proof cover a completed result under the fixed threshold;
+the later ACCEPT references that new evidence. This is not proof of reuse relying
+only on withdrawn support. The fixture now stops and positively locks the checker,
+delivers actual signed withdrawals, checks receiver admission, then restarts the
+checker for an explicit independent requalification.
+
+The drain request returned a transport error during a scheduled burst; the fixture
+then tested an owner without confirming intake was closed. It now retains up to
+three explicit idempotent control attempts and positively queries state before
+offering the new effect. It never retries an uncertain invocation. The complete
+360-second development repeat executed all eleven injections and validated 519
+original signed records; it does not count as the new formal hour.
+
+The initial quantitative validator represented missing recovery time with a numeric
+sentinel. That report remains retained. Corrected reports separately list faults
+without recovery confirmation and measure only actual observed recovery intervals.
+An unconfirmed fault cannot become a measured one-billion-second recovery.
+
+Memory diagnosis additionally reproduced SDK producer/consumer queues remaining
+after completed Message exchanges. The host now uses the pinned official public
+handler described in [compatibility](compatibility.md). The diagnostic launcher
+records traced Python allocations separately from OS RSS and a final explicit GC;
+neither tracing nor that intervention is part of formal performance acceptance.
+The original failure and sources are preserved. The fixed candidate needs a
+complete new run under unchanged numerical gates.

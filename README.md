@@ -1,200 +1,135 @@
 # Collective Intelligence Overlay
 
+Let agents share tools and procedures with evidence and conditions for reuse.
+For example, one agent offers a document workflow, a separate checker tests it,
+and a receiver decides whether that exact version fits its data and permissions.
+Each participant keeps its own keys, database, policy and budget:
 **Evidence is shared; admission is local.**
 
-A Python overlay for teams that want agents to exchange reusable tools and procedures
-without treating every generated result as verified. Each participant keeps its own
-keys, database, acceptance policy and budget. A receiver can inspect a candidate,
-request more checking, reject it, or reuse it under a specific contract.
+This Python package adds qualified reuse and durable operation records to existing
+Microsoft Agent Framework (MAF), A2A and MCP integrations. Existing SDKs run tools
+and compose workflows; each owner chooses its own work. No collective manager is
+required. The host and database operator remain trusted.
 
-The package connects Microsoft Agent Framework (MAF), A2A and MCP. It is not an
-agent runtime or a central manager. Existing SDKs run tools and compose workflows;
-the overlay records evidence, qualifies reuse and stops known-invalid dependencies.
+[日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [API/CLI](docs/api.md)
 
-[日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [Architecture](docs/architecture.md)
+The published version is **0.3.2**. Main contains the **unreleased 0.4.0 candidate**.
+The [production profile and acceptance register](docs/production-040.md) remain incomplete.
+[Release records](docs/releasing.md) retain immutable version history, hashes and publication checks.
 
-The published release is **0.3.2**. Main is developing **0.4.0** against a
-[predeclared production profile](docs/production-040.md); its acceptance and
-publication are pending.
+## What it provides
 
-Version **0.3.2** adds bounded owner invocation cleanup and reviewed
-native OPA setup for Intel/Apple Silicon macOS. It fences stale workers and releases
-only positively undispatched reservations; dispatched effects stay UNKNOWN/held.
-See [native setup](docs/quickstart.md), [cleanup API](docs/api.md) and
-[current validation](docs/validation.md). Exact publication status and tested
-distribution hashes are recorded in [releasing](docs/releasing.md).
+- Versioned capabilities and independently issued PASS / FAIL / UNKNOWN evidence.
+- Receiver-specific OPA decisions using exact bindings, actual inputs, environment,
+  permissions, evidence freshness and known withdrawals.
+- Owner-local PostgreSQL records, finite allowances, fenced leases and stable invocation IDs.
+- Registered local functions, MAF workflows, MCP tools and A2A services; no received-code imports.
+- Bounded discovery, proposal selection, formation and checking through existing executors.
+- In the 0.4.0 candidate: installed application factories, readiness/drain, original-ID
+  reconciliation, coherent backup, closed restore and scoped change trials.
 
-Version 0.2.1 returns execution allowance after a refusal or
-cancellation only when the database proves no dispatch and fences further dispatch.
-Inspection costs remain recorded; uncertain effects and old reservations stay held.
-See [upgrade/recovery](docs/deployment.md) and [release state](docs/releasing.md).
+Generated, verified and reusable are distinct states. A signature identifies an issuer,
+and remote completion reports an operation state; neither establishes business truth.
+Missing evidence and uncertain effects remain UNKNOWN. See [semantics](docs/semantics.md)
+and [security](docs/security.md) for application scope, infrastructure trust and remote freshness.
 
-Version **0.3.0** adds bounded owner goals, signed opportunities,
-peer proposals and local work selection. The host registers the intended use,
-installed builders and an independently qualified checker; observations then guide
-finite formation, connection or verification work through the existing Executor.
-Insufficient evidence, unavailable checkers, allowance shortage and uncertain
-execution remain explicit stopping conditions. The tested release is available on
-[PyPI](https://pypi.org/project/collective-intelligence-overlay/0.3.0/). See the [API](docs/api.md),
-[external registration example](examples/adaptive_documents.py) and
-[implementation and validation](docs/implementation-status.md).
+## First run from the published package
 
-## What works
-
-The 0.3.2 release passed all 12 Linux/Windows/Mac Intel/Mac arm64 native
-CI pairs: 291 source tests, 290 installed agents tests, one model test and 41
-rebuilt-sdist tests, plus core import/CLI/resources, with zero failures/errors/skips.
-Four native readers verified shared artifacts/signatures from every producer;
-minimum/latest installed HTTP peers passed both directions. [Validation](docs/validation.md)
-records exact commits, intermediate failures and completed 100k stress profiles.
-[Release state](docs/releasing.md) distinguishes those checks from tag publication
-and actual-PyPI verification.
-
-Existing 0.3.1 paths remain covered: bounded exact-owner revocation, per-alternative
-proposal rejection, explicit owner reobservation and persistent logical A2A call
-IDs through Registry/Executor/MAF. See the [API examples](docs/api.md) for
-`reobserve`, cleanup, rejection reasons and `call_id`/`call_scope`.
-
-Distribution metadata requires **Python >=3.12**, with no upper bound. The release
-matrix passed on stable CPython 3.12.14/3.13.15/3.14.7 on Linux,
-Windows and both native Mac CPUs; metadata does not mean all future interpreters are tested. Exact
-runtime/profile results belong in [compatibility](docs/compatibility.md).
-`.python-version` pins minimum-version development, not users' Python upper bound.
-Select another interpreter explicitly with `uv sync --python 3.14.7 --all-extras --frozen`
-and `uv run --python 3.14.7 ...`.
-
-To upgrade from 0.3.1, stop old writers, back up and apply index-only migration 0015.
-Upgrades from 0.3.0 also apply migrations 0013/0014.
-Keep signed records, old remote IDs and UNKNOWN reservations; an empty new call
-mapping never proves non-execution. [Offline upgrade/recovery](docs/deployment.md)
-describes reconciliation and restart. This patch does not change the retained
-negative pilot results or prove faster collective capability formation.
-
-- Signed, versioned capability and evidence records, including PASS / FAIL / UNKNOWN.
-- Receiver-specific OPA decisions: ACCEPT / REQUALIFY / REJECT / UNKNOWN.
-- PostgreSQL persistence, duplicate/conflict detection, budgets and fenced result commits.
-- Real A2A HTTP exchange, MAF function middleware/workflow composition and MCP HTTP calls.
-- A three-process demo: register CSV tools, independently check their outputs and
-  imported A2A bindings, reuse an HTML report workflow, then revoke its dependency.
-- Typed costs and an explicitly limited deterministic comparison.
-
-Version 0.2.0 adds typed local/MCP/A2A bindings,
-durable invocations, paged synchronization/history and observed formation receipts.
-An [external document application](examples/document_application.py) demonstrates
-three peers building and checking C3, using it to construct C4, restarting and
-stopping both descendants after withdrawal. See the [tutorial](docs/quickstart.md)
-and [current validation scope](docs/implementation-status.md).
-
-A signature establishes origin, not truth. Sample checks do not prove correctness on
-all future data. Distinct local identities are not independent organizations or
-statistically independent evidence. This software does not prove intelligence growth.
-
-## Run from source
-
-Python >=3.12, [uv](https://docs.astral.sh/uv/), PostgreSQL 16 and the OPA binary are
-required for the reference path. No model API key is needed. There is no broker,
-vector database, mandatory cloud service or always-running OPA server.
+Use Python **>=3.12** and [uv](https://docs.astral.sh/uv/). Measured 0.3.2 support covers
+CPython 3.12.14/3.13.15/3.14.7 on Linux x86_64, Windows x86_64 and native macOS Intel/arm64.
+Future interpreters are not covered by those results. In a fresh directory, on Linux/macOS:
 
 ```sh
-git clone https://github.com/kadubon/collective-intelligence-overlay.git
-cd collective-intelligence-overlay
-uv sync --all-extras --frozen
-uv run python scripts/fetch_opa.py
-```
-
-Start a **dedicated development** PostgreSQL instance. The setup account must be able
-to create roles and databases. See the [tutorial](docs/quickstart.md) for Docker,
-Linux and PowerShell commands. Then:
-
-```sh
-export CIO_TEST_DATABASE_URL='postgresql+pg8000://postgres:development-only@127.0.0.1:5432/postgres'
-export CIO_OPA="$PWD/.local/bin/opa"
-uv run collective-intelligence-overlay demo --directory .local/demo
-```
-
-Expected fields: `processes: 3`, `admission: ACCEPT`, report total `117.00`,
-`changed_environment: REQUALIFY`, `after_dependency_revocation: REJECT`.
-Timings vary. The command preserves owner-local artifacts and databases and stops
-its child processes. Use a new output directory for another run.
-
-For the isolated fixed-versus-adaptive document comparison, use the
-same service configuration and a fresh directory:
-
-```sh
-uv run python examples/evaluate_documents.py --directory .local/document-comparison --opa "$CIO_OPA" --seed 0
-```
-
-In PowerShell, pass `--opa "$env:CIO_OPA"`. This runs six separate three-peer arms
-with no paid model calls. Normal and input-connection conditions passed three
-held-out business tasks per arm in the recorded pilot; checking-constrained arms
-stopped before those tasks. Adaptation showed no outcome or allowance advantage
-and had higher elapsed observations in that single run. [Raw results and limits](docs/evaluation.md)
-distinguish working integration from demonstrated benefit.
-
-Install the latest published release from
-[PyPI](https://pypi.org/project/collective-intelligence-overlay/) into an activated
-Python >=3.12 environment:
-
-```sh
+uv venv --python 3.12.14 .venv
+. .venv/bin/activate
 uv pip install 'collective-intelligence-overlay[agents]==0.3.2'
 collective-intelligence-overlay --version
+collective-intelligence-overlay opa-install --target ./bin/opa
 ```
 
-PostgreSQL and OPA are still required for the reference demo. Actual publication
-status, hashes and clean-install verification are recorded in [releasing](docs/releasing.md).
-For 0.1.0 upgrades, follow [migration and recovery](docs/deployment.md).
+On Windows PowerShell:
 
-## Add to an existing agent
-
-Importing the core never opens a database or runs a migration. The host supplies
-an `Overlay`, explicitly installed `Registry` bindings and a persistent `Executor`:
-
-```python
-registry.register_local(binding, operation, assess)
-invocation = await executor.invoke(
-    "caller-stable-operation-id", binding.id, binding.digest, arguments, context
-)
+```powershell
+uv venv --python 3.12.14 .venv
+. .venv/Scripts/Activate.ps1
+uv pip install 'collective-intelligence-overlay[agents]==0.3.2'
+collective-intelligence-overlay --version
+collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```
 
-Here the host supplies the pinned binding, installed function, input assessment,
-execution context and executor connected to that registry. Publish the corresponding
-candidate and obtain independent evidence before ordinary reuse.
-The executor checks the binding and actual inputs at execution, reserves the owner's
-budget and retains the result under the caller's stable ID. Completion is not an
-independent PASS. A previous ACCEPT is not a permanent permission. The lower-level
-`Overlay.execute` callback API remains available for compatibility.
-[Integration](docs/integrations.md) shows registration, MAF
-middleware and the real, opt-in model example. See [API and CLI](docs/api.md) for
-configuration, exceptions, cancellation and the operator/agent boundary.
-
-For example, a verifier's PASS for `csv-sum@1` in environment `reference=1` does not
-admit it in `reference=2`. The receiver requests requalification. A valid in-scope
-counterexample is retained alongside the PASS and takes precedence in the standard policy.
-
-## Trust and operation
-
-Peers authenticate with distinct pinned Ed25519 identities. Local Rego policy,
-keys and budgets must be protected from the agent process. Evidence sharing is
-disabled by default; the demonstration enables it for its configured peers.
-The DB/host operator is trusted. A malicious infrastructure administrator is outside
-this model. See [security](docs/security.md) and [deployment](docs/deployment.md).
+The reference demo also needs a dedicated development PostgreSQL cluster and an operator
+allowed to create test databases and roles. Follow [native OS setup](docs/quickstart.md);
+Docker Desktop is not required. Set its URL in `CIO_TEST_DATABASE_URL`, then run:
 
 ```sh
-uv run ruff check .
-uv run ruff format --check .
-uv run mypy
-uv run pytest
-uv build
-uv run twine check --strict dist/*
-uv run python scripts/check_package.py
+collective-intelligence-overlay demo --directory ./demo-run --opa ./bin/opa
 ```
 
-Integration/E2E tests require PostgreSQL and OPA; missing services are explicit skips,
-not production validation. Paid model calls are off by default. Current checks and
-unverified boundaries are in [validation](docs/validation.md). The native release
-matrix covers Linux, Windows and both Mac CPUs; completed support claims require
-its actual reports. The network reference deployment is Linux-oriented.
+On Windows use `--opa ./bin/opa.exe`. No source checkout or model key is needed.
+Expected fields: `processes: 3`, `admission: ACCEPT`, report total `117.00`,
+`changed_environment: REQUALIFY`, `after_dependency_revocation: REJECT`.
+Child processes stop; private keys, databases and artifacts remain. Use a fresh output
+directory for each repeat. Demo authentication and DB setup are development fixtures;
+[production deployment](docs/deployment.md) uses restricted roles and HTTPS.
 
-New code is Apache-2.0. See [LICENSE](LICENSE), [NOTICE](NOTICE),
-[dependency compatibility/licensing](docs/compatibility.md),
-[research mapping](docs/research-mapping.md), and [contributing](CONTRIBUTING.md).
+Core supports records, policy and CLI. The `agents` extra adds MAF/MCP/A2A;
+`model` adds the optional actual-model example. Paid inference is off by default and
+requires explicit opt-in. PostgreSQL and OPA are external prerequisites. Installation
+and import do not start services or download binaries.
+
+## Register your application
+
+The 0.4.0 candidate wheel includes a complete local registration example.
+After installing that candidate, generate its inert starter files:
+
+```sh
+collective-intelligence-overlay starter --directory ./my-application
+```
+
+The generated `application.py` contains schemas, caller grants, Registry registration
+and candidate publication. Its installed equivalent is
+`collective_intelligence_overlay.starter.application:configure`. Adapt it in your own
+reviewed, installed package and select that factory explicitly in the owner configuration.
+The tool body in the complete example is:
+
+```python
+async def count_words(arguments: dict) -> dict:
+    return {"words": len(arguments["text"].split())}
+```
+
+Registration creates no independent PASS. Register a suitable checker and obtain scoped
+evidence before ordinary reuse. [Integration](docs/integrations.md) shows complete
+Registry/Executor and MAF/MCP/A2A wiring; [API](docs/api.md) specifies factory settings
+and persistent call identities.
+
+The installed document reference connects three configured peers: discover alternatives,
+form a MAF report, independently check it, reuse it to form a classifier, and qualify
+that classifier for a receiver. Known withdrawal blocks subsequent use until valid new
+evidence and admission exist. Application contracts determine correctness; the core is
+not confined to this reference task.
+
+## Operate and assess
+
+The declared initial profile has three permissioned owners, one service process and
+restricted DB role per owner, configured HTTPS peers, installed tools and paid inference off.
+HA, multiple active writers for one owner, external exactly-once and universal SLA claims
+are outside its scope.
+
+Read [configuration](docs/configuration.md), [deployment/recovery](docs/deployment.md)
+and [troubleshooting](docs/troubleshooting.md). Candidate `drain` closes new effects;
+original result queries remain available. Restored intake stays closed until verification,
+full source sync, application-specific reconciliation and explicit owner resume.
+Reconciliation queries saved provider IDs; it does not resend or automatically refund.
+
+[Validation](docs/validation.md) retains native checks and failures.
+[Soak](docs/production-soak.md) includes all offered outcomes.
+[Matched experiments](docs/production-experiments.md) keep independent pairs, negative
+results and separate resource units. They establish no general adaptive advantage or
+intelligence growth.
+
+For source development, clone this repository, run `uv sync --all-extras --frozen` and
+follow [contributing](CONTRIBUTING.md). Mandatory service skips are not release validation.
+
+New code is Apache-2.0: [LICENSE](LICENSE), [NOTICE](NOTICE),
+[compatibility/licensing](docs/compatibility.md), [research mapping](docs/research-mapping.md)
+and [release/upgrade history](docs/releasing.md).

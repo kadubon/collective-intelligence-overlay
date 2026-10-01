@@ -153,3 +153,23 @@ Sdist SHA256: `f64fd08b323f762c3791c46211b5c25d06a6d1f5c3c87d618d72c8d2cf17f554`
 Protocol SHA256: `fa5e46f4f414495eb5391ce0efbc5554404abf3b35d448fcfefc1690b1502d68`.
 These artifacts are still unpublished candidates. Full resource/profile assessment
 and final release-candidate matching are required before accepting P25.
+
+The separate `scripts/assess_production_experiment.py` assessment revalidates those
+original outcomes and exports typed cost observations by owner/category/unit/status,
+owner CPU snapshots, sampled RSS, database/CAS sizes, reservation states, monitoring
+and inclusive client duration distributions. Received replicas are not additional
+charges. Inclusive parent/child times and live/reaped CPU counters are not summed.
+All ten measured inclusive arm times were below 500 seconds, but the profile's
+`allowance_per_owner_seconds` is not the executed ledger's `work` unit. The assessor
+retains that protocol deviation and returns `passed: false`; it does not convert
+500 work credits into 500 seconds or retrospectively accept the experiment.
+
+The revised runner declares a separate 500-second monotonic wall envelope for
+each owner. A common deadline begins before setup and includes idle time, checks
+and all business work. It reserves 30 seconds for concurrent physical shutdown;
+the existing 500 work credits remain a separate constraint. The report saves
+each actual process start/stop time and positive exit confirmation. The assessor
+requires those original observations, so old runs without them remain unaccepted.
+This conservative common envelope gives no owner more than its declared seconds;
+it does not estimate consumed CPU from elapsed time. A new complete ten-arm run
+is required on the revised fixed artifacts.

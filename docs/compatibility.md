@@ -1,5 +1,19 @@
 # Compatibility and licensing
 
+## Unreleased 0.4.0 message lifecycle
+
+The existing `a2a-sdk==1.1.5` dependency provides both public handlers.
+The overlay's Message-only host now explicitly selects
+[LegacyRequestHandler](https://github.com/a2aproject/a2a-python/blob/v1.1.5/src/a2a/server/request_handlers/default_request_handler.py).
+The default V2 handler retains request producers/consumers waiting for subsequent
+messages in the measured pinned implementation. Six completed exchanges reproduced
+pending physical SDK tasks; the retained regression passes after selecting the
+official handler that finishes each request. This changes no A2A wire version,
+signature scheme or business store and uses no SDK private patch.
+Client requests also finish their nonstreaming iterator and call public `close`.
+Three lifecycle tests and 18 actual HTTP/TLS/auth/refusal cases passed locally;
+the complete native matrix and full-duration repeat for this change remain pending.
+
 ## 0.3.2 native release validation (2026-09-30)
 
 All 12 mandatory native pairs passed the immutable release commit `b172c0d` in

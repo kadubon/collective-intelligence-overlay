@@ -2,9 +2,22 @@
 
 ## 0.4.0 (unreleased)
 
+- Lease commit authority reads PostgreSQL time after locking the original row,
+  matching acquisition/finish and preserving expiry under Python clock skew.
+  Native three-peer skew tests retain authentication refusal, allowance and no PASS.
+- Loopback demos allocate each topology's ports in one bound socket batch;
+  startup uses an actual finite deadline rather than a count of slow RPC attempts.
+- Message-only A2A operations use the pinned official SDK's public legacy handler
+  so completed replies leave no producer/consumer queues waiting for another call.
+  The nonstreaming client iterator finishes and its public close method runs before
+  returning. Original invocation, allowance and signed-record storage are unchanged.
+- English/Japanese README starts from the published wheel, with native shell
+  commands and a checkout-free PostgreSQL tutorial. Candidate operations and open
+  acceptance gates are explicit; version history stays in the release records.
 - Reference checker contracts now pin calibration helper source and the operator's
   expected threshold as well as the adapter and underlying checker. Contract changes
   receive distinct revisions/subjects and require explicit new checks and goal pins.
+  Independent Evidence and its original CAS proof retain this exact checker version.
 - Owner process observations expose standard OS CPU seconds and actual PID/parent
   PID. Explicitly unavailable RSS/live-child/historical costs remain distinct.
   Redacted standard logs observe SQLAlchemy cursor, OPA and official A2A exchange

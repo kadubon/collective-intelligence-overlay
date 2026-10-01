@@ -25,7 +25,7 @@ from sqlalchemy.engine import make_url
 
 from collective_intelligence_overlay.bindings import Binding, Target, fingerprint
 from collective_intelligence_overlay.config import Peer, load_config
-from collective_intelligence_overlay.demo import free_port
+from collective_intelligence_overlay.demo import free_ports
 from collective_intelligence_overlay.models import Scope, Subject, now
 from collective_intelligence_overlay.setup import bootstrap_database, initialize
 
@@ -48,6 +48,9 @@ class ProductionMesh:
     def __init__(self, directory, operator_url, opa, caddy, allowance):
         self.directory = directory
         self.directory.mkdir(mode=0o700)
+        # A separately closed free_port() may immediately return the previous
+        # owner's port. Keep all eight sockets bound during batch allocation.
+        self.ports = iter(free_ports(8))
         # Administrative CREATE/DROP may need a PostgreSQL checkpoint. This
         # bounded cleanup connection is never handed to runtime peers; their
         # Store/socket/statement/lock bounds remain unchanged.
@@ -97,10 +100,10 @@ class ProductionMesh:
                 path = initialize(
                     directory / owner,
                     owner=owner,
-                    url=f"https://localhost:{free_port()}/",
+                    url=f"https://localhost:{next(self.ports)}/",
                     database_url=runtime.render_as_string(hide_password=False),
                     opa=opa,
-                    listen_port=free_port(),
+                    listen_port=next(self.ports),
                 )
                 config = load_config(path)
                 # Names are known before bootstrap: preserve partial failures and
@@ -205,7 +208,7 @@ class ProductionMesh:
         home = self.directory / "mcp"
         home.mkdir(mode=0o700)
         token = secrets.token_urlsafe(32)
-        public, private = free_port(), free_port()
+        public, private = next(self.ports), next(self.ports)
         origin = f"https://localhost:{public}/"
         endpoint = origin + "mcp"
         log = (home / "service.log").open("ab")

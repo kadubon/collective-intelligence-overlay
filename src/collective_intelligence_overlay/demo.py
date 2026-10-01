@@ -7,6 +7,7 @@ import secrets
 import socket
 import sys
 import time
+from contextlib import ExitStack
 from decimal import Decimal
 from pathlib import Path
 from typing import Any
@@ -27,9 +28,20 @@ HELD_OUT_CSV = "category,amount\nrent,101.13\nfood,19.07\nrefund,-3.20\n"
 
 
 def free_port() -> int:
-    with socket.socket() as sock:
-        sock.bind(("127.0.0.1", 0))
-        return int(sock.getsockname()[1])
+    return free_ports(1)[0]
+
+
+def free_ports(count: int) -> tuple[int, ...]:
+    """Choose distinct loopback ports while every socket in the batch is bound."""
+    if count < 1:
+        raise ValueError("a positive port count is required")
+    ports = []
+    with ExitStack() as stack:
+        for _ in range(count):
+            sock = stack.enter_context(socket.socket())
+            sock.bind(("127.0.0.1", 0))
+            ports.append(int(sock.getsockname()[1]))
+    return tuple(ports)
 
 
 def initialize(
@@ -61,7 +73,10 @@ def initialize(
         )
         for name, signer in signers.items()
     }
-    peers = tuple(Peer(identity=name, url=f"http://127.0.0.1:{free_port()}/") for name in names)
+    peers = tuple(
+        Peer(identity=name, url=f"http://127.0.0.1:{port}/")
+        for name, port in zip(names, free_ports(len(names)), strict=True)
+    )
     admin = create_engine(admin_url, isolation_level="AUTOCOMMIT", hide_parameters=True)
     configs = {}
     try:
@@ -161,16 +176,22 @@ async def _run_demo(directory: Path, configs: dict[str, Config]) -> dict[str, An
                 )
             )
         for name in configs:
-            for _ in range(100):
-                if any(p.returncode is not None for p in processes):
-                    raise RuntimeError("peer exited; inspect local peer.log")
-                try:
-                    await send(configs[name], identities[name], name, {"operation": "metrics"})
-                    break
-                except (httpx.HTTPError, ConnectionError, AgentCardResolutionError):
-                    await asyncio.sleep(0.1)
-            else:
-                raise RuntimeError("peer startup timeout")
+            try:
+                async with asyncio.timeout(30):
+                    while True:
+                        if any(p.returncode is not None for p in processes):
+                            raise RuntimeError("peer exited; inspect local peer.log")
+                        try:
+                            await send(
+                                configs[name], identities[name], name, {"operation": "metrics"}
+                            )
+                            break
+                        except (httpx.HTTPError, ConnectionError, AgentCardResolutionError):
+                            await asyncio.sleep(0.1)
+            except TimeoutError as error:
+                raise RuntimeError(
+                    "peer startup exceeded 30 seconds; inspect local peer.log"
+                ) from error
         setup_started = time.perf_counter_ns()
         source = (directory / "formation.csv").read_text(encoding="utf-8")
         registered = (await call("producer", operation="reference-register"))["registrations"]

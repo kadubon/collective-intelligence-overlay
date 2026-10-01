@@ -7,11 +7,11 @@ import time
 from decimal import Decimal
 
 from production_session import stop_process
+from quiesced_evidence_withdrawal import withdraw
 from sqlalchemy import select, text
 from sqlalchemy.engine import make_url
 
-from collective_intelligence_overlay.models import Evidence, Revocation, UseRequest
-from collective_intelligence_overlay.queries import RecordQuery
+from collective_intelligence_overlay.models import UseRequest
 from collective_intelligence_overlay.storage import budgets
 
 
@@ -37,6 +37,24 @@ def invocation(session, identity, document):
     }
 
 
+async def intake(session, operation, state, observations):
+    """Bounded explicit idempotent owner control, confirmed by real status queries.
+
+    The scheduled burst may refuse a control request before dispatch. Retain all
+    attempts; never infer drain from a transport exception or retry an invocation.
+    """
+    for attempt in range(3):
+        value = await session.call("receiver", operation=operation)
+        observations.append(value)
+        observed = await session.call("receiver", operation="status")
+        observations.append(observed)
+        if observed.get("state") == state:
+            return observed
+        if attempt < 2:
+            await asyncio.sleep(attempt + 1)
+    raise ValueError("owner intake transition was not positively confirmed")
+
+
 async def inject(session, index, completed):
     """Retain intermediate observations, original IDs and explicit repair actions."""
     started = time.monotonic()
@@ -54,6 +72,13 @@ async def inject(session, index, completed):
         worker = session.mesh.workers[-1]
         if index == 1:
             os.kill(worker.pid, signal.SIGSTOP)
+            result["provider_unavailable"] = {
+                "owner": "producer",
+                "transport": "mcp",
+                "pid": worker.pid,
+                "from_seconds": session.seconds(),
+                "observation": "owned process received SIGSTOP",
+            }
             try:
                 delayed = asyncio.create_task(
                     session.call(
@@ -62,6 +87,7 @@ async def inject(session, index, completed):
                 )
                 await asyncio.sleep(31)
             finally:
+                result["provider_unavailable"]["until_seconds"] = session.seconds()
                 os.kill(worker.pid, signal.SIGCONT)
             observations.append(await delayed)
             observations.append(
@@ -71,12 +97,20 @@ async def inject(session, index, completed):
             )
         else:
             await asyncio.to_thread(stop_process, worker)
+            result["provider_unavailable"] = {
+                "owner": "producer",
+                "transport": "mcp",
+                "pid": worker.pid,
+                "from_seconds": session.seconds(),
+                "physical_exit_confirmed": worker.poll() is not None,
+            }
             observations.append(
                 await session.call(
                     "receiver",
                     **invocation(session, "fault-provider-stopped-original", "stop 文書"),
                 )
             )
+            result["provider_unavailable"]["until_seconds"] = session.seconds()
             await asyncio.to_thread(session.mesh.restart_mcp)
             observations.append(
                 await session.call(
@@ -96,47 +130,23 @@ async def inject(session, index, completed):
         if not result["original_receipt_unchanged"]:
             raise ValueError("duplicate delivery changed the original receipt")
     elif index == 4:
-        # Withdraw all currently retained verifier PASS supports of this target,
-        # through the public signed-record submission path. Never overwrite them.
-        _, overlay = session.configs["verifier"].runtime()
         try:
-            page = await asyncio.to_thread(
-                overlay.store.record_page,
-                RecordQuery(kinds=("evidence",), issuer="verifier", subject=session.target.subject),
-                limit=128,
+            # Stop and positively lock the checker before taking the bounded
+            # support snapshot. A concurrently offered check otherwise creates
+            # fresh valid evidence during withdrawal and tests a different claim.
+            withdrawn = await withdraw(session, session.target)
+            result.update(withdrawn_evidence_ids=withdrawn["withdrawn_evidence_ids"])
+            observations.extend(withdrawn["delivered"])
+            result["checker_quiescent_during_withdrawal"] = True
+            before = await session.call("receiver", operation="qualify", request=request(session))
+            observations.append(before)
+            result["withdrawn_support_not_accepted"] = (
+                before.get("decision", {}).get("outcome") != "ACCEPT"
             )
-            if page.next_cursor is not None:
-                raise ValueError("withdrawal fixture exceeded its predeclared evidence bound")
-            supports = [
-                item
-                for item in page.items
-                if isinstance(item, Evidence)
-                and item.verdict == "PASS"
-                and item.binding_digest == session.target.digest
-            ]
+            if not result["withdrawn_support_not_accepted"] or "decision" not in before:
+                raise ValueError("withdrawn-support decision is missing or still ACCEPT")
         finally:
-            overlay.store.close()
-        if not supports:
-            raise ValueError("withdrawal requires original independent PASS evidence")
-        result["withdrawn_evidence_ids"] = [item.id for item in supports]
-        for evidence in supports:
-            signed = session.identities["verifier"].sign(
-                Revocation(
-                    issuer="verifier",
-                    subject=evidence.subject,
-                    evidence_id=evidence.id,
-                    reason="predeclared soak operator evidence withdrawal",
-                )
-            )
-            observations.append(await session.call("verifier", operation="submit", envelope=signed))
-        observations.append(await session.sync("receiver", "verifier"))
-        before = await session.call("receiver", operation="qualify", request=request(session))
-        observations.append(before)
-        result["withdrawn_support_not_accepted"] = (
-            before.get("decision", {}).get("outcome") != "ACCEPT"
-        )
-        if not result["withdrawn_support_not_accepted"]:
-            raise ValueError("known withdrawn supports remained admitted")
+            await session.start("verifier")
         fresh = await session.verify(
             "receiver",
             "triage",
@@ -181,15 +191,17 @@ async def inject(session, index, completed):
         await session.stop("receiver")
         await session.start("receiver")
     elif index == 7:
-        observations.append(await session.call("receiver", operation="drain"))
-        refused = await session.call(
-            "receiver", **invocation(session, "fault-drain-refused", "drain 文書")
-        )
-        observations.append(refused)
-        result["new_effect_refused"] = refused.get("error") == "SERVICE_INTAKE_CLOSED"
-        if not result["new_effect_refused"]:
-            raise ValueError("new effect entered a drained owner")
-        observations.append(await session.call("receiver", operation="resume"))
+        try:
+            await intake(session, "drain", "draining", observations)
+            refused = await session.call(
+                "receiver", **invocation(session, "fault-drain-refused", "drain 文書")
+            )
+            observations.append(refused)
+            result["new_effect_refused"] = refused.get("error") == "SERVICE_INTAKE_CLOSED"
+            if not result["new_effect_refused"]:
+                raise ValueError("drained new-effect refusal is missing")
+        finally:
+            await intake(session, "resume", "ready", observations)
     elif index == 8:
         # Sixteen distinct offers against unchanged caller=4, owner=16 and
         # execution=4 bounds; the external provider is physically delayed.
@@ -276,8 +288,12 @@ async def inject(session, index, completed):
         raise ValueError("unknown predeclared fault index")
     # Recovery of service readiness is separate from reconciliation of any
     # uncertain effect. Original-ID lookup does not settle or refund those effects.
-    result["elapsed_seconds"] = time.monotonic() - started
     result["ready_after_explicit_repair"] = {
         owner: await session.call(owner, operation="status") for owner in session.configs
     }
+    if any(
+        value.get("state") != "ready" for value in result["ready_after_explicit_repair"].values()
+    ):
+        raise ValueError("explicit repair did not positively confirm every owner's readiness")
+    result["elapsed_seconds"] = time.monotonic() - started
     return result

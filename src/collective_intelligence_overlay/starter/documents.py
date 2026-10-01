@@ -641,10 +641,12 @@ class DocumentService(PeerService):
                 else:
                     raise ValueError("checker does not cover this application")
                 verdict = "PASS" if observed["result"] == expected else "FAIL"
+            verifier_version = self.verification_version()
             artifact = self.artifacts.put(
                 json.dumps(
                     {
                         "binding": binding.digest,
+                        "verifier_version": verifier_version,
                         "arguments": arguments,
                         "observed": observed,
                         "request": request,
@@ -664,7 +666,7 @@ class DocumentService(PeerService):
                     "receivers": ["producer", "receiver"],
                     "verdict": verdict,
                     "method": "reference-check",
-                    "verifier_version": "document-check.v1",
+                    "verifier_version": verifier_version,
                     "artifact_digest": artifact,
                     "expires_at": now() + timedelta(hours=1),
                 }
@@ -705,6 +707,10 @@ class DocumentService(PeerService):
     def check_threshold(self, manifest: dict[str, Any]) -> int:
         """The base example checks the declared parameter, not its external validity."""
         return int(manifest["parameters"]["threshold"])
+
+    def verification_version(self) -> str:
+        """Identify the criteria used for this independent application check."""
+        return "document-check.v1"
 
 
 def main() -> None:

@@ -341,12 +341,17 @@ class Store:
                 .mappings()
                 .one_or_none()
             )
+            # Read after acquiring the lease row lock: a clock sampled before a
+            # lock wait could authorize an already expired worker. Acquisition
+            # and completion must use the same database clock, regardless of
+            # owner Python clock skew.
+            observed: datetime = conn.execute(select(func.clock_timestamp())).scalar_one()
             if (
                 row is None
                 or row["worker"] != worker
                 or row["fence"] != fence
                 or row["state"] != "active"
-                or row["expires_at"] <= now()
+                or row["expires_at"] <= observed
             ):
                 raise Conflict("stale worker cannot commit results")
             for record, envelope in validated:

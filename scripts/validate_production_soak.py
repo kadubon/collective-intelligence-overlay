@@ -114,6 +114,7 @@ def validate(directory):
             or proof["request"]["provider"] != call["request"]["provider"]
             or proof["request"]["name"] != call["request"]["name"]
             or proof["binding"] != claim.binding_digest
+            or ("verifier_version" in proof and proof["verifier_version"] != claim.verifier_version)
         ):
             raise ValueError("independent proof differs from the original requested operation")
         if claim.verdict == "PASS" and proof["observed"].get("state") != "completed":
@@ -301,9 +302,19 @@ def validate(directory):
     faults = result["faults"]
     upper(
         "resolved_fault_recovery_seconds_max",
-        max((row.get("elapsed_seconds", 10**9) for row in faults), default=None),
+        max(
+            (
+                row["elapsed_seconds"]
+                for row in faults
+                if row["status"] == "executed" and "elapsed_seconds" in row
+            ),
+            default=None,
+        ),
         limits["resolved_fault_recovery_seconds_max"],
     )
+    observations["faults_without_recovery_confirmation"] = [
+        row["index"] for row in faults if row["status"] != "executed"
+    ]
     gates["all_predeclared_faults_executed"] = len(faults) == 11 and all(
         row["status"] == "executed" for row in faults
     )

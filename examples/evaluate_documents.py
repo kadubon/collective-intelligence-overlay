@@ -25,6 +25,7 @@ from sqlalchemy.engine import make_url
 from collective_intelligence_overlay.accounting import metrics_page
 from collective_intelligence_overlay.adapters.a2a import send
 from collective_intelligence_overlay.bindings import fingerprint
+from collective_intelligence_overlay.calls import remote_calls
 from collective_intelligence_overlay.demo import initialize
 from collective_intelligence_overlay.invocations import invocations
 from collective_intelligence_overlay.queries import RecordCursor, RecordQuery
@@ -75,20 +76,12 @@ def export_owner(config: Any, destination: Path) -> dict[str, Any]:
             else:
                 raise ValueError("record export exceeded declared page bound")
         with store.engine.connect() as conn:
-            execution_states = [
-                dict(row)
-                for row in conn.execute(
-                    select(
-                        invocations.c.caller,
-                        invocations.c.id,
-                        invocations.c.lease_id,
-                        invocations.c.state,
-                        invocations.c.phase,
-                        invocations.c.reservation_state,
-                        invocations.c.release_reason,
-                    )
-                ).mappings()
-            ]
+            execution_states = [dict(row) for row in conn.execute(select(invocations)).mappings()]
+            mappings = [dict(row) for row in conn.execute(select(remote_calls)).mappings()]
+            for row in execution_states + mappings:
+                for key, value in row.items():
+                    if hasattr(value, "isoformat"):
+                        row[key] = value.isoformat()
             remaining = {row.unit: str(row.remaining) for row in conn.execute(select(budgets))}
             reserved = [
                 {
@@ -109,6 +102,7 @@ def export_owner(config: Any, destination: Path) -> dict[str, Any]:
                     key: value.model_dump(mode="json") for key, value in config.identities.items()
                 },
                 "invocations": execution_states,
+                "remote_calls": mappings,
                 "metrics_pages": pages,
                 "signed_records": signed,
                 "remaining": remaining,

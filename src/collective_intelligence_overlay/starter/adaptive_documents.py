@@ -386,6 +386,10 @@ class AdaptiveDocuments(DocumentService):
             "active_digest": current.digest,
         }
 
+    def verification_version(self) -> str:
+        contract = checker_binding(calibration_threshold=self.calibration_threshold)
+        return "document-check." + contract.subject.version
+
     def check_threshold(self, manifest: dict[str, Any]) -> int:
         """Independent expected calibration from this verifier's operator settings.
 
