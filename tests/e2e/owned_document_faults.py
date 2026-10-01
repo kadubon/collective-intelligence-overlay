@@ -45,6 +45,26 @@ async def run(
     # the original owner and its exact committed receipt remain available.
     before = await asyncio.to_thread(originals, configs["receiver"])
     effects = mesh.mcp_audit.read_bytes()
+    draining = await call("receiver", operation="drain")
+    assert draining["state"] == "draining"
+    assert (
+        await call(
+            "receiver", operation="invocation", invocation_id=original_request["invocation_id"]
+        )
+    )["invocation"] == original_result
+    new_request = {**original_request, "invocation_id": "new-effect-during-drain"}
+    closed = await call("receiver", **new_request)
+    assert closed["error"] == "SERVICE_INTAKE_CLOSED"
+    assert (
+        await call("receiver", operation="invocation", invocation_id=new_request["invocation_id"])
+    )["invocation"] is None
+    assert (await call("receiver", operation="resume"))["state"] == "ready"
+    assert await asyncio.to_thread(originals, configs["receiver"]) == before
+    assert mesh.mcp_audit.read_bytes() == effects
+    retain(
+        "new effect request during drain",
+        {"drain": draining, "refusal": closed, "states": await states()},
+    )
     duplicate = await asyncio.to_thread(
         subprocess.run,
         [

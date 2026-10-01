@@ -9,6 +9,7 @@ from packaging.utils import parse_wheel_filename
 from packaging.version import Version
 from production_acceptance import require_prepublication
 from runtime_matrix import combinations, manifest
+from validate_short_protocol import validate as validate_short_protocol
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--candidate", type=Path, required=True)
@@ -51,6 +52,15 @@ for filename in packages:
     assert pair in required and pair not in observed, pair
     observed.add(pair)
     assert report["artifacts"] == expected and report["test_scope"] == "full"
+    if version >= Version("0.4.0"):
+        for directory in (
+            filename.parent / "source-production-faults",
+            filename.parent / "installed-production-faults" / "agents",
+        ):
+            short = validate_short_protocol(directory, root)
+            assert short["runtime"]["python"] == source["patch"]
+            assert short["runtime"]["os"] == source["os"]
+            assert short["runtime"]["machine"].lower() == source["machine"].lower()
     assert report["selected"]["version"].split()[0] == source["patch"]
     assert report["selected"]["architecture"].lower() == source["machine"].lower()
     for tests in (

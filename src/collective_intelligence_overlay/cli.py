@@ -480,7 +480,10 @@ def main() -> int:
                         port=config.listen_port or url.port or 8000,
                         access_log=False,
                         log_level="warning",
-                        limit_concurrency=config.max_concurrency + 8,
+                        # Keep transport connections bounded while leaving room
+                        # for the authenticated 16/4 gate to return Retry-After.
+                        # Execution slots and idle/body-receipt connections differ.
+                        limit_concurrency=2 * config.max_owner_requests,
                         timeout_graceful_shutdown=30,
                         log_config=None,
                     )

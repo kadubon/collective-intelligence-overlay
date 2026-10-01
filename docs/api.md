@@ -1038,6 +1038,9 @@ Authenticated ASGI capacity defaults to 16 owner requests and four per caller,
 including reads, proposals and body receipt. The configuration fields are
 `max_owner_requests` and `max_caller_requests`. Refusals use standard HTTP 503 or
 429 with `Retry-After: 1`; body receipt is bounded to 262144 bytes and 30 seconds.
+The installed CLI bounds Uvicorn transport connections separately at twice the
+owner request limit (32 by default). This leaves room to return the authenticated
+capacity refusal; it does not increase the 16/4 request or four execution limits.
 Read-only transport retries 429/503 at most three times, with each wait at most
 five seconds and the existing network deadline. The same serialized request is
 retained. A larger server-requested wait is returned without an early retry.

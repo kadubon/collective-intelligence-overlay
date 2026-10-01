@@ -158,6 +158,30 @@ The later full-duration soak failed acceptance; ten matched arms executed but
 their allowance-unit/profile assessment remains open. Those gates remain unaccepted
 in the requirement register.
 
+The later short protocol adds physical checker unavailability, quiescent signed
+Evidence withdrawal followed by a new independent check, four execution slots,
+finite budget exhaustion and the unchanged 32-unresolved ceiling. Actual HTTPS
+pressure fills all 16 owner/four caller slots and observes 429/503 with
+Retry-After. It exposed a smaller Uvicorn transport gate, which now permits the
+authenticated request gate to respond without changing the declared limits.
+Routine/current-key rotations restart all three owners; historical bytes stay
+unchanged, old HTTP authority is refused and known compromised origin becomes
+UNKNOWN. Windows development passed this combined path in 220.61 seconds.
+Earlier combined failure and transport-pressure failures remain retained.
+
+A normally resolved wheel outside checkout then passed the expanded nineteen
+injections on native WSL Linux CPython 3.12.14 in 129.76 seconds. Its retained
+bounded report checks all declared injections and hashes ten proof files;
+Windows export validation then passed in 223.61 seconds; the complete final native
+matrix remains a separate gate.
+The tested wheel SHA256 is
+`7f1c3db17bc7bd7c4c039e7b83676512b55482cfdd2ca5aa6ec3416d0a19e65f`;
+sdist SHA256 is
+`626a7bd2765f4a6f52f1bb45806518fb53f1e4a8798a08127fb091d9084edacf`.
+CI retains source and installed short-protocol proof files without copying keys,
+private homes or backup secret archives. These observations do not accept the
+hour-long soak, live 0.3.2 upgrade or complete production profile.
+
 The official Caddy 2.11.4 release binary was rejected after standard govulncheck
 reported 28 affecting vulnerabilities. Its functional test and verified archive
 digest do not override that result. Its SBOM also omitted most license fields.

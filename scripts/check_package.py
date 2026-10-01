@@ -287,6 +287,10 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
             "CIO_PACKAGE_RUNTIME_MINOR": json.dumps(requested["minor"]),
             "CIO_PACKAGE_RUNTIME_EXE": str(python),
         }
+        if full and args.report:
+            environment["CIO_PRODUCTION_FAULT_REPORT_DIR"] = str(
+                args.report.resolve().parent / "installed-production-faults" / name
+            )
         if args.from_pypi:
             index_environment = {
                 key: value

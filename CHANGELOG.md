@@ -2,6 +2,13 @@
 
 ## 0.4.0 (unreleased)
 
+- The actual three-peer short protocol now covers all nineteen declared fault
+  categories and retains bounded proof files in source/installed native CI.
+  Physical checker outage and scoped Evidence withdrawal remain distinct from
+  fresh independent PASS; current key rotations preserve original signed history.
+- Separate the installed peer's bounded transport connections from authenticated
+  request and execution limits, allowing owner-capacity 503 responses to retain
+  Retry-After instead of being preempted by Uvicorn's smaller connection gate.
 - Additive migration 0020 retains the commit-ordered offline restore boundary.
   Document recovery separates subsequent full-sync overhead from business originals;
   all signed transfer costs remain in the core proof. Missing original costs remain

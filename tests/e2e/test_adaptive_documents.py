@@ -28,7 +28,7 @@ from collective_intelligence_overlay.storage import budgets, leases
         ("calibration vocabulary", 50, "static-run", False, False),
         ("calibration vocabulary", 50, "adaptive-run", True, False),
         ("calibration vocabulary", 50, "static-run", True, False),
-        pytest.param("shared 文書 calibration", 50, "adaptive-run", False, True, id="host-normal"),
+        pytest.param("shared 文書 calibration", 100, "adaptive-run", False, True, id="host-normal"),
         pytest.param(
             "bounded checker calibration", 5, "adaptive-run", False, True, id="host-bottleneck"
         ),
@@ -115,6 +115,13 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
         overlay.store.close()
     processes = {}
     logs = []
+    core_faults = []
+
+    def observe(injection, **fields):
+        core_faults.append({"injection": injection, **fields})
+        (tmp_path / "core-fault-observations.json").write_text(
+            json.dumps(core_faults, indent=2), encoding="utf-8"
+        )
 
     async def call(owner, **data):
         if host_mode:
@@ -432,6 +439,13 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 original_result = await call("receiver", **original_request)
                 assert original_result["state"] == "completed"
                 assert original_result["result"] == {"words": 3}
+                assert await call("receiver", **original_request) == original_result
+                observe(
+                    "duplicate response/request",
+                    invocation_id=original_request["invocation_id"],
+                    original_state=original_result["state"],
+                    repeated_receipt_identical=True,
+                )
                 mappings = await call(
                     "receiver",
                     operation="remote_calls",
@@ -508,6 +522,14 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 )
                 assert fresh["state"] == "completed" and fresh["result"] == {"words": 3}
                 assert mesh.mcp_audit.read_bytes() == calls_before + b"call\n"
+                observe(
+                    "provider stop",
+                    invocation_id=uncertain_request["invocation_id"],
+                    state=uncertain["state"],
+                    reservation_state=uncertain["reservation_state"],
+                    replay_after_restart_retained=True,
+                    explicit_distinct_input_result=fresh["result"],
+                )
             old_pid = processes["receiver"].pid
             await stop("receiver")
             # Replay a completed checker result after checker restart while the
@@ -602,6 +624,14 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     finally:
                         observed_overlay.store.close()
                     assert await asyncio.to_thread(balance, "verifier") == allowance_before - 1
+                    observe(
+                        "owner Python clock offset plus DB clock checks",
+                        offset_seconds=offset,
+                        transport_error=type(refused_clock.value).__name__,
+                        database_lease_state=saved_lease[0],
+                        database_expiry_future=saved_lease[1],
+                        pass_created=False,
+                    )
                 await stop("verifier")
                 await start("verifier")
             restarted = await call("receiver", operation=mode, max_steps=8)
@@ -704,6 +734,15 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     assert chosen["accepted"] is (label == "replacement")
                     assert await call("receiver", **promotion) == chosen
                     assert await call("receiver", **request) == outcome
+                    if label == "regression":
+                        observe(
+                            "protected trial regression",
+                            evidence=checked["evidence"],
+                            candidate_digest=new_binding.digest,
+                            promoted=chosen["accepted"],
+                            active_digest=chosen["active_digest"],
+                            original_digest=original_digest,
+                        )
                     changes.append((new_binding, promotion, chosen))
                 replacement, promotion, chosen = changes[-1]
                 assert chosen["active_digest"] == replacement.digest
@@ -748,6 +787,38 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 finally:
                     inspected.store.close()
             if host_mode and work_allowance >= 50:
+                from document_checker_outage import run as checker_outage
+
+                await checker_outage(
+                    configs,
+                    identities,
+                    processes,
+                    mesh,
+                    start,
+                    stop,
+                    call,
+                    c4,
+                    checker_contract,
+                    tmp_path,
+                )
+                from document_evidence_withdrawal import run as evidence_withdrawal
+
+                await evidence_withdrawal(
+                    configs,
+                    identities,
+                    mesh,
+                    start,
+                    stop,
+                    call,
+                    sync,
+                    c4,
+                    checker_contract,
+                    request,
+                    tmp_path,
+                )
+                from document_http_pressure import run as http_pressure
+
+                await http_pressure(configs, identities, mesh, tmp_path)
                 from owned_document_faults import run as owned_faults
 
                 await owned_faults(
@@ -768,6 +839,13 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 await recovery_protocol(
                     configs, identities, start, stop, call, sync, tmp_path, mesh
                 )
+                from document_pressure_protocol import run as pressure_protocol
+
+                await pressure_protocol(configs, mesh, call, words["binding"], tmp_path)
+                from document_key_protocol import run as key_protocol
+
+                await key_protocol(configs, identities, mesh, start, stop, call, sync, c4, tmp_path)
+            withdrawal_effects = mesh.mcp_audit.read_bytes() if mesh is not None else None
             await call(
                 "producer",
                 operation="revoke",
@@ -776,10 +854,16 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
             )
             await sync("receiver", "producer")
             stopped = await call("receiver", operation=mode, max_steps=8)
-            assert stopped["reason"] == "requires_repair" and not stopped["history"]
+            # In the combined host case the compromised historical origin already
+            # requires observation; a later current-key withdrawal cannot renew it.
+            expected_reason = (
+                "requires_observation" if host_mode and work_allowance >= 50 else "requires_repair"
+            )
+            assert stopped["reason"] == expected_reason and not stopped["history"]
             denied = await call("receiver", **{**request, "invocation_id": "after-withdrawal"})
             assert denied["state"] == "unknown"
             if mesh is not None:
+                assert mesh.mcp_audit.read_bytes() == withdrawal_effects
                 # Actual continued service observations, not a synthetic duration.
                 while time.monotonic() - started < 120:
                     for owner in configs:
@@ -791,6 +875,10 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     content = path.read_text(encoding="utf-8", errors="replace")
                     assert mesh.mcp_token not in content
                     assert "This evaluation input was unavailable" not in content
+                if work_allowance >= 50:
+                    from document_fault_report import write_report
+
+                    write_report(tmp_path, time.monotonic() - started)
     finally:
         for name in processes:
             await stop(name)

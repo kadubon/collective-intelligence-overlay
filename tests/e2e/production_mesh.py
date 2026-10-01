@@ -20,13 +20,15 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
+from securesystemslib.signer import CryptoSigner
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
 from collective_intelligence_overlay.bindings import Binding, Target, fingerprint
-from collective_intelligence_overlay.config import Peer, load_config
+from collective_intelligence_overlay.config import Peer, TrustedIdentity, load_config
 from collective_intelligence_overlay.demo import free_ports
 from collective_intelligence_overlay.models import Scope, Subject, now
+from collective_intelligence_overlay.security import Identity
 from collective_intelligence_overlay.setup import bootstrap_database, initialize
 
 
@@ -112,6 +114,23 @@ class ProductionMesh:
                 owner: config.identities[owner].model_copy(update={"methods": ("reference-check",)})
                 for owner, config in self.configs.items()
             }
+            # Two authenticated test clients grant no execution, checker,
+            # proposal or operator permissions and own no service/database.
+            # Five callers are needed to exercise owner=16 and caller=4 together.
+            self.http_clients = {
+                name: Identity(name, CryptoSigner.generate_ed25519())
+                for name in ("capacity-client", "capacity-observer")
+            }
+            identities.update(
+                {
+                    name: TrustedIdentity(
+                        keyid=identity.signer.public_key.keyid,
+                        key=identity.signer.public_key.to_dict(),
+                        trust_group=name,
+                    )
+                    for name, identity in self.http_clients.items()
+                }
+            )
             peers = tuple(
                 Peer(identity=owner, url=config.url) for owner, config in self.configs.items()
             )

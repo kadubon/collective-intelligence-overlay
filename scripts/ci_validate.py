@@ -10,6 +10,7 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 from sqlalchemy import create_engine, text
+from validate_short_protocol import validate as validate_short_protocol
 
 from collective_intelligence_overlay.opa_install import architecture, verify_opa
 
@@ -23,6 +24,7 @@ root = Path(__file__).resolve().parents[1]
 output = args.report_dir.resolve()
 output.mkdir(parents=True, exist_ok=True)
 os.environ["CIO_GOLDEN_REPORT_DIR"] = str(output / "golden")
+os.environ["CIO_PRODUCTION_FAULT_REPORT_DIR"] = str(output / "source-production-faults")
 assert platform.python_version() == args.python_version, "matrix interpreter mismatch"
 assert architecture() == args.architecture, "matrix CPU mismatch"
 assert os.environ.get("CIO_TEST_DATABASE_URL") and os.environ.get("CIO_OPA"), (
@@ -80,6 +82,7 @@ totals = {
     for key in ("tests", "failures", "errors", "skipped")
 }
 assert totals["tests"] > 0 and not any(totals[k] for k in ("failures", "errors", "skipped")), totals
+validate_short_protocol(output / "source-production-faults", root)
 runtime["source_tests"] = totals
 (output / "source-runtime.json").write_text(json.dumps(runtime, indent=2) + "\n", encoding="utf-8")
 # The unpublished editable root is checked by artifact metadata/license gates;
