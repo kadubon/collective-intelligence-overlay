@@ -109,11 +109,9 @@
         "src/collective_intelligence_overlay/operations.py"
       ],
       "test": "DB/schema/OPA/key/config failures and recovery; authorized health privacy",
-      "observed": "Real PostgreSQL schema/role and OPA readiness; DB lock loss stays degraded Final pair 33898/965f additionally passed the expanded actual restricted-role readiness test in fresh normal wheel environments on native Windows and WSL Linux CPython 3.12.14, with XML times 5.850 and 3.316 seconds and no F/E/skips. Source SHA256 1a79d6a3e748b96bdb7309dc7a57310b6b40795bc2f190fac24cbc33a0fa4f2b. Changed policy, unavailable OPA, a different valid key and malformed key close intake without a new invocation or allowance change; repair still requires explicit resume. The updated all-native test gate remains pending.",
-      "remaining": [
-        "all 12 native complete operation-state and expanded restricted-role readiness regression gates"
-      ],
-      "status": "partial; complete acceptance pending"
+      "observed": "All twelve coherent final-pair native profiles from formal repeat36858429932 passed expanded restricted-role readiness in source and complete installed agents suites, with zero failures/errors/skips. Original archives and public fault hashes were independently verified. The bootstrap source is identical from fdf0f96 to current6871398, SHA256 1a79d6a3e748b96bdb7309dc7a57310b6b40795bc2f190fac24cbc33a0fa4f2b. It executes changed policy bytes, unavailable OPA, different valid key and malformed key against the actual service, asserts degraded specific reason and closed intake with no invocation/500-work allowance change, then requires explicit resume after repair. Every native report also passes seven actual operation cases for owner lock, dependency disconnect, drain, physical blocking shutdown and DB clock; authorized/private health is covered by actual TLS cases. Business UNKNOWN remains distinct from process failure. Provenance in readiness-review12-v1.json; this does not accept the newly added settings-publication fault or whole cross/publication gates.",
+      "remaining": [],
+      "status": "verified"
     },
     {
       "id": "P10",

@@ -350,3 +350,14 @@ Package implementation bytes remain unchanged. The added assertions must pass
 all twelve updated native profiles before P22 and whole acceptance close.
 The [operator change procedure](deployment.md) also covers isolated finite
 checker/allocation trials and explicit retained configuration activation.
+
+## Complete final-pair readiness review
+
+All twelve native profiles in run `36858429932` passed the expanded restricted-role
+readiness cases in source and installed suites. The unchanged bootstrap test checks
+modified policy bytes, unavailable OPA, a different valid private key and malformed
+key bytes; intake stays closed without new invocation or allowance change, and
+repair requires explicit resume. Every profile also passes the seven operation
+regressions and actual authorized/private TLS health cases. Archive provenance and
+unchanged source hash are retained in `readiness-review12-v1.json`. P09 is verified;
+this does not replace the full updated settings-fault/native/cross gates or publication.
