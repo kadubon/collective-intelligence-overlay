@@ -776,6 +776,54 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     == original_digest
                 )
                 assert await call("receiver", **request) == outcome
+                # Interrupt the real installed application's settings publication
+                # after its independent PASS and signed choice are committed.
+                # An exclusive directory obstructs only this fixture's temporary
+                # file, without relying on OS-specific permission shortcuts.
+                settings = configs["receiver"].application_settings
+                assert settings is not None
+                saved_settings = settings.read_bytes()
+                blocked_temporary = settings.with_suffix(".tmp")
+                assert not blocked_temporary.exists()
+                effects_before = mesh.mcp_audit.read_bytes()
+                blocked_temporary.mkdir()
+                interrupted = {**promotion, "command_id": "interrupted-pins-publication"}
+                try:
+                    with pytest.raises(Exception) as failed_save:
+                        await call("receiver", **interrupted)
+                    assert type(failed_save.value).__name__ == "InternalError"
+                    closed = await call("receiver", operation="status")
+                    assert closed["state"] == "draining"
+                    assert closed["reason"] == "APPLICATION_PINS_SAVE_FAILED"
+                    refused = await call(
+                        "receiver", **{**request, "invocation_id": "during-pins-save-failure"}
+                    )
+                    assert refused["error"] == "SERVICE_INTAKE_CLOSED"
+                    assert settings.read_bytes() == saved_settings
+                    assert mesh.mcp_audit.read_bytes() == effects_before
+                finally:
+                    blocked_temporary.rmdir()
+                await stop("receiver")
+                await start("receiver")
+                restored_binding = Binding.model_validate(
+                    (await call("receiver", operation="describe", name="triage"))["binding"]
+                )
+                assert restored_binding.digest == original_digest
+                historical_choice = await call("receiver", **interrupted)
+                assert historical_choice["accepted"] is True
+                assert historical_choice["active_digest"] == original_digest
+                assert await call("receiver", **request) == outcome
+                assert mesh.mcp_audit.read_bytes() == effects_before
+                observe(
+                    "interrupted application settings publication",
+                    settings_unchanged_on_failure=True,
+                    failed_save_closed_intake=True,
+                    restored_active_digest=restored_binding.digest,
+                    original_digest=original_digest,
+                    accepted_historical_choice_reapplied=False,
+                    original_receipt_preserved=True,
+                    external_calls_unchanged=True,
+                )
             if mode == "static-run":
                 from collective_intelligence_overlay.queries import RecordQuery
 

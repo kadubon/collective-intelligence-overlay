@@ -201,3 +201,33 @@ The same run's soak failed its duplicate-delivery observation, so the complete
 production profile remains unaccepted. Both the experiment's positive assessment
 and the soak's negative assessment are retained. The complete repeat identified in
 [the current acceptance status](production-040.md) uses the same pair and criteria.
+
+
+## Complete unchanged final-pair repeat
+
+The successful formal repeat in run `36858429932` uses the same fixed pair,
+five seeds, conditions, sources and criteria. All ten isolated arms passed original
+signature/result/resource/time-envelope validation: 30 separate restricted databases,
+4,713 verified original signed records, conserved allowances, all 240 task
+denominators and positive physical owner shutdown within 500 wall seconds.
+
+| Seed | Static independent PASS | Adaptive independent PASS |
+| --- | --- | --- |
+| 17 | 24/24 | 24/24 |
+| 29 | 4/24 | 3/24 |
+| 43 | 24/24 | 24/24 |
+| 71 | 24/24 | 24/24 |
+| 101 | 24/24 | 24/24 |
+
+Adaptive-minus-static paired differences are `[0, -1/24, 0, 0, 0]`, with mean
+`-0.0083333333` and descriptive paired-bootstrap 95% endpoints `[-0.025, 0]`.
+Inclusive arm durations ranged from 48.074 to 71.767 seconds. Pressure refusals
+remain in the denominator and do not establish faster successful processing.
+Five pairs, dependent tasks and this deterministic contract do not establish
+general advantage, statistical superiority or population equivalence. The earlier
+same-pair zero-difference observation is retained separately; both results are
+reported. Negative effects are valid and are not an operational release failure.
+
+The original ZIP and complete raw manifest are shared with the
+[successful soak repeat](production-soak.md). Both formal assessments now pass;
+complete production acceptance and actual publication remain separate gates.

@@ -216,3 +216,57 @@ forward migration procedure.
 The demo leaves random `cio_...` roles/databases for inspection. Remove only those
 whose names match the generated config after stopping their peers and checking that
 no retained work depends on them. It never drops unrelated databases automatically.
+
+## Change an application, checker or allocation setting
+
+Keep the current installed factory, protected settings, exact binding/checker pins,
+operator choices and coherent backup until a replacement is accepted. The operator
+owns this procedure; a proposal, model output or remote manifest cannot perform it.
+Use the existing staged Registry operations for callable/builder/checker bindings.
+For the packaged document host, use `app.stage-change`, independently check its
+exact staged digest, and use `app.promote-change` on one to eight actual protected
+inputs. The [API](api.md) describes the fields, grants, recorded choice and restart
+pins. A completed probe or generated candidate creates no independent PASS.
+
+Allocation is trusted application configuration, rather than an executable remote
+proposal. The document factory reads its validated `allocation` object from
+`application_settings`; an arbitrary installed factory can use the same existing
+`AllocationPolicy` and `allocate` API. Apply a change through this finite procedure:
+
+1. Record the previous and candidate policy values/digests, exact installed factory,
+   goals, checker contract and protected input set before the trial. Keep the normal
+   concurrency, permission, budget and time bounds. A new threshold or mode is a
+   candidate setting; copying it into a running production owner is not a trial.
+2. Start fresh isolated trial owners with their own keys, restricted databases,
+   result caches and artifacts using the existing setup and installed factory.
+   Grant read-only inputs or separate test-provider resources. Do not replay a
+   production effect, share a live owner's role, or reuse its unknown call IDs.
+3. Run bounded work through the standard owner `run`/Steps/Executor path and have
+   the separate checker verify the declared business and protected cases. Retain
+   the original receipts, signed allocation policy/rule digests, observations,
+   resource units and every refused/UNKNOWN/censored task. The installed
+   [matched experiment](production-experiments.md) is the executed reference for
+   isolated static/adaptive settings and independent checks, including its negative
+   result. Its source runner does not provide arbitrary policy autotuning.
+4. Keep the comparison basis and exact original evidence references in the owner's
+   private CAS and existing signed recommendation Event. Record whether the checker
+   contract is unchanged, changed or unknown. A changed source/calibration uses a
+   new checker digest/version, new goal pins and new independent evidence; old PASS
+   does not transfer. A recorded comparison label does not establish statistical
+   comparability. Report changed criteria separately from an old success fraction.
+5. The operator reviews the scoped results before stopping/draining the production
+   owner and saving the accepted configuration. Retain the previous settings and
+   evidence. Run `check-config` and `doctor`, restart with explicit pins, inspect
+   current signed allocation digests and apply ordinary current admission. FAIL,
+   UNKNOWN or a protected regression keeps the previous production setting.
+6. Roll back by stopping intake and restoring the retained configuration/pins through
+   the same current checks. Keep the trial, choice and production history. A rollback
+   cannot erase previous effects or uncertain reservations.
+
+The host closes intake with `APPLICATION_PINS_SAVE_FAILED` if staged-choice settings
+cannot be published. Repair the owned storage fault and restart from the last
+persisted settings before resuming work. A committed historical choice is not a
+request to reapply a transition after rollback. The normally installed Windows and
+Linux three-owner fault tests exercise this boundary; the complete updated native
+matrix remains a release gate. This procedure introduces no automatic global
+approval, policy search or new execution/state ledger.

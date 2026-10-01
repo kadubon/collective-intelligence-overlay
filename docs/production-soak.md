@@ -226,3 +226,40 @@ job exit. Both `all_predeclared_faults_executed` and
 `original_effect_signature_and_refusal_audit` remain false. A complete repeat in
 run `36858429932` uses the same fixed pair, sources, workload and numerical gates;
 the failed first run remains failed, with its original reports unchanged.
+
+
+## Complete unchanged final-pair repeat
+
+Run `36858429932` completes the same seed-401 protocol, 300-second warmup and
+3,600-second measurement on the unchanged final pair. All 110 original file hashes,
+the profile and exact driver Git bytes match. Original ZIP SHA256 is
+`d4463e903f853a4fb9eac8c4e1b7e3128ec472ad6a6d2a410ab058f8810f0a53`;
+raw file-manifest SHA256 is
+`aa9384792b9e1405dfd71d4fd6f3b51c37c993f95d79cd806abd454921a4f135`.
+The independent assessment passes all 20 quantitative and three additional gates,
+including all eleven fault confirmations. The failed first observation above is
+retained unchanged.
+
+| Observation | Actual result |
+| --- | --- |
+| Read-only all-outcome p50 / p95 / p99 (716 offers) | 0.085 / 0.418 / 1.699 seconds |
+| Invoke all-outcome p50 / p95 / p99 (225 offers) | 0.987 / 1.276 / 1.342 seconds |
+| Finite-loop all-outcome p50 / p95 / p99 (135 offers) | 1.359 / 1.800 / 2.260 seconds |
+| Maximum operation / confirmed recovery | 21.275 / 31.129 seconds |
+| Normal classified fraction / completion throughput | 1.0 / 0.25 per second |
+| Maximum owner RSS / growth after warmup | 239,243,264 / 102,592,512 bytes |
+| DB growth / artifact bytes / rotated log bytes | 39,739,392 / 421,021 / 37,851,597 |
+| Maximum unresolved / selected unverified targets | 12 / 1 |
+| Actual five-second OS sample slots | 781 |
+| Verified original signed records / original check artifacts | 3,583 / 150 |
+
+All offered outcomes are retained; no censored or failed client operation was
+observed in this repeat. Original audits matched 221 completed calls, 49 original
+queries and two closed-intake refusals without execution. The backlog scope is
+the two selected current report/triage requests; receipt age is not continuous
+verification-gap age. Linux OS samples include real owner/descendant and shared
+service observations. CPU/bytes/RSS/wall time/allowance and missing currency/model
+resources remain separate, and overlapping durations/counters are not summed.
+This is the declared workload on its measured host, not a universal SLA or an
+hour-long Windows/macOS soak. Whole-profile acceptance still requires the remaining
+native/cross, change and publication gates.

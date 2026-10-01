@@ -25,9 +25,11 @@ restart returned the original receipt unchanged; it does not retroactively pass 
 failed injection. The precise transport cause remains unknown. Both failed raw
 observations and the assessment are retained.
 
-[A new formal run](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36858429932)
-reuses the same pair, profile, driver sources and acceptance criteria without
-rebuilding. Earlier complete native, soak and matched experiment observations
+[The complete formal repeat](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36858429932)
+passed all 20 numerical and three additional soak gates, plus the five-pair
+experiment, on the same pair, profile and driver sources without rebuilding.
+The pressure pair retained static 4/24 versus adaptive 3/24; no general adaptive
+advantage is established. The first failed soak remains failed and unchanged. Earlier complete native, soak and matched experiment observations
 below apply to their named candidate hashes and cannot substitute for this final
 pair. The release selector checks tagged packaged source bytes against the
 pretested pair; it never rebuilds the pair at publication.
@@ -317,3 +319,34 @@ the new formal soak, the current complete cross matrix or publication. The
 failed first formal soak and all earlier negative originals remain retained.
 Whole-profile acceptance stays closed. P22 change/comparison and P20 full
 resource evidence are assessed separately.
+
+
+## Complete unchanged final-pair formal repeat
+
+Run `36858429932` retained original artifact `11164682635`, ZIP SHA256
+`d4463e903f853a4fb9eac8c4e1b7e3128ec472ad6a6d2a410ab058f8810f0a53`.
+All 110 original report files match raw manifest SHA256
+`aa9384792b9e1405dfd71d4fd6f3b51c37c993f95d79cd806abd454921a4f135`.
+Independent assessment verifies the exact final pair, predeclared profile and
+unchanged driver sources. Soak and matched experiment both pass. The negative
+first final-pair soak and earlier experiments remain retained separately.
+
+P20 and P24 are now verified for their declared scopes. The complete native/cross
+matrix, the new settings-publication fault and P22 change/comparison review,
+whole integrated acceptance and publication remain open. No release manifest or
+tag is created before those requirements pass. See the exact
+[soak observations](production-soak.md) and
+[paired negative observation](production-experiments.md).
+
+## Settings-publication fault added to the same candidate
+
+The updated host-normal source and installed protocol obstructs only its own
+settings temporary path after an independently checked replacement and committed
+signed choice. Fresh ordinary final-wheel installations passed this complete
+three-owner path on Windows and native WSL Linux CPython 3.12.14. They verify
+closed intake, unchanged persisted settings/external calls, old active binding
+after restart and historical-choice retry without reapplying the transition.
+Package implementation bytes remain unchanged. The added assertions must pass
+all twelve updated native profiles before P22 and whole acceptance close.
+The [operator change procedure](deployment.md) also covers isolated finite
+checker/allocation trials and explicit retained configuration activation.
