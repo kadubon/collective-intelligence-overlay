@@ -1,7 +1,9 @@
 # Production 0.4.0 acceptance declaration
 
-The profile was declared before implementation. Production 0.4.0 remains an
-unpublished candidate with final acceptance pending. The published baseline is
+The profile was declared before implementation. All prepublication requirements
+now pass on the unchanged candidate pair. Production 0.4.0 remains unpublished;
+the immutable tag gates, actual publication, fresh PyPI verification and final
+actual results are still required. The published baseline is
 0.3.2 at `b172c0d0`, with all 12 native tag and
 actual-PyPI profiles verified; see [validation](validation.md).
 
@@ -116,7 +118,8 @@ The [matched experiment runner](production-experiments.md) documents its fixed
 assignments, actual production path, original-result validation and resource limits.
 Development fixture runs remain separate from the formal five pairs.
 The [soak driver](production-soak.md) records the fixed offered mix, faults,
-resource measurements and retained development failures; release validation is pending.
+resource measurements and retained development failures. The complete independent
+prepublication assessment below passes; publication verification remains pending.
 
 Do not relax this profile after seeing measurements. Preserve failed reports and
 fix the implementation, then run the complete affected protocol again. A separately
@@ -382,3 +385,39 @@ literal assembly includes, and source/notice ZIP SHA256
 `dd0b69b10b5e1e6b192ea3204a820bb95ca0cfb49654333158fea091656dc3d6`.
 The frozen wheel/sdist and every formal driver remain unchanged. The complete
 updated native/cross gates, integrated acceptance and publication remain required.
+
+## Complete prepublication assessment of the updated final pair
+
+Run `36870275184` completed all twelve native source and normally installed groups:
+374 source, 373 installed agents, one separate mocked-model and 63 rebuilt-sdist
+tests per profile, with zero failures, errors or mandatory skips. All 24 original
+source/installed short fault protocols satisfy the nineteen declared categories
+and their ten-file proof hashes. The added settings-publication recovery passes
+on every native OS/CPU/patch. All four installed cross readers verify 228 original
+signatures from all twelve origins; mixed minimum/latest Python also passes.
+All 36 actual installed dependency name/version sets exactly match their original
+audits without findings or skipped dependencies, with paired licenses and SBOMs.
+The unpublished first-party root's actual-index audit remains post-publication work.
+
+This run's old ready job `110443929442` failed at the same corrected notice lookup;
+its original log SHA256 is
+`a54c07ac6dc4f3a5e369428674ad80d78986f91dcd29dabb5923c80c16f69ea3`.
+Neither failed whole workflow is called a pass. Using the current fixed reviewer,
+an actual Linux assessment of all twelve updated native originals passes: 2,814
+source/notice files, no unresolved literal includes, and source/notice ZIP SHA256
+`b1b86f015a0e835a4deed1211a77e49b3015e79d6e3496f1efe9f856b155a0a9`.
+
+Canonical Git source bytes match all ten original formal driver files. Existing
+`check_production_reports.py` independently reassesses the unchanged 110 originals:
+20 numerical and three additional soak gates, and the five-pair matched experiment,
+all pass. Derived assessments remain outside the original set. The complete
+`check_matrix.py` passes against the combined updated native/cross/mixed/formal
+reports and the accurate prepublication register. P03-P30 are verified at their
+declared scopes. Only actual publication/post-publication verification (P31) and
+the final actual report (P32) remain.
+
+The [release selector](release-040.json) fixes original run `36858429932`, source
+`fdf0f961351f7d18bcd314eb5c3e6d28916db4e1`, exact artifacts and raw `aa938` manifest.
+The immutable tag must rerun the current complete native/source/ready gates,
+including the newly added portable-path regression, before OIDC publication.
+It restores these tested artifacts rather than rebuilding a publication pair.

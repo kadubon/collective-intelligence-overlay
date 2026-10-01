@@ -266,7 +266,8 @@ proposal. The document factory reads its validated `allocation` object from
 The host closes intake with `APPLICATION_PINS_SAVE_FAILED` if staged-choice settings
 cannot be published. Repair the owned storage fault and restart from the last
 persisted settings before resuming work. A committed historical choice is not a
-request to reapply a transition after rollback. The normally installed Windows and
-Linux three-owner fault tests exercise this boundary; the complete updated native
-matrix remains a release gate. This procedure introduces no automatic global
+request to reapply a transition after rollback. All twelve updated native source
+and normally installed three-owner fault protocols pass this boundary on the
+fixed candidate pair; final immutable-tag gates remain required before publication.
+This procedure introduces no automatic global
 approval, policy search or new execution/state ledger.

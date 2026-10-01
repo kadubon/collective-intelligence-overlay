@@ -37,6 +37,16 @@ After publication, dispatch with `candidate_run_id` and the defaults
 verification path. See the [official workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 and [artifact download requirements](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts).
 
+The 0.4.0 prepublication selector is now recorded in `docs/release-040.json`.
+Its original formal run is `36858429932` at `fdf0f96`; updated native evidence is
+`36870275184` at `6871398`, with all twelve native jobs and four cross readers
+successful. Their old aggregate jobs failed on Windows notice separators read
+on Linux. The corrected local Linux source/notice review and complete original
+production/matrix assessment pass, with failures preserved; the whole old runs
+are not called successful. The tag still reruns every required final gate before
+OIDC publication. Actual publication and cache-disabled actual-index verification
+have not occurred at this prepublication checkpoint.
+
 ## 0.3.2 published and verified on 2026-09-30
 
 Release commit `b172c0d0ef208ede4ae3a663a158f1713d7f49a0`, immutable annotated
