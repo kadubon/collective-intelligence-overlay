@@ -292,6 +292,8 @@ class Recovery:
             )
             if not gate["restore_pending"] or gate["restored_at"] is None:
                 raise ValueError("no closed restored generation to review")
+            if gate["restored_sequence"] is None or gate["restored_sequence"] < 0:
+                raise ValueError("restore commit boundary unavailable; run offline restore-state")
             signed = hashlib.sha256()
             count = 0
             query = select(records).order_by(records.c.sequence).limit(65537)
@@ -384,6 +386,7 @@ class Recovery:
                 "owner": self.store.owner,
                 "generation": gate["generation"],
                 "restored_at": gate["restored_at"].isoformat(),
+                "restored_sequence": gate["restored_sequence"],
                 "signed_records_digest": signed.hexdigest(),
                 "signed_records": count,
                 "allowance_remaining": {k: str(v) for k, v in balances.items()},

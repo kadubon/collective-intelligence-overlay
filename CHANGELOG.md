@@ -2,6 +2,10 @@
 
 ## 0.4.0 (unreleased)
 
+- Additive migration 0020 retains the commit-ordered offline restore boundary.
+  Document recovery separates subsequent full-sync overhead from business originals;
+  all signed transfer costs remain in the core proof. Missing original costs remain
+  UNKNOWN; older restores require a new offline restore-state operation.
 - An optional document recovery query compares a restored database/CAS with an
   operator-pinned preserved original and private application settings through
   read-only transactions and the

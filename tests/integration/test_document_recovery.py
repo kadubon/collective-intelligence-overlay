@@ -7,6 +7,7 @@ from datetime import timedelta
 from decimal import Decimal
 
 import pytest
+from sqlalchemy import func, select
 from test_production_recovery_review import restored_database
 
 from collective_intelligence_overlay.application import ApplicationHost, load_application
@@ -15,7 +16,10 @@ from collective_intelligence_overlay.calls import RemoteCalls, call_instance
 from collective_intelligence_overlay.models import Event, Subject, now
 from collective_intelligence_overlay.recovery import backup
 from collective_intelligence_overlay.starter.application import configure
-from collective_intelligence_overlay.starter.document_recovery import register
+from collective_intelligence_overlay.starter.document_recovery import register, snapshot
+from collective_intelligence_overlay.storage import Store
+from collective_intelligence_overlay.storage import records as signed_records
+from collective_intelligence_overlay.synchronization import Feed, FeedFilter, Receiver
 
 
 def reference_file(config, path):
@@ -235,3 +239,86 @@ async def test_restored_database_cannot_serve_as_its_own_external_reference(app_
         assert host.overlay.store.restore_pending()
     finally:
         host.close()
+
+
+async def test_post_backup_source_sync_cost_is_not_erased_by_restore_sync(
+    app_config, identities, tmp_path
+):
+    config = app_config.model_copy(update={"local_development": True})
+    reference = reference_file(config, tmp_path / "preserved-config.json")
+    source = load_application(config)
+    register(source, reference)
+    source.overlay.store.set_budget("work", Decimal(10))
+    source.close()
+    archive = tmp_path / "backup"
+    backup(
+        config,
+        archive,
+        operator_url=os.environ["CIO_TEST_DATABASE_URL"],
+        pg_prefix=tuple(json.loads(os.environ.get("CIO_PG_TOOL_PREFIX", "[]"))),
+    )
+    source = load_application(config)
+    provider = Store(
+        config.database_url.get_secret_value(), "producer", source.overlay.store.principals
+    )
+    try:
+        scope = FeedFilter()
+        candidate = source.overlay.store.capabilities()[0].model_copy(update={"issuer": "producer"})
+        provider.put(identities["producer"].sign(candidate))
+        page = Feed(provider, identities["producer"]).page("receiver", scope)
+        Receiver(source.overlay.store).apply(
+            "producer",
+            scope,
+            page,
+            identity=identities["receiver"],
+            network_seconds=Decimal("0.001"),
+        )
+        source_transfer = [
+            event for event in source.overlay.store.events() if event.action == "import"
+        ]
+        assert len(source_transfer) == 1
+        assert source_transfer[0].costs[0].category == "transfer"
+        source.close()
+        with restored_database(config, archive / "database.dump") as restored:
+            host = load_application(restored)
+            query = register(host, reference)
+            try:
+                generation = host.overlay.store.reset_sync_after_restore()
+                baseline = snapshot(host.overlay.store, generation, host.config.artifacts())
+                Receiver(host.overlay.store).apply(
+                    "producer",
+                    scope,
+                    page,
+                    identity=identities["receiver"],
+                    network_seconds=Decimal("0.001"),
+                )
+                # Actual post-restore sync overhead is retained in signed storage
+                # and the core proof while business originals remain unchanged.
+                assert snapshot(host.overlay.store, generation, host.config.artifacts()) == baseline
+                state = host.recovery.inspect()
+                with host.overlay.store.engine.connect() as conn:
+                    assert (
+                        state["signed_records"]
+                        == conn.execute(
+                            select(func.count()).select_from(signed_records)
+                        ).scalar_one()
+                    )
+                    transfer_sequence = conn.execute(
+                        select(signed_records.c.sequence).where(
+                            signed_records.c.record_id == host.overlay.store.events()[0].id
+                        )
+                    ).scalar_one()
+                assert transfer_sequence > state["restored_sequence"]
+                review = await host.recovery.review(
+                    "receiver", "missing-source-transfer", query.id, {}
+                )
+                assert review["business_state"] == "unknown"
+                proof = json.loads(host.config.artifacts().get(review["observation_digest"]))
+                assert proof["observation"]["reason"] == "REFERENCE_POST_BACKUP_MISMATCH"
+                assert proof["observation"]["allowance_remaining"] == state["allowance_remaining"]
+                assert host.overlay.store.restore_pending()
+            finally:
+                host.close()
+    finally:
+        provider.close()
+        source.close()

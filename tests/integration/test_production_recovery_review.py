@@ -276,3 +276,19 @@ async def test_recovery_requires_new_full_sync_and_rechecks_drift(app_config, id
             assert conn.execute(select(feed_state.c.restore_pending)).scalar_one()
     finally:
         host.close()
+
+
+def test_legacy_restore_without_commit_boundary_stays_closed(app_config):
+    host = load_application(app_config)
+    try:
+        host.overlay.store.reset_sync_after_restore()
+        with host.overlay.store.engine.begin() as conn:
+            conn.execute(update(feed_state).values(restored_sequence=None))
+        with pytest.raises(ValueError, match="offline restore-state"):
+            host.recovery.inspect()
+        assert host.overlay.store.restore_pending()
+        host.overlay.store.reset_sync_after_restore()
+        assert host.recovery.inspect()["restored_sequence"] >= 0
+        assert host.overlay.store.restore_pending()
+    finally:
+        host.close()

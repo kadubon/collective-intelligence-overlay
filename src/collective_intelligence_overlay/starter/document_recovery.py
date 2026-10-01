@@ -30,6 +30,7 @@ from collective_intelligence_overlay.operations import OwnerAlreadyRunning, Owne
 from collective_intelligence_overlay.recovery import RecoveryObservation
 from collective_intelligence_overlay.security import digest, verify
 from collective_intelligence_overlay.storage import Store, budgets, feed_state, leases, records
+from collective_intelligence_overlay.synchronization import FeedFilter
 
 
 def snapshot(
@@ -39,6 +40,7 @@ def snapshot(
     started = time.monotonic()
     with store.engine.connect().execution_options(isolation_level="REPEATABLE READ") as conn:
         conn.execute(text("SET TRANSACTION READ ONLY"))
+        gate = conn.execute(select(feed_state).where(feed_state.c.id == 1)).mappings().one()
         result: dict[str, Any] = {}
         for name, table, order in (
             ("invocations", invocations, (invocations.c.caller, invocations.c.id)),
@@ -103,6 +105,26 @@ def snapshot(
                 ):
                     raise ValueError("reference recovery observation generation mismatch")
                 review_artifacts.add(record.subject.digest)
+                continue
+            if (
+                gate["restore_pending"]
+                and gate["generation"] == reviewed_generation
+                and gate["restored_sequence"] is not None
+                and row["sequence"] > gate["restored_sequence"]
+                and isinstance(record, Event)
+                and record.action == "import"
+                and record.id == "transfer-" + record.attempt_id
+                and record.task_id.startswith("sync/")
+                and record.task_id[5:] in store.principals
+                and record.correlation_id == FeedFilter().digest
+                and len(record.costs) == 1
+                and record.costs[0].category == "transfer"
+                and record.costs[0].status == "measured"
+                and record.costs[0].unit == "wall_seconds"
+            ):
+                # Full sync after the positive local restore boundary consumes
+                # real resources. Core recovery keeps these signed costs in its
+                # exact proof; they are not missing pre-restore business work.
                 continue
             originals.append([row["kind"], row["record_id"], row["envelope"]])
         if not originals or len(originals) > 65536:

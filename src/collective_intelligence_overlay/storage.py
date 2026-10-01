@@ -89,6 +89,7 @@ feed_state = Table(
     Column("sequence", BigInteger, nullable=False),
     Column("restore_pending", Boolean, nullable=False, server_default="false"),
     Column("restored_at", DateTime(timezone=True)),
+    Column("restored_sequence", BigInteger),
     Column("recovery_receipt", String(160)),
     Column("recovery_digest", String(64)),
 )
@@ -464,7 +465,11 @@ class Store:
 
         generation = uid()
         with self.engine.begin() as conn:
-            conn.execute(select(feed_state).where(feed_state.c.id == 1).with_for_update()).one()
+            current = (
+                conn.execute(select(feed_state).where(feed_state.c.id == 1).with_for_update())
+                .mappings()
+                .one()
+            )
             conn.execute(
                 update(feed_state)
                 .where(feed_state.c.id == 1)
@@ -472,6 +477,7 @@ class Store:
                     generation=generation,
                     restore_pending=True,
                     restored_at=func.clock_timestamp(),
+                    restored_sequence=current["sequence"],
                     recovery_receipt=None,
                     recovery_digest=None,
                 )

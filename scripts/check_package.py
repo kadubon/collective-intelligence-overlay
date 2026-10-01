@@ -72,6 +72,7 @@ with zipfile.ZipFile(wheel) as archive:
         "migrations/versions/0017_recovery_gate.py",
         "migrations/versions/0018_recovery_review.py",
         "migrations/versions/0019_sync_completion.py",
+        "migrations/versions/0020_restore_sequence.py",
         "schemas/config.json",
         "starter/application.py",
         "starter/Caddyfile",

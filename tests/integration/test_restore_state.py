@@ -59,6 +59,8 @@ def test_restore_rotation_invalidates_cursors_and_freshness_preserves_records(
         store.record_page(RecordQuery(), cursor=inspection.next_cursor)
     with store.engine.connect() as conn:
         assert conn.execute(select(table)).mappings().all() == original
+        gate = conn.execute(select(feed_state)).mappings().one()
+        assert gate["restored_sequence"] == max(row["sequence"] for row in original)
     # Repeated recovery is safe for immutable history, and rotates again.
     assert store.reset_sync_after_restore() != generation
     assert len(store.revocations()) == 1

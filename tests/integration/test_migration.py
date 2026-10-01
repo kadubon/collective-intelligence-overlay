@@ -147,7 +147,7 @@ def test_actual_published_032_upgrade_and_old_dump_preserve_originals(
     assert snapshot(store) == original
     assert {e.verdict for e in store.evidence()} == {"PASS", "FAIL", "UNKNOWN"}
     with store.engine.connect() as conn:
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0019"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0020"
         assert conn.execute(select(remote_calls.c.arguments_digest)).scalar_one() is None
         assert (
             conn.execute(
@@ -416,7 +416,7 @@ def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_s
         assert selection["cause_id"] == projection["cause_id"]
         assert conn.execute(select(requests)).first() is None
         assert conn.execute(select(remote_calls)).first() is None
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0019"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0020"
         assert conn.execute(
             select(invocations.c.id).where(invocations.c.id == fixture["legacy_remote_id"])
         ).scalar_one()

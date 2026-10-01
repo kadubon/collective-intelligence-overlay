@@ -1,5 +1,15 @@
 # Compatibility and licensing
 
+## Unreleased 0.4.0 restore boundary
+
+Migration 0020 adds a nullable local `feed_state.restored_sequence` projection.
+It changes no public record version, DSSE bytes or historical balance. The offline
+restore-state transaction captures the existing commit-ordered counter. Older
+closed restores have no positive boundary and require that operation again before
+review; migration does not backfill an invented historical value. The optional
+document query separates positively ordered full-sync overhead from its business
+comparison while core recovery retains those signed measured costs.
+
 ## Unreleased 0.4.0 message lifecycle
 
 The existing `a2a-sdk==1.1.5` dependency provides both public handlers.

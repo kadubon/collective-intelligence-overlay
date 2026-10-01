@@ -26,8 +26,11 @@ after await cancellation, retain the owner session lock until physical work ends
 and keep restored intake closed until verification/sync/reconciliation. Runtime DB
 roles have DML privileges and no DDL or database ownership. DDL uses a separate
 explicit operator connection. Preserve old signed bytes and uncertain allowances.
-Additive 0016-0019 projections retain legacy argument ambiguity, durable restored
-intake closure and local database sync completion time. Recovery review uses a
+Additive 0016-0020 projections retain legacy argument ambiguity, durable restored
+intake closure, local database sync completion time and a commit-ordered restore
+boundary. Post-restore full-sync costs remain signed and included in core recovery
+proofs; missing pre-restore originals must never be excluded as new overhead.
+Recovery review uses a
 registered read-only external-state query and existing signed events; echoing
 restored state is insufficient. Explicit resume rechecks the unchanged proof.
 Keep source-declared freshness distinct from local restore/sync ordering.

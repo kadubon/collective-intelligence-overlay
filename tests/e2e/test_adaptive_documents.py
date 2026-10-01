@@ -101,8 +101,13 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
     if host_mode:
         settings = configs["receiver"].application_settings
         data = json.loads(settings.read_text(encoding="utf-8"))
-        data["recovery_reference_config"] = "config.json"
+        data["recovery_reference_config"] = "preserved-reference.json"
         write_json(settings, data)
+        preserved = configs["receiver"].model_dump(mode="json")
+        preserved["database_url"] = configs["receiver"].database_url.get_secret_value()
+        reference = settings.parent / "preserved-reference.json"
+        reference.write_text(json.dumps(preserved), encoding="utf-8")
+        reference.chmod(0o600)
     identities = {}
     for name, config in configs.items():
         identity, overlay = config.runtime()
@@ -119,7 +124,7 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                 data = {**data, "operation": "app." + data["operation"]}
         return await send(configs[owner], identities[owner], owner, data)
 
-    async def start(name, *, clock_offset=None):
+    async def start(name, *, clock_offset=None, expected_state="ready"):
         config: Config = configs[name]
         log_path = config.private_key.parent / "adaptive.log"
         log = log_path.open("ab")
@@ -158,7 +163,7 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     raise AssertionError(log_path.read_text(encoding="utf-8"))
                 try:
                     observed = await call(name, operation="status" if host_mode else "metrics")
-                    if host_mode and observed["state"] != "ready":
+                    if host_mode and observed["state"] != expected_state:
                         await asyncio.sleep(0.1)
                         continue
                     return
@@ -742,6 +747,12 @@ async def test_peer_selected_document_formation_restart_and_withdrawal(
                     ).items
                 finally:
                     inspected.store.close()
+            if host_mode and work_allowance >= 50:
+                from document_recovery_protocol import run as recovery_protocol
+
+                await recovery_protocol(
+                    configs, identities, start, stop, call, sync, tmp_path, mesh
+                )
             await call(
                 "producer",
                 operation="revoke",

@@ -144,7 +144,11 @@ consumption or call provenance requires UNKNOWN and operator diagnosis. Do not
 clear its flag to make resume pass. The optional document query
 `document-recovery-state` uses an operator-pinned preserved original database/CAS;
 configure its private `recovery_reference_config` before backup and keep that
-original owner stopped through review/resume. Lost/unavailable originals remain
+original owner stopped through review/resume. Offline restore-state records the
+commit boundary; an older restored generation without it needs another offline
+restore-state. Subsequent full-sync costs remain signed in the core proof even
+when separated from business originals. Missing original costs stay UNKNOWN.
+Lost/unavailable originals remain
 UNKNOWN. See the API for its scope and limits. `key-rotate` prepares an
 operator bundle; the operator updates current peer pins. Historical origin does
 not grant current HTTP authority, and compromised/backdated signatures require

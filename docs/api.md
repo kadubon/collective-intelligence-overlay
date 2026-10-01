@@ -1059,7 +1059,10 @@ retained for diagnosis. Existing destinations are refused.
 `business_restore_verified: false`. It does not restore a database or establish
 that external work since the backup is represented. `restore-state --config PATH`
 requires an offline owner lock, rotates the feed and invalidates freshness. It now
-persists closed intake across restart. Explicit operator review uses the existing
+persists closed intake and the commit-ordered publication boundary across restart.
+Migration 0020 leaves older restored boundaries unknown; run offline `restore-state`
+again before review rather than inventing a boundary from the current counter.
+Explicit operator review uses the existing
 Registry and signed event path below. Do not manually clear the database flag to
 substitute for that review.
 
@@ -1107,7 +1110,12 @@ owner lock, uses read-only repeatable-read transactions and compares actual
 invocations, leases, remote mappings, allowance, original owner DSSE, CAS bytes
 and private application settings/Goal pins.
 Recovery observations of the exact restored generation remain separate measured
-overhead. Missing artifacts, maps, work or consumption produce
+overhead. Full-sync transfer costs committed after the offline restore boundary
+also remain separate in this business comparison. Their original signed bytes and
+real measured costs remain in storage and the complete core recovery proof.
+Transfer costs from the preserved original, including post-backup costs, remain
+part of the comparison. Classification uses committed sequence, not record time.
+Missing artifacts, maps, work or consumption produce
 `REFERENCE_POST_BACKUP_MISMATCH`. An active original owner, unavailable original
 or another closed restored generation produces UNKNOWN. Exact original artifact
 bytes can be transferred explicitly before a new review; this creates no PASS.

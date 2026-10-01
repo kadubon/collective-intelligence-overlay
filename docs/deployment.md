@@ -145,6 +145,13 @@ forward Alembic revisions explicitly, and requalify changed dependencies. Destru
 downgrades are unsupported; restore a verified backup instead. Test recovery against
 your own data/identity infrastructure before production use.
 
+Migration 0020 adds the local restore publication boundary without changing signed
+history. After restoring an older closed generation, run offline `restore-state`
+again: migration does not fabricate a historical boundary. The document recovery
+query distinguishes positively ordered post-restore full-sync overhead from business
+originals, while retaining all signed costs in storage and the core recovery proof.
+Missing pre-restore work or costs remain UNKNOWN and intake stays closed.
+
 Migration 0007 adds scoped history projections and bounded backfills of local
 decisions. Original signed bodies/envelopes and decision bodies are preserved.
 Decision writes share the existing transactional publication counter so inspection
