@@ -1,6 +1,12 @@
 # Changelog
 
-## 0.4.0 (unreleased)
+## 0.4.0 (2026-10-02)
+
+- The immutable tag and cache-disabled actual-PyPI workflows passed all 12 native
+  profiles, four cross readers, mixed Python and the unchanged formal 20+3 gates.
+  The exact pair was published by official PyPA OIDC; all 36 post-publication
+  root-inclusive audits pass. See `docs/release-040-results.json` and the final
+  Japanese report. Historical failures and the negative matched result are retained.
 
 - Native proxy notice reports use portable relative paths; the aggregate reviewer
   also accepts retained Windows separators and rejects paths outside the native
@@ -91,7 +97,8 @@
   identity and never renews admission. The installed document host connects stage,
   independent checking, explicit promotion and retained rollback with exact pins.
   An independent calibration regression retains the old binding. Complete native
-  fault/comparability acceptance remains pending.
+  fault/comparability acceptance passed within the declared read-only scope; no
+  general checker comparability or irreversible rollback guarantee is inferred.
 - The existing document application is packaged, with source launchers using the
   same implementation. Explicitly granted `app.*` operations and a bounded owner
   runner connect its actual MAF formation/check/reuse loop to standard host intake.

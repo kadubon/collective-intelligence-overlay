@@ -156,7 +156,7 @@ uncertain original remains UNKNOWN with held allowance. This legacy loopback
 compatibility check does not establish an HTTPS production deployment or a
 rolling upgrade.
 
-Use a separately installed 0.4.0 candidate interpreter for the following offline
+Use a separately installed published 0.4.0 interpreter for the following offline
 commands; retain the original 0.3.2 installation and verified backup. The URLs,
 keys, execution environment and CSV binding/checker contracts remain pinned.
 `CIO_BACKUP_DATABASE_URL` names the operator backup connection;
@@ -191,7 +191,7 @@ original-state comparison creates no independent PASS and cannot resend or refun
 old UNKNOWN calls. Missing originals keep intake closed.
 
 The source-only `scripts/run_upgrade_032.py` protocol runs actual normally installed
-0.3.2 and candidate peers. The Linux minimum-Python installed-package gate requires
+0.3.2 and 0.4.0 peers. The Linux minimum-Python installed-package gate requires
 its signed-byte/old-column, original-ID, protected-role, closed-restore and CSV
 business assertions. Its shared reports exclude private homes and backups.
 
@@ -268,6 +268,7 @@ cannot be published. Repair the owned storage fault and restart from the last
 persisted settings before resuming work. A committed historical choice is not a
 request to reapply a transition after rollback. All twelve updated native source
 and normally installed three-owner fault protocols pass this boundary on the
-fixed candidate pair; final immutable-tag gates remain required before publication.
+fixed published pair in both final tag and actual-index workflows; see
+[actual results](release-040-results.json).
 This procedure introduces no automatic global
 approval, policy search or new execution/state ledger.

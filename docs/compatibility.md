@@ -1,6 +1,35 @@
 # Compatibility and licensing
 
-## Unreleased 0.4.0 restore boundary
+0.4.0 is published and the predeclared permissioned single-owner profile passes.
+[Immutable tag CI / PyPA OIDC](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36911991678) and
+[cache-disabled actual-PyPI CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36922605705) are whole-workflow successful at `f3f6ae30de6f088c160e0c69f49796e4f52d2546`.
+Both validate all 12 native profiles, four cross readers, mixed Python and the
+unchanged formal originals: 20 numerical and three additional gates, no pending validation.
+Actual-index verification also matches all 36 root-inclusive resolved name/version audits,
+with no findings or skips. [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.0) contains the exact
+tested wheel/sdist and checked evidence ZIP; actual downloads match their recorded hashes.
+See [machine-readable actual results](release-040-results.json),
+[Japanese final report](release-040-report.ja.md) and [declared scope](production-040.md).
+The Linux one-hour observation, negative matched result and unverified wider scope
+remain explicit. The immutable tag preserves its historical prepublication documentation;
+the current actual results are recorded here on main without changing packaged files.
+
+| Native OS / CPU | CPython | Tag / actual PyPI | Source / agents / mock model / rebuilt sdist | Actual PyPI core / agents / model audit counts |
+| --- | --- | --- | --- | --- |
+| Darwin / amd64 | 3.12.14 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 63 / 66 |
+| Darwin / amd64 | 3.13.15 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 59 / 63 |
+| Darwin / amd64 | 3.14.7 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 59 / 63 |
+| Darwin / arm64 | 3.12.14 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 63 / 66 |
+| Darwin / arm64 | 3.13.15 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 59 / 63 |
+| Darwin / arm64 | 3.14.7 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 59 / 63 |
+| Linux / amd64 | 3.12.14 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 63 / 66 |
+| Linux / amd64 | 3.13.15 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 59 / 63 |
+| Linux / amd64 | 3.14.7 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 59 / 63 |
+| Windows / amd64 | 3.12.14 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 64 / 67 |
+| Windows / amd64 | 3.13.15 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 60 / 64 |
+| Windows / amd64 | 3.14.7 | PASS / PASS | 375 / 374 / 1 / 64 | 31 / 60 / 64 |
+
+## 0.4.0 restore boundary
 
 Migration 0020 adds a nullable local `feed_state.restored_sequence` projection.
 It changes no public record version, DSSE bytes or historical balance. The offline
@@ -10,7 +39,7 @@ review; migration does not backfill an invented historical value. The optional
 document query separates positively ordered full-sync overhead from its business
 comparison while core recovery retains those signed measured costs.
 
-## Unreleased 0.4.0 message lifecycle
+## 0.4.0 message lifecycle
 
 The existing `a2a-sdk==1.1.5` dependency provides both public handlers.
 The overlay's Message-only host now explicitly selects
@@ -22,7 +51,8 @@ official handler that finishes each request. This changes no A2A wire version,
 signature scheme or business store and uses no SDK private patch.
 Client requests also finish their nonstreaming iterator and call public `close`.
 Three lifecycle tests and 18 actual HTTP/TLS/auth/refusal cases passed locally;
-the complete native matrix and full-duration repeat for this change remain pending.
+the complete native tag/actual-index matrices and the unchanged-pair full-duration
+repeat passed; see [actual results](release-040-results.json).
 
 ## 0.3.2 native release validation (2026-09-30)
 
@@ -301,9 +331,10 @@ with zero findings and no skipped dependencies. Original license/SBOM reports
 are preserved. Eight profiles are from expanded recheck `36854239260`; four Mac
 profiles are from original run `36848916312`. Their GitHub archive digests and
 report-file hashes were verified. Package and proxy sources are unchanged between
-the two runs. This combined supply review does not establish a complete expanded
-readiness-test matrix or workflow pass. The unpublished first-party root's actual
-PyPI index audit remains a mandatory post-publication gate.
+the two runs. That historical combined review did not establish a complete expanded readiness
+workflow. The later immutable tag and actual-index workflows both pass completely;
+all 36 actual-index audits include the published root and match the full distribution
+resolution exactly, with no findings or skips. See [actual results](release-040-results.json).
 
 
 <!-- runtime-matrix:start -->

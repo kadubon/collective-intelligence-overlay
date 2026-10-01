@@ -884,10 +884,10 @@ loading code, connecting to a service or registering the manifest. Actual regist
 uses the trusted application's `Registry` setup callback. There is deliberately no
 CLI that loads executable code named by an untrusted manifest.
 
-## 0.4.0 candidate operations
+## 0.4.0 installed operations
 
-These operations are implemented in the unreleased candidate and under validation; they are not a
-claim that the complete production profile has passed. The public
+These operations passed the declared native production profile in the published 0.4.0.
+See [actual results](release-040-results.json) for scope and limits. The public
 `ApplicationHost` uses the existing Registry/Executor/Opportunities/Steps. An
 operator-selected installed `module:factory` receives the host and returns None.
 Remote inputs cannot select that factory or register executable code.

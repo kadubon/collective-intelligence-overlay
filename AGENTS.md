@@ -18,7 +18,9 @@ assertions on bounded rows, signature checks and query counts. See `docs/scale.m
 Check generated schemas/docs with `uv run python scripts/check_docs.py`, and clean
 artifacts with `uv run python scripts/check_package.py` after `uv build`.
 The metadata remains >=3.12; explicitly select the runtime for nonminimum checks.
-Main's 0.4.0 is an unreleased candidate. Preserve the preimplementation declaration
+0.4.0 is published and its declared profile is verified; actual results are in
+`docs/release-040-results.json` and `docs/release-040-report.ja.md`. Preserve the
+preimplementation declaration
 at `docs/profiles/production-040.json` and its requirement register; do not relax
 numeric gates after measurements or publish before the complete profile passes.
 Application registration stays operator-owned. Track physical blocking futures

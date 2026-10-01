@@ -1,5 +1,24 @@
 # Production 0.4.0 acceptance declaration
 
+0.4.0 is published and the predeclared permissioned single-owner profile passes.
+[Immutable tag CI / PyPA OIDC](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36911991678) and
+[cache-disabled actual-PyPI CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36922605705) are whole-workflow successful at `f3f6ae30de6f088c160e0c69f49796e4f52d2546`.
+Both validate all 12 native profiles, four cross readers, mixed Python and the
+unchanged formal originals: 20 numerical and three additional gates, no pending validation.
+Actual-index verification also matches all 36 root-inclusive resolved name/version audits,
+with no findings or skips. [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.0) contains the exact
+tested wheel/sdist and checked evidence ZIP; actual downloads match their recorded hashes.
+See [machine-readable actual results](release-040-results.json),
+[Japanese final report](release-040-report.ja.md) and [declared scope](production-040.md).
+The Linux one-hour observation, negative matched result and unverified wider scope
+remain explicit. The immutable tag preserves its historical prepublication documentation;
+the current actual results are recorded here on main without changing packaged files.
+
+## Historical declaration and prepublication observations
+
+The observations below retain their original checkpoint scope. Statements that
+work was pending describe those historical checkpoints, not the current result above.
+
 The profile was declared before implementation. All prepublication requirements
 now pass on the unchanged candidate pair. Production 0.4.0 remains unpublished;
 the immutable tag gates, actual publication, fresh PyPI verification and final

@@ -117,17 +117,17 @@ For database recovery, read [deployment](../../../docs/deployment.md): `restore-
 is offline operator recovery, not routine synchronization or permission to replay
 post-backup work.
 
-On main's unreleased 0.4.0 host, `register_proposer` requires an initialized owner
+On the published 0.4.0 host, `register_proposer` requires an initialized owner
 allowance (default one `work` credit) and a finite callback capacity/deadline.
 Received observations cannot grant that budget. Original opportunity retries
 return the saved signed alternatives across restart without regeneration or a new
 reservation. Failed/expired/cancelled proposal work stays held without automatic
 replay, refund or PASS. Read the API before setting explicit operator quantities.
 
-On main's unreleased 0.4.0 path, use owner `remote-calls` to find original mappings
+On the published 0.4.0 path, use owner `remote-calls` to find original mappings
 and `reconcile` with a stable operator observation command ID. Read the API's
-candidate section for exact flags. Reported completion, confirmed effect and
-independent PASS are different fields. Reconciliation never resends or refunds.
+installed-operations section for exact flags. Reported completion, confirmed effect
+and independent PASS are different fields. Reconciliation never resends or refunds.
 Keep missing legacy argument identity and insufficient observations UNKNOWN.
 Use explicit installed read-only reconciler bindings; generated text grants none.
 The document receiver's `document-original-result` checks the original
@@ -156,7 +156,9 @@ Lost/unavailable originals remain
 UNKNOWN. See the API for its scope and limits. `key-rotate` prepares an
 operator bundle; the operator updates current peer pins. Historical origin does
 not grant current HTTP authority, and compromised/backdated signatures require
-new checks. These additions do not imply completed 0.4.0 production acceptance.
+new checks. The declared 0.4.0 profile passed its tag and actual-index gates;
+see [actual results](../../../docs/release-040-results.json) for supported scope.
+That acceptance grants no independent PASS to an application result.
 The installed document reference uses the standard `peer` host with the explicit
 factory and settings described in the API. Its business operations have the
 `app.` prefix; standard owner `run` uses the installed allocation mode. Exact

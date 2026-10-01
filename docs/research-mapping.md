@@ -14,15 +14,17 @@ Reviewed on 2026-09-28: index, linked primary TeX abstracts and selected operati
 sections from [pinned primary archives](https://github.com/kadubon/paper-tex-backup/tree/7bd9fe246ae0f5a4bf6564b588c0426b5b7f29bd).
 This was a scope/design inspection, not a complete reading or independent proof audit.
 No CheckedFlow/CCR/CPCF/PIC/VEK/ALT implementation is forked or required.
-The measurement column names operational views or required denominators; full
-predeclared production/experiment collection remains pending.
+The measurement column names operational views or required denominators. The full
+predeclared production/experiment collection passed on the final pair; the
+negative adaptive-minus-static result and its limits are retained in
+[the final report](release-040-report.ja.md).
 
 | Research principle / primary source | Operational interpretation | Implementation | Tests | Measured view / denominator | Conditions and omissions |
 | --- | --- | --- | --- | --- | --- |
 | [ALT](https://doi.org/10.5281/zenodo.20476200): receiver-qualified reuse | Bind use to receiver, contracts, environment, permissions, freshness and costs | models.py, overlay.py, policy.rego | test_admission.py, test_negative_paths.py | ACCEPT/REQUALIFY/REJECT/UNKNOWN for exact receiver and scope; typed costs and unavailable resources | Exact matching; no general distribution-shift detector or surplus certificate |
 | [VET](https://doi.org/10.5281/zenodo.21147093): preserve residuals and revisable checks | Retain UNKNOWN, obligations, method/issuer, dissent and withdrawals | Evidence, Revocation, append-only Store | counterexample, scope and evidence-withdrawal tests | PASS/FAIL/UNKNOWN evidence, remaining obligations and withdrawal reasons; no inferred truth score | Checker trust remains local; no infallible truth oracle |
 | [CAIT](https://doi.org/10.5281/zenodo.20061296): scoped composition and lifecycle | Require separately checked composite plus non-revoked dependencies; reject circular support | bounded dependency/evidence traversal | graph/cycle tests, three-peer E2E | Checked composite use and retained formation/runtime dependencies; no sum of overlapping capacities | No certificate algebra or endogenous-growth theorem implemented |
-| [Growth](https://doi.org/10.5281/zenodo.22604358): matched comparisons and full resource charges | Separate formation, reuse and overhead; retain unavailable costs and failed attempts | accounting.py, evaluation.py | cost property tests, matched microbenchmark | Declared task outcomes, completed/censored attempts and complete resource vectors; protocol-level matched experiment remains pending | Mechanism benchmark only; not a matched distributed/model growth experiment |
+| [Growth](https://doi.org/10.5281/zenodo.22604358): matched comparisons and full resource charges | Separate formation, reuse and overhead; retain unavailable costs and failed attempts | accounting.py, evaluation.py | cost property tests, matched microbenchmark | Declared task outcomes, completed/censored attempts and complete resource vectors; five-pair protocol-level matched experiment passed; negative result retained | Mechanism benchmark only; not a matched distributed/model growth experiment |
 | [Bottleneck Inversion](https://doi.org/10.5281/zenodo.20545356): witness-bounded investment | Emit simple verification/connection/observation/repair suggestions from actual unmet conditions | Overlay.recommend | admission/negative-path tests | Recommendation reason, checker readiness, backlog and protected allowance; no inferred optimum | No optimal planner, capacity theorem or automatic resource authority |
 | Index memory-lifecycle route | Known tombstones block dependent future use; refresh after restart | revocation records, source freshness, use-time checks | withdrawal and stale-worker tests | Known withdrawn/stale use refusals and completed scoped source prefixes; delayed remote knowledge remains explicit | No physical erasure/unlearning; remote change knowledge is delayed |
 | Formation feedback and scoped composition | Require completed ordinary-use receipts when publishing a later candidate; retain declared scope, policy and exact bindings | FormationSession, execution receipts, external document application | test_lineage.py, test_document_application.py | Observed completed-use receipts linking formation generations; imported/replicated/new declarations stay separate | C3 output parameterizes C4; this establishes an observed construction process, not novelty or a causal performance improvement |
@@ -61,7 +63,8 @@ three-peer protected-trial regressions retain the old entry on FAIL, UNKNOWN or
 missing assessment, and preserve choice receipts across restart and rollback.
 These observations support that installed read-only scope; they do not establish
 general checker comparability or irreversible deployment safety. Complete native
-acceptance remains pending in the [requirement register](production-040-acceptance.json).
+acceptance passed within the declared profile in the
+[requirement register](production-040-acceptance.json); wider comparability remains unverified.
 
 Installed proposal generation reserves an owner allowance before the heavy
 callback and publishes alternatives and cost observations through the existing

@@ -24,7 +24,7 @@ by that command; generated files must be protected with OS ownership/ACLs.
 | database_warning_bytes | Owner database size warning, default 8 GiB; no automatic deletion or hard database quota |
 | history_warning_days | Warn about retained records received locally more than this many days ago, default 365; no authority or evidence expiry |
 
-In the unreleased 0.4.0 candidate, a nonempty `operator_callers` replaces the
+In published 0.4.0, a nonempty `operator_callers` replaces the
 owner's drain/resume grant. The owner can still inspect status and run the
 registered application. Each control caller must have its own current public key
 in `identities`; keep its private key outside the runtime account's readable files.

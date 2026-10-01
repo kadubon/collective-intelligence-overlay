@@ -7,8 +7,10 @@ It reuses the HTTPS test setup and original signed-observation exporter. It does
 not implement another executor, budget, planner or checker.
 
 The [predeclared profile](profiles/production-040.json) is the acceptance authority.
-The five-pair installed run below is an observed experiment; complete production
-acceptance remains pending. It does not establish a general adaptive benefit.
+The final unchanged-pair five-pair run passed the fixed protocol, and complete
+production acceptance/publication are recorded in [actual results](release-040-results.json).
+The older checkpoint sections below preserve their earlier scope. No general
+adaptive benefit is established.
 Model calls remain off.
 
 ## Fixed protocol

@@ -37,15 +37,27 @@ After publication, dispatch with `candidate_run_id` and the defaults
 verification path. See the [official workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 and [artifact download requirements](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts).
 
-The 0.4.0 prepublication selector is now recorded in `docs/release-040.json`.
-Its original formal run is `36858429932` at `fdf0f96`; updated native evidence is
-`36870275184` at `6871398`, with all twelve native jobs and four cross readers
-successful. Their old aggregate jobs failed on Windows notice separators read
-on Linux. The corrected local Linux source/notice review and complete original
-production/matrix assessment pass, with failures preserved; the whole old runs
-are not called successful. The tag still reruns every required final gate before
-OIDC publication. Actual publication and cache-disabled actual-index verification
-have not occurred at this prepublication checkpoint.
+0.4.0 is published and the predeclared permissioned single-owner profile passes.
+[Immutable tag CI / PyPA OIDC](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36911991678) and
+[cache-disabled actual-PyPI CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36922605705) are whole-workflow successful at `f3f6ae30de6f088c160e0c69f49796e4f52d2546`.
+Both validate all 12 native profiles, four cross readers, mixed Python and the
+unchanged formal originals: 20 numerical and three additional gates, no pending validation.
+Actual-index verification also matches all 36 root-inclusive resolved name/version audits,
+with no findings or skips. [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.0) contains the exact
+tested wheel/sdist and checked evidence ZIP; actual downloads match their recorded hashes.
+See [machine-readable actual results](release-040-results.json),
+[Japanese final report](release-040-report.ja.md) and [declared scope](production-040.md).
+The Linux one-hour observation, negative matched result and unverified wider scope
+remain explicit. The immutable tag preserves its historical prepublication documentation;
+the current actual results are recorded here on main without changing packaged files.
+
+Publication occurred 2026-10-01 20:29 UTC / 2026-10-02 05:29 JST.
+
+| Asset | SHA256 |
+| --- | --- |
+| `collective_intelligence_overlay-0.4.0-py3-none-any.whl` | `33898a964443c5276853dc15069247ff8642012332c980d085f9fa9a4faf11d7` |
+| `collective_intelligence_overlay-0.4.0.tar.gz` | `965f848ed12950d0a8cba26e6deb1594d8ce98437022fc9dd5dff0f7e860f8be` |
+| `collective-intelligence-overlay-0.4.0-evidence.zip` | `1135a9e487340279ee56a4e4edf11f32869ee88d8901a3078c5fac352307674d` |
 
 ## 0.3.2 published and verified on 2026-09-30
 

@@ -1,0 +1,527 @@
+{
+  "version": "0.4.0",
+  "status": "published and declared profile verified",
+  "release_commit": "f3f6ae30de6f088c160e0c69f49796e4f52d2546",
+  "packaged_source_commit": "9cd9a741709f235bdd8f81d95828ac4c4aee8969",
+  "tag_object": "cae617eb4ccb25b6b2916c48c06eacab85d7e10c",
+  "profile_id": "permissioned-single-owner-040-v1",
+  "profile_sha256": "167868086db318373d665922f150e978d3c26b8bba86e8f6e9a76cba8ba496f2",
+  "formal_manifest_sha256": "aa9384792b9e1405dfd71d4fd6f3b51c37c993f95d79cd806abd454921a4f135",
+  "artifacts": {
+    "collective_intelligence_overlay-0.4.0-py3-none-any.whl": "33898a964443c5276853dc15069247ff8642012332c980d085f9fa9a4faf11d7",
+    "collective_intelligence_overlay-0.4.0.tar.gz": "965f848ed12950d0a8cba26e6deb1594d8ce98437022fc9dd5dff0f7e860f8be"
+  },
+  "runs": {
+    "tag": {
+      "run_id": 36911991678,
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36911991678",
+      "commit": "f3f6ae30de6f088c160e0c69f49796e4f52d2546",
+      "conclusion": "success",
+      "event": "push",
+      "native_profiles": [
+        {
+          "os": "Darwin",
+          "architecture": "amd64",
+          "python": "3.12.14",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            62,
+            65
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "amd64",
+          "python": "3.13.15",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            58,
+            62
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "amd64",
+          "python": "3.14.7",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            58,
+            62
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "python": "3.12.14",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            62,
+            65
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "python": "3.13.15",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            58,
+            62
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "python": "3.14.7",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            58,
+            62
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "amd64",
+          "python": "3.12.14",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            62,
+            65
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "amd64",
+          "python": "3.13.15",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            58,
+            62
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "amd64",
+          "python": "3.14.7",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            58,
+            62
+          ]
+        },
+        {
+          "os": "Windows",
+          "architecture": "amd64",
+          "python": "3.12.14",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            63,
+            66
+          ]
+        },
+        {
+          "os": "Windows",
+          "architecture": "amd64",
+          "python": "3.13.15",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            59,
+            63
+          ]
+        },
+        {
+          "os": "Windows",
+          "architecture": "amd64",
+          "python": "3.14.7",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            30,
+            59,
+            63
+          ]
+        }
+      ],
+      "four_cross_readers": "passed; 228 original signatures from all 12 origins each",
+      "mixed_python": "passed",
+      "integrated_production": "20 numerical + 3 additional gates; no pending validation"
+    },
+    "pypi": {
+      "run_id": 36922605705,
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36922605705",
+      "commit": "f3f6ae30de6f088c160e0c69f49796e4f52d2546",
+      "conclusion": "success",
+      "event": "workflow_dispatch",
+      "native_profiles": [
+        {
+          "os": "Darwin",
+          "architecture": "amd64",
+          "python": "3.12.14",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            63,
+            66
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "amd64",
+          "python": "3.13.15",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            59,
+            63
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "amd64",
+          "python": "3.14.7",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            59,
+            63
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "python": "3.12.14",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            63,
+            66
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "python": "3.13.15",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            59,
+            63
+          ]
+        },
+        {
+          "os": "Darwin",
+          "architecture": "arm64",
+          "python": "3.14.7",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            59,
+            63
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "amd64",
+          "python": "3.12.14",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            63,
+            66
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "amd64",
+          "python": "3.13.15",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            59,
+            63
+          ]
+        },
+        {
+          "os": "Linux",
+          "architecture": "amd64",
+          "python": "3.14.7",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            59,
+            63
+          ]
+        },
+        {
+          "os": "Windows",
+          "architecture": "amd64",
+          "python": "3.12.14",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            64,
+            67
+          ]
+        },
+        {
+          "os": "Windows",
+          "architecture": "amd64",
+          "python": "3.13.15",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            60,
+            64
+          ]
+        },
+        {
+          "os": "Windows",
+          "architecture": "amd64",
+          "python": "3.14.7",
+          "source_tests": 375,
+          "installed_agents_tests": 374,
+          "mock_model_tests": 1,
+          "rebuilt_sdist_tests": 64,
+          "failures_errors_skips": [
+            0,
+            0,
+            0
+          ],
+          "audited_core_agents_model": [
+            31,
+            60,
+            64
+          ]
+        }
+      ],
+      "four_cross_readers": "passed; 228 original signatures from all 12 origins each",
+      "mixed_python": "passed",
+      "integrated_production": "20 numerical + 3 additional gates; no pending validation"
+    }
+  },
+  "pypi": {
+    "url": "https://pypi.org/project/collective-intelligence-overlay/0.4.0/",
+    "upload_times_utc": [
+      "2026-10-01T20:29:57.580651Z",
+      "2026-10-01T20:29:58.842775Z"
+    ],
+    "actual_public_bytes_equal_fixed_pair": true,
+    "actual_index_native_profiles": 12,
+    "root_inclusive_exact_audits": 36,
+    "no_vulnerabilities_or_skips": true
+  },
+  "github_release": {
+    "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.0",
+    "id": 401391476,
+    "published_at": "2026-10-01T22:05:27Z",
+    "draft": false,
+    "assets_sha256": {
+      "collective_intelligence_overlay-0.4.0-py3-none-any.whl": "33898a964443c5276853dc15069247ff8642012332c980d085f9fa9a4faf11d7",
+      "collective_intelligence_overlay-0.4.0.tar.gz": "965f848ed12950d0a8cba26e6deb1594d8ce98437022fc9dd5dff0f7e860f8be",
+      "collective-intelligence-overlay-0.4.0-evidence.zip": "1135a9e487340279ee56a4e4edf11f32869ee88d8901a3078c5fac352307674d"
+    },
+    "downloaded_assets_hash_verified": true
+  },
+  "limitations": [
+    "No paid inference",
+    "One-hour soak is Linux only",
+    "Single writer per owner; no HA/WAN assurance",
+    "No general adaptive advantage or intelligence-growth claim",
+    "No independent legal/security audit",
+    "Legacy installed live upgrade is offline POSIX loopback CSV scope"
+  ]
+}
