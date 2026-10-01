@@ -41,12 +41,12 @@ validity and are not separate adequately powered studies.
 Run from this repository with a normal installed candidate wheel in a dedicated
 Linux Python environment containing the reviewed agents dependencies. The runner
 checks local wheel provenance against the unchanged candidate manifest. Source
-checkout and editable-import results are development observations. Supply an
+checkout and editable-import results are development observations.
 The origin metadata may omit an archive hash under the [PyPA specification](https://packaging.python.org/en/latest/specifications/direct-url-data-structure/).
 The runner checks the fixed local wheel origin and compares every installed package
 file with that wheel, excluding only installer-generated metadata such as RECORD.
 This does not skip package code or infer identity from the version string.
-operator database DSN through the protected environment; this connection creates
+Supply an operator database DSN through the protected environment; this connection creates
 only exclusively generated test databases/roles and is never handed to peers.
 The private destination and result destination must be new, distinct directories.
 
