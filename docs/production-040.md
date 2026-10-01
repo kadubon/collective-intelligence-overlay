@@ -50,13 +50,23 @@ and [PostgreSQL's restricted-token implementation](https://github.com/postgres/p
 the repaired native tutorial remains a required gate.
 
 [The expanded native recheck](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36854239260)
-has completed Linux 3.12/3.13/3.14 and Windows 3.14. Their original archive hashes,
-source and installed tests, short fault proofs, tutorial results and twelve Python
-resolution audit/license/SBOM reports were reviewed. Windows 3.14 now passes the
-native PostgreSQL tutorial. Other native profiles and all four cross-platform
+has completed Linux 3.12/3.13/3.14, Windows 3.12/3.13/3.14 and Mac ARM 3.13/3.14.
+Their original archive hashes, source and installed tests, short fault proofs,
+tutorial results and 24 Python resolution audit/license/SBOM reports were reviewed.
+All three Windows profiles now pass the native PostgreSQL tutorial.
+Other expanded native profiles and all four cross-platform
 readers remain required. Mac Intel 3.13 failed while installing pinned
 `go-licenses`, before source tests; its artifact upload also timed out. The failed
 Actions log is retained, and the exact Go installation cause remains unknown.
+
+The final-pair supply review additionally includes four completed original Mac
+profiles, covering all twelve native proxy reports and all 36 installed Python
+resolutions with verified archive/file provenance. Go assembly/header/include and
+original notices passed the existing review; all declared Python audit name/version
+sets matched, with zero findings or skipped dependencies. This accepts P29's supply
+scope without claiming the expanded readiness regression has passed on those four
+older profiles. See [compatibility](compatibility.md) and
+[proxy source/license review](../scripts/proxy/README.md).
 
 [The machine-readable profile](profiles/production-040.json) is the authority for
 scope, operating limits, numerical acceptance targets, required faults, the actual

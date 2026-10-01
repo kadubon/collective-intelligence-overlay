@@ -294,6 +294,17 @@ Retained final-candidate CycloneDX reports omit a license field for `protobuf`
 3-Clause BSD License. Preserve both original tool outputs and that association;
 an omitted SBOM field is not a new license exception or a complete license finding.
 
+The final `33898a96` wheel / `965f848e` sdist supply review covers twelve actual
+native profiles and all 36 core/agents/agents-model dependency resolutions.
+Every declared resolved name/version matched the original `pip-audit` output,
+with zero findings and no skipped dependencies. Original license/SBOM reports
+are preserved. Eight profiles are from expanded recheck `36854239260`; four Mac
+profiles are from original run `36848916312`. Their GitHub archive digests and
+report-file hashes were verified. Package and proxy sources are unchanged between
+the two runs. This combined supply review does not establish a complete expanded
+readiness-test matrix or workflow pass. The unpublished first-party root's actual
+PyPI index audit remains a mandatory post-publication gate.
+
 
 <!-- runtime-matrix:start -->
 | OS | Native CPU | Runner | CPython patches | Required scope |

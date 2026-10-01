@@ -97,3 +97,15 @@ source/header/include/toolchain-license paths and retained 2,634 module notice
 paths. Assembly include resolution had no unresolved path. Altered source hashes,
 paths outside the source cache and a CGO-enabled build are rejected. This is a
 retained earlier-candidate review; the final candidate needs its own report check.
+
+The final `33898a96` wheel / `965f848e` sdist pair subsequently passed the same
+source review on twelve actual native proxy reports. Original archives and
+per-file hashes are recorded in the retained input provenance: eight reports from
+expanded run `36854239260` and four original Mac reports from `36848916312`.
+The proxy/build/review sources are unchanged between those commits. All 180 distinct
+source/header/include/toolchain-license paths matched; 2,634 native module notice
+paths accompany them. The 2,814-file source/notice archive has SHA256
+`9b468f6fe6fec8acadd594802f38832358f524c158ff9cacc02b32b98883d532`.
+There were no unresolved literal assembly includes. This supplies the final-pair
+source/notice review, with the same limits above; the complete expanded native
+workflow and production profile remain separate gates.
