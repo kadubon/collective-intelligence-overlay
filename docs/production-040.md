@@ -288,3 +288,32 @@ visible and was reviewed as nonapplicable because no affected package is importe
 there were zero package/symbol findings. See [proxy build and license review](../scripts/proxy/README.md).
 The font OFL and MySQL MPL obligations are retained explicitly. Other native
 proxy builds and the complete Python resolution audits remain required.
+
+## Final-pair operational review
+
+The existing final-pair originals were independently checked as 12 native
+profiles: eight expanded `fdf0f96` reports from run `36854239260` and four
+`9cd9a74` Mac reports from run `36848916312`. All selected application,
+operation, reconciliation, recovery, TLS, MCP, proposal, invocation, binding and
+logging test sources are identical. Each source suite reports 374 and each
+installed agents suite 373 tests, with zero failures, errors or skips. The
+review retains the archive and every input-file hash, actual native interpreter
+and 22 selected JUnit case groups.
+
+All 24 source/installed short protocols passed their unchanged 19 required
+injection categories and ten original proof hashes. Independent review checks
+identical duplicate receipts; UNKNOWN/held preservation after provider restart
+and delayed MCP response; positive reserved-phase release; unchanged 4 execution,
+32 unresolved and HTTP 16/4 limits; drain refusal; duplicate owner denial; actual
+DB disconnect/owner kill; old/current standard PostgreSQL restore differences;
+routine/compromise key rotation; physical checker unavailability; withdrawal;
+and protected trial refusal. The old restore remains business unknown, and a
+matched restore does not create independent PASS. No uncertainty refund, source
+freshness inference or external replay is accepted.
+
+This closes individual application and operation requirements P06-P08,
+P10-P19 and P21. It does not establish all twelve expanded readiness tests,
+the new formal soak, the current complete cross matrix or publication. The
+failed first formal soak and all earlier negative originals remain retained.
+Whole-profile acceptance stays closed. P22 change/comparison and P20 full
+resource evidence are assessed separately.
