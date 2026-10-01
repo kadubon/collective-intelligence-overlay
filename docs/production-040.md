@@ -16,10 +16,21 @@ cancellation is not a complete matrix success.
 - Wheel SHA256: `33898a964443c5276853dc15069247ff8642012332c980d085f9fa9a4faf11d7`.
 - Sdist SHA256: `965f848ed12950d0a8cba26e6deb1594d8ce98437022fc9dd5dff0f7e860f8be`.
 
-The formal run is still in progress. Earlier complete native, soak and matched
-experiment observations below apply to their named candidate hashes and cannot
-substitute for this final pair. The release selector checks tagged packaged source
-bytes against the pretested pair; it never rebuilds the pair at publication.
+The formal job in run `36848916312` completed and exported 110 original files.
+Their file hashes, profile digest, fixed driver sources and exact candidate pair
+were verified. The ten-arm matched experiment passed. The soak failed two gates:
+same-ID duplicate delivery returned a transport-side `ValueError`, so neither that
+injection nor its unchanged-receipt assertion was established. The later explicit
+restart returned the original receipt unchanged; it does not retroactively pass the
+failed injection. The precise transport cause remains unknown. Both failed raw
+observations and the assessment are retained.
+
+[A new formal run](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36858429932)
+reuses the same pair, profile, driver sources and acceptance criteria without
+rebuilding. Earlier complete native, soak and matched experiment observations
+below apply to their named candidate hashes and cannot substitute for this final
+pair. The release selector checks tagged packaged source bytes against the
+pretested pair; it never rebuilds the pair at publication.
 
 An additional restricted-role readiness regression checks changed policy bytes,
 an unavailable OPA executable, a different private key and malformed key bytes.
@@ -37,6 +48,15 @@ preserving its protected ACL and leaving other directories unchanged. The diagno
 follows [Python's 0700 DACL implementation](https://github.com/python/cpython/blob/v3.12.14/Modules/posixmodule.c)
 and [PostgreSQL's restricted-token implementation](https://github.com/postgres/postgres/blob/REL_17_STABLE/src/common/restricted_token.c);
 the repaired native tutorial remains a required gate.
+
+[The expanded native recheck](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36854239260)
+has completed Linux 3.12/3.13/3.14 and Windows 3.14. Their original archive hashes,
+source and installed tests, short fault proofs, tutorial results and twelve Python
+resolution audit/license/SBOM reports were reviewed. Windows 3.14 now passes the
+native PostgreSQL tutorial. Other native profiles and all four cross-platform
+readers remain required. Mac Intel 3.13 failed while installing pinned
+`go-licenses`, before source tests; its artifact upload also timed out. The failed
+Actions log is retained, and the exact Go installation cause remains unknown.
 
 [The machine-readable profile](profiles/production-040.json) is the authority for
 scope, operating limits, numerical acceptance targets, required faults, the actual

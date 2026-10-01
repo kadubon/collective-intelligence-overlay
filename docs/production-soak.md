@@ -202,3 +202,27 @@ The retained original reports and assessment are at
 successful earlier candidate is not the final release pair. Capacity and packaged
 documentation changes require the new final-candidate run identified in
 [the current acceptance status](production-040.md).
+
+## Preserved first final-pair result
+
+Run `36848916312` completed the unchanged seed-401 300+3,600-second protocol on
+the final `33898a96` wheel and `965f848e` sdist. Original archive digest
+`7ce803f8cc572aefab65cff83b31cc95f12b05473e47dc90abf392248791bc64`
+and all 110 report-file hashes were verified. The raw file-manifest SHA256 is
+`a937947d27c50e5ea8dba7c1a1c60a7f4f95b9781909e145b7db2dbc0c27107f`.
+This manifest identifies failed evidence and is not an accepted release manifest.
+
+Nineteen quantitative gates and two additional gates passed. The same-ID duplicate
+injection failed: the initial completed invocation `warmup-regular-2` was offered
+again with the same request at session second 1,513.422, but the client recorded a
+`ValueError` after 0.183 seconds without a response. This does not prove a changed
+receipt or establish the required successful duplicate observation. The later
+owner restart returned exactly the original completed receipt, with no changed
+fields. Its success is preserved separately and cannot repair the earlier gate.
+The precise transport failure cause is unconfirmed.
+
+The assessment therefore returns `passed: false`, despite the driver's successful
+job exit. Both `all_predeclared_faults_executed` and
+`original_effect_signature_and_refusal_audit` remain false. A complete repeat in
+run `36858429932` uses the same fixed pair, sources, workload and numerical gates;
+the failed first run remains failed, with its original reports unchanged.

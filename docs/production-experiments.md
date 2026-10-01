@@ -185,3 +185,19 @@ at `.local/production-040/experiment-formal-0747d73-v1/` in the development evid
 This deterministic application supplies no evidence of general adaptive advantage;
 the zero descriptive paired interval is not a population equivalence claim.
 Subsequent capacity/documentation changes require a new final-candidate run.
+
+## First final-pair observation
+
+Run `36848916312` completed the five isolated pairs and all ten arms on the final
+`33898a96` wheel / `965f848e` sdist pair. Its original report-file manifest and
+fixed source/profile digests were verified; the original-result/resource/time-unit
+assessment passed. Every paired success-fraction difference was zero, with the
+descriptive paired-bootstrap interval [0, 0]. Inclusive arm times ranged from
+46.092 to 66.803 seconds; the separately declared 500-second owner wall allowance
+and positive physical shutdown observations passed.
+
+This supplies no general adaptive advantage or population equivalence result.
+The same run's soak failed its duplicate-delivery observation, so the complete
+production profile remains unaccepted. Both the experiment's positive assessment
+and the soak's negative assessment are retained. The complete repeat identified in
+[the current acceptance status](production-040.md) uses the same pair and criteria.
