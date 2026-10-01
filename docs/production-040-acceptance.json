@@ -233,10 +233,12 @@
         "src/collective_intelligence_overlay/adapters/a2a.py",
         "src/collective_intelligence_overlay/config.py",
         "src/collective_intelligence_overlay/operations.py",
-        "src/collective_intelligence_overlay/recovery.py"
+        "src/collective_intelligence_overlay/recovery.py",
+        "src/collective_intelligence_overlay/proposal_exchange.py",
+        "src/collective_intelligence_overlay/application.py"
       ],
-      "test": "Unauthenticated/unauthorized denial, verification-only grants and resource/URL/tenant/egress checks",
-      "observed": "Authenticated owner/caller capacity and owner-only reconciliation/recovery/metrics combine with existing explicit execution/verification grants. An explicit pinned control caller replaces owner drain/resume authority and inherits no execution grant. Eighteen native Windows Python 3.12 focused tests passed 47.02 seconds: actual HTTPS SDK/CLI denial and control, missing owner client key, matched owner-signed restore review with separate resume caller, and physical-work cancellation/capacity. Three Python 3.14 blocking tests passed 0.21 seconds. Five subsequent PostgreSQL owner-operation tests passed 12.19 seconds, including close after backend termination before any readiness check. Earlier failing test/CI logs are retained; all-native acceptance remains pending.",
+      "test": "Unauthenticated/unauthorized denial, verification-only grants, resource/URL/tenant/egress checks and real PostgreSQL proposal allowance/restart/cancellation/fencing regressions",
+      "observed": "Authenticated owner/caller capacity and owner-only reconciliation/recovery/metrics combine with existing explicit execution/verification grants. An explicit pinned control caller replaces owner drain/resume authority and inherits no execution grant. Eighteen native Windows Python 3.12 focused tests passed 47.02 seconds: actual HTTPS SDK/CLI denial and control, missing owner client key, matched owner-signed restore review with separate resume caller, and physical-work cancellation/capacity. Three Python 3.14 blocking tests passed 0.21 seconds. Five subsequent PostgreSQL owner-operation tests passed 12.19 seconds, including close after backend termination before any readiness check. Earlier failing test/CI logs are retained; all-native acceptance remains pending. A zero-budget installed proposer executed heavy work under 706d1d5 (one retained failing regression). The corrected allowance path passed seven native Windows PostgreSQL/A2A proposal tests in 17.22 seconds, covering original signed retries after restart, concurrent duplicates, timeout/cancellation, invalid builder and expired-lease fencing. This is targeted development evidence, not complete native/profile acceptance. The actual three-process document host normal and checker-bottleneck paths subsequently passed two native Windows tests in 151.20 seconds, including formation/check/reuse/restart/withdrawal and the existing clock/protected-trial checks.",
       "remaining": [
         "complete proposal/observation grants, heavy-work quotas, egress and native fault protocol"
       ],

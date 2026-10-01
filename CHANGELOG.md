@@ -2,6 +2,11 @@
 
 ## 0.4.0 (unreleased)
 
+- Installed proposal callbacks require an operator-owned allowance and finite
+  concurrency. Original opportunity retries return retained signed alternatives
+  after restart without generating or reserving twice. Fenced atomic publication
+  retains UNKNOWN and allowance on timeout, cancellation or failed output; it
+  creates no independent PASS. The earlier direct exchange remains compatible.
 - Lease commit authority reads PostgreSQL time after locking the original row,
   matching acquisition/finish and preserving expiry under Python clock skew.
   Native three-peer skew tests retain authentication refusal, allowance and no PASS.

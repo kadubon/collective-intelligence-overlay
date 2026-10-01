@@ -490,6 +490,31 @@ private checker arguments and request argument digests. The constructor also
 accepts a `Goal` for local host convenience and retains only its public contract.
 Contracts pin the owner, target, scope, checker and builder allowlist; the local
 proposer must be explicitly named in `peers`.
+On the unreleased 0.4.0 production host, `ApplicationHost.register_proposer`
+reserves one owner `work` credit before invoking the installed callback. The
+operator can specify `allowance_unit` and a positive Decimal `allowance_quantity`;
+the unit must already have an initialized owner budget. Received contracts,
+opportunities and draft estimates do not set these grants. Callback concurrency
+is at most four and no greater than `Config.max_concurrency`; excess requests
+are refused without entering a wait queue or reserving allowance. The callback
+deadline is at most ten seconds and no greater than `Config.max_seconds`.
+
+A stable work identity binds the authenticated caller and original opportunity ID.
+Successful alternatives and the measured wall/unavailable-currency cost Event are
+published atomically through the existing fenced lease transaction. Repeating the
+request, including after restart, returns those original signed alternatives and
+does not call the proposer or reserve again. Changed content under the same
+opportunity ID conflicts. Timeout, cancellation, invalid output and an expired
+lease retain the reservation; no automatic replay, refund or PASS follows.
+Reservations remain separate from measured consumption. This bound covers the
+registered proposal callback; ordinary Executor and HTTP capacity retain their
+own existing limits. A noncooperative installed callback requires the host's
+physical-work tracking and shutdown rules.
+
+For direct `ProposalExchange` construction, pass `allowance_unit`,
+`allowance_quantity` and `max_concurrent` explicitly for the same behavior.
+Omitting `allowance_unit` preserves the earlier unbudgeted API for compatibility;
+the installed production host and document factory always set an allowance.
 The `propose` operation is denied by default even when evidence sharing is enabled.
 The installed callback returns `ProposalDrafts`; it cannot change the contract.
 The default pins the exact target. An operator can set `allow_target_updates=True`

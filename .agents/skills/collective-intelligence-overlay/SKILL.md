@@ -117,6 +117,13 @@ For database recovery, read [deployment](../../../docs/deployment.md): `restore-
 is offline operator recovery, not routine synchronization or permission to replay
 post-backup work.
 
+On main's unreleased 0.4.0 host, `register_proposer` requires an initialized owner
+allowance (default one `work` credit) and a finite callback capacity/deadline.
+Received observations cannot grant that budget. Original opportunity retries
+return the saved signed alternatives across restart without regeneration or a new
+reservation. Failed/expired/cancelled proposal work stays held without automatic
+replay, refund or PASS. Read the API before setting explicit operator quantities.
+
 On main's unreleased 0.4.0 path, use owner `remote-calls` to find original mappings
 and `reconcile` with a stable operator observation command ID. Read the API's
 candidate section for exact flags. Reported completion, confirmed effect and

@@ -117,13 +117,17 @@ class AdaptiveDocuments(DocumentService):
             )
             self.publish(self.checker_binding)
         if config.owner in {"producer", "verifier"}:
-            self.proposal_exchange = ProposalExchange(
-                self.overlay.store,
-                self.identity,
-                self.contracts,
-                self.propose,
-                allow_target_updates=True,
-            )
+            if host is not None:
+                host.register_proposer(self.contracts, self.propose)
+                self.proposal_exchange = host.proposal_exchange
+            else:
+                self.proposal_exchange = ProposalExchange(
+                    self.overlay.store,
+                    self.identity,
+                    self.contracts,
+                    self.propose,
+                    allow_target_updates=True,
+                )
         if config.owner == "receiver":
             self._run_lock = asyncio.Lock()
             staged = data.get("staged", [])

@@ -7,8 +7,9 @@ from collections.abc import Awaitable, Callable
 from decimal import Decimal
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
 
+from .bindings import fingerprint
 from .blocking import run_blocking
 from .config import Config
 from .models import (
@@ -18,8 +19,11 @@ from .models import (
     Event,
     Identifier,
     Opportunity,
+    Proposal,
+    RecordRef,
     Scope,
     Subject,
+    Verdict,
     now,
     uid,
 )
@@ -34,8 +38,9 @@ from .opportunities import (
     record_rejections,
     summarize_rejections,
 )
+from .queries import RecordQuery
 from .security import Identity, verify
-from .storage import Store
+from .storage import Conflict, Store
 
 Proposer = Callable[[Opportunity], Awaitable[ProposalDrafts]]
 
@@ -200,9 +205,21 @@ class ProposalExchange:
         *,
         seconds: int = 10,
         allow_target_updates: bool = False,
+        allowance_unit: str | None = None,
+        allowance_quantity: Decimal = Decimal(1),
+        max_concurrent: int = 4,
     ) -> None:
         if identity.name != store.owner or not 1 <= len(goals) <= 32 or not 1 <= seconds <= 30:
             raise ValueError("invalid proposal exchange owner or bounds")
+        if (
+            not allowance_quantity.is_finite()
+            or allowance_quantity <= 0
+            or not 1 <= max_concurrent <= 32
+            or (allowance_unit is not None and not allowance_unit)
+        ):
+            raise ValueError("invalid proposal allowance or concurrency bound")
+        if allowance_unit is not None:
+            TypeAdapter(Identifier).validate_python(allowance_unit)
         contracts = tuple(
             ProposalContract.from_goal(g) if isinstance(g, Goal) else g for g in goals
         )
@@ -214,6 +231,8 @@ class ProposalExchange:
                 raise ValueError("proposal contract must name configured owners and this proposer")
         self.store, self.identity, self.proposer, self.seconds = store, identity, proposer, seconds
         self.allow_target_updates = allow_target_updates
+        self.allowance_unit, self.allowance_quantity = allowance_unit, allowance_quantity
+        self._capacity = asyncio.Semaphore(max_concurrent)
         self._goals = {
             key: goal.model_copy(deep=True) for key, goal in zip(keys, contracts, strict=True)
         }
@@ -251,33 +270,100 @@ class ProposalExchange:
         # A commitment is an authenticated owner assertion, not proof that its
         # private decision is sound. Proposals remain bound to the original local
         # builder allowlist; the owner validates its exact live goal before use.
-        started = time.perf_counter()
-        try:
-            await run_blocking(self.store.put, envelope)
-            reference = await run_blocking(
-                self.store.reference, "opportunity", caller, opportunity.id
+        # Compatibility-only exchanges may omit an allowance. Production hosts
+        # always install an operator allowance; received opportunities grant none.
+        if self._capacity.locked():
+            raise Conflict("owner proposal capacity exhausted")
+        async with self._capacity:
+            return await self._respond(caller, envelope, opportunity, goal)
+
+    async def _cached(self, work_id: str, reference: RecordRef) -> dict[str, Any] | None:
+        marker = await run_blocking(
+            self.store.record_page,
+            RecordQuery(kinds=("event",), issuer=self.identity.name, record_id=work_id),
+            limit=1,
+        )
+        if not marker.items:
+            return None
+        event = marker.items[0]
+        if not isinstance(event, Event) or event.action != "proposal" or event.outcome is not None:
+            raise Conflict("original proposal work is uncertain; no automatic replay")
+        signed = []
+        for index in range(8):
+            record_id = work_id + "-" + str(index)
+            page = await run_blocking(
+                self.store.record_page,
+                RecordQuery(kinds=("proposal",), issuer=self.identity.name, record_id=record_id),
+                limit=1,
             )
+            if page.items:
+                item = page.items[0]
+                if not isinstance(item, Proposal) or item.opportunity != reference:
+                    raise Conflict("original proposal reference differs")
+                saved = await run_blocking(
+                    self.store.reference, "proposal", self.identity.name, record_id
+                )
+                signed.append(await run_blocking(self.store.signed_record, saved))
+        return {"proposals": signed}
+
+    async def _respond(
+        self,
+        caller: str,
+        envelope: dict[str, Any],
+        opportunity: Opportunity,
+        goal: ProposalContract,
+    ) -> dict[str, Any]:
+        started = time.perf_counter()
+        await run_blocking(self.store.put, envelope)
+        reference = await run_blocking(self.store.reference, "opportunity", caller, opportunity.id)
+        work_id = "proposal-work-" + fingerprint([caller, opportunity.id])
+        worker, fence = uid(), None
+        if self.allowance_unit is not None:
+            cached = await self._cached(work_id, reference)
+            if cached is not None:
+                return cached
+            fence = await run_blocking(
+                self.store.acquire,
+                work_id,
+                worker,
+                self.allowance_unit,
+                self.allowance_quantity,
+                self.seconds + 5,
+                reclaim_expired=False,
+            )
+        signed: list[dict[str, Any]] = []
+        failed = True
+        try:
             async with asyncio.timeout(self.seconds):
                 drafts = await self.proposer(opportunity.model_copy(deep=True))
             drafts = ProposalDrafts.model_validate(drafts.model_dump())
             if any(draft.builder not in goal.builders for draft in drafts.alternatives):
                 raise ValueError("proposer attempted an unregistered builder")
             proposals = propose(opportunity, reference, self.identity, drafts)
+            if fence is not None:
+                proposals = tuple(
+                    item.model_copy(update={"id": work_id + "-" + str(index)})
+                    for index, item in enumerate(proposals)
+                )
             signed = [self.identity.sign(item) for item in proposals]
             response = {"proposals": signed}
             if len(json.dumps(response).encode()) > 196608:
                 raise ValueError("proposal reply exceeds byte bound")
-            for item in signed:
-                await run_blocking(self.store.put, item)
+            if fence is None:
+                for item in signed:
+                    await run_blocking(self.store.put, item)
+            failed = False
             return response
         finally:
             event = Event(
+                id=work_id if fence is not None else uid(),
                 issuer=self.identity.name,
                 subject=opportunity.subject,
                 action="proposal",
                 task_id=opportunity.id,
-                attempt_id=uid(),
+                attempt_id=work_id if fence is not None else uid(),
                 correlation_id=opportunity.id,
+                outcome=Verdict.UNKNOWN if failed else None,
                 costs=(
                     Cost(
                         category="overhead",
@@ -288,4 +374,19 @@ class ProposalExchange:
                     Cost(category="overhead", status="unavailable", unit="USD", quantity=None),
                 ),
             )
-            await asyncio.shield(run_blocking(self.store.put, self.identity.sign(event)))
+            cost = self.identity.sign(event)
+            if fence is None:
+                await asyncio.shield(run_blocking(self.store.put, cost))
+            else:
+                # Publication and completion share the existing fenced DB
+                # transaction. Cancellation does not refund the owner's allowance.
+                await asyncio.shield(
+                    run_blocking(
+                        self.store.commit_work,
+                        work_id,
+                        worker,
+                        fence,
+                        [cost] if failed else [*signed, cost],
+                        cancelled=failed,
+                    )
+                )

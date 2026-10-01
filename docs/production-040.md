@@ -52,6 +52,12 @@ See [API](api.md) for their authority, failure states and exact commands.
 
 Windows/CPython 3.12 development observations are partial evidence:
 
+- Installed proposal allowance/restart/cancellation/fencing and existing
+  application/exchange regressions passed 11 tests in 22.18 seconds. The original
+  zero-budget heavy callback ran under `706d1d5`; its failing regression is retained.
+  The corrected actual three-process document host normal and checker-bottleneck
+  paths passed two tests in 151.20 seconds. These are targeted source observations;
+  full native, soak and matched-profile acceptance remain pending.
 - A full source regression passed 316 tests in 1288.17 seconds, with zero failures,
   errors or skips. It preceded the later recovery review, CAS capacity and logging
   additions and used the subsequently rejected official proxy binary.

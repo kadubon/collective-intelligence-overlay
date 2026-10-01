@@ -5,6 +5,7 @@ from __future__ import annotations
 import importlib
 import re
 from collections.abc import Awaitable, Callable
+from decimal import Decimal
 from typing import Any
 
 from pydantic import TypeAdapter
@@ -126,12 +127,27 @@ class ApplicationHost(PeerService):
         )
 
     def register_proposer(
-        self, contracts: tuple[ProposalContract, ...], proposer: Proposer
+        self,
+        contracts: tuple[ProposalContract, ...],
+        proposer: Proposer,
+        *,
+        allowance_unit: str = "work",
+        allowance_quantity: Decimal = Decimal(1),
     ) -> None:
         if self.proposal_exchange is not None:
             raise ValueError("proposer already registered")
+        if not allowance_unit:
+            raise ValueError("installed proposer requires an owner allowance unit")
         self.proposal_exchange = ProposalExchange(
-            self.overlay.store, self.identity, contracts, proposer, allow_target_updates=True
+            self.overlay.store,
+            self.identity,
+            contracts,
+            proposer,
+            seconds=min(10, self.config.max_seconds),
+            allow_target_updates=True,
+            allowance_unit=allowance_unit,
+            allowance_quantity=allowance_quantity,
+            max_concurrent=min(4, self.config.max_concurrency),
         )
 
     async def _collect(self, opportunity: Opportunity) -> CollectedProposals:
