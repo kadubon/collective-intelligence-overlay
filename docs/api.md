@@ -1104,7 +1104,8 @@ containing `{}`. No request can choose the reference database or file.
 
 This optional query opens the original through the existing Store, acquires its
 owner lock, uses read-only repeatable-read transactions and compares actual
-invocations, leases, remote mappings, allowance, original owner DSSE and CAS bytes.
+invocations, leases, remote mappings, allowance, original owner DSSE, CAS bytes
+and private application settings/Goal pins.
 Recovery observations of the exact restored generation remain separate measured
 overhead. Missing artifacts, maps, work or consumption produce
 `REFERENCE_POST_BACKUP_MISMATCH`. An active original owner, unavailable original

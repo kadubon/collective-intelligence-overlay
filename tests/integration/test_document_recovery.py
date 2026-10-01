@@ -30,7 +30,12 @@ def reference_file(config, path):
 async def test_preserved_database_detects_actual_missing_work_and_maps_before_resume(
     app_config, tmp_path, post_backup_work, clock_offset
 ):
-    config = app_config.model_copy(update={"local_development": True})
+    settings = tmp_path / "original-settings.json"
+    settings.write_text("{}", encoding="utf-8")
+    settings.chmod(0o600)
+    config = app_config.model_copy(
+        update={"local_development": True, "application_settings": settings}
+    )
     reference = reference_file(config, tmp_path / "operator-preserved-config.json")
     source = load_application(config)
     register(source, reference)
@@ -55,7 +60,14 @@ async def test_preserved_database_detects_actual_missing_work_and_maps_before_re
         with restored_database(config, directory / "database.dump") as restored:
             restored_artifacts = tmp_path / "restored-artifacts"
             shutil.copytree(directory / "artifacts", restored_artifacts)
-            restored = restored.model_copy(update={"artifact_directory": restored_artifacts})
+            restored_settings = tmp_path / "restored-settings.json"
+            shutil.copy2(directory / "application_settings.data", restored_settings)
+            restored = restored.model_copy(
+                update={
+                    "artifact_directory": restored_artifacts,
+                    "application_settings": restored_settings,
+                }
+            )
             host = load_application(restored)
             query = register(host, reference)
             host.overlay.store.reset_sync_after_restore()
@@ -94,6 +106,18 @@ async def test_preserved_database_detects_actual_missing_work_and_maps_before_re
                     == matched
                 )
                 if post_backup_work:
+                    settings.write_text('{"operator_note":"post-backup"}', encoding="utf-8")
+                    missing_settings = await host.recovery.review(
+                        "receiver", "missing-settings", query.id, {}
+                    )
+                    assert missing_settings["business_state"] == "unknown"
+                    assert host.overlay.store.restore_pending()
+                    # The operator restores the original note; no history or
+                    # allowance is changed, and a new review remains necessary.
+                    settings.write_text("{}", encoding="utf-8")
+                    assert (
+                        await host.recovery.review("receiver", "settings-restored", query.id, {})
+                    )["business_state"] == "matched"
                     # An original CAS addition is also external state; equal
                     # balances and invocation projections alone cannot confirm it.
                     artifacts = config.artifacts()

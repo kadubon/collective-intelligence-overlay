@@ -28,11 +28,13 @@ from collective_intelligence_overlay.invocations import invocations
 from collective_intelligence_overlay.models import Capability, Event, Scope, Subject, now
 from collective_intelligence_overlay.operations import OwnerAlreadyRunning, OwnerLock
 from collective_intelligence_overlay.recovery import RecoveryObservation
-from collective_intelligence_overlay.security import verify
+from collective_intelligence_overlay.security import digest, verify
 from collective_intelligence_overlay.storage import Store, budgets, feed_state, leases, records
 
 
-def snapshot(store: Store, reviewed_generation: str, artifacts: Artifacts) -> dict[str, Any]:
+def snapshot(
+    store: Store, reviewed_generation: str, artifacts: Artifacts, settings: Path | None = None
+) -> dict[str, Any]:
     """Read exact business originals; new recovery observations are separate overhead."""
     started = time.monotonic()
     with store.engine.connect().execution_options(isolation_level="REPEATABLE READ") as conn:
@@ -57,6 +59,8 @@ def snapshot(store: Store, reviewed_generation: str, artifacts: Artifacts) -> di
                 result["uncertain_original_calls"] = [
                     [row["caller"], row["id"]] for row in rows if row["state"] == "unknown"
                 ]
+                if len(result["uncertain_original_calls"]) > 1024:
+                    raise ValueError("reference original uncertainty bound exceeded")
             result[name] = fingerprint(json.loads(json.dumps(rows, default=str)))
         allowance: dict[str, Decimal] = dict(
             conn.execute(select(budgets).order_by(budgets.c.unit)).all()
@@ -115,6 +119,9 @@ def snapshot(store: Store, reviewed_generation: str, artifacts: Artifacts) -> di
             artifacts.get(path.name)
             inventory.append(path.name)
         result["artifacts"] = fingerprint(inventory)
+        if settings is not None and settings.stat().st_size > 262144:
+            raise ValueError("reference application settings exceed bound")
+        result["application_settings"] = digest(settings.read_bytes()) if settings else None
         return result
 
 
@@ -141,9 +148,17 @@ def register(host: ApplicationHost, reference_path: Path) -> Binding:
                     ).scalar_one()
                 if pending:
                     return {}, "REFERENCE_NOT_UNRESTORED", False
-                actual = snapshot(external, state["generation"], reference.artifacts())
+                actual = snapshot(
+                    external,
+                    state["generation"],
+                    reference.artifacts(),
+                    reference.application_settings,
+                )
                 restored = snapshot(
-                    host.overlay.store, state["generation"], host.config.artifacts()
+                    host.overlay.store,
+                    state["generation"],
+                    host.config.artifacts(),
+                    host.config.application_settings,
                 )
                 matched = actual == restored
                 return (
@@ -157,7 +172,7 @@ def register(host: ApplicationHost, reference_path: Path) -> Binding:
                 )
             except OwnerAlreadyRunning:
                 return {}, "REFERENCE_OWNER_ACTIVE", False
-            except (DBAPIError, OSError, ValueError):
+            except (DBAPIError, OSError, ValueError, KeyError, TypeError):
                 return {}, "REFERENCE_STATE_UNAVAILABLE", False
             finally:
                 lock.close()
