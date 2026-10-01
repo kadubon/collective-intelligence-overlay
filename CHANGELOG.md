@@ -2,6 +2,11 @@
 
 ## 0.4.0 (unreleased)
 
+- The installed compatibility CSV peer now uses the existing owner lock, readiness,
+  drain and recovery lifecycle. An operator-pinned read-only original-state query
+  supports closed restoration and explicit resume. Actual installed 0.3.2 peer
+  migration preserves signed bytes, old projections, call maps and held UNKNOWN;
+  its loopback POSIX test does not establish rolling or HTTPS legacy deployment.
 - The actual three-peer short protocol now covers all nineteen declared fault
   categories and retains bounded proof files in source/installed native CI.
   Physical checker outage and scoped Evidence withdrawal remain distinct from

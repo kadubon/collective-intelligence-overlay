@@ -4,6 +4,7 @@ import argparse
 import hashlib
 import json
 import os
+import platform
 import re
 import subprocess
 import sys
@@ -453,6 +454,39 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
                 environment=environment,
             )
             result["rebuilt_sha256"] = hashlib.sha256(rebuilt.read_bytes()).hexdigest()
+        if (
+            full
+            and name == "agents"
+            and version == "0.4.0"
+            and platform.system() == "Linux"
+            and requested["minor"] == [3, 12]
+        ):
+            upgrade_output = (
+                args.report.resolve().parent / "installed-upgrade-032"
+                if args.report
+                else temp / "upgrade-report"
+            )
+            run(
+                [
+                    str(python),
+                    str(root / "scripts/run_upgrade_032.py"),
+                    "--candidate-wheel",
+                    str(wheel),
+                    "--database-url",
+                    os.environ["CIO_TEST_DATABASE_URL"],
+                    "--opa",
+                    os.environ["CIO_OPA"],
+                    "--private",
+                    str(temp / "upgrade-032" / "private"),
+                    "--output",
+                    str(upgrade_output),
+                ],
+                cwd=temp,
+                environment=environment,
+            )
+            result["live_upgrade"] = json.loads((upgrade_output / "report.json").read_text())
+            assert result["live_upgrade"]["status"] == "passed"
+            assert result["live_upgrade"]["candidate_wheel_sha256"] == hashes[wheel.name]
         result["child_runtimes"] = [
             json.loads(p.read_text(encoding="utf-8")) for p in sorted(records.glob("*.json"))
         ]

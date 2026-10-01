@@ -145,6 +145,56 @@ forward Alembic revisions explicitly, and requalify changed dependencies. Destru
 downgrades are unsupported; restore a verified backup instead. Test recovery against
 your own data/identity infrastructure before production use.
 
+### Stopped-writer 0.3.2 CSV compatibility upgrade
+
+The old `peer --reference` application has no `drain` command. Stop incoming
+callers first, ask the service manager for graceful termination, wait for the
+original peer processes to exit, and inspect unfinished invocation/lease rows.
+The POSIX regression uses SIGTERM, waits for actual termination and confirms new
+connections fail; it never substitutes a forced kill for completed work. An
+uncertain original remains UNKNOWN with held allowance. This legacy loopback
+compatibility check does not establish an HTTPS production deployment or a
+rolling upgrade.
+
+Use a separately installed 0.4.0 candidate interpreter for the following offline
+commands; retain the original 0.3.2 installation and verified backup. The URLs,
+keys, execution environment and CSV binding/checker contracts remain pinned.
+`CIO_BACKUP_DATABASE_URL` names the operator backup connection;
+`CIO_UPGRADE_DDL_URL` names the operator connection to that owner's database.
+
+```text
+python -m collective_intelligence_overlay.cli backup --config legacy/config.json --directory legacy-backup
+python -m collective_intelligence_overlay.cli verify-backup --directory legacy-backup
+python -m collective_intelligence_overlay.cli migrate --config legacy/config.json --database-url-env CIO_UPGRADE_DDL_URL
+python -m collective_intelligence_overlay.cli peer --reference --config legacy/config.json
+```
+
+An old demo database is owned by its runtime role. The operator must transfer
+database/schema/table ownership before migration, then explicitly grant runtime
+CONNECT, schema USAGE, table DML and sequence USAGE/SELECT. Revoke schema CREATE
+and Alembic-version writes. Ownership transfer can change the former owner's ACL;
+regrant and verify CONNECT as well as DML. The new compatibility CLI uses the same
+owner lock, readiness, drain and resume operations as installed applications.
+Original result reads preserve old fields; the added invocation argument digest
+does not fill missing legacy provider-map argument identities.
+
+For recovery against an available, stopped, unrewound original, set the private
+`application_settings` file to `{"recovery_reference_config":"preserved-reference.json"}`.
+The relative path is resolved beside that settings file and points to an
+operator-preserved original config outside the backup directory. Register the
+query on the upgraded original before taking its coherent backup. Restored
+`peer --reference` registers `reference-recovery-state` with an unchecked
+candidate and an owner-only read-only verification grant. Offline `restore-state`,
+full source sync, `recovery-review --checker reference-recovery-state`, and a
+separate explicit `resume` follow the existing recovery procedure. A matched
+original-state comparison creates no independent PASS and cannot resend or refund
+old UNKNOWN calls. Missing originals keep intake closed.
+
+The source-only `scripts/run_upgrade_032.py` protocol runs actual normally installed
+0.3.2 and candidate peers. The Linux minimum-Python installed-package gate requires
+its signed-byte/old-column, original-ID, protected-role, closed-restore and CSV
+business assertions. Its shared reports exclude private homes and backups.
+
 Migration 0020 adds the local restore publication boundary without changing signed
 history. After restoring an older closed generation, run offline `restore-state`
 again: migration does not fabricate a historical boundary. The document recovery

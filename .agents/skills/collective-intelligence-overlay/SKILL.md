@@ -144,7 +144,11 @@ consumption or call provenance requires UNKNOWN and operator diagnosis. Do not
 clear its flag to make resume pass. The optional document query
 `document-recovery-state` uses an operator-pinned preserved original database/CAS;
 configure its private `recovery_reference_config` before backup and keep that
-original owner stopped through review/resume. Offline restore-state records the
+original owner stopped through review/resume. The installed compatibility
+`peer --reference` uses the same
+owner lifecycle and private setting with `reference-recovery-state`; preserve the
+old CSV scope and URLs during its stopped-writer upgrade. This does not establish
+rolling updates or a production HTTPS legacy deployment. Offline restore-state records the
 commit boundary; an older restored generation without it needs another offline
 restore-state. Subsequent full-sync costs remain signed in the core proof even
 when separated from business originals. Missing original costs stay UNKNOWN.

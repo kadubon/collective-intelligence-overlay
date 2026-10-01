@@ -462,10 +462,10 @@ def main() -> int:
                 else:
                     service = PeerService(config)
                 if args.reference:
-                    from .reference_peer import ReferencePeerService
+                    from .reference_peer import load_reference
 
                     service.overlay.store.close()
-                    service = ReferencePeerService(config)
+                    service = load_reference(config)
                 url = urlsplit(config.url)
                 lifecycle = getattr(service, "operations", None)
                 try:

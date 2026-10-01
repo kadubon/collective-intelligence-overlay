@@ -4,19 +4,21 @@ import contextlib
 import json
 import time
 from decimal import Decimal
+from pathlib import Path
 from typing import Any, Literal
 
+from .application import ApplicationHost
 from .bindings import Binding, ExecutionContext, Target, fingerprint
 from .config import Config
 from .models import Capability, Cost, Event, Subject, UseRequest, Verdict
-from .peer import PeerService
+from .operations import Operations, OwnerLock
 from .queries import RecordQuery
 from .reference import capability, check, csv_sum
 from .reference_bindings import check_registered, csv_scope, register_reference
 from .storage import Conflict
 
 
-class ReferencePeerService(PeerService):
+class ReferencePeerService(ApplicationHost):
     def __init__(self, config: Config) -> None:
         super().__init__(config)
         self.artifacts = config.artifacts()
@@ -276,3 +278,38 @@ class ReferencePeerService(PeerService):
                 else:
                     self.overlay.store.finish(attempt, self.config.owner, fence, cancelled=True)
             raise
+
+
+def load_reference(config: Config) -> ReferencePeerService:
+    """Attach the installed compatibility application to the existing owner lifecycle.
+
+    Binding registration in the constructor does not publish candidates. Acquire
+    the owner lock before any optional recovery-query publication. The operator
+    pins the preserved original config in private settings before taking a backup.
+    """
+    service = ReferencePeerService(config)
+    try:
+        lock = OwnerLock(service.overlay.store)
+        lock.acquire()
+        service.operations = Operations(service, lock)
+        if config.application_settings is not None:
+            if config.application_settings.stat().st_size > 262144:
+                raise ValueError("reference application settings exceed bound")
+            settings = json.loads(config.application_settings.read_text(encoding="utf-8"))
+            if not isinstance(settings, dict):
+                raise ValueError("reference application settings must be an object")
+            if reference_path := settings.get("recovery_reference_config"):
+                from .starter.document_recovery import register
+
+                if not isinstance(reference_path, str) or len(reference_path) > 4096:
+                    raise ValueError("reference recovery config path exceeds bound")
+                path = Path(reference_path)
+                register(
+                    service,
+                    path if path.is_absolute() else config.application_settings.parent / path,
+                    application="reference",
+                )
+        return service
+    except BaseException:
+        service.close()
+        raise

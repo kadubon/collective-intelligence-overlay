@@ -889,6 +889,13 @@ claim that the complete production profile has passed. The public
 operator-selected installed `module:factory` receives the host and returns None.
 Remote inputs cannot select that factory or register executable code.
 
+The installed `peer --reference` compatibility mode also uses that owner lifecycle.
+`reference_peer.load_reference(config)` returns its host with an acquired owner lock;
+call its Operations/lifespan and close it after draining. Direct
+`ReferencePeerService(config)` construction retains its trusted in-process API and
+does not acquire a daemon lock. The CSV bindings and old signed records stay pinned.
+See [the stopped-writer upgrade](deployment.md#stopped-writer-032-csv-compatibility-upgrade).
+
 `Config.operator_callers` grants only `drain` and `resume` to unique pinned
 identities (at most 32). A nonempty tuple replaces the owner's control grant;
 an empty tuple retains legacy owner control. `status` permits the owner and these
@@ -1107,6 +1114,12 @@ file or absolute). Preserve that config and its original database/CAS outside th
 restore destination. Configure this before the coherent backup. The factory then
 registers `document-recovery-state`; use it as `--checker` with an arguments file
 containing `{}`. No request can choose the reference database or file.
+
+For `peer --reference`, the same private setting registers
+`reference-recovery-state` for the CSV compatibility application. The settings file
+is bounded to 262144 bytes and the reference path to 4096 characters. Both queries
+retain an unchecked candidate, an explicit owner-only read-only verification grant
+and the same external-original comparison. The query result is not independent PASS.
 
 This optional query opens the original through the existing Store, acquires its
 owner lock, uses read-only repeatable-read transactions and compares actual

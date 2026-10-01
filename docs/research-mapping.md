@@ -6,6 +6,10 @@ archive members after CRLF/LF conversion only; original archive/member hashes
 are retained in the private validation evidence. This identity check is separate
 from reading scope. Growth measurement/comparison sections, ALT token admission
 and VET residual/scoped-certification sections were inspected again.
+The index was fetched again on 2026-10-01. The pinned CAIT scope/safety and
+lifecycle/revocation sections and Bottleneck Inversion compiler/no-promotion and
+limits sections were also read. Reading those selected statements does not
+establish their premises for this implementation or audit the remaining proofs.
 Reviewed on 2026-09-28: index, linked primary TeX abstracts and selected operational
 sections from [pinned primary archives](https://github.com/kadubon/paper-tex-backup/tree/7bd9fe246ae0f5a4bf6564b588c0426b5b7f29bd).
 This was a scope/design inspection, not a complete reading or independent proof audit.
@@ -65,3 +69,12 @@ fenced transaction. Original retries retain signed alternatives and do not
 regenerate or reserve again. Specific nested resource refusals and fault-linked
 original call lineage improve residual diagnosis; they do not establish effect
 absence, justify refunding uncertain work or create independent PASS.
+
+The nineteen-category short production test additionally retains physical
+checker outage, scoped Evidence withdrawal, explicit fresh checks and unchanged
+32-effect/16-request/four-execution limits. Old origin signatures remain auditable
+after routine rotation but grant no current HTTP authority; known compromised
+origin cannot support ACCEPT. Its bounded proof exporter and declaration/hash
+checks are operational conformance evidence, separate from the pinned CAIT
+lifecycle theorem and Bottleneck Inversion certificate compiler. No capital,
+charged-release, Pareto frontier or universal continuation guarantee is computed.

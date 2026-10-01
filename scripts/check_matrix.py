@@ -80,6 +80,20 @@ for filename in packages:
         )
     assert report["environments"]["agents-model"]["build_runtimes"]
 assert observed == required
+if version >= Version("0.4.0"):
+    upgrades = list(args.reports.rglob("installed-upgrade-032/report.json"))
+    assert len(upgrades) == 1, "mandatory installed legacy live upgrade proof absent or duplicate"
+    upgraded = json.loads(upgrades[0].read_text(encoding="utf-8"))
+    assert upgraded["status"] == "passed"
+    assert upgraded["candidate_wheel_sha256"] == expected[wheel_names[0]]
+    assert upgraded["legacy_wheel_sha256"] == (
+        "cc4086d5e27cbdc1d13d2d79b7438e4c787cea208b9e321b8fc0fcbc4e279ae9"
+    )
+    calls = upgrades[0].parent / "calls.json"
+    assert hashlib.sha256(calls.read_bytes()).hexdigest() == upgraded["calls_sha256"]
+    assert upgraded["offline_old_columns_and_signed_envelopes_preserved"] is True
+    assert upgraded["closed_restore_external_match_explicit_resume"]["business_state"] == "matched"
+    assert upgraded["new_business_reuse_after_recovery"] == "completed"
 mixed = list(args.reports.rglob("mixed-python.json"))
 assert len(mixed) == 1, "mandatory mixed-Python report absent"
 interop = json.loads(mixed[0].read_text(encoding="utf-8"))

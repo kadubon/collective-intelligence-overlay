@@ -1,8 +1,8 @@
-"""Conservative document recovery against an operator-preserved, unrewound database.
+"""Conservative read-only recovery against a preserved, unrewound database.
 
 This optional reference is useful for rollback recovery while the original database
 still exists. It cannot confirm recovery after loss of that original or account for
-external effects/inference outside this read-only document application's contracts.
+external effects/inference outside the registered read-only application's contracts.
 """
 
 from __future__ import annotations
@@ -13,7 +13,7 @@ import time
 from datetime import timedelta
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
+from typing import Any, Literal
 
 from sqlalchemy import select, text
 from sqlalchemy.exc import DBAPIError
@@ -147,17 +147,22 @@ def snapshot(
         return result
 
 
-def register(host: ApplicationHost, reference_path: Path) -> Binding:
+def register(
+    host: ApplicationHost,
+    reference_path: Path,
+    *,
+    application: Literal["document", "reference"] = "document",
+) -> Binding:
     """Pin an operator config, never accept a reference URL from a recovery request."""
     reference: Config = load_config(reference_path)
     if reference.owner != host.config.owner:
-        raise ValueError("document recovery reference must preserve the same owner")
+        raise ValueError("recovery reference must preserve the same owner")
     reference_url = reference.database_url.get_secret_value()
 
     async def query(arguments: dict[str, Any]) -> dict[str, Any]:
         state = arguments["state"]
         if (await run_blocking(host.recovery.inspect))["state_digest"] != state["state_digest"]:
-            raise ValueError("document recovery request no longer identifies restored state")
+            raise ValueError("recovery request no longer identifies restored state")
 
         def observe() -> tuple[dict[str, Any], str, bool]:
             external = Store(reference_url, host.config.owner, host.overlay.store.principals)
@@ -216,7 +221,7 @@ def register(host: ApplicationHost, reference_path: Path) -> Binding:
 
     source = callable_digest(query)
     subject = Subject(
-        id="document-recovery-state",
+        id=f"{application}-recovery-state",
         version="1",
         digest=fingerprint(
             {
@@ -234,8 +239,8 @@ def register(host: ApplicationHost, reference_path: Path) -> Binding:
         subject=subject,
         scope=Scope(
             task=subject.id,
-            input_contract="document-recovery.in.v1",
-            output_contract="document-recovery.out.v1",
+            input_contract=f"{application}-recovery.in.v1",
+            output_contract=f"{application}-recovery.out.v1",
             environment=host.config.execution_environment,
         ),
         target=Target(
@@ -265,7 +270,7 @@ def register(host: ApplicationHost, reference_path: Path) -> Binding:
             scope=binding.scope,
             binding_digest=binding.digest,
             entrypoint=binding.id,
-            claim="preserved-document-business-state",
+            claim=f"preserved-{application}-business-state",
             license="Apache-2.0",
             provenance="operator-pinned preserved original database; independently unchecked",
             classification="imported",

@@ -75,3 +75,25 @@ these warnings and review the listed module-owned assembly/header notices.
 The root module's license URL defaults to HEAD in go-licenses: the correct Caddy
 license is [the pinned commit's LICENSE](https://github.com/caddyserver/caddy/blob/e2eee6a7fce366321294c9c2a79f3146891dcbdf/LICENSE).
 Report success only for native targets actually built, audited and tested.
+
+`scripts/check_proxy_sources.py` supplements the non-Go warning using the actual
+retained native SBOMs. It matches every assembly/header byte hash to the exact
+module/Go 1.27.1 source, resolves literal assembly includes, and preserves full
+original source notices, the toolchain LICENSE and each native module notice in
+a separate archive. Go-generated `go_asm.h` is identified from the pinned
+compiler's `-asmhdr` behavior. Standalone C headers and their declared includes
+remain retained separately from the assembly include closure in the CGO-disabled
+build. This does not establish semantic absence of hidden dependencies.
+
+For a complete downloaded candidate/report set, run:
+
+```sh
+python scripts/check_proxy_sources.py --reports REPORTS --candidate CANDIDATE \
+  --cache EXACT_GO_MODULE_CACHE --goroot EXACT_GO_1_27_1_ROOT --output NEW_REVIEW
+```
+
+All twelve native reports from run `36817672720` matched 180 distinct original
+source/header/include/toolchain-license paths and retained 2,634 module notice
+paths. Assembly include resolution had no unresolved path. Altered source hashes,
+paths outside the source cache and a CGO-enabled build are rejected. This is a
+retained earlier-candidate review; the final candidate needs its own report check.
