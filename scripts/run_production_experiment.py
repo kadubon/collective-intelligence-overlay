@@ -17,6 +17,7 @@ import random
 import subprocess
 import sys
 import time
+import zipfile
 from pathlib import Path
 
 from sqlalchemy import text
@@ -38,6 +39,40 @@ CONDITIONS = ("normal", "verification_bottleneck", "connection_mismatch", "norma
 
 def digest_file(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
+def installed_wheel_provenance(candidate_directory, candidate):
+    """Verify actual installed wheel files; Direct URL hashes are optional in PyPA."""
+    distribution = importlib.metadata.distribution("collective-intelligence-overlay")
+    direct_text = distribution.read_text("direct_url.json")
+    direct = json.loads(direct_text) if direct_text else {}
+    wheels = [name for name in candidate if name.endswith(".whl")]
+    if len(wheels) != 1:
+        raise ValueError("exactly one fixed candidate wheel is required")
+    wheel = (candidate_directory / "dist" / wheels[0]).resolve()
+    if direct.get("dir_info", {}).get("editable") or direct.get("url") != wheel.as_uri():
+        raise ValueError("normal installed wheel origin differs from the fixed candidate")
+    optional_hash = direct.get("archive_info", {}).get("hashes", {}).get("sha256")
+    if optional_hash is not None and optional_hash != candidate[wheels[0]]:
+        raise ValueError("installed origin hash differs from the fixed candidate")
+    verified = 0
+    prefix = Path(sys.prefix).resolve()
+    with zipfile.ZipFile(wheel) as archive:
+        for name in archive.namelist():
+            if name.endswith("/") or name.endswith(".dist-info/RECORD"):
+                continue
+            installed = Path(distribution.locate_file(name)).resolve()
+            if not installed.is_relative_to(prefix) or installed.read_bytes() != archive.read(name):
+                raise ValueError("installed file bytes differ from the fixed candidate wheel")
+            verified += 1
+    return {
+        "wheel": wheels[0],
+        "sha256": candidate[wheels[0]],
+        "verified_installed_files": verified,
+        "excluded": (
+            "installer-generated RECORD/bytecode/launcher metadata; no package code excluded"
+        ),
+    }
 
 
 def cases(seed, split, count):
@@ -444,6 +479,7 @@ async def main(args):
     if args.development_seed is None and args.development_condition is not None:
         raise ValueError("formal condition assignment cannot be overridden")
     candidate = None
+    provenance = None
     if args.candidate is not None:
         candidate = json.loads((args.candidate / "artifacts.json").read_text())
         actual = {
@@ -459,16 +495,7 @@ async def main(args):
         distribution = importlib.metadata.distribution("collective-intelligence-overlay")
         if distribution.version != profile["target_version"]:
             raise ValueError("installed version differs from the predeclared target")
-        direct = distribution.read_text("direct_url.json")
-        if direct and json.loads(direct).get("dir_info", {}).get("editable"):
-            raise ValueError("formal experiment requires a normally installed wheel")
-        wheel_hashes = {value for name, value in candidate.items() if name.endswith(".whl")}
-        if (
-            not direct
-            or json.loads(direct).get("archive_info", {}).get("hashes", {}).get("sha256")
-            not in wheel_hashes
-        ):
-            raise ValueError("installed wheel provenance differs from the fixed candidate")
+        provenance = await asyncio.to_thread(installed_wheel_provenance, args.candidate, candidate)
         installed = await asyncio.to_thread(
             Path(distribution.locate_file("collective_intelligence_overlay")).resolve
         )
@@ -482,6 +509,7 @@ async def main(args):
         "profile_id": profile["profile_id"],
         "profile_sha256": fingerprint(profile),
         "artifacts": candidate,
+        "installed_wheel_provenance": provenance,
         "protocol": "production-documents-matched-040-v1",
         "development_only": args.development_seed is not None,
         "seeds": list(seeds),
