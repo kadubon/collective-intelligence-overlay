@@ -68,6 +68,30 @@ scope without claiming the expanded readiness regression has passed on those fou
 older profiles. See [compatibility](compatibility.md) and
 [proxy source/license review](../scripts/proxy/README.md).
 
+Onboarding/documentation requirements P04, P26 and P27 also have final-pair
+evidence across those twelve native profiles. Every core/agents/model import and
+CLI came from a fresh installed environment with the selected child interpreter.
+All twelve sequential README/quickstart/starter tutorials match the current Git
+document hashes and passed the actual three-peer demo and positive DB/OPA doctor
+checks. Setup regressions preserve secret/public separation and refuse overwrite.
+The developer AGENTS, canonical user skill and `slills.md` entry were reviewed
+separately; generated CLI/schema/local-link checks and eleven minimum-Python
+syntax compilations passed. Compilation is not arbitrary snippet execution.
+These closures preserve the remaining expanded readiness, soak, cross-platform
+and publication gates.
+
+Restricted-role/compatibility requirements P05 and P28 have also been reviewed.
+All twelve native source reports passed the runtime DML versus DDL boundaries,
+ordinary/interrupted published-0.3.2 dump/migration preservation and exact
+checker/policy/digest regressions. The separate installed Linux 3.12 live upgrade
+used the actual `cc4086d5` published wheel and final `33898a96` candidate. Its
+35-call original transcript passed stopped-writer backup/migration, preserved
+completed and UNKNOWN/held originals, closed restore/full sync/external review,
+explicit resume and subsequent business reuse. Its 14.980-second result covers
+the POSIX loopback CSV compatibility path. It establishes neither rolling updates
+nor a legacy Windows/macOS graceful-stop or HTTPS deployment; fresh production
+and expanded native readiness remain separate gates.
+
 [The machine-readable profile](profiles/production-040.json) is the authority for
 scope, operating limits, numerical acceptance targets, required faults, the actual
 60-minute Linux release soak and five isolated matched experiment pairs.

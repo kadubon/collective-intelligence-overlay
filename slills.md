@@ -11,6 +11,11 @@ than duplicating API definitions. Version 0.3.1 adds routing for exact withdrawa
 rejected alternatives, explicit owner reobservation and stable logical remote calls.
 Version 0.3.2 adds bounded orphan inspection/cleanup, retained UNKNOWN effects
 and native setup routing; exact commands and support status remain in the linked docs.
+The 0.4.0 candidate adds installed application hosting, dependency readiness,
+drain, original-ID reconciliation, coherent recovery and recorded scoped promotion.
+Its current acceptance and publication status are in
+[production 0.4.0](docs/production-040.md); the skill's candidate instructions do
+not imply that the whole production profile has been accepted.
 Keep the skill alongside this repository when
 using its relative references. Its `name`/`description` frontmatter and repository
 location follow the [official skill documentation](https://learn.chatgpt.com/docs/build-skills),
