@@ -20,6 +20,7 @@ from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.x509.oid import NameOID
 from mcp import Client
 from mcp.client.streamable_http import streamable_http_client
+from process_control import stop_owned_process
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import make_url
 
@@ -31,17 +32,7 @@ from collective_intelligence_overlay.setup import bootstrap_database, initialize
 
 
 def stop_process(process):
-    if process.poll() is None:
-        if os.name == "nt":
-            subprocess.run(
-                ["taskkill", "/PID", str(process.pid), "/T", "/F"],
-                check=True,
-                capture_output=True,
-                timeout=10,
-            )
-        else:
-            process.terminate()
-    process.wait(timeout=10)
+    stop_owned_process(process)
 
 
 class ProductionMesh:
