@@ -5,6 +5,7 @@ import os
 import signal
 import time
 from decimal import Decimal
+from pathlib import Path
 
 from production_session import stop_process
 from quiesced_evidence_withdrawal import withdraw
@@ -13,6 +14,28 @@ from sqlalchemy.engine import make_url
 
 from collective_intelligence_overlay.models import UseRequest
 from collective_intelligence_overlay.storage import budgets
+
+
+async def suspend(process):
+    """Confirm the owned Linux soak process is stopped before timing the outage."""
+    os.kill(process.pid, signal.SIGSTOP)
+    try:
+        async with asyncio.timeout(1):
+            while process.poll() is None:
+                state = (Path("/proc") / str(process.pid) / "status").read_text()
+                if any(
+                    line.startswith("State:") and "T (stopped)" in line
+                    for line in state.splitlines()
+                ):
+                    return
+                await asyncio.sleep(0.01)
+        raise ValueError("owned provider did not positively stop")
+    except BaseException:
+        try:
+            os.kill(process.pid, signal.SIGCONT)
+        except ProcessLookupError:
+            pass
+        raise
 
 
 def request(session):
@@ -71,13 +94,14 @@ async def inject(session, index, completed):
     elif index in {1, 2}:
         worker = session.mesh.workers[-1]
         if index == 1:
-            os.kill(worker.pid, signal.SIGSTOP)
+            await suspend(worker)
             result["provider_unavailable"] = {
                 "owner": "producer",
                 "transport": "mcp",
                 "pid": worker.pid,
                 "from_seconds": session.seconds(),
-                "observation": "owned process received SIGSTOP",
+                "physical_stop_confirmed": True,
+                "observation": "owned Linux process status confirmed T (stopped)",
             }
             try:
                 delayed = asyncio.create_task(

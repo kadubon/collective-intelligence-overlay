@@ -34,7 +34,7 @@ from .bindings import (
     formation_receipts,
     formation_steps,
 )
-from .blocking import run_blocking
+from .blocking import BlockingCapacity, run_blocking
 from .models import Cost, Event, ExecutionReceipt, Identifier, Model, ReceiptRef, Verdict, now, uid
 from .overlay import AdmissionDenied
 from .security import Identity
@@ -83,6 +83,10 @@ class Reservation(Model):
 
 class _MaintenanceRequired(Conflict):
     """A stopped new claim may make one bounded maintenance pass before retrying."""
+
+    def __init__(self, message: str, reason: str) -> None:
+        super().__init__(message)
+        self.reason = reason
 
 
 class UnresolvedEffectsLimit(Conflict):
@@ -433,7 +437,8 @@ class InvocationStore:
                 return dict(old), False
             if remaining < allowance.quantity + allowance.minimum_remaining:
                 raise _MaintenanceRequired(
-                    "budget exhausted or protected allowance would be consumed"
+                    "budget exhausted or protected allowance would be consumed",
+                    "owner_budget_refused",
                 )
             unresolved = conn.execute(
                 select(invocations.c.id)
@@ -458,7 +463,9 @@ class InvocationStore:
                     .limit(allowance.max_concurrent)
                 ).all()
                 if len(running) >= allowance.max_concurrent:
-                    raise _MaintenanceRequired("owner invocation capacity exhausted")
+                    raise _MaintenanceRequired(
+                        "owner invocation capacity exhausted", "owner_execution_capacity_refused"
+                    )
             if (
                 conn.execute(
                     select(leases.c.task_id).where(leases.c.task_id == lease_id).with_for_update()
@@ -778,7 +785,20 @@ class Executor:
                 completed_event = event(claim, False, result)
                 await run_blocking(self.store.finish, claim, result, self.identity, completed_event)
         except BaseException as exc:
-            reason = "admission_denied" if isinstance(exc, AdmissionDenied) else "execution_unknown"
+            if isinstance(exc, AdmissionDenied):
+                reason = "admission_denied"
+            elif isinstance(exc, _MaintenanceRequired):
+                reason = exc.reason
+            elif isinstance(exc, UnresolvedEffectsLimit):
+                reason = "owner_unresolved_effects_refused"
+            elif isinstance(exc, BlockingCapacity):
+                reason = "owner_blocking_capacity_refused"
+            elif isinstance(exc, TimeoutError):
+                reason = "execution_timed_out"
+            elif isinstance(exc, asyncio.CancelledError):
+                reason = "execution_cancelled"
+            else:
+                reason = "execution_unknown"
             with contextlib.suppress(Conflict):
                 await asyncio.shield(
                     run_blocking(

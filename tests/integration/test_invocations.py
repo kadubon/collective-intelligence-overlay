@@ -179,6 +179,61 @@ def registered(
     )
 
 
+@pytest.mark.parametrize("refusal", ["budget", "capacity"])
+async def test_dispatched_parent_retains_the_actual_child_claim_refusal(
+    overlay, identities, records, refusal
+):
+    child_effects = []
+
+    async def child_operation(arguments):
+        child_effects.append(arguments)
+        return arguments["value"]
+
+    _, child, _ = registered(
+        overlay, identities, records, child_operation, identifier="bounded-child"
+    )
+
+    async def parent_operation(arguments):
+        result = await child_runner.invoke(
+            "refused-child", child.id, child.digest, arguments, context
+        )
+        return result["result"]
+
+    executor, parent, context = registered(
+        overlay,
+        identities,
+        records,
+        parent_operation,
+        components=(child.digest,),
+        initialize_budget=False,
+    )
+    executor.registry.register_local(child, child_operation, lambda _: True)
+    allowance = Reservation(max_concurrent=1 if refusal == "capacity" else 4)
+    child_runner = Executor(executor.registry, identities["receiver"], allowance)
+    executor.allowance = allowance
+    if refusal == "budget":
+        with overlay.store.engine.begin() as conn:
+            conn.execute(update(budgets).where(budgets.c.unit == "work").values(remaining=1))
+    result = await executor.invoke(
+        "bounded-parent", parent.id, parent.digest, {"value": 1}, context
+    )
+    expected = "owner_budget_refused" if refusal == "budget" else "owner_execution_capacity_refused"
+    assert result["state"] == "unknown" and result["reason"] == expected
+    assert result["reservation_state"] == "held" and result["phase"] == "dispatched"
+    assert not child_effects and child_runner.store.get("receiver", "refused-child") is None
+    original = overlay.store.reference("event", "receiver", result["receipt_id"])
+    event = overlay.store.resolve_reference(original)
+    assert event.outcome == "UNKNOWN" and event.execution.state == "unknown"
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == (
+            0 if refusal == "budget" else 9
+        )
+    assert (
+        await executor.invoke("bounded-parent", parent.id, parent.digest, {"value": 1}, context)
+        == result
+    )
+
+
 @pytest.mark.parametrize("child_unit", ["work", "tokens"])
 async def test_nested_calls_keep_floor_and_independent_request_can_spend_it(
     overlay, identities, records, child_unit

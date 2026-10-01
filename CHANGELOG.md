@@ -2,6 +2,9 @@
 
 ## 0.4.0 (unreleased)
 
+- Dispatched parents retain actual nested owner budget/capacity refusal reasons
+  and distinguish observed timeout/cancellation from generic UNKNOWN. No exception
+  text, effect-absence claim or allowance refund is inferred from those reasons.
 - Installed proposal callbacks require an operator-owned allowance and finite
   concurrency. Original opportunity retries return retained signed alternatives
   after restart without generating or reserving twice. Fenced atomic publication

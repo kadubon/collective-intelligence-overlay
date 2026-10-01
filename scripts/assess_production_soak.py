@@ -5,6 +5,7 @@ no aggregate count or clean driver exit substitutes for original-ID validation.
 """
 
 import argparse
+import base64
 import json
 from pathlib import Path
 
@@ -15,6 +16,161 @@ from collective_intelligence_overlay.bindings import fingerprint
 
 def lines(path):
     return [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines()]
+
+
+def explain_uncertainty(exports, originals, calls, faults):
+    """Report bounded original lineage and observed causes, never settle effects.
+
+    Quantitative validation has already verified every original signed envelope.
+    A coincident fault window alone is insufficient: an original journal root,
+    signed child lineage and the failing owned MCP transport must also match.
+    """
+    contexts = {fingerprint(list(key)): key for key in originals}
+    receipts, children, parents = {}, {}, {}
+    for owner, exported in exports.items():
+        for envelope in exported["signed_records"]:
+            record = json.loads(base64.b64decode(envelope["payload"], validate=True))
+            if record["kind"] == "event" and record["issuer"] == owner and record.get("execution"):
+                receipts[owner, record["id"]] = record["execution"]
+    for key, row in originals.items():
+        receipt = receipts.get((key[0], row["receipt_id"]), {})
+        if receipt and (
+            receipt["invocation_id"] != key[2]
+            or receipt["caller"] != key[1]
+            or receipt["resource_owner"] != key[0]
+            or receipt["binding_digest"] != row["binding_digest"]
+            or receipt["arguments_digest"] != fingerprint(row["request"]["arguments"])
+        ):
+            raise ValueError("uncertainty receipt differs from original request")
+        parent = contexts.get(receipt.get("parent_invocation"))
+        if parent is not None:
+            children.setdefault(parent, set()).add(key)
+            parents.setdefault(key, set()).add(parent)
+    for exported in exports.values():
+        for mapping in exported["remote_calls"]:
+            parent = contexts.get(mapping["invocation_context"])
+            child = mapping["provider"], mapping["owner"], mapping["remote_invocation_id"]
+            if parent is not None and child in originals:
+                local, remote = originals[parent], originals[child]
+                if (
+                    local["binding_digest"] != mapping["binding_digest"]
+                    or remote["binding_digest"] != mapping["provider_binding_digest"]
+                    or fingerprint(remote["request"]["arguments"]) != mapping["arguments_digest"]
+                ):
+                    raise ValueError(
+                        "uncertain remote lineage differs from original binding/arguments"
+                    )
+                children.setdefault(parent, set()).add(child)
+                parents.setdefault(child, set()).add(parent)
+    roots = {}
+    for call in sorted(calls, key=lambda item: item["offered_seconds"]):
+        request = call["request"]
+        if call["operation"] == "invoke":
+            key = call["owner"], call["owner"], request["invocation_id"]
+        elif call["operation"] == "app.verify":
+            key = request["provider"], call["owner"], request["attempt"]
+        else:
+            continue
+        original = originals.get(key)
+        if original is None or fingerprint(request["arguments"]) != fingerprint(
+            original["request"]["arguments"]
+        ):
+            continue
+        if call["operation"] == "invoke" and (
+            request["binding_id"] != original["binding_id"]
+            or request["binding_digest"] != original["binding_digest"]
+        ):
+            continue
+        # Later retries cannot move an original effect into a new fault window.
+        roots.setdefault(key, call)
+
+    def related(key, links):
+        pending, visited = [key], set()
+        while pending:
+            current = pending.pop()
+            if current in visited:
+                continue
+            visited.add(current)
+            if len(visited) > 128:
+                raise ValueError("uncertainty lineage exceeds declared bounded review")
+            pending.extend(links.get(current, ()))
+        return visited
+
+    refusal_reasons = {
+        "owner_budget_refused",
+        "owner_execution_capacity_refused",
+        "owner_unresolved_effects_refused",
+        "owner_blocking_capacity_refused",
+    }
+    findings = {}
+    for key, row in originals.items():
+        receipt = receipts.get((key[0], row["receipt_id"]))
+        if (
+            row["state"] not in {"unknown", "cancelled", "rejected"}
+            or row["reservation_state"] not in {"held", "legacy_unknown"}
+            or receipt is None
+            or receipt["invocation_id"] != key[2]
+            or receipt["caller"] != key[1]
+            or receipt["resource_owner"] != key[0]
+        ):
+            continue
+        if row["reason"] in refusal_reasons:
+            findings[key] = {"cause": row["reason"], "original": list(key)}
+            continue
+        if receipt["transport"] != "mcp" or row["phase"] != "dispatched":
+            continue
+        for ancestor in related(key, parents):
+            call = roots.get(ancestor)
+            if call is None or call.get("latency_censored", True):
+                continue
+            for fault in faults.values():
+                unavailable = fault.get("provider_unavailable", {})
+                if (
+                    fault.get("status") == "executed"
+                    and unavailable.get("owner") == key[0]
+                    and unavailable.get("transport") == "mcp"
+                    and isinstance(unavailable.get("pid"), int)
+                    and (
+                        unavailable.get("physical_stop_confirmed") is True
+                        or unavailable.get("physical_exit_confirmed") is True
+                    )
+                    and 0
+                    <= unavailable.get("from_seconds", -1)
+                    < unavailable.get("until_seconds", -1)
+                    and call["offered_seconds"] < unavailable["until_seconds"]
+                    and call["offered_seconds"] + call["wall_seconds"] > unavailable["from_seconds"]
+                ):
+                    findings[key] = {
+                        "cause": "original_mcp_failure_during_observed_provider_unavailability",
+                        "original": list(key),
+                        "root": list(ancestor),
+                        "journal_call_index": call["call_index"],
+                        "fault_index": fault["index"],
+                        "provider_process": unavailable,
+                    }
+                    break
+            if key in findings:
+                break
+    explained, unexplained = [], []
+    for key, row in originals.items():
+        if row["state"] not in {"unknown", "cancelled", "rejected"} or row[
+            "reservation_state"
+        ] not in {"held", "legacy_unknown"}:
+            continue
+        causes = [findings[child] for child in sorted(related(key, children)) if child in findings]
+        if causes:
+            explained.append({"original": list(key), "retained_causes": causes})
+        else:
+            unexplained.append(list(key))
+    return {
+        "basis": (
+            "original saved refusal or signed lineage to a failing owned MCP transport with an "
+            "original journal interval overlapping observed physical unavailability; "
+            "effect absence and independent PASS remain unconfirmed"
+        ),
+        "explained": explained,
+        "unexplained": unexplained,
+    }
 
 
 def assess(directory):
@@ -178,6 +334,8 @@ def assess(directory):
         details["uncertainty_requires_fault_cause_review"] = [
             row for row in uncertainty if row["reason"] == "execution_unknown"
         ]
+        causal_review = explain_uncertainty(owner_exports, originals, calls, faults)
+        details["original_uncertainty_cause_review"] = causal_review
         targets = [
             row["observation"]
             for row in operations
@@ -190,8 +348,10 @@ def assess(directory):
             if target["decision"]["outcome"] != "ACCEPT" and not target["decision"]["reasons"]
         ]
         details["backlog_decisions_without_reasons"] = len(unexplained_targets)
-        if not uncertainty and targets:
-            gates["unexplained_unresolved_or_backlog_growth"] = not unexplained_targets
+        if not causal_review["unexplained"] and targets:
+            gates["unexplained_unresolved_or_backlog_growth"] = not (
+                unexplained or unexplained_targets
+            )
             pending.discard("unexplained_backlog_growth")
 
     passed = (

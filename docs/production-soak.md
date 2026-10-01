@@ -16,6 +16,17 @@ and a sample begun after its following nominal slot fails coverage. Original
 requests and signed records are public deterministic fixtures in this harness;
 these exports are not a safe default for private application data.
 
+Cause review retains exact original requests, signed parent/child receipt lineage
+and original remote mappings. A known owner resource refusal can explain retained
+work; an observed MCP outage also needs the failing owned transport and an original
+journal interval that overlaps its positively confirmed stop/exit interval. A later
+retry cannot move an original failure into another fault window. This is an
+operational inference about failure, not proof of effect absence or independent
+PASS. Missing or mismatched witnesses remain pending. New Linux outage injections
+confirm the owned process's stopped status before timing unavailability.
+The older development run with 12 held originals remains unaccepted because it
+lacks these exact physical outage witnesses and stored specific refusal reasons.
+
 The generated render parameter is the document's actual word count. It reaches
 the registered render component through the words/report/triage composition;
 the protocol records this relationship rather than storing an unused random value.

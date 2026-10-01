@@ -865,6 +865,13 @@ when reserved ownership is durably verified and fenced before dispatch; other
 reservations stay held. JSON results include `reservation_state` and `release_reason`.
 The disposition is separate from the business outcome and measured costs. Use the same stable ID
 after a lost response and inspect the saved state before authorizing another attempt.
+On the unreleased 0.4.0 path, a dispatched parent retains an actual nested
+`owner_budget_refused`, `owner_execution_capacity_refused`,
+`owner_unresolved_effects_refused` or `owner_blocking_capacity_refused` reason.
+Observed timeout/cancellation has a distinct reason; other exceptions retain
+`execution_unknown`. These codes do not prove physical termination, absence of
+effects or independent PASS. No raw exception text is persisted, and earlier
+signed UNKNOWN history and generic legacy reasons are retained.
 `invoke --purpose verification` requests only an already configured read-only grant;
 it cannot grant itself authority or create PASS evidence. Arguments are a JSON object
 in a file limited to 64 KiB; CLI identity comes from the protected owner config.
