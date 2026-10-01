@@ -10,6 +10,11 @@ on:
         description: 'Post-publication verification: original tag run artifact ID; empty builds a new candidate'
         required: false
         type: string
+      production_protocols:
+        description: 'Run the formal no-model soak and all five matched pairs on this candidate'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -28,6 +33,7 @@ jobs:
       minimum: ${{ steps.matrix.outputs.minimum }}
       latest: ${{ steps.matrix.outputs.latest }}
       from_pypi: ${{ steps.pypi.outputs.from_pypi }}
+      production_run_id: ${{ steps.selection.outputs.production_run_id }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -40,6 +46,13 @@ jobs:
           version: '0.12.19'
           python-version: ${{ steps.matrix.outputs.minimum }}
       - run: uv sync --all-extras --frozen
+      - id: selection
+        name: Select the immutable release candidate
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CIO_CANDIDATE_RUN_ID: ${{ inputs.candidate_run_id }}
+          CIO_PRODUCTION_PROTOCOLS: ${{ inputs.production_protocols }}
+        run: uv run python scripts/release_candidate.py
       - name: Check actual build interpreter and release ancestry
         run: |
           uv run python -c "import platform,sys; assert platform.python_version()=='${{ steps.matrix.outputs.minimum }}'; print(sys.version,sys.executable)"
@@ -47,30 +60,32 @@ jobs:
             uv run python -c "import os,tomllib; v=tomllib.load(open('pyproject.toml','rb'))['project']['version']; assert os.environ['GITHUB_REF_NAME']=='v'+v"
             git merge-base --is-ancestor HEAD origin/main
           fi
-      - if: github.event_name != 'workflow_dispatch' || inputs.candidate_run_id == ''
+      - if: steps.selection.outputs.reuse_run_id == ''
         run: uv build --force-pep517 --python '${{ steps.matrix.outputs.minimum }}' --out-dir .local/candidate/dist
       - run: uv run twine check --strict .local/candidate/dist/*
-        if: github.event_name != 'workflow_dispatch' || inputs.candidate_run_id == ''
+        if: steps.selection.outputs.reuse_run_id == ''
       - name: Fix candidate hashes once
-        if: github.event_name != 'workflow_dispatch' || inputs.candidate_run_id == ''
+        if: steps.selection.outputs.reuse_run_id == ''
         run: |
           uv run python -c "import hashlib,json; from pathlib import Path; p=Path('.local/candidate'); (p/'artifacts.json').write_text(json.dumps({f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in (p/'dist').iterdir() if f.name.endswith(('.whl','.tar.gz'))},indent=2)+'\n')"
       - name: Restore the originally tested publication candidate
-        if: github.event_name == 'workflow_dispatch' && inputs.candidate_run_id != ''
+        if: steps.selection.outputs.reuse_run_id != ''
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:
           name: candidate-distributions
           path: .local/candidate
-          run-id: ${{ inputs.candidate_run_id }}
+          run-id: ${{ steps.selection.outputs.reuse_run_id }}
           github-token: ${{ github.token }}
       - name: Compare actual PyPI bytes with the original candidate
         id: pypi
-        if: github.event_name == 'workflow_dispatch' && inputs.candidate_run_id != ''
+        if: github.event_name == 'workflow_dispatch' && inputs.candidate_run_id != '' && !inputs.production_protocols
         shell: bash
         run: |
           version="$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")"
           uv run python scripts/fetch_pypi_release.py --version "$version" --hash-file .local/candidate/artifacts.json --output .local/pypi/dist --report .local/candidate/pypi-download.json
           echo 'from_pypi=true' >> "$GITHUB_OUTPUT"
+      - name: Reject changes to packaged sources and the pretested pair
+        run: uv run python scripts/release_candidate.py --candidate .local/candidate
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: candidate-distributions
@@ -307,8 +322,78 @@ jobs:
           include-hidden-files: true
           if-no-files-found: error
 
+  production:
+    needs: candidate
+    if: inputs.production_protocols || needs.candidate.outputs.production_run_id != ''
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    permissions:
+      contents: read
+      actions: read
+    env:
+      CIO_TEST_DATABASE_URL: postgresql+pg8000://postgres@127.0.0.1:55439/postgres
+      CIO_OPA: ${{ github.workspace }}/.local/bin/opa
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.12.19'
+          python-version: ${{ needs.candidate.outputs.minimum }}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: candidate-distributions
+          path: .local/candidate
+      - name: Restore original formal production observations
+        if: needs.candidate.outputs.production_run_id != ''
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: reports-production
+          path: .local/production-reports
+          run-id: ${{ needs.candidate.outputs.production_run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        if: needs.candidate.outputs.production_run_id == ''
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - name: Run formal protocols on the normally installed pair
+        if: needs.candidate.outputs.production_run_id == ''
+        shell: bash
+        run: |
+          set -eu
+          uv sync --all-extras --frozen
+          pg_bin="$(pg_config --bindir)"
+          echo "CIO_PRODUCTION_PG_BIN=$pg_bin" >> "$GITHUB_ENV"
+          uv run --no-project python scripts/private_postgres.py start --bin "$pg_bin" --data "$RUNNER_TEMP/production-postgres"
+          uv run python scripts/fetch_opa.py
+          uv run python scripts/fetch_caddy.py
+          uv venv --python '${{ needs.candidate.outputs.minimum }}' .local/production-env
+          candidate_wheel=(.local/candidate/dist/*.whl)
+          uv pip install --python .local/production-env/bin/python "${candidate_wheel[0]}[agents]" pytest pytest-asyncio hypothesis
+          .local/production-env/bin/python scripts/run_production_soak.py --candidate .local/candidate --opa "$CIO_OPA" --caddy .local/proxy-build/caddy --output .local/production-reports/soak --private "$RUNNER_TEMP/soak-private" --contention-notes 'Dedicated hosted job; native Linux, shared runner hardware without CPU isolation; no other peer protocol in this job'
+          .local/production-env/bin/python scripts/run_production_experiment.py --candidate .local/candidate --opa "$CIO_OPA" --caddy .local/proxy-build/caddy --output .local/production-reports/experiment --private "$RUNNER_TEMP/experiment-private" --contention-notes 'Same hosted job after soak physical shutdown; native Linux, shared runner hardware without CPU isolation; arms run sequentially'
+          .local/production-env/bin/python -c "import sys; sys.path.insert(0,'scripts'); import json; from pathlib import Path; from check_production_reports import file_manifest; p=Path('.local/production-reports'); (p/'file-manifest.json').write_text(json.dumps(file_manifest(p),sort_keys=True,indent=2)+'\n')"
+      - name: Stop only the native production test cluster
+        if: always() && env.CIO_PRODUCTION_PG_BIN != ''
+        run: uv run --no-project python scripts/private_postgres.py stop --bin "$CIO_PRODUCTION_PG_BIN" --data "$RUNNER_TEMP/production-postgres"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: reports-production
+          path: .local/production-reports/
+          include-hidden-files: true
+          if-no-files-found: error
+
   ready:
-    needs: [candidate, linux, windows, macos, mixed, cross]
+    needs: [candidate, linux, windows, macos, mixed, cross, production]
+    if: >-
+      !cancelled() && needs.candidate.result == 'success' &&
+      needs.linux.result == 'success' && needs.windows.result == 'success' &&
+      needs.macos.result == 'success' && needs.mixed.result == 'success' &&
+      needs.cross.result == 'success' &&
+      (needs.production.result == 'success' || needs.production.result == 'skipped')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
@@ -326,8 +411,30 @@ jobs:
         with:
           pattern: reports-*
           path: .local/reports
-      - run: uv sync --frozen --python '${{ needs.candidate.outputs.minimum }}'
+      - run: uv sync --all-extras --frozen --python '${{ needs.candidate.outputs.minimum }}'
+      - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
+        if: needs.production.result == 'success'
+        with:
+          go-version: '1.27.1'
+          cache: false
+      - name: Audit all native proxy source graphs and reassess original production observations
+        if: needs.production.result == 'success'
+        shell: bash
+        run: |
+          set -eu
+          uv run python scripts/fetch_caddy.py
+          uv run python scripts/check_proxy_sources.py --reports .local/reports --candidate .local/candidate --cache .local/proxy-build/go-modules --goroot "$(go env GOROOT)" --output .local/reports/proxy-source-review
+          uv run python scripts/check_production_reports.py --candidate .local/candidate --reports .local/reports
       - run: uv run --frozen python scripts/check_matrix.py --candidate .local/candidate --reports .local/reports
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always() && needs.production.result == 'success'
+        with:
+          name: reports-ready-production
+          path: |
+            .local/reports/proxy-source-review/
+            .local/reports/validated-production/
+          include-hidden-files: true
+          if-no-files-found: error
 
   publish:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'kadubon/collective-intelligence-overlay'

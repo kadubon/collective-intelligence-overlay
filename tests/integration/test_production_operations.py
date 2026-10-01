@@ -9,14 +9,45 @@ from datetime import timedelta
 from decimal import Decimal
 
 import pytest
-from sqlalchemy import select, text
+from sqlalchemy import select, text, update
 from sqlalchemy.exc import DBAPIError
 
 from collective_intelligence_overlay.application import load_application
 from collective_intelligence_overlay.blocking import run_blocking
 from collective_intelligence_overlay.models import now
 from collective_intelligence_overlay.operations import OwnerAlreadyRunning, OwnerLock
-from collective_intelligence_overlay.storage import Conflict, leases
+from collective_intelligence_overlay.storage import Conflict, leases, records
+
+
+def test_capacity_and_history_warnings_preserve_original_records(app_config):
+    from collective_intelligence_overlay.observability import database_observations
+
+    host = load_application(app_config)
+    try:
+        store = host.overlay.store
+        with store.engine.connect() as conn:
+            originals = conn.execute(select(records.c.envelope)).scalars().all()
+        assert originals
+        current = database_observations(store, app_config)
+        assert not current["database_capacity_warning"]
+        assert not current["history_retention_warning"]
+        # Only the local receipt projection is aged, never the signed payload.
+        with store.engine.begin() as conn:
+            conn.execute(update(records).values(received_at=now() - timedelta(days=2)))
+        warning = database_observations(
+            store,
+            app_config.model_copy(
+                update={"database_warning_bytes": 1048576, "history_warning_days": 1}
+            ),
+        )
+        assert warning["database_bytes"] >= 1048576
+        assert warning["database_capacity_warning"] and warning["history_retention_warning"]
+        assert warning["retained_records_past_warning_age"] == len(originals)
+        assert warning["automatic_history_purge"] is False
+        with store.engine.connect() as conn:
+            assert conn.execute(select(records.c.envelope)).scalars().all() == originals
+    finally:
+        host.close()
 
 
 def test_cursor_failure_observation_preserves_error_and_redacts_parameters(store, caplog):

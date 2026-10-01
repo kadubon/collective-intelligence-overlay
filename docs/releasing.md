@@ -1,5 +1,35 @@
 # Release procedure and current state
 
+## 0.4.0 candidate validation and immutable publication
+
+Before publication, dispatch this same `workflow.yml` with `production_protocols=true`.
+It builds one pair and runs all native gates, an installed Linux formal soak and
+five sequential isolated matched pairs. Native PostgreSQL permits actual server
+PID/resource sampling; the runner is a trusted test operator and each peer uses a
+restricted runtime role. Reports exclude private homes and backup secrets.
+The ready job rechecks the original DSSE, outcomes, resource units, faults,
+assembly/header hashes and notices. An incomplete acceptance register still refuses
+publication even when individual protocols pass.
+
+After inspecting all actual gates, record `docs/release-040.json` with the original
+`candidate_run_id` (decimal string), `source_commit`, exact `artifacts` object, and
+`production_manifest_sha256` for that run's `reports-production/file-manifest.json`.
+Update the acceptance register with actual observed evidence. These operational
+records are outside the package artifacts. Do not change packaged sources, README,
+metadata or licenses after fixing the pair.
+
+The `v0.4.0` tag requires that manifest. Its job downloads the original pair and
+formal reports, checks the run's repository/main provenance and commit ancestry,
+compares every wheel/sdist package file and the packaged README/metadata/licenses
+with the tag, reruns all native gates and reassesses the retained formal reports.
+Changed or added package files, altered archives or missing/changed originals fail
+closed. It does not build a replacement publication pair. OIDC and the protected
+`pypi` environment remain confined to the existing tag-only publish job.
+After publication, dispatch with `candidate_run_id` and the default
+`production_protocols=false` to retain the existing cache-disabled actual-PyPI
+verification path. See the [official workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
+and [artifact download requirements](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts).
+
 ## 0.3.2 published and verified on 2026-09-30
 
 Release commit `b172c0d0ef208ede4ae3a663a158f1713d7f49a0`, immutable annotated

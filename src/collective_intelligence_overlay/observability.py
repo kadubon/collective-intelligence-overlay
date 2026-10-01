@@ -5,6 +5,7 @@ import logging
 import os
 import sys
 import time
+from datetime import timedelta
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any
@@ -124,7 +125,7 @@ def configure_logging(config: Config) -> RotatingFileHandler:
     return handler
 
 
-def database_observations(store: Store) -> dict[str, Any]:
+def database_observations(store: Store, config: Config) -> dict[str, Any]:
     """Aggregate authoritative rows; this creates no event, charge or quality claim."""
     with store.engine.connect().execution_options(isolation_level="REPEATABLE READ") as conn:
         states: dict[str, int] = dict(
@@ -173,6 +174,19 @@ def database_observations(store: Store) -> dict[str, Any]:
         retained: dict[str, int] = dict(
             conn.execute(select(records.c.kind, func.count()).group_by(records.c.kind)).all()
         )
+        database_bytes = int(
+            conn.execute(select(func.pg_database_size(func.current_database()))).scalar_one()
+        )
+        old_records = int(
+            conn.execute(
+                select(func.count())
+                .select_from(records)
+                .where(
+                    records.c.received_at
+                    < func.clock_timestamp() - timedelta(days=config.history_warning_days)
+                )
+            ).scalar_one()
+        )
         return {
             "invocation_states": states,
             "unresolved_effects": int(unresolved),
@@ -180,9 +194,13 @@ def database_observations(store: Store) -> dict[str, Any]:
             "allowance_remaining": balances,
             "source_prefixes": prefixes,
             "retained_record_counts": retained,
-            "database_bytes": int(
-                conn.execute(select(func.pg_database_size(func.current_database()))).scalar_one()
-            ),
+            "database_bytes": database_bytes,
+            "database_warning_bytes": config.database_warning_bytes,
+            "database_capacity_warning": database_bytes >= config.database_warning_bytes,
+            "history_warning_days": config.history_warning_days,
+            "retained_records_past_warning_age": old_records,
+            "history_retention_warning": old_records > 0,
+            "history_age_basis": "local database receipt time; no automatic expiry or purge",
             "measured_consumption_from_allowance": False,
             "unavailable_resources": ["CPU", "model_tokens", "currency", "per_provider_latency"],
             "automatic_history_purge": False,

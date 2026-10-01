@@ -21,6 +21,8 @@ by that command; generated files must be protected with OS ownership/ACLs.
 | max_concurrency | A2A work concurrency, default 4 |
 | max_steps / max_children | Demo per-peer application requests / child-process bound |
 | max_rechecks / max_seconds | Demo requalification allowance / overall deadline |
+| database_warning_bytes | Owner database size warning, default 8 GiB; no automatic deletion or hard database quota |
+| history_warning_days | Warn about retained records received locally more than this many days ago, default 365; no authority or evidence expiry |
 
 In the unreleased 0.4.0 candidate, a nonempty `operator_callers` replaces the
 owner's drain/resume grant. The owner can still inspect status and run the

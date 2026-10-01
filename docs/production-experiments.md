@@ -173,3 +173,15 @@ requires those original observations, so old runs without them remain unaccepted
 This conservative common envelope gives no owner more than its declared seconds;
 it does not estimate consumed CPU from elapsed time. A new complete ten-arm run
 is required on the revised fixed artifacts.
+
+The revised formal run on candidate `0747d731aac5eddac527b9ab3f7488e25b2ae4dd`
+completed all ten arms and passed the original-record/resource/time-unit assessment.
+Seeds 17/43/71/101 yielded 24/24 independently checked tasks in each arm; seed 29's
+verification bottleneck yielded 3/24 in each arm. All five paired success-fraction
+differences were zero. Inclusive elapsed arm times ranged from 81.94 to 183.65
+seconds; actual owner physical shutdown was confirmed within the separate
+500-second allowance. Retained raw calls, DSSE, process samples and typed costs are
+at `.local/production-040/experiment-formal-0747d73-v1/` in the development evidence.
+This deterministic application supplies no evidence of general adaptive advantage;
+the zero descriptive paired interval is not a population equivalence claim.
+Subsequent capacity/documentation changes require a new final-candidate run.

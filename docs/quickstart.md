@@ -2,11 +2,11 @@
 
 ## Start outside a source checkout
 
-The [README](../README.md#first-run-from-the-published-package) starts with the
-published 0.3.2 wheel in a fresh directory. Activate that environment before
+The [README](../README.md#first-run-from-the-installed-package) starts with the
+0.4.0 wheel in a fresh directory. Check the linked release records before choosing
+the actual published package or a reviewed candidate. Activate that environment before
 using this section. Run installed commands directly; `uv run` commands further
-below are for source development. The 0.4.0 candidate's additional operational
-commands are specified in [API/CLI](api.md); they are not in the published 0.3.2.
+below are for source development. Operational commands are specified in [API/CLI](api.md).
 
 Install native PostgreSQL using the [official OS downloads](https://www.postgresql.org/download/).
 On Windows the [official download page](https://www.postgresql.org/download/windows/)

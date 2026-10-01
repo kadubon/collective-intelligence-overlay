@@ -1,5 +1,8 @@
 # Python API and CLI
 
+[Generated command help](cli-help.txt) lists every CLI command and option. Use
+`collective-intelligence-overlay COMMAND --help` for your installed version.
+
 ## 0.3.2: bounded invocation cleanup
 
 `InvocationStore.cleanup_expired(owner=..., limit=32, seconds=5, dry_run=False)`
@@ -1211,3 +1214,12 @@ Capacity refusal retains existing bytes. `usage()` reports a 90-percent warning;
 it never purges signed evidence, withdrawal, call mappings or uncertain leases.
 Backup/archive retained history before adjusting limits; deleting such rows is
 not a supported retention operation.
+
+Operational database observations include `database_capacity_warning` at the
+configured `database_warning_bytes` threshold (default 8 GiB), and
+`history_retention_warning` for locally received records older than
+`history_warning_days` (default 365). These are review/backup warnings, not hard
+database quotas, expiry decisions or deletion authority. Use `backup` with stopped
+writers to archive the complete coherent generation. Preserve current evidence,
+withdrawals, original mappings and unresolved leases. Monitor actual server disk
+space separately; raising these thresholds does not establish a larger accepted profile.

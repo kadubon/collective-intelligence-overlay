@@ -76,6 +76,8 @@ class Config(Model):
     log_backup_segments: int = Field(default=7, ge=1, le=31)
     artifact_capacity_bytes: int = Field(default=268435456, ge=1048576, le=8589934592)
     artifact_max_files: int = Field(default=65536, ge=1, le=65536)
+    database_warning_bytes: int = Field(default=8589934592, ge=1048576, le=1099511627776)
+    history_warning_days: int = Field(default=365, ge=1, le=3650)
 
     @model_validator(mode="after")
     def operator_pins(self) -> Config:

@@ -12,9 +12,10 @@ hostとDBの管理者を信頼する構成です。
 
 [English](README.md) · [Tutorial](docs/quickstart.md) · [API・CLI](docs/api.md)
 
-公開版は**0.3.2**です。mainには**未公開の0.4.0 candidate**があります。
-[本番profileと受入表](docs/production-040.md)は未完了です。
-[公開記録](docs/releasing.md)に変更しない版別履歴、hash、公開後検査を保持します。
+この手順は**0.4.0**を対象にしています。実際の公開状態、candidateのhash、検証状況は
+[公開記録](docs/releasing.md)、測定した範囲は[本番profileと受入表](docs/production-040.md)
+で確認してください。公開前は、下のPyPIコマンドの代わりにレビュー済みcandidate wheelを
+installします。
 
 ## 提供する機能
 
@@ -23,7 +24,7 @@ hostとDBの管理者を信頼する構成です。
 - ownerごとのPostgreSQL記録、有限のallowance、fence付きlease、安定したinvocation ID。
 - 登録したlocal関数、MAF workflow、MCP tool、A2A service。受信コードをimportしません。
 - 既存executorを通じた有限の探索・提案選択・形成・検証。
-- 0.4.0 candidateでは、配布済みfactory、readiness・drain、元IDでの照合、
+- 配布済みfactory、readiness・drain、元IDでの照合、
   一貫したbackup、受付を閉じたrestore、scope付きの変更trial。
 
 生成済み、検証済み、再利用可能は別状態です。署名は発行主体を示し、remoteの完了は
@@ -31,7 +32,7 @@ hostとDBの管理者を信頼する構成です。
 不確実性はUNKNOWNとして保持します。[意味論](docs/semantics.md)と[security](docs/security.md)
 に、アプリケーションの範囲、インフラ信頼、remote情報の鮮度を記載しています。
 
-## 公開packageでの初回実行
+## install済みpackageでの初回実行
 
 Python **>=3.12**と[uv](https://docs.astral.sh/uv/)を使います。0.3.2の実測対象は
 CPython 3.12.14・3.13.15・3.14.7と、Linux x86_64、Windows x86_64、native macOS Intel・arm64
@@ -41,7 +42,7 @@ CPython 3.12.14・3.13.15・3.14.7と、Linux x86_64、Windows x86_64、native m
 ```sh
 uv venv --python 3.12.14 .venv
 . .venv/bin/activate
-uv pip install 'collective-intelligence-overlay[agents]==0.3.2'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.0'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa
 ```
@@ -51,7 +52,7 @@ Windows PowerShellでは次を実行します。
 ```powershell
 uv venv --python 3.12.14 .venv
 . .venv/Scripts/Activate.ps1
-uv pip install 'collective-intelligence-overlay[agents]==0.3.2'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.0'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```
@@ -77,8 +78,8 @@ PostgreSQLとOPAは外部要件です。install・importでservice起動やbinar
 
 ## 自分のアプリケーションを登録する
 
-0.4.0 candidateのwheelには、完全なlocal登録例があります。
-candidateをinstallした後、starterの雛形を生成します。
+wheelには、完全なlocal登録例があります。
+installした後、starterの雛形を生成します。
 
 ```sh
 collective-intelligence-overlay starter --directory ./my-application

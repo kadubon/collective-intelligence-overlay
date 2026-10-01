@@ -393,6 +393,20 @@
       "minimum": 1,
       "title": "Artifact Max Files",
       "type": "integer"
+    },
+    "database_warning_bytes": {
+      "default": 8589934592,
+      "maximum": 1099511627776,
+      "minimum": 1048576,
+      "title": "Database Warning Bytes",
+      "type": "integer"
+    },
+    "history_warning_days": {
+      "default": 365,
+      "maximum": 3650,
+      "minimum": 1,
+      "title": "History Warning Days",
+      "type": "integer"
     }
   },
   "required": [

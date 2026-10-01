@@ -2,6 +2,13 @@
 
 ## 0.4.0 (unreleased)
 
+- Owner operational metrics warn at configurable database size and local history
+  age thresholds without deleting signed records or changing evidence authority.
+- Native installed-artifact gates execute the actual English/Japanese README and
+  quickstart command blocks, including a fresh dedicated PostgreSQL cluster.
+  Publication reuses a reviewed candidate pair and reassesses original formal
+  observations; changed packaged sources or missing proofs close the tag gate.
+
 - The installed compatibility CSV peer now uses the existing owner lock, readiness,
   drain and recovery lifecycle. An operator-pinned read-only original-state query
   supports closed restoration and explicit resume. Actual installed 0.3.2 peer

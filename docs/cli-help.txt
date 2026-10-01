@@ -1,0 +1,401 @@
+Generated CLI help; exact help comes from your installed version.
+
+usage: collective-intelligence-overlay [-h] [--version]
+                                       {demo,binding-check,opa-install,setup,starter,verify-backup,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review}
+                                       ...
+
+positional arguments:
+  {demo,binding-check,opa-install,setup,starter,verify-backup,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review}
+    demo                run the API-key-free three-peer demonstration
+    binding-check       validate a manifest; does not register it
+    opa-install         explicitly install reviewed native OPA
+    setup               create a production owner home; no DB or download
+    starter             generate installed application and TLS assets
+    verify-backup       verify offline backup file digests
+
+options:
+  -h, --help            show this help message and exit
+  --version             show program's version number and exit
+
+usage: collective-intelligence-overlay demo [-h] --directory DIRECTORY
+                                            [--database-url DATABASE_URL]
+                                            [--opa OPA]
+
+options:
+  -h, --help            show this help message and exit
+  --directory DIRECTORY
+  --database-url DATABASE_URL
+  --opa OPA
+
+usage: collective-intelligence-overlay binding-check [-h] --manifest MANIFEST
+
+options:
+  -h, --help           show this help message and exit
+  --manifest MANIFEST
+
+usage: collective-intelligence-overlay opa-install [-h] --target TARGET
+
+options:
+  -h, --help       show this help message and exit
+  --target TARGET
+
+usage: collective-intelligence-overlay setup [-h] --directory DIRECTORY
+                                             --owner OWNER --url URL
+                                             [--database-url-env DATABASE_URL_ENV]
+                                             --opa OPA
+                                             [--application APPLICATION]
+                                             [--listen-port LISTEN_PORT]
+
+options:
+  -h, --help            show this help message and exit
+  --directory DIRECTORY
+  --owner OWNER
+  --url URL
+  --database-url-env DATABASE_URL_ENV
+  --opa OPA
+  --application APPLICATION
+  --listen-port LISTEN_PORT
+
+usage: collective-intelligence-overlay starter [-h] --directory DIRECTORY
+
+options:
+  -h, --help            show this help message and exit
+  --directory DIRECTORY
+
+usage: collective-intelligence-overlay verify-backup [-h] --directory
+                                                     DIRECTORY
+
+options:
+  -h, --help            show this help message and exit
+  --directory DIRECTORY
+
+usage: collective-intelligence-overlay check-config [-h] --config CONFIG
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG
+
+usage: collective-intelligence-overlay migrate [-h] --config CONFIG
+                                               [--database-url-env DATABASE_URL_ENV]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --database-url-env DATABASE_URL_ENV
+                        separate operator bootstrap DSN; not runtime
+                        credentials
+
+usage: collective-intelligence-overlay peer [-h] --config CONFIG
+                                            [--application APPLICATION]
+                                            [--reference]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --application APPLICATION
+                        explicit installed module:factory
+  --reference           enable the bundled compatibility reference application
+
+usage: collective-intelligence-overlay inspect [-h] --config CONFIG
+                                               [--query-file QUERY_FILE]
+                                               [--cursor-file CURSOR_FILE]
+                                               [--page-size PAGE_SIZE]
+                                               {capability,evidence,revocation,event,decision,opportunity,proposal}
+
+positional arguments:
+  {capability,evidence,revocation,event,decision,opportunity,proposal}
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --query-file QUERY_FILE
+  --cursor-file CURSOR_FILE
+  --page-size PAGE_SIZE
+
+usage: collective-intelligence-overlay metrics [-h] --config CONFIG
+                                               [--query-file QUERY_FILE]
+                                               [--cursor-file CURSOR_FILE]
+                                               [--page-size PAGE_SIZE]
+                                               [--operational] [--peer PEER]
+                                               [--work]
+                                               [--requests-file REQUESTS_FILE]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --query-file QUERY_FILE
+  --cursor-file CURSOR_FILE
+  --page-size PAGE_SIZE
+  --operational
+  --peer PEER           operational owner endpoint
+  --work                report scoped opportunity work
+  --requests-file REQUESTS_FILE
+                        evaluate up to 32 explicit UseRequests
+
+usage: collective-intelligence-overlay doctor [-h] --config CONFIG
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG
+
+usage: collective-intelligence-overlay sync [-h] --config CONFIG --peer PEER
+                                            [--page-size PAGE_SIZE]
+                                            [--max-pages MAX_PAGES]
+                                            [--filter-file FILTER_FILE]
+                                            [--restart]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER
+  --page-size PAGE_SIZE
+  --max-pages MAX_PAGES
+  --filter-file FILTER_FILE
+  --restart
+
+usage: collective-intelligence-overlay restore-state [-h] --config CONFIG
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG
+
+usage: collective-intelligence-overlay invoke [-h] --config CONFIG --peer PEER
+                                              --invocation-id INVOCATION_ID
+                                              --binding-id BINDING_ID
+                                              --binding-digest BINDING_DIGEST
+                                              --arguments-file ARGUMENTS_FILE
+                                              [--purpose {reuse,verification}]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER
+  --invocation-id INVOCATION_ID
+  --binding-id BINDING_ID
+  --binding-digest BINDING_DIGEST
+  --arguments-file ARGUMENTS_FILE
+  --purpose {reuse,verification}
+
+usage: collective-intelligence-overlay invocation [-h] --config CONFIG --peer
+                                                  PEER --invocation-id
+                                                  INVOCATION_ID
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER
+  --invocation-id INVOCATION_ID
+
+usage: collective-intelligence-overlay cancel-invocation [-h] --config CONFIG
+                                                         --peer PEER
+                                                         --invocation-id
+                                                         INVOCATION_ID
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER
+  --invocation-id INVOCATION_ID
+
+usage: collective-intelligence-overlay invocation-cleanup [-h] --config CONFIG
+                                                          [--limit LIMIT]
+                                                          [--seconds SECONDS]
+                                                          [--dry-run]
+
+options:
+  -h, --help         show this help message and exit
+  --config CONFIG
+  --limit LIMIT
+  --seconds SECONDS
+  --dry-run
+
+usage: collective-intelligence-overlay reobserve [-h] --config CONFIG
+                                                 --goal-file GOAL_FILE
+                                                 --opportunity-id
+                                                 OPPORTUNITY_ID --request-id
+                                                 REQUEST_ID --reason REASON
+                                                 [--new-attempt]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --goal-file GOAL_FILE
+  --opportunity-id OPPORTUNITY_ID
+  --request-id REQUEST_ID
+  --reason REASON
+  --new-attempt
+
+usage: collective-intelligence-overlay status [-h] --config CONFIG
+                                              [--identity-name IDENTITY_NAME]
+                                              [--identity-private-key IDENTITY_PRIVATE_KEY]
+                                              [--peer PEER]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --identity-name IDENTITY_NAME
+                        explicit current pinned control caller
+  --identity-private-key IDENTITY_PRIVATE_KEY
+                        separate caller PEM key
+  --peer PEER           configured destination; defaults to the owner
+
+usage: collective-intelligence-overlay drain [-h] --config CONFIG
+                                             [--identity-name IDENTITY_NAME]
+                                             [--identity-private-key IDENTITY_PRIVATE_KEY]
+                                             [--peer PEER]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --identity-name IDENTITY_NAME
+                        explicit current pinned control caller
+  --identity-private-key IDENTITY_PRIVATE_KEY
+                        separate caller PEM key
+  --peer PEER           configured destination; defaults to the owner
+
+usage: collective-intelligence-overlay resume [-h] --config CONFIG
+                                              [--identity-name IDENTITY_NAME]
+                                              [--identity-private-key IDENTITY_PRIVATE_KEY]
+                                              [--peer PEER]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --identity-name IDENTITY_NAME
+                        explicit current pinned control caller
+  --identity-private-key IDENTITY_PRIVATE_KEY
+                        separate caller PEM key
+  --peer PEER           configured destination; defaults to the owner
+
+usage: collective-intelligence-overlay goals [-h] --config CONFIG
+                                             [--peer PEER]
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG
+  --peer PEER      configured destination; defaults to the owner
+
+usage: collective-intelligence-overlay opportunities [-h] --config CONFIG
+                                                     [--peer PEER]
+                                                     [--max-candidates MAX_CANDIDATES]
+                                                     [--start START]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER           configured destination; defaults to the owner
+  --max-candidates MAX_CANDIDATES
+  --start START
+
+usage: collective-intelligence-overlay step [-h] --config CONFIG [--peer PEER]
+                                            --opportunity-id OPPORTUNITY_ID
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER           configured destination; defaults to the owner
+  --opportunity-id OPPORTUNITY_ID
+
+usage: collective-intelligence-overlay run [-h] --config CONFIG [--peer PEER]
+                                           [--max-candidates MAX_CANDIDATES]
+                                           [--max-steps MAX_STEPS]
+                                           [--seconds SECONDS]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER           configured destination; defaults to the owner
+  --max-candidates MAX_CANDIDATES
+  --max-steps MAX_STEPS
+  --seconds SECONDS
+
+usage: collective-intelligence-overlay database-bootstrap [-h] --config CONFIG
+                                                          [--database-url-env DATABASE_URL_ENV]
+                                                          --allowance-work
+                                                          ALLOWANCE_WORK
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --database-url-env DATABASE_URL_ENV
+  --allowance-work ALLOWANCE_WORK
+
+usage: collective-intelligence-overlay remote-calls [-h] --config CONFIG
+                                                    [--peer PEER]
+                                                    (--invocation-id INVOCATION_ID | --call-scope CALL_SCOPE)
+                                                    [--limit LIMIT]
+                                                    [--after AFTER]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER           configured destination; defaults to the owner
+  --invocation-id INVOCATION_ID
+  --call-scope CALL_SCOPE
+  --limit LIMIT
+  --after AFTER
+
+usage: collective-intelligence-overlay reconcile [-h] --config CONFIG
+                                                 [--peer PEER] --call-key
+                                                 CALL_KEY --command-id
+                                                 COMMAND_ID
+                                                 [--invocation-id INVOCATION_ID]
+                                                 [--reconciler RECONCILER]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER           configured destination; defaults to the owner
+  --call-key CALL_KEY
+  --command-id COMMAND_ID
+  --invocation-id INVOCATION_ID
+  --reconciler RECONCILER
+                        operator-installed read-only effect query binding
+
+usage: collective-intelligence-overlay backup [-h] --config CONFIG --directory
+                                              DIRECTORY
+                                              [--database-url-env DATABASE_URL_ENV]
+                                              [--pg-prefix-file PG_PREFIX_FILE]
+                                              [--tls-private-key TLS_PRIVATE_KEY]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --directory DIRECTORY
+  --database-url-env DATABASE_URL_ENV
+  --pg-prefix-file PG_PREFIX_FILE
+                        explicit JSON argv prefix for native client wrapper
+  --tls-private-key TLS_PRIVATE_KEY
+
+usage: collective-intelligence-overlay key-rotate [-h] --config CONFIG
+                                                  --directory DIRECTORY
+                                                  [--compromised-key-id COMPROMISED_KEY_ID]
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --directory DIRECTORY
+  --compromised-key-id COMPROMISED_KEY_ID
+
+usage: collective-intelligence-overlay recovery-state [-h] --config CONFIG
+                                                      [--peer PEER]
+
+options:
+  -h, --help       show this help message and exit
+  --config CONFIG
+  --peer PEER      configured destination; defaults to the owner
+
+usage: collective-intelligence-overlay recovery-review [-h] --config CONFIG
+                                                       [--peer PEER]
+                                                       --command-id COMMAND_ID
+                                                       --checker CHECKER
+                                                       --arguments-file
+                                                       ARGUMENTS_FILE
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER           configured destination; defaults to the owner
+  --command-id COMMAND_ID
+  --checker CHECKER
+  --arguments-file ARGUMENTS_FILE

@@ -487,6 +487,25 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
             result["live_upgrade"] = json.loads((upgrade_output / "report.json").read_text())
             assert result["live_upgrade"]["status"] == "passed"
             assert result["live_upgrade"]["candidate_wheel_sha256"] == hashes[wheel.name]
+        if full and name == "agents" and version == "0.4.0":
+            tutorial_output = (
+                args.report.resolve().parent / "installed-tutorial.json"
+                if args.report
+                else temp / "installed-tutorial.json"
+            )
+            run(
+                [
+                    str(python),
+                    str(root / "scripts/check_installed_tutorial.py"),
+                    "--wheel",
+                    str(wheel),
+                    "--output",
+                    str(tutorial_output),
+                ],
+                cwd=temp,
+                environment=environment,
+            )
+            result["installed_tutorial"] = json.loads(tutorial_output.read_text())
         result["child_runtimes"] = [
             json.loads(p.read_text(encoding="utf-8")) for p in sorted(records.glob("*.json"))
         ]

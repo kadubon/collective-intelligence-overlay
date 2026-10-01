@@ -324,7 +324,7 @@ class Operations:
                         "operations": self.snapshot(),
                         "process": process_observations(self._observation_started_at),
                         "database": await run_blocking(
-                            database_observations, self.service.overlay.store
+                            database_observations, self.service.overlay.store, self.service.config
                         ),
                         "artifacts": await run_blocking(self.service.config.artifacts().usage),
                         "last_allocation": None,
