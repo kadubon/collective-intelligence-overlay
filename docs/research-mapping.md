@@ -48,7 +48,20 @@ Our explicit probe/operator grants and UNKNOWN handling apply this narrower
 distinction; they provide no universal continuation or residual-liveness proof.
 
 Read-only staged updates keep the old active binding during local trials and
-qualify actual protected inputs before switching. Existing tests retain the
-old entry on FAIL, UNKNOWN or missing assessment. The primitive does not prove
-checker comparability, irreversible deployment safety or durable promotion.
-Those production paths remain pending in the [acceptance register](production-040-acceptance.json).
+qualify actual protected inputs before switching. `Registry.promote_recorded`
+retains an owner-signed choice, exact Decisions and a private comparison artifact;
+`restore_choice` restores installed pins without renewing historical ACCEPT.
+The document checker binds its actual criteria source and operator calibration
+to a version retained in Evidence and the original CAS proof. Binding and actual
+three-peer protected-trial regressions retain the old entry on FAIL, UNKNOWN or
+missing assessment, and preserve choice receipts across restart and rollback.
+These observations support that installed read-only scope; they do not establish
+general checker comparability or irreversible deployment safety. Complete native
+acceptance remains pending in the [requirement register](production-040-acceptance.json).
+
+Installed proposal generation reserves an owner allowance before the heavy
+callback and publishes alternatives and cost observations through the existing
+fenced transaction. Original retries retain signed alternatives and do not
+regenerate or reserve again. Specific nested resource refusals and fault-linked
+original call lineage improve residual diagnosis; they do not establish effect
+absence, justify refunding uncertain work or create independent PASS.

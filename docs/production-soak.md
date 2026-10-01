@@ -27,6 +27,21 @@ confirm the owned process's stopped status before timing unavailability.
 The older development run with 12 held originals remains unaccepted because it
 lacks these exact physical outage witnesses and stored specific refusal reasons.
 
+A normally installed CI `5928881` wheel ran seed 2221 through all 11 soak faults.
+The 360-second development run preserved 508 signed records, 18 original check
+artifacts, 202 invocations and 45 mappings. Its 11 held originals had retained
+causes, but the final stop event woke the sampler before its next deadline and
+created an invalid early slot. That 75-sample failure is retained.
+After the source-only sampler correction, a 180-second development repeat retained
+359 signed records, ten check artifacts, 124 invocations, 30 mappings and conserved
+allowance. Its 38 consecutive slots had maximum start lateness 0.061747592 seconds;
+all applicable quantitative and additional gates passed. The 16 held originals
+had bounded retained causes. Removing outage witnesses, physical confirmation or
+original signed receipts left unresolved causes; a changed mapping was rejected.
+Both reports remain `passed=false` and `release_approval=false`. Different durations
+do not support a performance comparison, and neither replaces the required
+300-second warmup, 3,600-second measurement and 900 regular offers on the final pair.
+
 The generated render parameter is the document's actual word count. It reaches
 the registered render component through the words/report/triage composition;
 the protocol records this relationship rather than storing an unused random value.

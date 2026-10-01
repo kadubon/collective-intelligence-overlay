@@ -274,7 +274,7 @@ async def main(args):
             next_sample = time.monotonic()
             slot = 0
             pending = {}
-            while True:
+            while not sampling_stop.is_set():
                 # Slow or unavailable HTTP/DB observations cannot delay OS RSS
                 # sampling or generate an unbounded stack of monitoring requests.
                 await session.sample(
@@ -334,22 +334,7 @@ async def main(args):
                         )
                     )
                 if sampling_stop.is_set():
-                    await asyncio.gather(*pending.values())
-                    with (output / "operational-samples.jsonl").open(
-                        "a", encoding="utf-8"
-                    ) as observations:
-                        for owner, task in pending.items():
-                            observations.write(
-                                json.dumps(
-                                    {
-                                        "owner": owner,
-                                        "received_seconds": session.seconds(),
-                                        "observation": task.result(),
-                                    }
-                                )
-                                + "\n"
-                            )
-                    return
+                    break
                 next_sample += 5
                 slot += 1
                 try:
@@ -358,6 +343,21 @@ async def main(args):
                     )
                 except TimeoutError:
                     pass
+            # The stop event can wake a deadline wait early. Join the existing
+            # observations without creating a fictitious sample in a future slot.
+            await asyncio.gather(*pending.values())
+            with (output / "operational-samples.jsonl").open("a", encoding="utf-8") as observations:
+                for owner, task in pending.items():
+                    observations.write(
+                        json.dumps(
+                            {
+                                "owner": owner,
+                                "received_seconds": session.seconds(),
+                                "observation": task.result(),
+                            }
+                        )
+                        + "\n"
+                    )
 
         async def schedule_faults(start):
             for fault in faults:
