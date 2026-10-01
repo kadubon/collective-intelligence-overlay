@@ -1,8 +1,42 @@
 # Production 0.4.0 acceptance declaration
 
-This is a preimplementation declaration, not a supported release or a validation
-result. The published baseline is 0.3.2 at `b172c0d0`, with all 12 native tag and
+The profile was declared before implementation. Production 0.4.0 remains an
+unpublished candidate with final acceptance pending. The published baseline is
+0.3.2 at `b172c0d0`, with all 12 native tag and
 actual-PyPI profiles verified; see [validation](validation.md).
+
+The final packaged candidate is source commit
+`9cd9a741709f235bdd8f81d95828ac4c4aee8969`. Its single wheel/sdist pair is retained
+in [the original build](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36848707217)
+and reused unchanged by
+[the formal native and production run](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36848916312).
+The original build run was canceled after its candidate was retained; that
+cancellation is not a complete matrix success.
+
+- Wheel SHA256: `33898a964443c5276853dc15069247ff8642012332c980d085f9fa9a4faf11d7`.
+- Sdist SHA256: `965f848ed12950d0a8cba26e6deb1594d8ce98437022fc9dd5dff0f7e860f8be`.
+
+The formal run is still in progress. Earlier complete native, soak and matched
+experiment observations below apply to their named candidate hashes and cannot
+substitute for this final pair. The release selector checks tagged packaged source
+bytes against the pretested pair; it never rebuilds the pair at publication.
+
+An additional restricted-role readiness regression checks changed policy bytes,
+an unavailable OPA executable, a different private key and malformed key bytes.
+Fresh normally installed final-wheel environments on Windows and native WSL Linux
+CPython 3.12.14 passed all four cases. Each closes intake without an invocation or
+allowance change, and repair still requires explicit resume. This adds test coverage
+without changing packaged implementation bytes. The expanded test must also pass
+the final native recheck before publication.
+
+The first final-pair Windows 3.12/3.14 jobs passed their source and installed agents
+tests but failed tutorial `initdb`: the Python-created temporary directory denied
+PostgreSQL's restricted Windows process. Their original logs and reports remain
+retained. The harness now grants only that fresh directory to the current user SID,
+preserving its protected ACL and leaving other directories unchanged. The diagnosis
+follows [Python's 0700 DACL implementation](https://github.com/python/cpython/blob/v3.12.14/Modules/posixmodule.c)
+and [PostgreSQL's restricted-token implementation](https://github.com/postgres/postgres/blob/REL_17_STABLE/src/common/restricted_token.c);
+the repaired native tutorial remains a required gate.
 
 [The machine-readable profile](profiles/production-040.json) is the authority for
 scope, operating limits, numerical acceptance targets, required faults, the actual
@@ -154,9 +188,12 @@ by this profile. These fixes do not lower the acceptance targets.
 These groups overlap and are not an additional complete-suite count. Local tests
 do not establish all native installed profiles, networked three-peer recovery,
 the complete production application protocol or all-native promotion faults.
-The later full-duration soak failed acceptance; ten matched arms executed but
-their allowance-unit/profile assessment remains open. Those gates remain unaccepted
-in the requirement register.
+The first full-duration soak failed acceptance, and the first ten-arm experiment
+used work credits where the profile also required a separate wall-time envelope.
+Their failures remain retained. Subsequent complete corrected candidate runs
+passed [the soak assessment](production-soak.md) and
+[the matched experiment assessment](production-experiments.md). Final-pair results
+are still required before closing those gates in the requirement register.
 
 The later short protocol adds physical checker unavailability, quiescent signed
 Evidence withdrawal followed by a new independent check, four execution slots,

@@ -18,6 +18,13 @@ Update the acceptance register with actual observed evidence. These operational
 records are outside the package artifacts. Do not change packaged sources, README,
 metadata or licenses after fixing the pair.
 
+If external tests or operational records change after that run, dispatch with its
+`candidate_run_id`, `production_protocols=false`, and `verify_pypi=false` before
+publication. This restores the original formal reports and reruns all native gates
+against the original pair without querying an unpublished PyPI version. The ready
+job still reassesses the originals, matches their fixed driver sources, and requires
+the complete prepublication register. This option does not publish or waive a gate.
+
 The `v0.4.0` tag requires that manifest. Its job downloads the original pair and
 formal reports, checks the run's repository/main provenance and commit ancestry,
 compares every wheel/sdist package file and the packaged README/metadata/licenses
@@ -25,8 +32,8 @@ with the tag, reruns all native gates and reassesses the retained formal reports
 Changed or added package files, altered archives or missing/changed originals fail
 closed. It does not build a replacement publication pair. OIDC and the protected
 `pypi` environment remain confined to the existing tag-only publish job.
-After publication, dispatch with `candidate_run_id` and the default
-`production_protocols=false` to retain the existing cache-disabled actual-PyPI
+After publication, dispatch with `candidate_run_id` and the defaults
+`production_protocols=false` and `verify_pypi=true` to retain the cache-disabled actual-PyPI
 verification path. See the [official workflow syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax)
 and [artifact download requirements](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/download-workflow-artifacts).
 

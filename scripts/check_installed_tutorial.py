@@ -40,6 +40,27 @@ def run(wheel, output):
     assert shell, "documented native shell unavailable"
     with tempfile.TemporaryDirectory(prefix="cio-installed-tutorial-") as temporary:
         directory = Path(temporary)
+        if windows:
+            # Python's protected 0700 DACL uses OWNER RIGHTS. An elevated runner
+            # can own it through Administrators; PostgreSQL disables that SID.
+            # Grant this fresh directory to the actual user SID, not other users.
+            sid = subprocess.check_output(
+                [
+                    shell,
+                    "-NoProfile",
+                    "-Command",
+                    "[System.Security.Principal.WindowsIdentity]::GetCurrent().User.Value",
+                ],
+                text=True,
+                timeout=20,
+            ).strip()
+            assert re.fullmatch(r"S-\d+(?:-\d+)+", sid), "current Windows user SID unavailable"
+            subprocess.run(
+                ["icacls.exe", str(directory), "/grant", f"*{sid}:(OI)(CI)F"],
+                check=True,
+                capture_output=True,
+                timeout=20,
+            )
         venv = directory / ".venv"
         python = venv / ("Scripts/python.exe" if windows else "bin/python")
         environment = os.environ.copy()
@@ -100,6 +121,7 @@ def run(wheel, output):
             assert demo["changed_environment"] == "REQUALIFY"
             assert demo["after_dependency_revocation"] == "REJECT"
             assert "117.00" in demo["held_out_result"]
+            assert doctor["database"] is True and doctor["opa"] is True
             assert (directory / "my-application/application.py").is_file()
             result = {
                 "passed": True,

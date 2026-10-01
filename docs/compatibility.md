@@ -289,6 +289,11 @@ their own licenses. Binary tests do not establish container security or full-ima
 license audit. SBOM generation uses cyclonedx-bom; known-vulnerability checks use
 pip-audit. Metadata scanning does not replace legal review or supply-chain attestation.
 
+Retained final-candidate CycloneDX reports omit a license field for `protobuf`
+7.36.2. The paired installed `pip-licenses` reports identify its reviewed
+3-Clause BSD License. Preserve both original tool outputs and that association;
+an omitted SBOM field is not a new license exception or a complete license finding.
+
 
 <!-- runtime-matrix:start -->
 | OS | Native CPU | Runner | CPython patches | Required scope |

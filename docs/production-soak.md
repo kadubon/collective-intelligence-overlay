@@ -164,5 +164,41 @@ after completed Message exchanges. The host now uses the pinned official public
 handler described in [compatibility](compatibility.md). The diagnostic launcher
 records traced Python allocations separately from OS RSS and a final explicit GC;
 neither tracing nor that intervention is part of formal performance acceptance.
-The original failure and sources are preserved. The fixed candidate needs a
-complete new run under unchanged numerical gates.
+The original failure and sources are preserved. These fixes required a complete
+new run under unchanged numerical gates; the result follows.
+
+## Complete repeat after the memory and fault fixes
+
+The subsequent formal seed-401 run on candidate `900a955` completed the unchanged
+300-second warmup and 3,600-second measurement. All 1,151 offered rows were retained,
+all eleven injections executed, and the original-result assessment passed all
+twenty quantitative gates and three additional safety/sample/backlog gates. It
+verified 150 original independent check artifacts. The earlier failed run remains
+retained and is not reclassified by this result.
+
+| Measured bound | Observation | Result |
+| --- | --- | --- |
+| Read-only p50 / p95 / p99, 716 outcomes | 0.119 / 0.454 / 1.125 seconds | Passed |
+| Invoke p50 / p95 / p99, all 225 outcomes | 1.717 / 2.470 / 2.795 seconds | Passed |
+| Finite loop/check p50 / p95 / p99, all 135 outcomes | 2.444 / 3.459 / 4.439 seconds | Passed |
+| Maximum operation wall | 21.981 seconds | Within 180 seconds |
+| Normal classified fraction / throughput | 1.0 / 0.25 per second | Passed |
+| Owner RSS peak | 234,369,024 bytes | Within 768 MiB |
+| Maximum owner RSS growth after warmup | 99,782,656 bytes | Within 128 MiB |
+| DB / CAS / rotated-log growth | 39,583,744 / 420,765 / 37,184,795 bytes | Passed |
+| Maximum unresolved effects / selected unverified targets | 14 / 1 | Within 32 / 8 |
+| Maximum confirmed fault recovery | 31.153 seconds | All eleven confirmed |
+
+Verification backlog observations cover the two operator-selected report/triage
+UseRequests, not every historical candidate. OS resource samples and original
+effect/signature/refusal observations were checked separately. These results apply
+to the declared workload and measured host; they do not establish a universal SLA
+or an hour-long macOS/Windows soak.
+
+Wheel SHA256: `df3df71b44df5bcc81e8edc131d8f4bfb607b8427e5ea5c0b190428fda6e95b9`.
+Sdist SHA256: `bffec2d6be137846d4c434a068ce9de49438f20c27824449114ad298e9668161`.
+The retained original reports and assessment are at
+`.local/production-040/soak-formal-900a955-v1/` in the development evidence. This
+successful earlier candidate is not the final release pair. Capacity and packaged
+documentation changes require the new final-candidate run identified in
+[the current acceptance status](production-040.md).

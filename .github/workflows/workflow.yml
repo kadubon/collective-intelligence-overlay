@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
     inputs:
       candidate_run_id:
-        description: 'Post-publication verification: original tag run artifact ID; empty builds a new candidate'
+        description: 'Reuse the original candidate run artifact ID; empty builds a new candidate'
         required: false
         type: string
       production_protocols:
@@ -15,6 +15,11 @@ on:
         required: false
         type: boolean
         default: false
+      verify_pypi:
+        description: 'For a reused candidate, verify actual no-cache PyPI files and installations'
+        required: false
+        type: boolean
+        default: true
 
 permissions:
   contents: read
@@ -78,7 +83,7 @@ jobs:
           github-token: ${{ github.token }}
       - name: Compare actual PyPI bytes with the original candidate
         id: pypi
-        if: github.event_name == 'workflow_dispatch' && inputs.candidate_run_id != '' && !inputs.production_protocols
+        if: github.event_name == 'workflow_dispatch' && inputs.candidate_run_id != '' && !inputs.production_protocols && inputs.verify_pypi
         shell: bash
         run: |
           version="$(uv run python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")"
@@ -346,6 +351,11 @@ jobs:
           name: candidate-distributions
           path: .local/candidate
       - name: Restore original formal production observations
+        if: needs.candidate.outputs.production_run_id != ''
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: python scripts/wait_production_artifact.py --run-id '${{ needs.candidate.outputs.production_run_id }}'
+      - name: Download original formal production observations
         if: needs.candidate.outputs.production_run_id != ''
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
         with:

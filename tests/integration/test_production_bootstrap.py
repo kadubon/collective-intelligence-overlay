@@ -14,7 +14,9 @@ from collective_intelligence_overlay.setup import bootstrap_database
 from collective_intelligence_overlay.storage import Store
 
 
-async def test_bootstrap_runtime_dml_without_ddl_and_production_readiness(app_config):
+async def test_bootstrap_runtime_dml_without_ddl_and_production_readiness(
+    app_config, identities, tmp_path
+):
     operator_url = os.environ["CIO_TEST_DATABASE_URL"]
     name = "cio_production_" + uuid4().hex
     password = secrets.token_hex(16) + ":quote'\\end"
@@ -54,6 +56,51 @@ async def test_bootstrap_runtime_dml_without_ddl_and_production_readiness(app_co
         await control.start()
         assert control.state == "ready"
         assert (await control.handle(config.owner, {"operation": "status"}))["state"] == "ready"
+        # Mutate only this test's protected copies, never the installed policy or OPA.
+        policy = host.overlay.policy
+        original_policy = policy.path.read_bytes()
+        policy.path = tmp_path / "protected-policy.rego"
+        policy.path.write_bytes(original_policy)
+        original_key = config.private_key.read_bytes()
+        original_binary = policy.binary
+        for fault, expected_reason in (
+            ("policy", "POLICY_CHANGED"),
+            ("opa-unavailable", "DEPENDENCY_CHECK_FAILED"),
+            ("different-key", "IDENTITY_CHANGED"),
+            ("invalid-key", "DEPENDENCY_CHECK_FAILED"),
+        ):
+            if fault == "policy":
+                policy.path.write_bytes(original_policy + b"\n# changed after startup\n")
+            elif fault == "opa-unavailable":
+                policy.binary = str(tmp_path / "absent-opa")
+            elif fault == "different-key":
+                config.private_key.write_bytes(identities["other"].signer.private_bytes)
+            else:
+                config.private_key.write_bytes(b"not a private key")
+            status = await control.handle(config.owner, {"operation": "status"})
+            assert status["state"] == "degraded" and status["reason"] == expected_reason
+            invocation_id = "refused-" + fault
+            refused = await control.handle(
+                config.owner, {"operation": "invoke", "invocation_id": invocation_id}
+            )
+            assert refused["error"] == "SERVICE_INTAKE_CLOSED"
+            assert host.executor.store.get(config.owner, invocation_id) is None
+            with host.overlay.store.engine.connect() as conn:
+                assert (
+                    conn.execute(
+                        text("SELECT remaining FROM budgets WHERE unit='work'")
+                    ).scalar_one()
+                    == 500
+                )
+            policy.path.write_bytes(original_policy)
+            policy.binary = original_binary
+            config.private_key.write_bytes(original_key)
+            # Restoring dependencies alone does not reopen a degraded intake.
+            assert control.state == "degraded"
+            resumed = await control.handle(config.owner, {"operation": "resume"})
+            assert resumed["state"] == "ready"
+        assert config.private_key.read_bytes() == original_key
+        assert policy.path.read_bytes() == original_policy
         await control.stop()
         host.close()
         host = None
