@@ -75,6 +75,7 @@ with zipfile.ZipFile(wheel) as archive:
         "migrations/versions/0019_sync_completion.py",
         "migrations/versions/0020_restore_sequence.py",
         "migrations/versions/0021_invocation_resolution.py",
+        "migrations/versions/0022_invocation_parent_index.py",
         "resolutions.py",
         "schemas/config.json",
         "starter/application.py",

@@ -18,8 +18,27 @@ def public_bytes(path, raw):
     # verbatim. Reject accidental private material instead of mutating proofs.
     protected = (
         "source-snapshot" in path.parts
+        or "source" in path.parts
         or "model" in path.parts
+        or "offers" in path.parts
         or path.name.endswith(("-observations.json", "-artifacts.json"))
+        or path.name.endswith("-decisions.json")
+        or path.name.startswith("snapshot-")
+        or path.name
+        in {
+            "protocol.json",
+            "source-manifest.json",
+            "offer-plan.json",
+            "arm-result.json",
+            "cohort.json",
+            "final-stock.json",
+            "irrelevant-stock.json",
+            "new-receiver-stock.json",
+            "resources.json",
+            "transfers.json",
+            "calls.jsonl",
+            "export.json",
+        }
     )
     secrets = (b"BEGIN PRIVATE KEY", b"BEGIN RSA PRIVATE KEY", b"BEGIN OPENSSH PRIVATE KEY")
     if any(marker in raw for marker in secrets):
@@ -31,7 +50,7 @@ def public_bytes(path, raw):
     if protected:
         if re.search(rb"postgresql(?:\+pg8000)?://[^\s\"']+", raw):
             # Frozen source may contain example URIs, never an operator secret.
-            if "source-snapshot" not in path.parts:
+            if not {"source-snapshot", "source"} & set(path.parts):
                 raise ValueError("private DSN in protected observation " + path.as_posix())
         return raw, changes
     if path.name == "before-tags.raw":
@@ -40,6 +59,16 @@ def public_bytes(path, raw):
         selected = [m for m in models if m.get("name") == "gemma4:e4b"]
         if len(selected) != len(models):
             value["models"] = selected
+            raw = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode()
+            changes.append(
+                {"kind": "unrelated_installed_model_metadata", "count": len(models) - len(selected)}
+            )
+    if path.name == "model-manifest.json":
+        value = json.loads(raw)
+        models = value.get("tags", {}).get("models", [])
+        selected = [m for m in models if m.get("name") == "gemma4:e4b"]
+        if len(selected) != len(models):
+            value["tags"]["models"] = selected
             raw = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode()
             changes.append(
                 {"kind": "unrelated_installed_model_metadata", "count": len(models) - len(selected)}

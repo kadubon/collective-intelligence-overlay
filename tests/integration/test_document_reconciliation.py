@@ -22,7 +22,16 @@ def original_document(peers):
         service = DocumentService(host.config, host)
         binding = service.install_remote(producer.installed["words"])
         arguments = {"text": "reference 文書 Δ"}
-        request = {"caller": "receiver", "arguments": arguments}
+        request = {
+            "owner": "receiver",
+            "caller": "receiver",
+            "purpose": "reuse",
+            "binding": binding.id,
+            "binding_digest": binding.digest,
+            "arguments": arguments,
+            "environment": host.config.execution_environment,
+            "permissions": [],
+        }
         claim, fresh = host.executor.store.claim(
             "receiver", "stored-document", binding.id, binding.digest, request, Reservation()
         )

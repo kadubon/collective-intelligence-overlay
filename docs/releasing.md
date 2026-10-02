@@ -1,5 +1,25 @@
 # Release procedure and current state
 
+## 0.4.2 remains unpublished
+
+The standard `v0.4.2` selector requires `docs/release-042.json` with the exact
+candidate run, source commit/tree, wheel/sdist hashes and original complete gate
+hash. It must authenticate the successful main workflow, twelve native profiles,
+mixed Python and four cross readers before restoring that same pair. Missing or
+rejected proof stops selection rather than rebuilding at the tag. The selected
+version-specific manifest is passed to both candidate and ready; the separate
+`publish_existing_tag` exception remains confined to the pinned 0.4.1 declaration.
+The 0.4.2 native fault profile is included in validation provenance, and installed
+wheel inspection requires migration 0022. These changes await their affected
+tests and the final immutable candidate gate.
+
+No final 0.4.2 manifest, tag, Release or PyPI publication is claimed. Current
+calibration, operational regression and representative CI status are recorded in
+[the audit](audit-042.md). After the source/protocol and exact installed wheel are
+fixed and pushed, independent confirmation remains required before the results
+are published. Negative or limited-power results are publishable; missing required
+implementation, provenance or native checks are not a completed release.
+
 ## 0.4.1 published and verified on 2026-10-02
 
 [PyPI 0.4.1](https://pypi.org/project/collective-intelligence-overlay/0.4.1/),

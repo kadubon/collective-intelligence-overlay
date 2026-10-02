@@ -3,9 +3,11 @@ import importlib.util
 import io
 import json
 import subprocess
+import sys
 import tarfile
 import zipfile
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 
@@ -93,3 +95,52 @@ def test_pretested_pair_requires_original_packaged_content(candidate_repository,
     else:
         with pytest.raises(AssertionError):
             module.check(candidate, hashes)
+
+
+@pytest.mark.parametrize("version", ["0.4.1", "0.4.2"])
+def test_standard_tag_reuses_its_own_trusted_complete_candidate(
+    candidate_repository, monkeypatch, version
+):
+    module, root, _, _, _ = candidate_repository
+    (root / "pyproject.toml").write_text("[project]\nversion = '" + version + "'\n")
+    relative = "docs/release-" + version.replace(".", "") + ".json"
+    manifest = root / relative
+    manifest.parent.mkdir()
+    manifest.write_text(json.dumps({"candidate_run_id": "123", "source_commit": "a" * 40}))
+    checked = []
+
+    def require_full(run_id, source_commit, *, full=True):
+        checked.append((run_id, source_commit, full))
+
+    monkeypatch.setitem(sys.modules, "release_gate", SimpleNamespace(trusted_run=require_full))
+    monkeypatch.setenv("GITHUB_REF", "refs/tags/v" + version)
+    selected = module.select()
+    assert checked == [("123", "a" * 40, True)]
+    assert selected == {
+        "reuse_run_id": "123",
+        "production_run_id": "",
+        "pretested_full": "true",
+        "release_manifest": relative,
+    }
+
+
+@pytest.mark.parametrize("failure", ["manifest", "tag-version", "trusted-run"])
+def test_042_tag_cannot_fall_back_to_a_rebuild_after_missing_or_rejected_proof(
+    candidate_repository, monkeypatch, failure
+):
+    module, root, _, _, _ = candidate_repository
+    (root / "pyproject.toml").write_text("[project]\nversion = '0.4.2'\n")
+    manifest = root / "docs/release-042.json"
+    manifest.parent.mkdir()
+    if failure != "manifest":
+        manifest.write_text(json.dumps({"candidate_run_id": "123", "source_commit": "a" * 40}))
+
+    def reject_proof(*args, **kwargs):
+        raise AssertionError("untrusted or incomplete original native run")
+
+    monkeypatch.setitem(sys.modules, "release_gate", SimpleNamespace(trusted_run=reject_proof))
+    monkeypatch.setenv(
+        "GITHUB_REF", "refs/tags/v0.4.1" if failure == "tag-version" else "refs/tags/v0.4.2"
+    )
+    with pytest.raises(FileNotFoundError if failure == "manifest" else AssertionError):
+        module.select()

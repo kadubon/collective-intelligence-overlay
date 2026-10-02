@@ -38,6 +38,7 @@ def provenance():
         "scripts/runtime-matrix.json",
         "docs/profiles/production-040.json",
         "docs/profiles/native-fault-041.json",
+        "docs/profiles/native-fault-042.json",
     ]
     names.extend(
         p.relative_to(ROOT).as_posix()

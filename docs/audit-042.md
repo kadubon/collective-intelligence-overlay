@@ -152,3 +152,30 @@ incomplete request anchors. The failures and original candidate remain retained.
 Both causes are corrected locally without relaxing numeric gates. The affected
 native Windows 19-fault profile passed in 214.96 seconds. This is not the complete
 final matrix or evidence for a final immutable wheel.
+
+The subsequent six fresh-receiver regression cases passed in 161.53 seconds
+without skips. They deliberately backdate the unsigned local source-freshness
+projection by 601 seconds, observe actual admission denial, then complete a fresh
+authenticated synchronization and reconstruct/check/execute after both original
+providers stop. Original signed evidence is unchanged. This is an injected local
+projection fault, not a claim of waiting 601 seconds or observing past quiescence.
+Unsigned owner admission projections are now exported separately from DSSE.
+
+Second calibration `cio-042-accumulation-calibration-v2` began on
+2026-10-02 at 15:39 UTC with new worlds 307191/872131, counterbalanced E/M, and
+isolated reference world 3439169. Source, settings and task plans remain frozen
+through the run. Its isolated actual reference controls passed 10/10; main E/M
+results are not yet complete or performance-verified. No C-minus-M result is used
+for calibration, and no third calibration or confirmation is claimed.
+The pushed source checkpoint is `45d85a05301e3cd6f04b2c2bf25322da367fcccf`.
+[Quick CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37028892640)
+passed; the
+[representative Linux checkpoint](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37028892571)
+finished with 620 passes and two setup errors in 922.25 seconds. The document
+reconciliation fixture still submitted a two-field legacy request through the
+new signed-anchor writer. Its request is being updated to the complete current
+contract; owner/caller, original arguments and the negative-query assertions are
+retained. The original logs, JUnit and candidate pair are preserved; installed
+artifact validation did not run after the source failure. Publication-source and
+fixture refinements made during calibration are outside its frozen runtime source
+list and await affected validation.

@@ -21,6 +21,7 @@ def test_declared_native_fault_profiles_are_bound_into_reuse(gate_module):
     for name in (
         "docs/profiles/production-040.json",
         "docs/profiles/native-fault-041.json",
+        "docs/profiles/native-fault-042.json",
         "tests/e2e/document_fault_report.py",
         "tests/e2e/production_mesh.py",
         "examples/adaptive_documents.py",

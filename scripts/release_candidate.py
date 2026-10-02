@@ -60,13 +60,18 @@ def check(candidate, expected=None):
 def select():
     ref = os.environ.get("GITHUB_REF", "")
     event = os.environ.get("GITHUB_EVENT_NAME", "")
-    selected = {"reuse_run_id": "", "production_run_id": "", "pretested_full": "false"}
     version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
-    if ref == "refs/tags/v0.4.1":
+    selected = {
+        "reuse_run_id": "",
+        "production_run_id": "",
+        "pretested_full": "false",
+        "release_manifest": "docs/release-" + version.replace(".", "") + ".json",
+    }
+    if ref in {"refs/tags/v0.4.1", "refs/tags/v0.4.2"}:
         from release_gate import trusted_run
 
-        manifest = json.loads((ROOT / "docs/release-041.json").read_text())
-        assert version == "0.4.1"
+        assert ref == "refs/tags/v" + version
+        manifest = json.loads((ROOT / selected["release_manifest"]).read_text())
         trusted_run(manifest["candidate_run_id"], manifest["source_commit"])
         selected.update(reuse_run_id=manifest["candidate_run_id"], pretested_full="true")
     elif ref == "refs/tags/v0.4.0":
@@ -114,8 +119,12 @@ if __name__ == "__main__":
             if os.environ.get("GITHUB_REF") == "refs/tags/v0.4.0"
             else None
         )
-        if os.environ.get("GITHUB_REF") == "refs/tags/v0.4.1":
-            expected = json.loads((ROOT / "docs/release-041.json").read_text())["artifacts"]
+        ref = os.environ.get("GITHUB_REF")
+        if ref in {"refs/tags/v0.4.1", "refs/tags/v0.4.2"}:
+            version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
+            assert ref == "refs/tags/v" + version
+            manifest = ROOT / ("docs/release-" + version.replace(".", "") + ".json")
+            expected = json.loads(manifest.read_text())["artifacts"]
         print(
             json.dumps(
                 {"packaged_sources_unchanged": True, "artifacts": check(args.candidate, expected)}
