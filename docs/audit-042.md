@@ -175,7 +175,26 @@ finished with 620 passes and two setup errors in 922.25 seconds. The document
 reconciliation fixture still submitted a two-field legacy request through the
 new signed-anchor writer. Its request is being updated to the complete current
 contract; owner/caller, original arguments and the negative-query assertions are
-retained. The original logs, JUnit and candidate pair are preserved; installed
-artifact validation did not run after the source failure. Publication-source and
-fixture refinements made during calibration are outside its frozen runtime source
-list and await affected validation.
+retained. Both affected actual-PG query cases subsequently passed locally without
+skips in 22.54 seconds. The original logs, JUnit and candidate pair are preserved;
+installed artifact validation did not run after the source failure.
+
+Publication-source and fixture refinements made during calibration are outside
+its 93 frozen runtime files; all 93 still match their original hashes. The affected
+standard 0.4.2 selector, original-proof checks and public-byte boundary passed
+37 cases locally without skips in 25.84 seconds. The first focused quick run on
+those changes passed 65 checks and had 14 test-loader setup errors because the
+new file used importlib without adding its script directory. That isolated loader
+was corrected, and all 14 affected byte-boundary cases passed in 1.01 seconds;
+the failed log and JUnit remain preserved. These are validation results, not
+evidence of a final 0.4.2 candidate or publication.
+
+The first completed E arm has also passed an offline diagnostic reader with one
+explicit checkpoint comparison correction: training records describe the state
+before learning (`episode - 1`), whereas the schedule names its target episode.
+The original reader and all raw/source bytes remain unchanged during the pilot;
+no network or inference was sent by that diagnostic. This is one completed-arm
+check, not completed-cohort performance analysis. Occasional local validation
+and Git activity ran on the same host during calibration. The pilot is therefore
+not a controlled CPU-isolation timing experiment; owned-process samples and
+measured API usage remain distinct from unavailable complete compute/energy.

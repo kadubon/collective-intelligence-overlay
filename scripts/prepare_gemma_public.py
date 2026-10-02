@@ -6,8 +6,6 @@ import json
 import re
 from pathlib import Path
 
-from check_production_reports import file_manifest
-
 
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
@@ -96,6 +94,8 @@ def public_bytes(path, raw):
 
 
 def prepare(source, destination):
+    from check_production_reports import file_manifest
+
     source, destination = source.resolve(), destination.resolve()
     if destination == source or destination.is_relative_to(source):
         raise ValueError("public copy must be outside originals")

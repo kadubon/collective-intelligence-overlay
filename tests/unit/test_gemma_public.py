@@ -8,8 +8,9 @@ import pytest
 
 
 @pytest.fixture
-def publication():
+def publication(monkeypatch):
     path = Path(__file__).parents[2] / "scripts/prepare_gemma_public.py"
+    monkeypatch.syspath_prepend(str(path.parent))
     spec = importlib.util.spec_from_file_location("tested_gemma_public", path)
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)

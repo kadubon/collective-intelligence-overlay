@@ -10,8 +10,9 @@ rejected proof stops selection rather than rebuilding at the tag. The selected
 version-specific manifest is passed to both candidate and ready; the separate
 `publish_existing_tag` exception remains confined to the pinned 0.4.1 declaration.
 The 0.4.2 native fault profile is included in validation provenance, and installed
-wheel inspection requires migration 0022. These changes await their affected
-tests and the final immutable candidate gate.
+wheel inspection requires migration 0022. The affected selector/proof-byte
+checks passed 37 cases locally; the final immutable candidate gate remains
+outstanding.
 
 No final 0.4.2 manifest, tag, Release or PyPI publication is claimed. Current
 calibration, operational regression and representative CI status are recorded in
