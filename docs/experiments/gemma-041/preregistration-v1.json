@@ -1,0 +1,828 @@
+{
+  "id": "cio-041-gemma-tabular-preregistration-v1",
+  "run_id": "cio-041-gemma-tabular-confirmation-v1",
+  "registered_at": "2026-10-02T04:39:14.968471+00:00",
+  "classification": "preregistered_exploratory_limited_power",
+  "pairs": 30,
+  "research_question": "Under the frozen finite synthetic tabular distribution and equal aggregate budget, does adaptive shortage observation/allocation improve held-out task fraction relative to static verified reuse?",
+  "primary_contrast": "paired episode adaptive fraction minus static fraction; six heldout tasks offered per arm; no superiority or equivalence certification",
+  "model_name": "gemma4:e4b",
+  "model_digest": "dc35e8d9c6061baa6f0fa870975ab6932e2542b579b13ea0f199fa4bb7300c9c",
+  "ollama_version": "0.35.0",
+  "engine": "CPU Ollama llama-server / llama.cpp; Q4_K_M, Windows11 Ryzen7 8840HS; GPU not used",
+  "sources": {
+    "pyproject.toml": "6c1c1e2ad3d4aa05202b46c34d7153ddfbad2a429428c496c01117c19d3cee76",
+    "scripts/analyze_gemma_tabular.py": "2fd021bcfed377cb00340180ed0289036c6f399e4459c948322ee453598815cb",
+    "scripts/ollama_observer.py": "1f21ffbe577c09d9844683a712760208281ddc762d1460b0a99de1b978d3dc4b",
+    "scripts/production_session.py": "056695861ed210c27cbfbafcee5d04e5e9dd13248057412e57c2dcd763667c8c",
+    "scripts/run_gemma_tabular.py": "4bdec30c5a45fcb0ce1690c19dbe69ad04c7db54c836f8b4809ff9379d2c0ef3",
+    "scripts/tabular_evaluation.py": "367cc61d367899632c61c1cce77cdf0124df227b8bd7c31cffeb86b870555c7c",
+    "src/collective_intelligence_overlay/__init__.py": "f869da256a6b478f14c629e973010a8f0dd6549b22ba8f1937777734769a5740",
+    "src/collective_intelligence_overlay/accounting.py": "9a4ec918337d57bb51785116f74778d532b7f0a8648a6a6421f983fbe58ea91e",
+    "src/collective_intelligence_overlay/adapters/a2a.py": "d44f9fda0868b8b749d00e63046f6538791ccf7e08908959806c8294295ead6e",
+    "src/collective_intelligence_overlay/adapters/a2a_service.py": "8036c46add6f2212ad18e2b71ea118caa90616faebdc64df886d90efff5ac902",
+    "src/collective_intelligence_overlay/adapters/http_limits.py": "80fda41b4e079fb7934f4d6573d8063a62e3c7b3082df3a1d2b5c5a98cdcbce7",
+    "src/collective_intelligence_overlay/adapters/inference_observer.py": "bb2724ea0ed53f5ad9b6f82bd21a0ed337e013864292273799d2e7976de766a1",
+    "src/collective_intelligence_overlay/adapters/maf.py": "ed184546c38a8d5866372d3b7a1d9a49bb2e8016a19c0eb803bb2a9596e25c25",
+    "src/collective_intelligence_overlay/adapters/mcp.py": "c891fad055b71a93faaafdec38beefbc87b2131c442c263483ad6c5ad3075406",
+    "src/collective_intelligence_overlay/adapters/ollama.py": "231a3f63a24658c6aa14d72ca1f166024f904effb1dbcbcb7485f8387ebd31fb",
+    "src/collective_intelligence_overlay/allocation.py": "ae799c516e4e57bec689d551da3694cd91ac1a442e83006481d3f01c3ac38f22",
+    "src/collective_intelligence_overlay/application.py": "79232171f9bb0fe79dd72b5fc9e017d4de40e9bd57dcc7e1581f299328272398",
+    "src/collective_intelligence_overlay/artifacts.py": "00913580bd539ae734553cbddaba0198a79bed0c02ec7c59fb77f3258fba43d7",
+    "src/collective_intelligence_overlay/bindings.py": "4cfdc026882edd7e29e8b9386bc78b1d28438e8f293f5aa9dbb049c8a2daec7a",
+    "src/collective_intelligence_overlay/blocking.py": "16a735296d7baf1edc9bf2a5bf6c566324ea3a0707812b381907f13e1dbcd1a2",
+    "src/collective_intelligence_overlay/calls.py": "b69bd34ce8228bc047964301a25ddbf133781269b5b723e6ebd7bab501f3d410",
+    "src/collective_intelligence_overlay/cli.py": "808f1cf19e3a41d5fe0e1c23c5f2151f2c31bff325d886c15510bb4bfe53cb25",
+    "src/collective_intelligence_overlay/config.py": "458cc9a513bfad7ceff8151e5efe3f2feacdd6b0a886bb226560994c902783cb",
+    "src/collective_intelligence_overlay/demo.py": "2076e02ed10e8e6c66a5de579e2f260281493fade8f47d05bad35f28c78a4694",
+    "src/collective_intelligence_overlay/evaluation.py": "cf55b6b94106c8a96fc4d0a716e4d1b191cb795f4e0c81612ef5e3b6ecf9b95f",
+    "src/collective_intelligence_overlay/invocations.py": "9621a8557ca87fa8a8a6d6d6836ade8906456ae63cda38c9ee74950264aa1b74",
+    "src/collective_intelligence_overlay/lineage.py": "beb522a6dcb7df3f5419064c3d408deed772a6d063ef9e9df2365fa072613a0b",
+    "src/collective_intelligence_overlay/migrations/env.py": "7ee5833a70691307eee35b146367a5a0e61d6b5d88e3d52f0e08bb94a9ba2ee8",
+    "src/collective_intelligence_overlay/migrations/versions/0001_initial.py": "e179ba3cd28bee0687431642254e1f744e1e596a8ba9bc8342a3d2f69076c240",
+    "src/collective_intelligence_overlay/migrations/versions/0002_indexed_feed.py": "3bdf5337f4b001ab3272b7873f4e835dd1e7206076f9e711d15cbb4aa80ae355",
+    "src/collective_intelligence_overlay/migrations/versions/0003_sync_checkpoints.py": "dafdddd566c13d3bc39dabb60abe43119a36025555f26ddfc21a06bfc9f08e1b",
+    "src/collective_intelligence_overlay/migrations/versions/0004_sync_scope.py": "31537db00115b0f36e6ad8fe27d96969711a3ca8f1e346cdc901c547eac0fff3",
+    "src/collective_intelligence_overlay/migrations/versions/0005_invocations.py": "17e8d826a993a19918684dd672673fcc22fdbe80c54223ddf4eb5cc8f4f6fd58",
+    "src/collective_intelligence_overlay/migrations/versions/0006_receipts.py": "7e4df25418a6128268667318973956dc06bd86c74a570805a9c58e4a3c7356f3",
+    "src/collective_intelligence_overlay/migrations/versions/0007_inspection.py": "600a0f7f417535cf9aca1eb5ea09718b8bce223f7badaa599903454a0c365ff0",
+    "src/collective_intelligence_overlay/migrations/versions/0008_dependency_refs.py": "ec9717864594e60408a6cdc582eb5f680b62ad9ad7e035c9480077e9106f4a65",
+    "src/collective_intelligence_overlay/migrations/versions/0009_invocation_allowance.py": "97876cbf4e22b76747b5cd954d67bfae8c497ee454304e45d1e4ea0631e067cf",
+    "src/collective_intelligence_overlay/migrations/versions/0010_work_selections.py": "132baafc2919079cf414fad7f9fc82c95bbfbb08977e3b4c78a7b513ed8ef6af",
+    "src/collective_intelligence_overlay/migrations/versions/0011_invocation_capacity.py": "8fc46daa1a13993835784945b53902a913754c9ca118ca0fd6409d2f163591d0",
+    "src/collective_intelligence_overlay/migrations/versions/0012_selection_window.py": "6be9db461c486762a87c828f49de8848f73bb44349f1b7b6514828d393bd605c",
+    "src/collective_intelligence_overlay/migrations/versions/0013_reobservation.py": "e5d3973e23bc203bfa971894b59f189f8bd785ae986162f0b26d9b830a0b937f",
+    "src/collective_intelligence_overlay/migrations/versions/0014_remote_calls.py": "fe7129c0414c3c040545bca8fabc8c0c5dc504ecb94c86f15c71e8b435956361",
+    "src/collective_intelligence_overlay/migrations/versions/0015_invocation_cleanup.py": "91ad6fdf5b0e1f9562148a973201f48df76a0236d0a85833c49f283274e39617",
+    "src/collective_intelligence_overlay/migrations/versions/0016_reconciliation.py": "fd3a1b687ae76b88bec27356332ad33156e8afc9add3b25a0c0d41de143ee414",
+    "src/collective_intelligence_overlay/migrations/versions/0017_recovery_gate.py": "4266bfae3a460a4526c0d469a9f039e2c3d2580ab8aae5c592fd51ef88057d59",
+    "src/collective_intelligence_overlay/migrations/versions/0018_recovery_review.py": "1584eb5933194f018dd327040e6eff1172398e0b0928e5a2e34eca3bce61b72a",
+    "src/collective_intelligence_overlay/migrations/versions/0019_sync_completion.py": "ceab64986055b55d43e603f9cfc2a83fdcf4f117d4ba2a9bb46a75763cc1131c",
+    "src/collective_intelligence_overlay/migrations/versions/0020_restore_sequence.py": "821a6e763b775cd0cdd33653a288205219f7918d3da32ec93d037e7641fc91b9",
+    "src/collective_intelligence_overlay/migrations/versions/0021_invocation_resolution.py": "187e13a1145f8d380bd882546ad0c54a0a1be04f95bfe9fb783e83c65ed22997",
+    "src/collective_intelligence_overlay/models.py": "32a43aeda0c0ef81efffa2484d6802d156c48ceb4ac4699b426a147573bd7426",
+    "src/collective_intelligence_overlay/observability.py": "341df544c10c9f9603998925c57a92f4af140ddc054e7947b179ebda260f63d7",
+    "src/collective_intelligence_overlay/opa_install.py": "29806fdf2184f9666f4d9fcf316e87692c224599c6c5006e56c3d3f064b8972a",
+    "src/collective_intelligence_overlay/operations.py": "506fe51fd092f7d084b61920e05d851b50f3243ca00339852b29c64396e8f052",
+    "src/collective_intelligence_overlay/opportunities.py": "54d8388a0f8b5d3f51732a21dd3bac493584d36b16ccd44ae91251c3b6b1d322",
+    "src/collective_intelligence_overlay/overlay.py": "854688a00c498cc09cf341a763dbf8ccf92efd5e1759ec38952f9e48322b4e5a",
+    "src/collective_intelligence_overlay/peer.py": "a97532499ae51e12ec47df294e047d92426e61550ca5e7159bec8412d89a7d01",
+    "src/collective_intelligence_overlay/pg8000_compat.py": "f23d74d19ee5213fa690c306efa93551a7ee231b381418574ded780d6d837118",
+    "src/collective_intelligence_overlay/policy.py": "e66623236d84d66989f6c224366ce6d7d6f38b31894742d5f7c61e654ea9e3b5",
+    "src/collective_intelligence_overlay/proposal_exchange.py": "c89231f0a9ce8b42ff73d2e8d37cf24976ec94e407d00a850f7292cff0510551",
+    "src/collective_intelligence_overlay/queries.py": "52e58de3ecef981d8bf1ccf42b526a9e24a6c7cee7448c709c556da8ba933d29",
+    "src/collective_intelligence_overlay/reconciliation.py": "61ba57b99c96c5e201f28d2cc4728172b702e870ed20a8cbe28dda1152fb53c3",
+    "src/collective_intelligence_overlay/recovery.py": "4ab7d8a77aad666e85ae20f0f15435c9d14060628deec4756b84d78554923f9b",
+    "src/collective_intelligence_overlay/reference.py": "3c8846350b0aa652ea2b1cfd5464fd10db659fff415fa4d52b9d9e8e2e2287f0",
+    "src/collective_intelligence_overlay/reference_bindings.py": "a2b3ab9532978e64b79a72a6f4145231573b042a52f89e994e91762d76dffb6c",
+    "src/collective_intelligence_overlay/reference_mcp.py": "72208605552865086451541b55b0d410ee16e7dde333f71c750d6ee99d1468c3",
+    "src/collective_intelligence_overlay/reference_peer.py": "23234c947ea65f6eea5ad82a5025d52eb182e463371d696402ad24c831d33bfe",
+    "src/collective_intelligence_overlay/reobservation.py": "45ca864f0d6c0f92d00da08687fc371edbe3fbc3b41779d0c96a143d83025fe9",
+    "src/collective_intelligence_overlay/resolutions.py": "c2fe9edda5c05e1ae115f2d6c1b7835c6aac60538ec3095d55365b7cfd314362",
+    "src/collective_intelligence_overlay/security.py": "436691dd41a29dafe77badf1fb07ec88e19e3b9bd6b0badf912ba3ed29daa4b2",
+    "src/collective_intelligence_overlay/setup.py": "b06700db9f860c6150c7ecd74f5ed761eaa7540d7a55c54ecedc5993cd08b329",
+    "src/collective_intelligence_overlay/starter/__init__.py": "9a136f6d35a40c5b1992d294cbc8e336e5dfe42fbf243b4f9a3702b262eaab4b",
+    "src/collective_intelligence_overlay/starter/adaptive_documents.py": "58efb1c83394cbe071a5b610abc81d522e9f6bbd2c108e465015e2d32a9a5240",
+    "src/collective_intelligence_overlay/starter/application.py": "42541e733c9a8817a8db1854b3b9211c2c49dea8a544c1a176655f46873ac215",
+    "src/collective_intelligence_overlay/starter/document_recovery.py": "968e3f7bd24b4d7ad03bb50f465b8aa7711aac8d1a1ff6d3ea6ecdba27991fb6",
+    "src/collective_intelligence_overlay/starter/documents.py": "78afe7c9c7f1cb63302b2b30edd4b818d7f90fa95ee3f9df8b3f27c83e5cb000",
+    "src/collective_intelligence_overlay/starter/tabular.py": "2d1f363bd67a0b72a2d448333ed9fee181286c5d609ab5af92c0f1fa3f2c883f",
+    "src/collective_intelligence_overlay/steps.py": "2e8f2f1f8ad560bb79a7360525c4242c65751eddfeac3a81f3a89f4a3b9c0133",
+    "src/collective_intelligence_overlay/storage.py": "e4485de231e50b587770dfa3739a2009193011ad1e78b4f27b778220d791542a",
+    "src/collective_intelligence_overlay/synchronization.py": "ccf5c36336780dfb26dc9533617dbf04c447bc903ef5e568bf805a72a459d51c",
+    "tests/e2e/production_mesh.py": "b8e1879300f4e012d23f5e12b5200459eabe4f8d8c6a87e815813b0c03d21d1a",
+    "uv.lock": "6902fdc78eb967cd447e96a34dfeb0acf85cdaa6e08dce68f8e9207ba0cc3821"
+  },
+  "candidate_run_id": "36965233400",
+  "candidate_source_commit": "60adef2f90d4097979d89373e7bb44c5b4442e4b",
+  "wheel_sha256": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+  "sdist_sha256": "0262c0b53c936b4e08173c2340539e86e101bff4f383f4fef2aa0ee8913f2a99",
+  "candidate_scope": "original immutable full native CI candidate; validation/publication pending at registration; identical pair required for final publication; installed package bytes checked against wheel before inference",
+  "dependencies": "fresh installed agents+ollama environment from frozen uv.lock; 66 distributions; dev-only NumPy2.5.3/SciPy1.18.1 used offline",
+  "arms": {
+    "static": "fixed numeric/status/aggregate plan, current-goal-only discovery and static allocation",
+    "adaptive": "bounded three-goal shortage discovery and adaptive allocation"
+  },
+  "constant_factors": [
+    "same exact model/digest",
+    "same roles and initial registered primitive/checker pool",
+    "same public contract/practice and private checker",
+    "same safe builders and operator grants",
+    "same aggregate model/work/wall bounds",
+    "same keep_alive/cache and ordinary admission"
+  ],
+  "analysis_unit": "paired synthetic episode; tasks, roles, tokens and model responses are correlated subsamples",
+  "independence_limits": "Separate databases, CAS, keys and history per arm/block; shared operator, model, CPU and persistent server cache; IID episode assumption is approximate and does not imply independent organizations or model errors.",
+  "generator_families": [
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "affix": "$",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "paid"
+        ],
+        "operation": "sum",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ',', literal currency affix '$'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['paid']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "affix": "EUR",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "settled"
+        ],
+        "operation": "mean",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal ',', thousands '.', literal currency affix 'EUR'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['settled']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the mean of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": "",
+        "affix": "",
+        "divisor": 100,
+        "trim": true,
+        "casefold": false,
+        "accepted": [
+          "OK"
+        ],
+        "operation": "sum",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands '', literal currency affix ''. Remove this currency affix and thousands separators, then divide the parsed value by 100 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare case-sensitively. Accept only the exact normalized statuses ['OK']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": " ",
+        "affix": "GBP",
+        "divisor": 1,
+        "trim": false,
+        "casefold": true,
+        "accepted": [
+          "cleared"
+        ],
+        "operation": "count",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ' ', literal currency affix 'GBP'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Whitespace is significant: do not trim. Compare using casefold. Accept only the exact normalized statuses ['cleared']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the count of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "affix": "$",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "paid"
+        ],
+        "operation": "sum",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ',', literal currency affix '$'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['paid']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "affix": "EUR",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "settled"
+        ],
+        "operation": "mean",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal ',', thousands '.', literal currency affix 'EUR'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['settled']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the mean of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": "",
+        "affix": "",
+        "divisor": 100,
+        "trim": true,
+        "casefold": false,
+        "accepted": [
+          "OK"
+        ],
+        "operation": "sum",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands '', literal currency affix ''. Remove this currency affix and thousands separators, then divide the parsed value by 100 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare case-sensitively. Accept only the exact normalized statuses ['OK']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": " ",
+        "affix": "GBP",
+        "divisor": 1,
+        "trim": false,
+        "casefold": true,
+        "accepted": [
+          "cleared"
+        ],
+        "operation": "count",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ' ', literal currency affix 'GBP'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Whitespace is significant: do not trim. Compare using casefold. Accept only the exact normalized statuses ['cleared']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the count of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "affix": "$",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "paid"
+        ],
+        "operation": "sum",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ',', literal currency affix '$'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['paid']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "affix": "EUR",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "settled"
+        ],
+        "operation": "mean",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal ',', thousands '.', literal currency affix 'EUR'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['settled']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the mean of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": "",
+        "affix": "",
+        "divisor": 100,
+        "trim": true,
+        "casefold": false,
+        "accepted": [
+          "OK"
+        ],
+        "operation": "sum",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands '', literal currency affix ''. Remove this currency affix and thousands separators, then divide the parsed value by 100 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare case-sensitively. Accept only the exact normalized statuses ['OK']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": " ",
+        "affix": "GBP",
+        "divisor": 1,
+        "trim": false,
+        "casefold": true,
+        "accepted": [
+          "cleared"
+        ],
+        "operation": "count",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ' ', literal currency affix 'GBP'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Whitespace is significant: do not trim. Compare using casefold. Accept only the exact normalized statuses ['cleared']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the count of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "affix": "$",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "paid"
+        ],
+        "operation": "sum",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ',', literal currency affix '$'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['paid']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "affix": "EUR",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "settled"
+        ],
+        "operation": "mean",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal ',', thousands '.', literal currency affix 'EUR'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['settled']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the mean of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": "",
+        "affix": "",
+        "divisor": 100,
+        "trim": true,
+        "casefold": false,
+        "accepted": [
+          "OK"
+        ],
+        "operation": "sum",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands '', literal currency affix ''. Remove this currency affix and thousands separators, then divide the parsed value by 100 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare case-sensitively. Accept only the exact normalized statuses ['OK']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": " ",
+        "affix": "GBP",
+        "divisor": 1,
+        "trim": false,
+        "casefold": true,
+        "accepted": [
+          "cleared"
+        ],
+        "operation": "count",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ' ', literal currency affix 'GBP'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Whitespace is significant: do not trim. Compare using casefold. Accept only the exact normalized statuses ['cleared']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the count of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "affix": "$",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "paid"
+        ],
+        "operation": "sum",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ',', literal currency affix '$'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['paid']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "affix": "EUR",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "settled"
+        ],
+        "operation": "mean",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal ',', thousands '.', literal currency affix 'EUR'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['settled']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the mean of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": "",
+        "affix": "",
+        "divisor": 100,
+        "trim": true,
+        "casefold": false,
+        "accepted": [
+          "OK"
+        ],
+        "operation": "sum",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands '', literal currency affix ''. Remove this currency affix and thousands separators, then divide the parsed value by 100 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare case-sensitively. Accept only the exact normalized statuses ['OK']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": " ",
+        "affix": "GBP",
+        "divisor": 1,
+        "trim": false,
+        "casefold": true,
+        "accepted": [
+          "cleared"
+        ],
+        "operation": "count",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ' ', literal currency affix 'GBP'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Whitespace is significant: do not trim. Compare using casefold. Accept only the exact normalized statuses ['cleared']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the count of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "affix": "$",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "paid"
+        ],
+        "operation": "sum",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ',', literal currency affix '$'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['paid']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "affix": "EUR",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "settled"
+        ],
+        "operation": "mean",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal ',', thousands '.', literal currency affix 'EUR'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['settled']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the mean of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": "",
+        "affix": "",
+        "divisor": 100,
+        "trim": true,
+        "casefold": false,
+        "accepted": [
+          "OK"
+        ],
+        "operation": "sum",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands '', literal currency affix ''. Remove this currency affix and thousands separators, then divide the parsed value by 100 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare case-sensitively. Accept only the exact normalized statuses ['OK']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": " ",
+        "affix": "GBP",
+        "divisor": 1,
+        "trim": false,
+        "casefold": true,
+        "accepted": [
+          "cleared"
+        ],
+        "operation": "count",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ' ', literal currency affix 'GBP'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Whitespace is significant: do not trim. Compare using casefold. Accept only the exact normalized statuses ['cleared']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the count of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "affix": "$",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "paid"
+        ],
+        "operation": "sum",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ',', literal currency affix '$'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['paid']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "affix": "EUR",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "settled"
+        ],
+        "operation": "mean",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal ',', thousands '.', literal currency affix 'EUR'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['settled']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the mean of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": "",
+        "affix": "",
+        "divisor": 100,
+        "trim": true,
+        "casefold": false,
+        "accepted": [
+          "OK"
+        ],
+        "operation": "sum",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands '', literal currency affix ''. Remove this currency affix and thousands separators, then divide the parsed value by 100 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare case-sensitively. Accept only the exact normalized statuses ['OK']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": " ",
+        "affix": "GBP",
+        "divisor": 1,
+        "trim": false,
+        "casefold": true,
+        "accepted": [
+          "cleared"
+        ],
+        "operation": "count",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ' ', literal currency affix 'GBP'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Whitespace is significant: do not trim. Compare using casefold. Accept only the exact normalized statuses ['cleared']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the count of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ".",
+        "thousands_separator": ",",
+        "affix": "$",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "paid"
+        ],
+        "operation": "sum",
+        "group_casefold": true
+      },
+      {
+        "numeric": "Amounts use decimal '.', thousands ',', literal currency affix '$'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['paid']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the sum of accepted numeric values for each group. Merge group names using casefold. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ],
+    [
+      {
+        "decimal_separator": ",",
+        "thousands_separator": ".",
+        "affix": "EUR",
+        "divisor": 1,
+        "trim": true,
+        "casefold": true,
+        "accepted": [
+          "settled"
+        ],
+        "operation": "mean",
+        "group_casefold": false
+      },
+      {
+        "numeric": "Amounts use decimal ',', thousands '.', literal currency affix 'EUR'. Remove this currency affix and thousands separators, then divide the parsed value by 1 to produce units with two decimals. Keep the sign and reject non-finite values. Do not change the row order.",
+        "status": "Trim surrounding whitespace. Compare using casefold. Accept only the exact normalized statuses ['settled']; all other rows are excluded. Return a boolean per input row.",
+        "aggregate": "Use the already formed numeric and status capabilities. Calculate the mean of accepted numeric values for each group. Group names are case-sensitive. Omit groups with no accepted rows. Return two-decimal strings, rounding ties to even."
+      }
+    ]
+  ],
+  "seeds": {
+    "hidden": "310000+17*block",
+    "public_practice": "10101+block",
+    "public_followup": "10201+block",
+    "model": "61000+11*block+goal_index",
+    "order": 61021
+  },
+  "arm_order": "15 static-first and15 adaptive-first, shuffled with Random(61021) before any inference",
+  "mcid": 0.1,
+  "power_planning": {
+    "pilot_run": "cio-041-gemma-tabular-pilot-v4",
+    "pilot_analysis_sha256": "9d35fb451df6141691264c458489b1d1c49b0058f97d44147b503b9eb9d4a818",
+    "pilot_paired_sd": 0.0,
+    "empirical_variance_n": null,
+    "normal_approximation_n_sd1": 785,
+    "alpha_two_sided": 0.05,
+    "target_power": 0.8,
+    "chosen_pairs": 30,
+    "reason": "Degenerate all-success pilot cannot provide a reliable power estimate. Fixed practical local calculation bound permits30pairs; this is explicitly exploratory and underpowered for conservative MCID planning. Do not changeN based on observed direction."
+  },
+  "statistics": {
+    "effect": "mean paired fraction difference",
+    "interval": "95% paired percentile bootstrap,9999resamples,NumPy rng41031",
+    "test": "two-sided paired sample-swap randomization,9999resamples,NumPy rng41032; exact enumeration if within limit",
+    "equivalence_test": false,
+    "multiplicity": "only primary contrast has planned CI/test; all secondary tables descriptive, no favorable selection",
+    "ceiling": "Report every raw difference and degenerate variance/interval; no population equivalence interpretation."
+  },
+  "secondary": [
+    "input/generated/total tokens and missing reservations",
+    "active wall and total wall with cleanup",
+    "time to first valid heldout result, null if absent",
+    "false accepts, UNKNOWN and unresolved remote effects",
+    "qualified ordinary receipts and formation lineage",
+    "invalid drafts, transfer uncertainty and observed verification candidates",
+    "signed per-category/unit/status costs; nested receipt durations are not total wall"
+  ],
+  "budget": {
+    "aggregate_model_tokens_upper_per_arm": 18432,
+    "model_requests_per_arm_max": 4,
+    "num_ctx": 4096,
+    "num_predict": 512,
+    "think": false,
+    "draft_num_predict": 0,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 64,
+    "request_seconds": 25,
+    "arm_seconds": 600,
+    "total_run_seconds_upper": 36060,
+    "work_allowance_per_owner": 500,
+    "max_owner_steps_per_arm": 12,
+    "automatic_model_retries": 0,
+    "schema_repairs": 0,
+    "shared_server_parallelism": 1,
+    "total_model_upper_tokens": 1105920
+  },
+  "cache_policy": "No warmup omitted; setup/loading counted. Dedicated cloud-disabled loopback server keep_alive5m. No global unload/pull/reset. Per-block resident metadata retained; actual cache effects unavailable. Requested options distinguished from independently observed fields.",
+  "failure_policy": "All30offered pairs/360tasks remain in attempt inventory. Timeout,OOM,budget,parse/validator failure and unqualified outcomes count as unsuccessful, not excluded. No outcome-driven replacement or N increase. Missing native usage charges the finite upper reservation. Empty/missing raw records yield UNKNOWN, not verification PASS. If a source/safety bug requires correction, retain this complete or interrupted cohort and preregister a distinct run; never merge sources.",
+  "external_failure_sensitivity": "Primary intended-task denominator remains fixed. Separately label non-model startup/transport/source failures and missing records; report complete-case sensitivity only as descriptive with its smaller denominator. Do not replace an invalid pair or silently impute success.",
+  "stopping": "Only fixedN completion, declared finite token/time ceilings, operator interruption, or concrete safety/source failure; never result direction. Energy/electricity, complete model CPU usage and peak RSS are unavailable and cannot be inferred fromAPIfee0.",
+  "outputs": "Unique raw run directory; source snapshot, intent/request/response/native usage, all signed original records/CAS, hidden evaluation cases, offline verify/analyze, public-copy redaction mapping. No weights, private keys or operator configuration published.",
+  "candidate_provenance_sha256": "4c149b86e2cc44009025534b5422ec78db6647199374ea4a21ed00aebeb65282",
+  "all_validation_source_hashes": {
+    ".github/workflows/workflow.yml": "ced401bddc88bcd00115c32e4aeaf4c3cb891e68dff81a61198d3e7e78e3843b",
+    "scripts/analyze_gemma_tabular.py": "2fd021bcfed377cb00340180ed0289036c6f399e4459c948322ee453598815cb",
+    "scripts/assess_production_experiment.py": "021c6b041c4e4e30fe7f098a0a3930c088b07d88919da82f23d7e16f8aee8588",
+    "scripts/assess_production_soak.py": "b69a177b54ac1b29d38eca0a372ea5f7d6469fc1f4975de097040b2b9b1ab5bc",
+    "scripts/check_docs.py": "6d6d8d4230799ce8d84174408c31e1017134a881cd16b3e5ac36e79860d59764",
+    "scripts/check_gemma_report.py": "33d641ea4d73478492bbf7790b93aba2b2bab4506fd3babebc016b3efc688050",
+    "scripts/check_installed_tutorial.py": "a756b43103fdfaf00947494e5e9a7f8a90d8994ac7cfc424017eba84d3975326",
+    "scripts/check_licenses.py": "fab1e2e56043ef12d7f786fb23c80c5a32f4ccad04207d108b6576e6ce598979",
+    "scripts/check_matrix.py": "05c385711c03ae0bc9f92e9cc90c9bfae2a1efa2d85d2b83801c3733d402aee4",
+    "scripts/check_package.py": "bf153ec9b5c60889a9ce1187f8eb17b390cfbf21b39af9c60fd9fe68bc87801a",
+    "scripts/check_platform_interop.py": "17b3e7222f9aa169c983e1d86fdd00c3500d92a2ccd4dfb68a179bddfe48089b",
+    "scripts/check_production_reports.py": "26857b79c56c6bdf725fabf2052f508a6d0e36cb6a9099b4a990a78dfb6e5cce",
+    "scripts/check_proxy_sources.py": "a6ea156584f05db0275751776ee6090e47e53c49f2f5a08d0575ba030e1beb85",
+    "scripts/check_python_interop.py": "b43681456d3334c550a49ed1119e848314811c7d6536c34a3c57e0a2d95e199c",
+    "scripts/ci_validate.py": "2e8fabc262d9161130a7ddb0297d6f3cde2ec9c3e6d00b2481eecf97eb46422b",
+    "scripts/evaluate_reference.py": "fa7bc02b9d5309b3085aad3ed35ddcfda1e6001164ea7e73b40fc405b24bf6f4",
+    "scripts/fetch_caddy.py": "830419aa471432fec2ec1e82fd41bb837f30438c46481b91a53f5043768c721f",
+    "scripts/fetch_opa.py": "9dcaf41d1870fc57754f1cc8be0e7710f6e76f8f817c9c2363d5a5555c8aafaf",
+    "scripts/fetch_pypi_release.py": "9d012a7e945cb3d6821999510bb0adbcf4baecc2fcc68bad20375c43fe483201",
+    "scripts/ollama_observer.py": "1f21ffbe577c09d9844683a712760208281ddc762d1460b0a99de1b978d3dc4b",
+    "scripts/prepare_gemma_public.py": "cfbe3d221022b5d36572483453c38873c12f564d99e82e406ab2fd0ef5ca08f7",
+    "scripts/private_postgres.py": "2a8fe32ceafeeab4736fa0e6bbf505546caa7f5c85df7c1da88788b9925b7b37",
+    "scripts/probe_duplicate_delivery.py": "01f17daf67a5aa7ce4cbc90d83f5dec5e895fad88b71b42835524f893a85dc7f",
+    "scripts/probe_local_ollama.py": "27f6806d28398d73aff7de5c66bedb231c8d7b44ec4341e6ec088b827cc1af27",
+    "scripts/production_acceptance.py": "dca4c888bb8174557074164ac58f161e035e37bde9a2bad6349fdb701ff47bb1",
+    "scripts/production_session.py": "056695861ed210c27cbfbafcee5d04e5e9dd13248057412e57c2dcd763667c8c",
+    "scripts/production_soak_faults.py": "ea25ca6ae1a57d06c15750fc3458a3640a3d8e2287f297958323eba30ef1c35d",
+    "scripts/proxy/go.mod": "e8871268d3477476be1c8811f7a64ebaf9a742efb9d3ea2b053eac405bbe3b32",
+    "scripts/proxy/go.sum": "9aa21c1c6975ab01b0b8e95247ec589974bf981247639dbb373c7ce58dc7aecd",
+    "scripts/quiesced_evidence_withdrawal.py": "ae4b386d4a06ab42d80dbccda3f6f1fd7e08d6992160477aa17de5090e959362",
+    "scripts/release_candidate.py": "ad989d8f49b60136c5f72e356532e88a1da7003d14efa9af39785baee387b5cd",
+    "scripts/release_gate.py": "b726b3c325a120fd1c3a162ccc2be8fa93e7ee8a7c8673de983b08dc220818d0",
+    "scripts/run_gemma_tabular.py": "4bdec30c5a45fcb0ce1690c19dbe69ad04c7db54c836f8b4809ff9379d2c0ef3",
+    "scripts/run_production_experiment.py": "d7a81a61f6646a04d0ab8c0e336b0861517d42b07d2cb194c996cb0a68919096",
+    "scripts/run_production_memory_probe.py": "5c40a992d2cd305b5fd7f8951499e92d91c2c35a3a640acda73cfebda8f4d90b",
+    "scripts/run_production_soak.py": "b378b358c701c9326e85d4d13e57f0e5b0704a9eca5f0c810db4b727cc70a78f",
+    "scripts/run_upgrade_032.py": "487db6b07286c4851bcfa7b64d6bed6f3faec1d7210098664641cd749d8a921c",
+    "scripts/runtime-matrix.json": "e640770c65008b54d447801662112ed23a4a17e2c06b5df24a89efbf6847dce4",
+    "scripts/runtime_matrix.py": "e7df6dc631d4e3cb03225432bcd97664367a0ee05d3613056f283191fb37edd3",
+    "scripts/tabular_evaluation.py": "367cc61d367899632c61c1cce77cdf0124df227b8bd7c31cffeb86b870555c7c",
+    "scripts/validate_production_experiment.py": "b311d7435a750bbe7e2b14c7ec7506f5afd70c4d323b8f2b9a5022f5c09ec916",
+    "scripts/validate_production_soak.py": "778dd701a330e44daddca341241f4c45aa412e4db5bdb8e4b9d24134da3335a4",
+    "scripts/validate_short_protocol.py": "a3c7fc9ccf90dd619110689ea47c22b366c3bd7f80ba28b3997cae8fec77c064",
+    "scripts/wait_production_artifact.py": "1a5d38c4bafe3ee33498162c0b65f7b6e8c68cfe6f888c50ec6020e8a8c0f64f",
+    "uv.lock": "6902fdc78eb967cd447e96a34dfeb0acf85cdaa6e08dce68f8e9207ba0cc3821"
+  }
+}
