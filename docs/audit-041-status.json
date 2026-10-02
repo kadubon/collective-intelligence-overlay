@@ -1,0 +1,852 @@
+{
+  "schema_version": "1",
+  "candidate_version": "0.4.1",
+  "status": "in_progress",
+  "baseline": {
+    "tag_commit": "f3f6ae30de6f088c160e0c69f49796e4f52d2546",
+    "starting_main": "4f96cf9519dd48ea2474b7319c9a15256a8e8080",
+    "wheel_sha256": "33898a964443c5276853dc15069247ff8642012332c980d085f9fa9a4faf11d7",
+    "sdist_sha256": "965f848ed12950d0a8cba26e6deb1594d8ce98437022fc9dd5dff0f7e860f8be"
+  },
+  "requirements": [
+    {
+      "id": "CIO-040-01",
+      "status": "local_regression_passed_native_release_pending",
+      "evidence": "Common normal/reconciliation validator; 12 real malformed/missing A2A responses and existing reconciliation regressions pass locally."
+    },
+    {
+      "id": "CIO-040-02",
+      "status": "local_regression_passed_native_release_pending",
+      "evidence": "Real three-process C-to-B-to-A, response loss, B restart, owner original-caller lookup, other/caller denial and ID separation pass locally."
+    },
+    {
+      "id": "CIO-040-03",
+      "status": "local_regression_passed_native_release_pending",
+      "evidence": "Default real-DB 32-parent unresolved gate; whole-effect/results/quiescence review and atomic closure preserve original UNKNOWN/held allowance. Withdrawal precision and current/historical UNKNOWN metrics regressions passed after retaining the earlier fixture error."
+    },
+    {
+      "id": "CIO-040-04",
+      "status": "local_regression_passed_native_release_pending",
+      "evidence": "Actual PostgreSQL/OPA applicability/support/freshness regression and related negative-admission cases pass locally."
+    },
+    {
+      "id": "CIO-040-05",
+      "status": "local_regression_passed_native_release_pending",
+      "evidence": "Native Windows ten kill/lock/capacity/quarantine/symlink cases; Linux actual crash plus pg_dump/pg_restore pass. Native Mac release checks pending."
+    },
+    {
+      "id": "CIO-040-06",
+      "status": "local_regression_passed_native_release_pending",
+      "evidence": "Typed schema-1 backup structure, exact references and bounded pg_restore directory inspection; 29 structural/conditional cases, actual restore and old migration regressions pass locally."
+    },
+    {
+      "id": "A7-MCP",
+      "status": "local_regression_passed_native_release_pending",
+      "evidence": "Pinned actual MCP SDK JSON receive gap observed; public hook and 13 real protocol/receive probes pass locally."
+    },
+    {
+      "id": "A7-duplicate-soak",
+      "status": "local_validation_partial",
+      "evidence": "Historical underlying A2AClientError was wrapped into duplicate ValueError; cause unresolved. Fixed finite v3 diagnostic: 8 returned duplicates + 4 transport failures + 4 matching recovery reads, no added actuator. V1 setup and V2 wrong-proxy injection retained."
+    },
+    {
+      "id": "B-CI-milestones",
+      "status": "pending",
+      "evidence": "Lightweight push/PR, representative checkpoint, full native candidate and trusted tag evidence reuse implemented; hosted runs pending."
+    },
+    {
+      "id": "C-Ollama-observer",
+      "status": "real_connection_smoke_complete",
+      "evidence": "Dedicated cloud-disabled Ollama 0.35.0, exact gemma4:e4b digest, actual CPU resident. Public MAF/native SDK observer and ten actual inference/API probes executed; original metadata private pending path redaction."
+    },
+    {
+      "id": "D-smoke-pilot-freeze-preregister-comparison",
+      "status": "pending",
+      "evidence": "Five independent paired pilot episodes completed: both arms 30/30 heldout tasks; raw verification passed. Preregistration and 30-pair exploratory confirmation pending."
+    },
+    {
+      "id": "E-originals-analysis-docs-publication",
+      "status": "pending",
+      "evidence": "Original local raw attempts retained. Audit/API/skill docs updated. Offline paired analysis completed: mean quality difference0 at ceiling, p1, degenerate bootstrap interval[0,0] is not equivalence. Public raw transformation and release pending."
+    },
+    {
+      "id": "F-final-requirement-audit",
+      "status": "pending",
+      "evidence": "Pending remaining milestones; no claim of complete task or published 0.4.1."
+    }
+  ],
+  "local_environment_observations": {
+    "os": "Windows 11 Home 10.0.26200",
+    "cpu": "AMD Ryzen 7 8840HS",
+    "ram_kib": 64807796,
+    "gpu": "AMD Radeon 780M Graphics",
+    "driver": "32.0.21010.10",
+    "reported_adapter_ram_bytes": 2147483648,
+    "dedicated_or_shared_effective_vram": "not_yet_verified",
+    "ollama_server_version": "0.35.0",
+    "exact_installed_tag": "gemma4:e4b",
+    "model_digest": "dc35e8d9c6061baa6f0fa870975ab6932e2542b579b13ea0f199fa4bb7300c9c",
+    "model_size_bytes": 6583656505,
+    "model_quantization_reported": "Q4_K_M",
+    "model_parent_reported": "gemma4-validation-20260929:e4b-imatrix-attention-q6-q8-draft2",
+    "model_draft_parameter_reported": "draft_num_predict 3",
+    "initial_resident_models": 0,
+    "inference_performed": true,
+    "cloud_disable_for_dedicated_server": "log observed true",
+    "actual_engine": "Ollama llama-server CPU",
+    "resident_size_vram_bytes": 0,
+    "observed_context_length": 4096,
+    "requested_native_draft_num_predict": 0,
+    "effective_gpu_use": "integrated GPU excluded by server defaults; CPU selected"
+  },
+  "validation_attempts": [
+    {
+      "id": "a1-windows-setup",
+      "result": "environment_error",
+      "details": "WSL existing PostgreSQL loopback was not reachable from Windows; no product reproduction claimed."
+    },
+    {
+      "id": "a1-linux-baseline",
+      "result": "expected_failure",
+      "details": "First wrong-ID response was stored as completed on unchanged baseline package source."
+    },
+    {
+      "id": "a1-linux-regression-v1",
+      "result": "12_passed_4_failed",
+      "details": "New reply regressions passed. Four existing tests failed inspect.getsource because shared Windows bytecode retained Windows filenames. Original report retained; rerun uses a separate Linux pycache."
+    },
+    {
+      "id": "a1-local-static",
+      "result": "passed",
+      "details": "Focused ruff/format and strict mypy (72 package files)."
+    }
+  ],
+  "publication": {
+    "tag_041_exists": false,
+    "pypi_041_exists": false,
+    "published_this_task": false
+  },
+  "limits": [
+    "Pilot is complete; preregistered comparison, new GitHub CI candidate and 0.4.1 publication remain pending.",
+    "Original 0.4.0 formal failure, release assets and signed records remain unchanged.",
+    "Matching responses are not truth; provider fingerprint format is not equality to unexposed request fields.",
+    "Owner resolution is historical disposition, not quality admission/refund/reexecution; whole-query physical/effect inventory is application-trusted.",
+    "Only original local hashes are cataloged here; shareable XML/model metadata copies still need recorded path redaction and asset publication."
+  ],
+  "local_original_junit_catalog": [
+    {
+      "file": "audit-041-a1-existing-regression-v2.xml",
+      "original_sha256": "60948749a076d95eadbc1cca403e342f31fc63f131668fa8a47d5718c611f0e1",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 4,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a1-regression-v1.xml",
+      "original_sha256": "635a443e58e05b5e9cc284eee9e8d31ff87cf284ee3e6eca052f5f1582151bde",
+      "counts": {
+        "tests": 16,
+        "failures": 4,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 12,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a2-a6-regression-v1.xml",
+      "original_sha256": "08cf01f67a3c02bb785dff4d121fc45d89ee0ad2cc4554df187bf54e79752803",
+      "counts": {
+        "tests": 3,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 2,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a2-a6-restore-regression-v2.xml",
+      "original_sha256": "c0cf3d7a7e1ebebffb1792361c3594a8cd1c77971b7cf9704ccb8c621fa5f20e",
+      "counts": {
+        "tests": 17,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 16,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a2-regression-v3.xml",
+      "original_sha256": "ae06068b78d6ffc4cf0d2559fe120ff0fd50af5f900b1666579c0b9a999031fb",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a3-32-migration-v3.xml",
+      "original_sha256": "5808f6ea0caf866b71f4175bd06bcd4834c66b062e47346c11511ae152bf6e47",
+      "counts": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 13,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a3-32-regression-v2.xml",
+      "original_sha256": "a0cb56c613c0663789947f5d22222480f5bca67d0b98b917c67b63b5b3b1e382",
+      "counts": {
+        "tests": 20,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 19,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a3-baseline-wheel-v2.xml",
+      "original_sha256": "baf7ce6376ee7c988f2bef1763483a3a503f71aefa246025a51f41a9d97b6834",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a3-regression-v1.xml",
+      "original_sha256": "90daed7180a6e1fee1b40f82d44d4fcc848a6be9d0725b6a6f3b98bf7500094f",
+      "counts": {
+        "tests": 14,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 13,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a4-regression-v1.xml",
+      "original_sha256": "1cb62a6048f41b56bf3059ab0821b61854f58c49f033ab5e93192ac2607736c7",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 27,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a5-linux-db-v1.xml",
+      "original_sha256": "96578770d1a820193aef5776b970b33ab296f0a523f1ac153d046eb770e8b907",
+      "counts": {
+        "tests": 18,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 18,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a5-windows-v1.xml",
+      "original_sha256": "8659a25fdfdb817aabb381aa3e64068c12f3e2bf4be8756ff5744f0f60302684",
+      "counts": {
+        "tests": 9,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 9,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a6-structure-v2.xml",
+      "original_sha256": "7c292e453b4f6a7f90be9db6caa8fa9e744e7acc7738aef621801b6e741d4e21",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 27,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a6-unit-v1.xml",
+      "original_sha256": "e660f8957438aedc0e73fee15c85ef84b9b8c9a47352422a8d8011b734386189",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a7-mcp-windows-v1.xml",
+      "original_sha256": "70f64fb8a5bd1a1c3563d4e90de5ff50c0bafb26562647b2b1f1029bd5c56ad3",
+      "counts": {
+        "tests": 10,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 9,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a7-mcp-windows-v2.xml",
+      "original_sha256": "ec9d1d38598e267e61b0e74d11103f9aacb58283bc102eed24bfc0f7534a280d",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 10,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-a7-mcp-windows-v3.xml",
+      "original_sha256": "7506e301bf267c06581f98d253da2bb155251bebf0855c57a3e5b54a781b3b0a",
+      "counts": {
+        "tests": 13,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 13,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-all-source-v1.xml",
+      "original_sha256": "d76a7ede10d9a9b1c6e3619ec8b70f08d922227d609dfe68dcaf506df2c3321f",
+      "counts": {
+        "tests": 6,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 5,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-artifacts-unit-v1.xml",
+      "original_sha256": "b54d4df57436528d57ffdc708c0473089f531c1115d97967d3c654c9bda66a37",
+      "counts": {
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 4,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-backup-conditional-v3.xml",
+      "original_sha256": "3c1ac91d7447d566d28b66076f3a43a4ed6062eef01edbfe02e9f136af3f2a8c",
+      "counts": {
+        "tests": 29,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 29,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-baseline-a1-linux.xml",
+      "original_sha256": "7215c2d579563ea752d57ae18a674be2bb9173cf714b2e2d4ca67dc858a63072",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-baseline-a1.xml",
+      "original_sha256": "638fe05977ab01cca5d95448e9db37ecbfb1996a3d3a13d45e641649d471ad5c",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 1,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-baseline-a4.xml",
+      "original_sha256": "33ae9e7f89ede9c5d08e902f571a56b0d0ffb4f608b196305556cbaf7df74ee5",
+      "counts": {
+        "tests": 6,
+        "failures": 2,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 4,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-baseline-a6.xml",
+      "original_sha256": "75dd6c17989ce63ecd9352f681fcc97120b94b6d8cf93cec165348b3e0bd4b8a",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-baseline-wheel-a2-a3-a5-v1.xml",
+      "original_sha256": "d17f224c8a8b2acef54ad8c306ae4fe7565b3d183f4de0d23228013d263d0f30",
+      "counts": {
+        "tests": 3,
+        "failures": 2,
+        "errors": 1,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-boundary-regression-v1.xml",
+      "original_sha256": "8c0b0453f740171755b600a6beae0cccda31126311d9a3230006a6f99b8cb07e",
+      "counts": {
+        "tests": 19,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 18,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-boundary-regression-v4.xml",
+      "original_sha256": "c667d61328fee89cfb3d0e2adcfa497e78fbcfeb520fd9f8492a95102b7a6639",
+      "counts": {
+        "tests": 34,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 34,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-cas-capacity-windows-v4.xml",
+      "original_sha256": "10d3919c9d9b42fd94f421b8699e05be5dce110c4e1220c8a2c5909cac3dcd3e",
+      "counts": {
+        "tests": 3,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 3,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-cas-native-windows-v5.xml",
+      "original_sha256": "1ac5695a602c8100523e9365d34190a0a71985ed7bace9140572a196953321f2",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 10,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-ollama-adapter-double-v1.xml",
+      "original_sha256": "ec7ebbfcbc1c481a4e64b334cb11496eebee52aac843674c016234dfc1bd7334",
+      "counts": {
+        "tests": 5,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 2,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-ollama-adapter-double-v2.xml",
+      "original_sha256": "4e1617108a5742bcfb8be5aeaf07b2aabf6787df9889868caf2fc272b8ec191a",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 5,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-precommit-041-v1.xml",
+      "original_sha256": "fb4852c8dd3ebdc446dfa1d4867242628e7fe11c92ba6402f7bfe62f8ffd72bc",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 27,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-quick-regression-v1.xml",
+      "original_sha256": "6bc6fce3a3dce08daf7ac7e24a8f4bf07a14d4ecc8f91c2c58095491848a920d",
+      "counts": {
+        "tests": 41,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 41,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-release-provenance-v2.xml",
+      "original_sha256": "33db55b714972bda028fcb186876c1d88b24e601a7fe8ac7d16686cb39f13ba8",
+      "counts": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 11,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-resolution-footprint-v6.xml",
+      "original_sha256": "ad2612121c15e241562f7fbd17c4ccde8631e489450136c4064fb83f4599dba8",
+      "counts": {
+        "tests": 16,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 15,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-resolution-footprint-v7.xml",
+      "original_sha256": "d5cb3ed7a8ff667f148643fdc19d786a2f239390fc3cabac15888b3fa7054e6d",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-resolution-metrics-v8.xml",
+      "original_sha256": "93c30ea1f3c3ed7ecc01a7ff974282fe8c304b4137c9cefab2cdf9d9d5a1dbc6",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-resolution-migration-observer-v5.xml",
+      "original_sha256": "9c9eaff261fe1dee79bf6a66311d5997854ddc787bc80f5ccb09426b18bbf06c",
+      "counts": {
+        "tests": 32,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 32,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-source-deadline-v2.xml",
+      "original_sha256": "d2103c51f3169539e053cd52d6252ad9bb3b9deae5db5e6a8bfef1ed092e69a4",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-tabular-observer-v1.xml",
+      "original_sha256": "96931349afec7bf73c1ee61c8fdef55162758a890214dbb177c4e8607c7951f0",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 10,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-tabular-observer-v2.xml",
+      "original_sha256": "849b01c02d745e3ef6747d1f2c3a4e04c0142fc8b59084e7a1c8d2ee35afc9ea",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 10,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-wire-cas-windows-v2.xml",
+      "original_sha256": "3df0a066c4c075e1343c532c7ad15e3e38cfda55c71960f2d1be169f038c5dcf",
+      "counts": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "all_test_cases_passed",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-wire-cas-windows-v3.xml",
+      "original_sha256": "2dcead1efbdc0897218cbbe087babb631aedf32d820e138580ea2ee6866cffed",
+      "counts": {
+        "tests": 26,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 25,
+      "classification": "retained_nonpassing_attempt",
+      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    }
+  ],
+  "finite_duplicate_diagnostics": [
+    {
+      "run": "cio-041-duplicate-local-v1",
+      "original_result_sha256": "761fffdecbaf7cc1948ba3fb7279c2904abb5ea157cb293772008a0396596a13",
+      "offered": 12,
+      "observed": 0,
+      "all_calls": 0,
+      "failure": "ValidationError",
+      "classification": "setup_failed_before_requests"
+    },
+    {
+      "run": "cio-041-duplicate-local-v2",
+      "original_result_sha256": "36b2f01d51dda3b4dd4d74564ae55a29b0f9696aae9a0785d25ea421e76cd6e7",
+      "offered": 12,
+      "observed": 12,
+      "all_calls": 224,
+      "failure": null,
+      "classification": "intended_injection_invalid"
+    },
+    {
+      "run": "cio-041-duplicate-local-v3",
+      "original_result_sha256": "7a224e57462fe206fa1416b84d64f6cad63bcd04768557fd7a763f9aae012fb0",
+      "offered": 12,
+      "observed": 12,
+      "all_calls": 225,
+      "failure": null,
+      "classification": "finite_diagnostic_executed_historical_cause_unresolved"
+    }
+  ],
+  "real_model_smoke": {
+    "run": "cio-041-ollama-connection-smoke-v1",
+    "model_name": "gemma4:e4b",
+    "original_result_sha256": "fd167818b5c8811f1624b717a4f6e881f36f0a6553da14b5617284d20f16a7a4",
+    "offered_attempts": 10,
+    "observed_attempts": 10,
+    "elapsed_seconds": 33.36060290000751,
+    "initial_budget_charge": 22755,
+    "complete_native_tokens": 227,
+    "complete_compatible_tokens": 54,
+    "missing_final_usage_attempts": 2,
+    "energy": "unavailable",
+    "primary_comparison": "not yet run",
+    "stateful_responses_probe": "HTTP 200 for nonexistent previous_response_id; support not established"
+  },
+  "model_task_attempts": [
+    {
+      "id": "cio-041-gemma-tabular-task-smoke-v1",
+      "classification": "task-smoke",
+      "protocol_sha256": "27156da49df29c7f19072372b2074a2d7f0613a3aba8536fb2e30019cef7b666",
+      "original_result_sha256": "6d31dc4c0c3a015f6ea5b8d4f3bf06ec61d4c2dc3714951ab383eb93f7448aab",
+      "offered_arm_episodes": 2,
+      "observed_arm_episodes": 2,
+      "offered_tasks": 12,
+      "observed_tasks": 0,
+      "passed_tasks": 0,
+      "inference_attempts": 0,
+      "dispatched_inference_requests": 0,
+      "primary_cohort": false,
+      "exclusion_from_corrected_treatment_cohort": "setup: wrong Caddy binary"
+    },
+    {
+      "id": "cio-041-gemma-tabular-task-smoke-v2",
+      "classification": "task-smoke",
+      "protocol_sha256": "a1140c9aee91e619eb4f807690f397768648e3eb069e5ae2bb450e6086e35902",
+      "original_result_sha256": "efad9981dfd5e5dd37e86070d51dfcdbde23621c3e7025dab9d43ba57c8928a3",
+      "offered_arm_episodes": 2,
+      "observed_arm_episodes": 2,
+      "offered_tasks": 12,
+      "observed_tasks": 0,
+      "passed_tasks": 0,
+      "inference_attempts": 0,
+      "dispatched_inference_requests": 0,
+      "primary_cohort": false,
+      "exclusion_from_corrected_treatment_cohort": "setup: relative OPA path"
+    },
+    {
+      "id": "cio-041-gemma-tabular-task-smoke-v3",
+      "classification": "task-smoke",
+      "protocol_sha256": "c1f7dbf7c363a789560000f2c67394e2554fcba8d505147129bfebf04e4f5350",
+      "original_result_sha256": "1b673be2972607b612b8b9be1716e5c9c0cf0505208a934cc902cea44ced0910",
+      "offered_arm_episodes": 2,
+      "observed_arm_episodes": 2,
+      "offered_tasks": 12,
+      "observed_tasks": 12,
+      "passed_tasks": 0,
+      "inference_attempts": 2,
+      "dispatched_inference_requests": 2,
+      "primary_cohort": false,
+      "exclusion_from_corrected_treatment_cohort": "source: missing explicit formation inputs"
+    },
+    {
+      "id": "cio-041-gemma-tabular-task-smoke-v4",
+      "classification": "task-smoke",
+      "protocol_sha256": "0c3f2be8ce1d730d10912c35ee7b606dc791d91c2eb164137b6914e69b9e2e0a",
+      "original_result_sha256": "598484c5100db96c0fb6c4eccfec834d0261efc3185f31f9207125f7e6fa6193",
+      "offered_arm_episodes": 2,
+      "observed_arm_episodes": 2,
+      "offered_tasks": 12,
+      "observed_tasks": 12,
+      "passed_tasks": 0,
+      "inference_attempts": 6,
+      "dispatched_inference_requests": 6,
+      "primary_cohort": false,
+      "exclusion_from_corrected_treatment_cohort": "source: verifier lacked synced checker admission"
+    },
+    {
+      "id": "cio-041-gemma-tabular-task-smoke-v5",
+      "classification": "task-smoke",
+      "protocol_sha256": "39bbcb345f51d23dabbeda2cfbfd607951a8ad0506016eafac76e6eb04ae49dd",
+      "original_result_sha256": "3aaceb4e71d7737f27a196235f7189a1d51113de79a7d3676c32070c3645eab4",
+      "offered_arm_episodes": 2,
+      "observed_arm_episodes": 2,
+      "offered_tasks": 12,
+      "observed_tasks": 12,
+      "passed_tasks": 12,
+      "inference_attempts": 6,
+      "dispatched_inference_requests": 6,
+      "primary_cohort": false,
+      "exclusion_from_corrected_treatment_cohort": "single development connection/formation check"
+    },
+    {
+      "id": "cio-041-gemma-tabular-pilot-v1",
+      "classification": "pilot",
+      "protocol_sha256": "59d2c540613f6d80006358f0026d57d5fb40e39b74d7a141a16e9e644ca7b29e",
+      "original_result_sha256": "cd10e688854f63a0af02ae4c76e914d7e59f9862daf452718ee9cf875854745c",
+      "offered_arm_episodes": 10,
+      "observed_arm_episodes": 10,
+      "offered_tasks": 60,
+      "observed_tasks": 60,
+      "passed_tasks": 60,
+      "inference_attempts": 30,
+      "dispatched_inference_requests": 30,
+      "primary_cohort": false,
+      "exclusion_from_corrected_treatment_cohort": "allocation-only exploratory pilot; full-goal discovery shared by both arms"
+    }
+  ],
+  "corrected_treatment_pilot": {
+    "status": "pending",
+    "static": "fixed goal order; current-goal-only observation and static allocation",
+    "adaptive": "bounded full-goal shortage observation and adaptive allocation",
+    "seeds": "pilot hidden86000+17block, practice5101+block, followup5201+block, model51000+11block, order51021",
+    "original_results_preserved": true
+  },
+  "legacy_run_deadline_regression": {
+    "original_batch": "audit-041-all-source-v1.xml",
+    "original_tests": 6,
+    "original_failures": 1,
+    "original_operator_interrupt": true,
+    "independent_native_filesystem_reproduction": "audit-041-source-deadline-v2.xml",
+    "reproduction_failed": true,
+    "correction": "same existing finite owner-run deadline for legacy adaptive-run/static-run aliases on client and server; ordinary operation cap30 unchanged",
+    "targeted_all_variants": "audit-041-reference-run-deadline-v3.xml",
+    "targeted_status": "all8passed",
+    "targeted_seconds": 633.78
+  }
+}

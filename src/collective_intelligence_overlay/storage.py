@@ -317,6 +317,28 @@ class Store:
                     set_={"revision": subject_revisions.c.revision + 1},
                 )
             )
+        if isinstance(record, Revocation) and record.evidence_id is None:
+            from .invocations import invocation_resolutions
+
+            # Resolution is an explicit owner disposition of historical effects,
+            # not a cache of quality admission. Only that owner's whole-subject
+            # withdrawal reopens a reviewed local support binding. Unrelated or
+            # foreign evidence cannot cancel the owner's historical disposition.
+            # Restore separately invalidates every projection; original signed
+            # resolution receipts remain immutable in both cases.
+            conn.execute(
+                update(invocation_resolutions)
+                .where(
+                    (invocation_resolutions.c.owner == record.issuer)
+                    & or_(
+                        *(
+                            invocation_resolutions.c.revisions.cast(JSONB).op("?")(key)
+                            for key in affected
+                        )
+                    )
+                )
+                .values(closed=False)
+            )
         if isinstance(record, Capability):
             for dep in record.dependencies:
                 conn.execute(
@@ -461,6 +483,7 @@ class Store:
         or withdrawals absent from the backup; reconcile them before resuming use.
         Signed records, reservations, leases and invocation results are preserved.
         """
+        from .invocations import invocation_resolutions
         from .synchronization import checkpoints
 
         generation = uid()
@@ -497,6 +520,7 @@ class Store:
             conn.execute(
                 update(subject_revisions).values(revision=subject_revisions.c.revision + 1)
             )
+            conn.execute(update(invocation_resolutions).values(closed=False))
         return generation
 
     def restore_pending(self) -> bool:

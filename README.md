@@ -13,9 +13,10 @@ required. The host and database operator remain trusted.
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [API/CLI](docs/api.md)
 
-These instructions describe **0.4.0**. Check the [release records](docs/releasing.md)
-for actual publication, candidate hashes and validation status, and the
-[production profile and acceptance register](docs/production-040.md) for its measured scope.
+These instructions describe **0.4.1**. Check the [release records](docs/releasing.md)
+for actual publication, candidate hashes and validation status. The
+[0.4.1 audit and local Gemma experiment](docs/gemma-041.md) records its measured scope;
+the [0.4.0 production profile](docs/production-040.md) remains historical evidence.
 Before publication, install the reviewed candidate wheel instead of the PyPI command below.
 
 ## What it provides
@@ -43,7 +44,7 @@ Future interpreters are not covered by those results. In a fresh directory, on L
 ```sh
 uv venv --python 3.12.14 .venv
 . .venv/bin/activate
-uv pip install 'collective-intelligence-overlay[agents]==0.4.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.1'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa
 ```
@@ -53,7 +54,7 @@ On Windows PowerShell:
 ```powershell
 uv venv --python 3.12.14 .venv
 . .venv/Scripts/Activate.ps1
-uv pip install 'collective-intelligence-overlay[agents]==0.4.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.1'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```
@@ -77,6 +78,12 @@ Core supports records, policy and CLI. The `agents` extra adds MAF/MCP/A2A;
 `model` adds the optional actual-model example. Paid inference is off by default and
 requires explicit opt-in. PostgreSQL and OPA are external prerequisites. Installation
 and import do not start services or download binaries.
+
+The `ollama` extra adds the public MAF local Ollama client. It requires an explicit
+loopback server and never pulls weights or selects a cloud fallback. The
+[Gemma experiment guide](docs/gemma-041.md) describes source-only execution and
+offline `verify` / `analyze` commands. Its five-pair pilot passed all 30 heldout
+tasks in both arms; this ceiling result establishes no adaptive quality advantage.
 
 ## Register your application
 

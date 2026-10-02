@@ -2,6 +2,7 @@
 
 import argparse
 import hashlib
+import importlib.metadata
 import json
 import os
 import platform
@@ -76,7 +77,9 @@ def run(wheel, output):
         )
         environment["CIO_PACKAGE_RUNTIME_EXE"] = str(python.absolute())
         installation = readme[0].splitlines()[1:]
-        requirement = "collective-intelligence-overlay[agents]==0.4.0"
+        requirement = "collective-intelligence-overlay[agents]==" + importlib.metadata.version(
+            "collective-intelligence-overlay"
+        )
         local_requirement = str(wheel.absolute())
         assert not any(char in local_requirement for char in "'\r\n"), "unsafe tutorial wheel path"
         installation = [

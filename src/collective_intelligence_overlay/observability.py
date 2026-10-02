@@ -13,7 +13,7 @@ from typing import Any
 from sqlalchemy import func, select
 
 from .config import Config
-from .invocations import invocations
+from .invocations import invocations, uncertain_effects
 from .storage import Store, budgets, leases, records
 from .synchronization import checkpoints
 
@@ -136,13 +136,12 @@ def database_observations(store: Store, config: Config) -> dict[str, Any]:
             ).all()
         )
         unresolved = conn.execute(
+            select(func.count()).select_from(invocations).where(uncertain_effects(store.owner))
+        ).scalar_one()
+        historical_uncertain = conn.execute(
             select(func.count())
             .select_from(invocations)
-            .where(
-                (invocations.c.owner == store.owner)
-                & invocations.c.state.in_(("unknown", "cancelled", "rejected"))
-                & invocations.c.reservation_state.in_(("held", "legacy_unknown"))
-            )
+            .where(uncertain_effects(store.owner, current=False))
         ).scalar_one()
         orphan = conn.execute(
             select(func.count())
@@ -190,6 +189,8 @@ def database_observations(store: Store, config: Config) -> dict[str, Any]:
         return {
             "invocation_states": states,
             "unresolved_effects": int(unresolved),
+            "historical_uncertain_effects": int(historical_uncertain),
+            "resolved_historical_effects": int(historical_uncertain - unresolved),
             "expired_running_invocations": int(orphan),
             "allowance_remaining": balances,
             "source_prefixes": prefixes,

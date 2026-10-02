@@ -6,6 +6,12 @@ on:
   pull_request:
   workflow_dispatch:
     inputs:
+      validation_scope:
+        description: 'Representative Linux checkpoint or final native full matrix'
+        required: true
+        type: choice
+        options: [representative, full]
+        default: representative
       candidate_run_id:
         description: 'Reuse the original candidate run artifact ID; empty builds a new candidate'
         required: false
@@ -25,7 +31,34 @@ permissions:
   contents: read
 
 jobs:
+  quick:
+    if: github.event_name != 'push' || !startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
+        with:
+          version: '0.12.19'
+          python-version: '3.12.14'
+      - run: uv sync --all-extras --frozen
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy
+      - run: uv run python scripts/check_docs.py
+      - run: uv run python scripts/runtime_matrix.py --check-docs
+      - run: uv run pytest tests/unit/test_artifacts.py tests/unit/test_artifact_crash.py tests/unit/test_backup_minimum.py tests/unit/test_release_candidate.py tests/unit/test_release_gate.py -q --junitxml=.local/quick-tests.xml
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: quick-observations
+          path: .local/quick-tests.xml
+          if-no-files-found: error
+
   candidate:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -39,12 +72,18 @@ jobs:
       latest: ${{ steps.matrix.outputs.latest }}
       from_pypi: ${{ steps.pypi.outputs.from_pypi }}
       production_run_id: ${{ steps.selection.outputs.production_run_id }}
+      reuse_run_id: ${{ steps.selection.outputs.reuse_run_id }}
+      pretested_full: ${{ steps.selection.outputs.pretested_full }}
+    env:
+      CIO_VALIDATION_SCOPE: ${{ inputs.validation_scope || 'full' }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
           fetch-depth: 0
           persist-credentials: false
       - id: matrix
+        env:
+          CIO_REPRESENTATIVE: ${{ inputs.validation_scope == 'representative' }}
         run: python scripts/runtime_matrix.py --github-output
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
@@ -73,6 +112,7 @@ jobs:
         if: steps.selection.outputs.reuse_run_id == ''
         run: |
           uv run python -c "import hashlib,json; from pathlib import Path; p=Path('.local/candidate'); (p/'artifacts.json').write_text(json.dumps({f.name:hashlib.sha256(f.read_bytes()).hexdigest() for f in (p/'dist').iterdir() if f.name.endswith(('.whl','.tar.gz'))},indent=2)+'\n')"
+          uv run python scripts/release_gate.py provenance --candidate .local/candidate
       - name: Restore the originally tested publication candidate
         if: steps.selection.outputs.reuse_run_id != ''
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
@@ -91,6 +131,19 @@ jobs:
           echo 'from_pypi=true' >> "$GITHUB_OUTPUT"
       - name: Reject changes to packaged sources and the pretested pair
         run: uv run python scripts/release_candidate.py --candidate .local/candidate
+      - name: Restore the original complete gate
+        if: steps.selection.outputs.pretested_full == 'true'
+        uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        with:
+          name: release-gate
+          path: .local/release-gate
+          run-id: ${{ steps.selection.outputs.reuse_run_id }}
+          github-token: ${{ github.token }}
+      - name: Verify trusted gate, unchanged lock and validation sources
+        if: steps.selection.outputs.pretested_full == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run python scripts/release_gate.py reuse --candidate .local/candidate --gate .local/release-gate/report.json --manifest docs/release-041.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: candidate-distributions
@@ -100,6 +153,7 @@ jobs:
 
   linux:
     needs: candidate
+    if: needs.candidate.outputs.pretested_full != 'true'
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     strategy:
@@ -137,6 +191,13 @@ jobs:
         with:
           go-version: '1.27.1'
           cache: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        if: needs.candidate.outputs.pretested_full != 'true'
+        with:
+          path: |
+            .local/proxy-build/go-modules
+            .local/proxy-build/go-cache
+          key: cio-proxy-v1-${{ runner.os }}-${{ runner.arch }}-go1.27.1-${{ hashFiles('scripts/proxy/go.mod', 'scripts/proxy/go.sum', 'scripts/fetch_caddy.py') }}
       - run: uv run python scripts/fetch_caddy.py
       - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
@@ -149,6 +210,7 @@ jobs:
 
   windows:
     needs: candidate
+    if: needs.candidate.outputs.pretested_full != 'true' && (github.event_name != 'workflow_dispatch' || inputs.validation_scope == 'full')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     strategy:
@@ -183,6 +245,13 @@ jobs:
         with:
           go-version: '1.27.1'
           cache: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        if: needs.candidate.outputs.pretested_full != 'true'
+        with:
+          path: |
+            .local/proxy-build/go-modules
+            .local/proxy-build/go-cache
+          key: cio-proxy-v1-${{ runner.os }}-${{ runner.arch }}-go1.27.1-${{ hashFiles('scripts/proxy/go.mod', 'scripts/proxy/go.sum', 'scripts/fetch_caddy.py') }}
       - run: uv run python scripts/fetch_caddy.py
       - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
       - name: Stop only the private Windows cluster
@@ -199,6 +268,7 @@ jobs:
 
   macos:
     needs: candidate
+    if: needs.candidate.outputs.pretested_full != 'true' && (github.event_name != 'workflow_dispatch' || inputs.validation_scope == 'full')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 90
     strategy:
@@ -236,6 +306,13 @@ jobs:
         with:
           go-version: '1.27.1'
           cache: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        if: needs.candidate.outputs.pretested_full != 'true'
+        with:
+          path: |
+            .local/proxy-build/go-modules
+            .local/proxy-build/go-cache
+          key: cio-proxy-v1-${{ runner.os }}-${{ runner.arch }}-go1.27.1-${{ hashFiles('scripts/proxy/go.mod', 'scripts/proxy/go.sum', 'scripts/fetch_caddy.py') }}
       - run: uv run python scripts/fetch_caddy.py
       - run: uv run python scripts/ci_validate.py --python-version '${{ matrix.python }}' --architecture '${{ matrix.architecture }}' --candidate .local/candidate --report-dir .local/reports
       - name: Stop only the private Mac cluster
@@ -252,6 +329,7 @@ jobs:
 
   mixed:
     needs: candidate
+    if: needs.candidate.outputs.pretested_full != 'true' && (github.event_name != 'workflow_dispatch' || inputs.validation_scope == 'full')
     runs-on: ubuntu-latest
     timeout-minutes: 30
     services:
@@ -291,6 +369,7 @@ jobs:
 
   cross:
     needs: [candidate, linux, windows, macos]
+    if: needs.candidate.outputs.pretested_full != 'true' && (github.event_name != 'workflow_dispatch' || inputs.validation_scope == 'full')
     runs-on: ${{ matrix.runner }}
     timeout-minutes: 15
     strategy:
@@ -368,6 +447,13 @@ jobs:
         with:
           go-version: '1.27.1'
           cache: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        if: needs.candidate.outputs.pretested_full != 'true'
+        with:
+          path: |
+            .local/proxy-build/go-modules
+            .local/proxy-build/go-cache
+          key: cio-proxy-v1-${{ runner.os }}-${{ runner.arch }}-go1.27.1-${{ hashFiles('scripts/proxy/go.mod', 'scripts/proxy/go.sum', 'scripts/fetch_caddy.py') }}
       - name: Run formal protocols on the normally installed pair
         if: needs.candidate.outputs.production_run_id == ''
         shell: bash
@@ -400,11 +486,17 @@ jobs:
     needs: [candidate, linux, windows, macos, mixed, cross, production]
     if: >-
       !cancelled() && needs.candidate.result == 'success' &&
-      needs.linux.result == 'success' && needs.windows.result == 'success' &&
+      (needs.candidate.outputs.pretested_full == 'true' ||
+      (needs.linux.result == 'success' && needs.windows.result == 'success' &&
       needs.macos.result == 'success' && needs.mixed.result == 'success' &&
       needs.cross.result == 'success' &&
-      (needs.production.result == 'success' || needs.production.result == 'skipped')
+      (needs.production.result == 'success' || needs.production.result == 'skipped')))
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+    env:
+      CIO_VALIDATION_SCOPE: full
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
@@ -418,37 +510,79 @@ jobs:
           name: candidate-distributions
           path: .local/candidate
       - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        if: needs.candidate.outputs.pretested_full != 'true'
         with:
           pattern: reports-*
           path: .local/reports
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        if: needs.candidate.outputs.pretested_full == 'true'
+        with:
+          pattern: reports-*
+          path: .local/reports
+          run-id: ${{ needs.candidate.outputs.reuse_run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        if: needs.candidate.outputs.pretested_full == 'true'
+        with:
+          name: release-gate
+          path: .local/release-gate
+          run-id: ${{ needs.candidate.outputs.reuse_run_id }}
+          github-token: ${{ github.token }}
+      - uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
+        if: needs.candidate.outputs.pretested_full == 'true'
+        with:
+          name: proxy-source-review
+          path: .local/reports/proxy-source-review
+          run-id: ${{ needs.candidate.outputs.reuse_run_id }}
+          github-token: ${{ github.token }}
       - run: uv sync --all-extras --frozen --python '${{ needs.candidate.outputs.minimum }}'
       - uses: actions/setup-go@924ae3a1cded613372ab5595356fb5720e22ba16 # v6
-        if: needs.production.result == 'success'
+        if: needs.candidate.outputs.pretested_full != 'true'
         with:
           go-version: '1.27.1'
           cache: false
+      - uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830 # v4
+        if: needs.candidate.outputs.pretested_full != 'true'
+        with:
+          path: |
+            .local/proxy-build/go-modules
+            .local/proxy-build/go-cache
+          key: cio-proxy-v1-${{ runner.os }}-${{ runner.arch }}-go1.27.1-${{ hashFiles('scripts/proxy/go.mod', 'scripts/proxy/go.sum', 'scripts/fetch_caddy.py') }}
       - name: Audit all native proxy source graphs and reassess original production observations
-        if: needs.production.result == 'success'
+        if: needs.candidate.outputs.pretested_full != 'true'
         shell: bash
         run: |
           set -eu
           uv run python scripts/fetch_caddy.py
           uv run python scripts/check_proxy_sources.py --reports .local/reports --candidate .local/candidate --cache .local/proxy-build/go-modules --goroot "$(go env GOROOT)" --output .local/reports/proxy-source-review
-          uv run python scripts/check_production_reports.py --candidate .local/candidate --reports .local/reports
+          if [[ '${{ needs.production.result }}' == success ]]; then uv run python scripts/check_production_reports.py --candidate .local/candidate --reports .local/reports; fi
       - run: uv run --frozen python scripts/check_matrix.py --candidate .local/candidate --reports .local/reports
+      - name: Compare all restored reports with the original complete gate
+        if: needs.candidate.outputs.pretested_full == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run python scripts/release_gate.py reuse --candidate .local/candidate --reports .local/reports --gate .local/release-gate/report.json --manifest docs/release-041.json
+      - name: Retain a complete hash-bound native gate
+        if: needs.candidate.outputs.pretested_full != 'true'
+        run: uv run python scripts/release_gate.py attest --candidate .local/candidate --reports .local/reports --gate .local/release-gate/report.json
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
-        if: always() && needs.production.result == 'success'
+        if: needs.candidate.outputs.pretested_full != 'true'
         with:
-          name: reports-ready-production
-          path: |
-            .local/reports/proxy-source-review/
-            .local/reports/validated-production/
+          name: release-gate
+          path: .local/release-gate
+          include-hidden-files: true
+          if-no-files-found: error
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always() && needs.candidate.outputs.pretested_full != 'true'
+        with:
+          name: proxy-source-review
+          path: .local/reports/proxy-source-review/
           include-hidden-files: true
           if-no-files-found: error
 
   publish:
     if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'kadubon/collective-intelligence-overlay'
-    needs: [candidate, linux, windows, macos, mixed, cross, ready]
+    needs: [candidate, ready]
     runs-on: ubuntu-latest
     environment:
       name: pypi

@@ -23,7 +23,7 @@ from sqlalchemy.engine import make_url
 from .bindings import ExecutionContext, Registry, fingerprint
 from .blocking import run_blocking
 from .calls import RemoteCall, remote_calls
-from .config import Config
+from .config import Config, load_config
 from .invocations import invocations
 from .models import Capability, Cost, Digest, Event, Identifier, Subject
 from .operations import OwnerLock
@@ -181,12 +181,18 @@ def backup(
             "post_backup_effects_reconciled": False,
             "tls_private_key_included": tls_private_key is not None,
         }
+        manifest = BackupManifest.model_validate(manifest).model_dump(mode="json")
         encoded = json.dumps(manifest, indent=2).encode()
         if len(encoded) > 16 * 1024 * 1024:
             raise ValueError("backup manifest size bound exceeded")
         _write(destination / "manifest.json", encoded, private=True)
         return {
             "complete": True,
+            "checksums_verified": True,
+            "structure_complete": True,
+            "restoration_tested": False,
+            "external_reconciliation": "not_performed",
+            "manifest_authenticated": False,
             "owner": identity.name,
             "files": len(copied),
             "manifest_sha256": digest(encoded),
@@ -197,23 +203,68 @@ def backup(
         overlay.store.close()
 
 
-def verify_backup(directory: Path) -> dict[str, Any]:
-    """Validate bytes only; this does not restore a DB or confirm external effects."""
+class BackupRuntime(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True, str_max_length=256)
+    python: str
+    os: str
+    machine: str
+    distribution: str
+
+
+class BackupManifest(BaseModel):
+    """Schema-1 backup inventory; hashes are not an authenticated trust anchor."""
+
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+    backup_schema: Literal["1"]
+    owner: Identifier
+    complete: Literal[True]
+    files: dict[str, Digest] = Field(min_length=4, max_length=65536)
+    artifact_bytes: int = Field(ge=0, le=256 * 1024 * 1024)
+    feed_generation: Identifier
+    application: str | None = Field(max_length=256)
+    runtime: BackupRuntime
+    post_backup_effects_reconciled: Literal[False]
+    tls_private_key_included: bool
+
+
+def _unique_json_pairs(pairs: list[tuple[str, Any]]) -> dict[str, Any]:
+    result: dict[str, Any] = {}
+    for key, value in pairs:
+        if key in result:
+            raise ValueError("duplicate backup JSON field")
+        result[key] = value
+    return result
+
+
+def verify_backup(directory: Path, *, pg_prefix: tuple[str, ...] = ()) -> dict[str, Any]:
+    """Check checksums, references and archive format; do not restore or open intake."""
+    if directory.is_symlink() or not directory.is_dir():
+        raise ValueError("unsafe backup directory")
     manifest_path = directory / "manifest.json"
     if manifest_path.is_symlink() or manifest_path.stat().st_size > 16 * 1024 * 1024:
         raise ValueError("invalid backup manifest")
-    manifest = json.loads(manifest_path.read_bytes())
-    if manifest.get("backup_schema") != "1" or manifest.get("complete") is not True:
-        raise ValueError("incomplete backup")
-    entries = manifest["files"]
-    if not isinstance(entries, dict) or not 1 <= len(entries) <= 65536:
-        raise ValueError("invalid backup entries")
+    manifest = BackupManifest.model_validate(
+        json.loads(manifest_path.read_bytes(), object_pairs_hook=_unique_json_pairs)
+    )
+    entries = manifest.files
+    required = {"database.dump", "config.json", "identity.pem", "database-url"}
+    optional = {"application_settings.data", "tls_ca_certificate.data", "tls-private.pem"}
+    if not required <= entries.keys():
+        raise ValueError("incomplete backup structure")
     root = directory.resolve()
     started = time.monotonic()
     total = 0
+    artifact_bytes = 0
     for name, expected in entries.items():
         relative = Path(name)
         target = root / relative
+        artifact = (
+            len(relative.parts) == 2
+            and relative.parts[0] == "artifacts"
+            and relative.parts[1] == expected
+        )
+        if name not in required | optional and not artifact:
+            raise ValueError("unknown backup entry")
         if (
             relative.is_absolute()
             or ".." in relative.parts
@@ -225,16 +276,111 @@ def verify_backup(directory: Path) -> dict[str, Any]:
             )
         ):
             raise ValueError("unsafe backup entry")
-        if not target.is_file() or target.stat().st_size > 512 * 1024 * 1024:
+        maximum = {
+            "database.dump": 512 * 1024 * 1024,
+            "config.json": 262144,
+            "identity.pem": 8192,
+            "database-url": 8192,
+            "application_settings.data": 262144,
+            "tls_ca_certificate.data": 262144,
+            "tls-private.pem": 16384,
+        }.get(name, 1048576)
+        if not target.is_file() or target.stat().st_size > maximum:
             raise ValueError("backup digest mismatch")
         total += target.stat().st_size
+        if artifact:
+            if target.stat().st_size > 1048576:
+                raise ValueError("backup artifact size exceeded")
+            artifact_bytes += target.stat().st_size
         if total > 768 * 1024 * 1024 or time.monotonic() - started > 60:
             raise ValueError("backup verification capacity/time exceeded")
         with target.open("rb") as source:
             if hashlib.file_digest(source, "sha256").hexdigest() != expected:
                 raise ValueError("backup digest mismatch")
+    if artifact_bytes != manifest.artifact_bytes:
+        raise ValueError("backup artifact inventory mismatch")
+    config_path = root / "config.json"
+    if config_path.stat().st_size > 262144:
+        raise ValueError("backup configuration size exceeded")
+    data = json.loads(config_path.read_bytes(), object_pairs_hook=_unique_json_pairs)
+    if (
+        not isinstance(data, dict)
+        or "database_url" in data
+        or any(
+            data.get(field) != value
+            for field, value in {
+                "private_key": "identity.pem",
+                "database_url_file": "database-url",
+                "artifact_directory": "artifacts",
+            }.items()
+        )
+    ):
+        raise ValueError("backup configuration references invalid")
+    for field in ("application_settings", "tls_ca_certificate"):
+        name = field + ".data"
+        expected_name = name if name in entries else None
+        if data.get(field) != expected_name:
+            raise ValueError("backup conditional reference mismatch")
+    if data.get("log_directory") not in {None, "logs"}:
+        raise ValueError("unsafe backup log reference")
+    if ("tls-private.pem" in entries) != manifest.tls_private_key_included:
+        raise ValueError("backup TLS key inventory mismatch")
+    config = load_config(config_path)
+    if config.owner != manifest.owner or config.application != manifest.application:
+        raise ValueError("backup identity/application mismatch")
+    if not config.artifact_directory.is_dir() or config.artifact_directory.is_symlink():
+        raise ValueError("backup artifact directory missing or unsafe")
+    config.identity(config.owner, config.private_key)
+    if config.tls_ca_certificate is not None:
+        config.tls_context()
+    url = make_url(config.database_url.get_secret_value())
+    if not url.drivername.startswith("postgresql") or not url.database:
+        raise ValueError("invalid backup database reference")
+    # Inspect the complete private tree without following symlinks. No inventory
+    # entry can silently omit an extra file or nested unknown configuration.
+    observed = set()
+    for parent, directories, filenames in os.walk(root, followlinks=False):
+        parent_path = Path(parent)
+        for name in directories:
+            target = parent_path / name
+            if target.is_symlink() or target.relative_to(root).as_posix() not in {
+                "artifacts",
+                "logs",
+            }:
+                raise ValueError("unsafe or unknown backup directory")
+        for name in filenames:
+            target = parent_path / name
+            if target.is_symlink():
+                raise ValueError("unsafe backup file")
+            observed.add(target.relative_to(root).as_posix())
+            if len(observed) > 65537 or time.monotonic() - started > 60:
+                raise ValueError("backup inventory capacity/time exceeded")
+    if observed != set(entries) | {"manifest.json"}:
+        raise ValueError("backup inventory contains unlisted files")
+    dump = root / "database.dump"
+    with dump.open("rb") as source:
+        if source.read(5) != b"PGDMP":
+            raise ValueError("invalid PostgreSQL custom backup")
+    prefix = pg_prefix or tuple(json.loads(os.environ.get("CIO_PG_TOOL_PREFIX", "[]")))
+    if not prefix and not shutil.which("pg_restore"):
+        raise ValueError("explicit PostgreSQL pg_restore client required for backup verification")
+    with tempfile.TemporaryFile() as output, tempfile.TemporaryFile() as errors:
+        checked = subprocess.run(
+            [*prefix, "pg_restore", "--list", str(dump)],
+            stdout=output,
+            stderr=errors,
+            timeout=max(1, 60 - (time.monotonic() - started)),
+        )
+        if checked.returncode or output.tell() > 16 * 1024 * 1024 or errors.tell() > 1048576:
+            raise ValueError("invalid PostgreSQL backup archive")
     return {
         "complete": True,
+        "checksums_verified": True,
+        "structure_complete": True,
+        "dump_format_verified": True,
+        "restoration_tested": False,
+        "external_reconciliation": "not_performed",
+        "manifest_authenticated": False,
         "files": len(entries),
         "manifest_sha256": digest(manifest_path.read_bytes()),
         "business_restore_verified": False,

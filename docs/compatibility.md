@@ -1,5 +1,24 @@
 # Compatibility and licensing
 
+The 0.4.1 working candidate is not yet published. Audit changes add Event v5
+owner resolution and migration 0021 without rewriting v1–v4 DSSE or historical
+UNKNOWN/allowance. The additive projection starts empty and offline migration is
+required before a new owner service uses it. Rolling interoperability is not
+claimed. [Audit status](audit-041.md) distinguishes local regressions from pending
+full native/candidate publication gates.
+
+Optional `[ollama]` adds `agent-framework-ollama==1.0.0b260813` (MIT, beta) and
+`ollama==0.5.3` (MIT), compatible in the frozen environment with MAF core 1.19.0.
+The public native integration accepts an injected client and forwards structured
+schema, thinking, usage and native options. The installed wheels' LICENSE files
+were inspected; upstream MIT notices remain in their distributions. Five SDK
+HTTP instrumentation tests and ten separately labelled actual local Gemma smoke
+attempts ran on Windows Python 3.12.14. New optional-extra native Mac and newer
+Python distribution gates remain pending. This is not a compatibility guarantee
+for untested Ollama servers or model digests. Model weights, their own license
+metadata and raw output provenance are separate from the software license and
+are never included in this distribution.
+
 0.4.0 is published and the predeclared permissioned single-owner profile passes.
 [Immutable tag CI / PyPA OIDC](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36911991678) and
 [cache-disabled actual-PyPI CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36922605705) are whole-workflow successful at `f3f6ae30de6f088c160e0c69f49796e4f52d2546`.
@@ -305,6 +324,13 @@ destination substitution, required extensions, unexpected Task/text responses,
 oversized output and durable retry. No additional dependency or protocol engine
 was introduced. Standard long-running Task continuation is not implemented.
 
+The owner goal-run deadline is finite (`min(config.max_seconds, 300) + 5`)
+for `run` and the retained document reference aliases `adaptive-run`/`static-run`.
+Both server execution and outbound transport use the same rule; other operations
+retain 30 seconds. A full local regression exposed the aliases incorrectly taking
+the ordinary 30-second cap. That failed batch and its independent native-filesystem
+reproduction are retained, and the correction does not raise the general API limit.
+
 `pip-licenses` supplies the full dependency report; `check_licenses.py` rejects unknown
 or unreviewed metadata. This checks existing tool output rather than implementing a
 license parser. Reviewed weak/file-level copyleft exceptions: certifi/fqdn (MPL-2.0,
@@ -312,6 +338,18 @@ runtime/transitive), hypothesis/pathspec (MPL-2.0, development), chardet (LGPL-2
 development), docutils (mixed public-domain/BSD/GPL development files). These packages
 are not copied into this wheel; their own distributions retain notices/source terms.
 Redistributors bundling dependencies must preserve their respective obligations.
+
+The 0.4.1 offline experiment analyzer adds development-only SciPy 1.18.1
+(BSD-3-Clause) and NumPy 2.5.3. NumPy's reviewed metadata expression is
+`BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0`; the gate accepts that exact
+expression only for NumPy. Installed supplemental notices were inspected.
+The Windows numerical wheels also contain OpenBLAS/LAPACK and GCC runtime code
+under their own notices, including `GPL-3.0-or-later WITH GCC-exception-3.1`.
+Those dependency binaries are not bundled in this project's wheel or raw-data
+assets. Redistribution of numerical wheels requires preserving their full notices;
+the project's Apache-2.0 license does not replace them. Analysis uses public
+SciPy paired bootstrap and paired permutation APIs; neither library is a runtime
+dependency of the overlay.
 
 No BSL, SSPL, evaluation-only service or proprietary container is required. The
 PostgreSQL example uses the upstream official container image; its OS packages carry

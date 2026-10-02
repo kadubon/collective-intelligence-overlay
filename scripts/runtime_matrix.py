@@ -53,7 +53,17 @@ def main():
         )
         for name, system in (("linux", "Linux"), ("windows", "Windows"), ("macos", "Darwin")):
             outputs[name] = json.dumps(
-                {"include": [r for r in combinations() if r["os"] == system]}
+                {
+                    "include": [
+                        r
+                        for r in combinations()
+                        if r["os"] == system
+                        and (
+                            os.environ.get("CIO_REPRESENTATIVE") != "true"
+                            or r["python"] == data["python"][0]
+                        )
+                    ]
+                }
             )
         with Path(os.environ["GITHUB_OUTPUT"]).open("a", encoding="utf-8") as output:
             for name, value in outputs.items():

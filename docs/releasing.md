@@ -1,5 +1,38 @@
 # Release procedure and current state
 
+## 0.4.1 milestone workflow (candidate)
+
+Ordinary main pushes and pull requests run lightweight formatting, typing,
+documentation and focused local-boundary tests. Dispatch `workflow.yml` with
+`validation_scope=representative`, `verify_pypi=false` for the Linux/native
+checkpoint, and with `validation_scope=full`, `verify_pypi=false` after freezing
+the publication candidate. Full validation builds one wheel/sdist pair and
+requires all twelve declared native profiles, installed optional-provider scopes,
+actual PostgreSQL/OPA/A2A/MCP tests, proxy supply-chain/source review, mixed Python,
+cross-native signature/artifact readers and an actual installed legacy upgrade.
+Hosted CI does not run Ollama or download model weights.
+
+The complete run retains candidate source/tree, lock, workflow/gate source and
+toolchain pins, original artifact hashes, and a hash-bound `release-gate` of all
+original reports. `docs/release-041.json` will record its trusted main run ID,
+source commit/tree, wheel/sdist hashes and gate file SHA256. The tag publication
+requires the original successful repository/workflow/main run with all twelve
+native jobs and four cross readers completed. It restores the unchanged bytes
+and original evidence, compares all report hashes and rechecks the matrix. An
+altered pin, workflow/gate file, packaged source/README, missing report or failed
+original run refuses publication. It does not rerun identical native workloads
+at the tag. PyPI publishing remains tag-only through the existing `pypi` OIDC
+environment; no repository protection/environment setting is removed.
+
+Proxy Go module/build caches use explicit OS/architecture/toolchain/source-pin
+keys. Every restored graph still receives `go mod verify`, native build and fresh
+license/vulnerability/SBOM checks. Cache presence is not evidence of passing.
+Actual PyPI file hashes and cache-disabled dependency installation are checked
+after publication. Scientific results are recorded separately from package
+gates: a negative, ceiling or statistically inconclusive result is publishable.
+The historical 0.4.0 formal report and acceptance logic below remain unchanged
+for that version; they are not relabeled evidence for the new artifact.
+
 ## 0.4.0 candidate validation and immutable publication
 
 Before publication, dispatch this same `workflow.yml` with `production_protocols=true`.

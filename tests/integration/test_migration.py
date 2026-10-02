@@ -74,7 +74,11 @@ def test_actual_published_032_upgrade_and_old_dump_preserve_originals(
     unmigrated_store, interrupted
 ):
     from collective_intelligence_overlay.calls import remote_calls
-    from collective_intelligence_overlay.invocations import InvocationStore, invocations
+    from collective_intelligence_overlay.invocations import (
+        InvocationStore,
+        invocation_resolutions,
+        invocations,
+    )
 
     store = unmigrated_store
     fixture = seed_release(store, "032")
@@ -118,6 +122,7 @@ def test_actual_published_032_upgrade_and_old_dump_preserve_originals(
         assert ledger.get("receiver", "uncertain")["reservation_state"] == "held"
         assert ledger.get("receiver", "completed")["result"] == {"value": 7}
         with restored.engine.connect() as conn:
+            assert conn.execute(select(invocation_resolutions)).all() == []
             assert conn.execute(select(budgets.c.remaining)).scalar_one() == 6
             assert conn.execute(select(remote_calls.c.arguments_digest)).scalar_one() is None
         for row in original["records"]:
@@ -147,7 +152,8 @@ def test_actual_published_032_upgrade_and_old_dump_preserve_originals(
     assert snapshot(store) == original
     assert {e.verdict for e in store.evidence()} == {"PASS", "FAIL", "UNKNOWN"}
     with store.engine.connect() as conn:
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0020"
+        assert conn.execute(select(invocation_resolutions)).all() == []
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0021"
         assert conn.execute(select(remote_calls.c.arguments_digest)).scalar_one() is None
         assert (
             conn.execute(
@@ -416,7 +422,7 @@ def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_s
         assert selection["cause_id"] == projection["cause_id"]
         assert conn.execute(select(requests)).first() is None
         assert conn.execute(select(remote_calls)).first() is None
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0020"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0021"
         assert conn.execute(
             select(invocations.c.id).where(invocations.c.id == fixture["legacy_remote_id"])
         ).scalar_one()

@@ -502,6 +502,128 @@
       "title": "ReconciliationReceipt",
       "type": "object"
     },
+    "ResolutionReceipt": {
+      "additionalProperties": false,
+      "description": "Explicit owner review of every original effect/result; never settlement or PASS.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "caller": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Caller",
+          "type": "string"
+        },
+        "invocation_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Invocation Id",
+          "type": "string"
+        },
+        "original_receipt": {
+          "$ref": "#/$defs/ReceiptRef"
+        },
+        "original_fingerprint": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Original Fingerprint",
+          "type": "string"
+        },
+        "state_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "State Digest",
+          "type": "string"
+        },
+        "remote_calls_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Remote Calls Digest",
+          "type": "string"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/ReceiptRef"
+          },
+          "maxItems": 64,
+          "title": "Observations",
+          "type": "array"
+        },
+        "review_binding_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Review Binding Digest",
+          "type": "string"
+        },
+        "review_observation_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Review Observation Digest",
+          "type": "string"
+        },
+        "effect": {
+          "enum": [
+            "confirmed",
+            "absent"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "all_results_checked": {
+          "const": true,
+          "title": "All Results Checked",
+          "type": "boolean"
+        },
+        "worker_quiescent": {
+          "const": true,
+          "title": "Worker Quiescent",
+          "type": "boolean"
+        },
+        "independent_verification": {
+          "const": "UNKNOWN",
+          "default": "UNKNOWN",
+          "title": "Independent Verification",
+          "type": "string"
+        },
+        "allowance_changed": {
+          "const": false,
+          "default": false,
+          "title": "Allowance Changed",
+          "type": "boolean"
+        },
+        "reason": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Reason",
+          "type": "string"
+        },
+        "command_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Command Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "caller",
+        "invocation_id",
+        "original_receipt",
+        "original_fingerprint",
+        "state_digest",
+        "remote_calls_digest",
+        "observations",
+        "review_binding_digest",
+        "review_observation_digest",
+        "effect",
+        "all_results_checked",
+        "worker_quiescent",
+        "reason",
+        "command_digest"
+      ],
+      "title": "ResolutionReceipt",
+      "type": "object"
+    },
     "Scope": {
       "additionalProperties": false,
       "description": "Exact operational applicability; schema equality does not prove semantic fit.",
@@ -779,7 +901,8 @@
         "1",
         "2",
         "3",
-        "4"
+        "4",
+        "5"
       ],
       "title": "Schema Version",
       "type": "string"
@@ -821,6 +944,17 @@
       "anyOf": [
         {
           "$ref": "#/$defs/ReconciliationReceipt"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "resolution": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/ResolutionReceipt"
         },
         {
           "type": "null"

@@ -60,9 +60,16 @@ def check(candidate, expected=None):
 def select():
     ref = os.environ.get("GITHUB_REF", "")
     event = os.environ.get("GITHUB_EVENT_NAME", "")
-    selected = {"reuse_run_id": "", "production_run_id": ""}
+    selected = {"reuse_run_id": "", "production_run_id": "", "pretested_full": "false"}
     version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
-    if ref == "refs/tags/v0.4.0":
+    if ref == "refs/tags/v0.4.1":
+        from release_gate import trusted_run
+
+        manifest = json.loads((ROOT / "docs/release-041.json").read_text())
+        assert version == "0.4.1"
+        trusted_run(manifest["candidate_run_id"], manifest["source_commit"])
+        selected.update(reuse_run_id=manifest["candidate_run_id"], pretested_full="true")
+    elif ref == "refs/tags/v0.4.0":
         assert version == "0.4.0" and MANIFEST.is_file(), "pretested release manifest required"
         manifest = json.loads(MANIFEST.read_text())
         run_id = manifest["candidate_run_id"]
@@ -86,6 +93,11 @@ def select():
     elif event == "workflow_dispatch":
         run_id = os.environ.get("CIO_CANDIDATE_RUN_ID", "")
         assert not run_id or run_id.isdigit()
+        if run_id:
+            from release_gate import api, trusted_run
+
+            run = api("/actions/runs/" + run_id)
+            trusted_run(run_id, run["head_sha"], full=False)
         selected["reuse_run_id"] = run_id
         if run_id and version == "0.4.0" and os.environ.get("CIO_PRODUCTION_PROTOCOLS") != "true":
             selected["production_run_id"] = run_id
@@ -102,6 +114,8 @@ if __name__ == "__main__":
             if os.environ.get("GITHUB_REF") == "refs/tags/v0.4.0"
             else None
         )
+        if os.environ.get("GITHUB_REF") == "refs/tags/v0.4.1":
+            expected = json.loads((ROOT / "docs/release-041.json").read_text())["artifacts"]
         print(
             json.dumps(
                 {"packaged_sources_unchanged": True, "artifacts": check(args.candidate, expected)}

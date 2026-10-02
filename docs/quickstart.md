@@ -3,7 +3,7 @@
 ## Start outside a source checkout
 
 The [README](../README.md#first-run-from-the-installed-package) starts with the
-0.4.0 wheel in a fresh directory. Check the linked release records before choosing
+0.4.1 wheel in a fresh directory. Check the linked release records before choosing
 the actual published package or a reviewed candidate. Activate that environment before
 using this section. Run installed commands directly; `uv run` commands further
 below are for source development. Operational commands are specified in [API/CLI](api.md).

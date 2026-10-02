@@ -23,6 +23,7 @@ PERMISSIVE = {
     "Python Software Foundation License",
 }
 EXCEPTIONS = {
+    "numpy": {"BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0"},
     "certifi": {"Mozilla Public License 2.0 (MPL 2.0)"},
     "fqdn": {"Mozilla Public License 2.0 (MPL 2.0)"},
     "hypothesis": {"MPL-2.0"},

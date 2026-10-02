@@ -192,4 +192,29 @@ renews current admission. Choice retry returns the original receipt without
 reapplying a rolled-back transition. The document host exposes `app.stage-change`
 and `app.promote-change`; its independent checker retains the operator calibration
 contract, and refused choices preserve the old binding. Follow the API's explicit
-input/pin/comparison fields. Full native fault/comparability acceptance remains open.
+input/pin/comparison fields. Check the linked current results before claiming an
+installed candidate's native or production support.
+
+For the 0.4.1 candidate, use `--original-caller` to select delegated C-origin work
+inside owner B without granting C access to B's history. Saved-ID lookup reads
+original mappings after binding changes; it grants no execution or retry. A child
+effect observation cannot close the whole parent. The owner may use the installed
+whole-invocation resolution query only after checking every local/remote effect,
+result and physical worker quiescence. An active resolution recovers a current
+capacity slot while preserving historical UNKNOWN and held allowance; it grants
+no refund, quality PASS or new attempt. Follow the exact owner API and withdrawal/
+restore rules in [API](../../../docs/api.md). Unknown legacy identity stays unknown.
+
+After a killed CAS writer, restart its owned artifact store to perform locked
+staging recovery. Keep quarantined legacy bytes for review. Backup verification
+checks typed structure, checksums and archive format; it does not restore, provide
+an authenticity anchor or authorize business resume.
+
+For authorized local-model work, use explicit loopback/model/digest/settings and
+a dedicated cloud-disabled server. Check actual resident/backend observations;
+localhost alone is insufficient. Preserve request intent before sending, raw
+response, host validation and all failure/partial usage records. Missing final
+usage keeps its conservative reservation; model self-evaluation creates no PASS.
+Separate the model, code and output licenses. The local smoke and outstanding
+pilot/comparison/release work are in [audit status](../../../docs/audit-041.md);
+do not treat connection or HTTP success as completed comparative evidence.

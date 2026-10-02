@@ -16,7 +16,8 @@ from urllib.parse import urlsplit
 import uvicorn
 from sqlalchemy import text
 
-from collective_intelligence_overlay.adapters.a2a import application
+from collective_intelligence_overlay.adapters.a2a import application, send
+from collective_intelligence_overlay.application import ApplicationHost
 from collective_intelligence_overlay.bindings import (
     Binding,
     ExecutionContext,
@@ -281,14 +282,21 @@ def runtime():
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("mode", choices=("provider", "caller", "resume"))
+    parser.add_argument("mode", choices=("provider", "delegator", "requester", "caller", "resume"))
     parser.add_argument("config", type=Path)
     parser.add_argument("--output", type=Path)
+    parser.add_argument("--request", type=Path)
     parser.add_argument("--lose-response", action="store_true")
     args = parser.parse_args()
     config = load_config(args.config)
-    if args.mode == "provider":
-        service = PeerService(config, register_provider)
+    if args.mode in {"provider", "delegator"}:
+        if args.mode == "provider":
+            service = PeerService(config, register_provider)
+        else:
+            service = ApplicationHost(config)
+            service.registry.register_a2a(
+                proxy_binding(config), lambda _: True, config, service.identity
+            )
         if args.output is not None:
             args.output.write_text(json.dumps(runtime()), encoding="utf-8")
         app = application(config, service.handle)
@@ -304,6 +312,19 @@ def main():
             )
         finally:
             service.overlay.store.close()
+    elif args.mode == "requester":
+        if args.output is None or args.request is None:
+            parser.error("requester needs --request and --output")
+        identity, overlay = config.runtime()
+        try:
+            result = asyncio.run(
+                send(config, identity, "receiver", json.loads(args.request.read_bytes()))
+            )
+            args.output.write_text(
+                json.dumps({"result": result, "runtime": runtime()}), encoding="utf-8"
+            )
+        finally:
+            overlay.store.close()
     else:
         if args.output is None:
             parser.error("caller needs --output")

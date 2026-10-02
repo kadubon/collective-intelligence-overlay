@@ -51,6 +51,24 @@ Fence before logical slot recovery; undispatched positive proof releases once,
 uncertain effects remain UNKNOWN/held, and physical termination is separate.
 Preserve original IDs/maps and the finite owner unresolved-effects policy.
 
+For the 0.4.1 audit/model work, keep routine edits local (lint/type and affected
+tests), group pushes, and run heavy CI at the audit/adapter and immutable release
+candidate milestones. Documentation/raw-only updates must not regenerate model
+responses or repeat the complete native soak/matrix. Reuse of CI artifacts needs
+trusted repo/workflow/source/tree/lock/toolchain and exact wheel/sdist hashes;
+changes to tests, policies or protocols invalidate affected evidence. Preserve
+existing protected publishing settings. See `docs/audit-041-status.json` for what
+has actually run; this instruction does not mark the candidate released.
+Real local-model work uses a dedicated cloud-disabled loopback server, explicit
+model/digest/options and finite aggregate token/wall budgets. Preserve every raw
+attempt, including invalid, censored and negative results; never rerun for a
+favorable outcome. Never run/download weights on hosted CI. The published 0.4.0
+originals remain immutable. Model license, code license and synthetic data/output
+conditions are separate. Missing final usage consumes its conservative reservation.
+Owner effect resolution frees a current capacity slot without changing the old
+UNKNOWN, held budget or v1-v4 signed bytes. It requires complete local/remote
+effect/result and physical-quiescence review; model output cannot authorize it.
+
 Preserve generated != verified != reusable. UNKNOWN never becomes PASS because of
 delivery, timeout or missing data. Authentication is not truth. Retain dissent,
 obligations, typed costs and invalidation lineage. Recheck at the actuator boundary.

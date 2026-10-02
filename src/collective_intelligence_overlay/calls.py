@@ -5,7 +5,7 @@ from __future__ import annotations
 from contextvars import ContextVar
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter
+from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, ValidationError
 from sqlalchemy import Column, DateTime, String, Table, select
 from sqlalchemy.dialects.postgresql import insert
 
@@ -124,9 +124,71 @@ class RemoteCall(BaseModel):
     remote_invocation_id: Identifier
 
 
+class ProviderResponseMismatch(ValueError):
+    """A configured provider reply cannot be bound to the saved outbound request."""
+
+    def __init__(self, reason: str) -> None:
+        super().__init__(reason)
+        self.reason = reason
+
+
+def validate_provider_response(
+    saved: RemoteCall, authenticated_caller: str, response: dict[str, Any] | None
+) -> str:
+    """Check request/result consistency, never the truth of a provider's result.
+
+    The remote caller is the owner's authenticated outbound identity, not the
+    original caller of a delegated local operation. All registered proxy calls
+    use provider purpose ``reuse``; local verification grants are not delegated.
+    The local proxy fingerprint includes its local binding/context and therefore
+    cannot equal the provider's request fingerprint. The latter is format checked
+    only; exact saved identity, binding, arguments and purpose are checked directly.
+    Unexposed provider environment/permissions are not attested by this check.
+    """
+    if saved.arguments_digest is None:
+        return "LEGACY_REMOTE_ARGUMENTS_UNKNOWN"
+    if response is None:
+        return "PROVIDER_RESULT_ABSENT"
+    if (
+        authenticated_caller != saved.owner
+        or response.get("id") != saved.remote_invocation_id
+        or response.get("caller") != authenticated_caller
+        or response.get("owner") != saved.provider
+        or response.get("binding_id") != saved.provider_binding_id
+        or response.get("binding_digest") != saved.provider_binding_digest
+        or response.get("arguments_digest") != saved.arguments_digest
+        or response.get("purpose") != "reuse"
+    ):
+        return "PROVIDER_REQUEST_MISMATCH"
+    if response.get("state") not in {"completed", "running", "unknown", "cancelled", "rejected"}:
+        return "PROVIDER_STATE_INVALID"
+    try:
+        TypeAdapter(Digest).validate_python(response.get("fingerprint"))
+        if response.get("result_digest") is not None:
+            TypeAdapter(Digest).validate_python(response["result_digest"])
+        if response["state"] == "completed" and (
+            "result" not in response
+            or response.get("result_digest") is None
+            or response["result_digest"] != fingerprint(response["result"])
+        ):
+            return "PROVIDER_RESULT_DIGEST_MISMATCH"
+    except (ValidationError, TypeError, ValueError):
+        return "PROVIDER_DIGEST_INVALID"
+    return "PROVIDER_REPORTED_" + str(response["state"]).upper()
+
+
 class RemoteCalls:
     def __init__(self, store: Store) -> None:
         self.store = store
+
+    def lookup_caller(self, actor: str, original_caller: str | None = None) -> str:
+        """Only the local owner may explicitly select a delegated original caller."""
+        TypeAdapter(Identifier).validate_python(actor)
+        if original_caller is None:
+            return actor
+        if actor != self.store.owner:
+            raise ValueError("delegated call recovery is owner-only")
+        return TypeAdapter(Identifier).validate_python(original_caller)
 
     def get(self, caller: str, call_key: str) -> RemoteCall | None:
         TypeAdapter(Identifier).validate_python(caller)

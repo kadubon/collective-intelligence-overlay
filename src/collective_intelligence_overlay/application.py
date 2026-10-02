@@ -13,7 +13,7 @@ from pydantic import TypeAdapter
 from .bindings import Binding, ExecutionContext
 from .blocking import run_blocking
 from .config import Config
-from .models import Capability, Identifier, Opportunity
+from .models import Capability, Identifier, Opportunity, ReceiptRef
 from .operations import Operations, OwnerLock
 from .opportunities import Goal, Opportunities
 from .peer import PeerService
@@ -27,6 +27,7 @@ from .proposal_exchange import (
 from .queries import RecordQuery
 from .reconciliation import Reconciliations
 from .recovery import Recovery
+from .resolutions import Resolutions
 from .steps import Steps
 
 
@@ -49,6 +50,7 @@ class ApplicationHost(PeerService):
         self._goal_runner: Callable[[int, int], Awaitable[dict[str, Any]]] | None = None
         self.reconciliations = Reconciliations(self.registry, config, self.identity)
         self.recovery = Recovery(self.registry, config, self.identity)
+        self.resolutions = Resolutions(self.registry, config, self.identity, self.reconciliations)
 
     def register_operation(
         self,
@@ -158,6 +160,36 @@ class ApplicationHost(PeerService):
 
     async def handle(self, caller: str, data: dict[str, Any]) -> dict[str, Any]:
         operation = data.get("operation")
+        if operation == "resolve_invocation":
+            if caller != self.config.owner:
+                raise ValueError("invocation resolution is owner-only")
+            observations = TypeAdapter(tuple[ReceiptRef, ...]).validate_python(
+                data.get("observations", [])
+            )
+            event = await self.resolutions.review(
+                caller,
+                str(data["invocation_id"]),
+                str(data["command_id"]),
+                str(data["checker"]),
+                observations,
+                original_caller=data.get("original_caller"),
+                arguments=data.get("arguments", {}),
+            )
+            assert event.resolution is not None
+            return {
+                "event": event.model_dump(mode="json"),
+                "envelope": await run_blocking(
+                    self.overlay.store.signed_record,
+                    await run_blocking(
+                        self.overlay.store.reference, "event", event.issuer, event.id
+                    ),
+                ),
+                "resolution_active": await run_blocking(
+                    self.resolutions.active, event.resolution.caller, event.resolution.invocation_id
+                ),
+                "invocation_unchanged": True,
+                "allowance_unchanged": True,
+            }
         if operation in self._application_operations:
             handler, callers = self._application_operations[operation]
             if caller not in callers:
@@ -178,6 +210,7 @@ class ApplicationHost(PeerService):
                 calls = await run_blocking(
                     self.registry.remote_calls,
                     ExecutionContext(caller=caller, environment=self.config.execution_environment),
+                    original_caller=data.get("original_caller"),
                     invocation_id=data.get("invocation_id"),
                     call_scope=data.get("call_scope"),
                     limit=int(data.get("limit", 32)),
@@ -188,6 +221,7 @@ class ApplicationHost(PeerService):
                 caller,
                 str(data["call_key"]),
                 str(data["command_id"]),
+                original_caller=data.get("original_caller"),
                 invocation_id=data.get("invocation_id"),
                 reconciler=data.get("reconciler"),
             )

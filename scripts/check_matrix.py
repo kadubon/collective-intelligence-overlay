@@ -24,8 +24,8 @@ assert expected == {
 wheel_names = [name for name in expected if name.endswith(".whl")]
 assert len(wheel_names) == 1
 version = parse_wheel_filename(wheel_names[0])[1]
-if version >= Version("0.4.0"):
-    root = Path(__file__).resolve().parents[1]
+root = Path(__file__).resolve().parents[1]
+if version == Version("0.4.0"):
     profile = json.loads((root / "docs/profiles/production-040.json").read_text(encoding="utf-8"))
     profile_digest = hashlib.sha256(
         json.dumps(profile, sort_keys=True, separators=(",", ":")).encode()
@@ -68,6 +68,11 @@ for filename in packages:
         report["environments"]["agents"]["tests"],
         report["environments"]["agents-model"]["tests"],
         report["environments"]["agents-model"]["sdist_tests"],
+        *(
+            (report["environments"]["agents-ollama"]["tests"],)
+            if version >= Version("0.4.1")
+            else ()
+        ),
     ):
         assert tests["tests"] > 0 and not any(tests[k] for k in ("failures", "errors", "skipped"))
     for environment in report["environments"].values():

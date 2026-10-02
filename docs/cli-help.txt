@@ -1,17 +1,18 @@
 Generated CLI help; exact help comes from your installed version.
 
 usage: collective-intelligence-overlay [-h] [--version]
-                                       {demo,binding-check,opa-install,setup,starter,verify-backup,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review}
+                                       {demo,binding-check,opa-install,setup,starter,verify-backup,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review,resolve-invocation}
                                        ...
 
 positional arguments:
-  {demo,binding-check,opa-install,setup,starter,verify-backup,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review}
+  {demo,binding-check,opa-install,setup,starter,verify-backup,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review,resolve-invocation}
     demo                run the API-key-free three-peer demonstration
     binding-check       validate a manifest; does not register it
     opa-install         explicitly install reviewed native OPA
     setup               create a production owner home; no DB or download
     starter             generate installed application and TLS assets
-    verify-backup       verify offline backup file digests
+    verify-backup       verify backup structure, digests and archive format;
+                        no restore
 
 options:
   -h, --help            show this help message and exit
@@ -325,6 +326,7 @@ usage: collective-intelligence-overlay remote-calls [-h] --config CONFIG
                                                     (--invocation-id INVOCATION_ID | --call-scope CALL_SCOPE)
                                                     [--limit LIMIT]
                                                     [--after AFTER]
+                                                    [--original-caller ORIGINAL_CALLER]
 
 options:
   -h, --help            show this help message and exit
@@ -334,11 +336,14 @@ options:
   --call-scope CALL_SCOPE
   --limit LIMIT
   --after AFTER
+  --original-caller ORIGINAL_CALLER
+                        owner-selected original delegated caller
 
 usage: collective-intelligence-overlay reconcile [-h] --config CONFIG
-                                                 [--peer PEER] --call-key
-                                                 CALL_KEY --command-id
-                                                 COMMAND_ID
+                                                 [--peer PEER]
+                                                 [--original-caller ORIGINAL_CALLER]
+                                                 --call-key CALL_KEY
+                                                 --command-id COMMAND_ID
                                                  [--invocation-id INVOCATION_ID]
                                                  [--reconciler RECONCILER]
 
@@ -346,6 +351,8 @@ options:
   -h, --help            show this help message and exit
   --config CONFIG
   --peer PEER           configured destination; defaults to the owner
+  --original-caller ORIGINAL_CALLER
+                        owner-selected original delegated caller
   --call-key CALL_KEY
   --command-id COMMAND_ID
   --invocation-id INVOCATION_ID
@@ -399,3 +406,28 @@ options:
   --command-id COMMAND_ID
   --checker CHECKER
   --arguments-file ARGUMENTS_FILE
+
+usage: collective-intelligence-overlay resolve-invocation [-h] --config CONFIG
+                                                          [--peer PEER]
+                                                          [--original-caller ORIGINAL_CALLER]
+                                                          --command-id
+                                                          COMMAND_ID --checker
+                                                          CHECKER
+                                                          --arguments-file
+                                                          ARGUMENTS_FILE
+                                                          --invocation-id
+                                                          INVOCATION_ID
+                                                          --observations-file
+                                                          OBSERVATIONS_FILE
+
+options:
+  -h, --help            show this help message and exit
+  --config CONFIG
+  --peer PEER           configured destination; defaults to the owner
+  --original-caller ORIGINAL_CALLER
+                        owner-selected original delegated caller
+  --command-id COMMAND_ID
+  --checker CHECKER
+  --arguments-file ARGUMENTS_FILE
+  --invocation-id INVOCATION_ID
+  --observations-file OBSERVATIONS_FILE

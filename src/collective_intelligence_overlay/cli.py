@@ -43,7 +43,9 @@ def main() -> int:
         "starter", help="generate installed application and TLS assets"
     )
     starter_cmd.add_argument("--directory", type=Path, required=True)
-    backup_check = commands.add_parser("verify-backup", help="verify offline backup file digests")
+    backup_check = commands.add_parser(
+        "verify-backup", help="verify backup structure, digests and archive format; no restore"
+    )
     backup_check.add_argument("--directory", type=Path, required=True)
     for name in (
         "check-config",
@@ -73,6 +75,7 @@ def main() -> int:
         "key-rotate",
         "recovery-state",
         "recovery-review",
+        "resolve-invocation",
     ):
         cmd = commands.add_parser(name)
         cmd.add_argument("--config", type=Path, required=True)
@@ -106,6 +109,7 @@ def main() -> int:
             "reconcile",
             "recovery-state",
             "recovery-review",
+            "resolve-invocation",
         }:
             cmd.add_argument("--peer", help="configured destination; defaults to the owner")
         if name == "remote-calls":
@@ -114,6 +118,8 @@ def main() -> int:
             scope.add_argument("--call-scope")
             cmd.add_argument("--limit", type=int, default=32)
             cmd.add_argument("--after")
+        if name in {"remote-calls", "reconcile", "resolve-invocation"}:
+            cmd.add_argument("--original-caller", help="owner-selected original delegated caller")
         if name == "reconcile":
             cmd.add_argument("--call-key", required=True)
             cmd.add_argument("--command-id", required=True)
@@ -121,10 +127,13 @@ def main() -> int:
             cmd.add_argument(
                 "--reconciler", help="operator-installed read-only effect query binding"
             )
-        if name == "recovery-review":
+        if name in {"recovery-review", "resolve-invocation"}:
             cmd.add_argument("--command-id", required=True)
             cmd.add_argument("--checker", required=True)
             cmd.add_argument("--arguments-file", type=Path, required=True)
+        if name == "resolve-invocation":
+            cmd.add_argument("--invocation-id", required=True)
+            cmd.add_argument("--observations-file", type=Path, required=True)
         if name in {"opportunities", "run"}:
             cmd.add_argument("--max-candidates", type=int, default=8)
         if name == "opportunities":
@@ -375,6 +384,7 @@ def main() -> int:
                 "reconcile",
                 "recovery-state",
                 "recovery-review",
+                "resolve-invocation",
             }:
                 from .adapters.a2a import send
 
@@ -390,14 +400,17 @@ def main() -> int:
                     "limit",
                     "after",
                     "call_key",
+                    "original_caller",
                     "command_id",
                     "reconciler",
                     "checker",
                 ):
                     if hasattr(args, name):
                         operation[name] = getattr(args, name)
-                if args.command == "recovery-review":
+                if args.command in {"recovery-review", "resolve-invocation"}:
                     operation["arguments"] = _json_file(args.arguments_file)
+                if args.command == "resolve-invocation":
+                    operation["observations"] = _json_file(args.observations_file)
                 result = asyncio.run(send(config, identity, args.peer or config.owner, operation))
                 if result.get("error"):
                     print(json.dumps(result))

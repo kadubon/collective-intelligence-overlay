@@ -302,12 +302,34 @@ class ReconciliationReceipt(Model):
         return self
 
 
+class ResolutionReceipt(Model):
+    """Explicit owner review of every original effect/result; never settlement or PASS."""
+
+    caller: Identifier
+    invocation_id: Identifier
+    original_receipt: ReceiptRef
+    original_fingerprint: Digest
+    state_digest: Digest
+    remote_calls_digest: Digest
+    observations: tuple[ReceiptRef, ...] = Field(max_length=64)
+    review_binding_digest: Digest
+    review_observation_digest: Digest
+    effect: Literal["confirmed", "absent"]
+    all_results_checked: Literal[True]
+    worker_quiescent: Literal[True]
+    independent_verification: Literal["UNKNOWN"] = "UNKNOWN"
+    allowance_changed: Literal[False] = False
+    reason: Identifier
+    command_digest: Digest
+
+
 class Event(RecordModel):
-    schema_version: Literal["1", "2", "3", "4"] = "1"
+    schema_version: Literal["1", "2", "3", "4", "5"] = "1"
     execution: ExecutionReceipt | None = None
     formation: FormationReceipt | None = None
     work: WorkObservation | None = None
     reconciliation: ReconciliationReceipt | None = None
+    resolution: ResolutionReceipt | None = None
     kind: Literal["event"] = "event"
     id: Identifier = Field(default_factory=uid)
     issuer: Identifier
@@ -337,6 +359,18 @@ class Event(RecordModel):
     @model_validator(mode="after")
     def receipt_version(self) -> Self:
         count = int(self.execution is not None) + int(self.formation is not None)
+        if self.schema_version == "5":
+            if (
+                count
+                or self.work is not None
+                or self.reconciliation is not None
+                or self.resolution is None
+                or self.action != "recommendation"
+                or self.outcome is not None
+            ):
+                raise ValueError("v5 resolution requires one owner review and no truth claim")
+        elif self.resolution is not None:
+            raise ValueError("resolution receipts require event v5")
         if self.schema_version == "4":
             if (
                 count

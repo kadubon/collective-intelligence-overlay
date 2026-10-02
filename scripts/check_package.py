@@ -74,12 +74,16 @@ with zipfile.ZipFile(wheel) as archive:
         "migrations/versions/0018_recovery_review.py",
         "migrations/versions/0019_sync_completion.py",
         "migrations/versions/0020_restore_sequence.py",
+        "migrations/versions/0021_invocation_resolution.py",
+        "resolutions.py",
         "schemas/config.json",
         "starter/application.py",
         "starter/Caddyfile",
         "starter/README.txt",
         "starter/documents.py",
         "starter/adaptive_documents.py",
+        "starter/tabular.py",
+        "adapters/ollama.py",
         "calls.py",
         "reobservation.py",
         "schemas/event.json",
@@ -184,6 +188,7 @@ def test(python, paths, name, *, temp, environment, ignore_model=False):
     ]
     if ignore_model:
         command.extend(["--ignore", str(root / "tests/integration/test_model_adapter.py")])
+        command.extend(["--ignore", str(root / "tests/integration/test_ollama_adapter.py")])
     run(command, cwd=temp, environment=environment)
     totals = {
         key: sum(int(s.get(key, "0")) for s in ET.parse(result_path).iter("testsuite"))
@@ -271,7 +276,12 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
     guard = temp / "runtime-guard"
     guard.mkdir()
     (guard / "sitecustomize.py").write_text(startup_guard, encoding="utf-8")
-    for name, extras in (("core", ""), ("agents", "[agents]"), ("agents-model", "[agents,model]")):
+    for name, extras in (
+        ("core", ""),
+        ("agents", "[agents]"),
+        ("agents-model", "[agents,model]"),
+        ("agents-ollama", "[agents,ollama]"),
+    ):
         venv = temp / name
         run(["uv", "venv", "--python", selected, str(venv)], cwd=temp)
         python = venv / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
@@ -374,11 +384,11 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
                 ],
                 cwd=temp,
             )
-            paths = (
-                [root / "tests" if full else root / "tests/unit"]
-                if name == "agents"
-                else [root / "tests/integration/test_model_adapter.py"]
-            )
+            paths = {
+                "agents": [root / "tests" if full else root / "tests/unit"],
+                "agents-model": [root / "tests/integration/test_model_adapter.py"],
+                "agents-ollama": [root / "tests/integration/test_ollama_adapter.py"],
+            }[name]
             result["tests"] = test(
                 python,
                 paths,
@@ -457,7 +467,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
         if (
             full
             and name == "agents"
-            and version == "0.4.0"
+            and version in {"0.4.0", "0.4.1"}
             and platform.system() == "Linux"
             and requested["minor"] == [3, 12]
         ):
@@ -487,7 +497,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
             result["live_upgrade"] = json.loads((upgrade_output / "report.json").read_text())
             assert result["live_upgrade"]["status"] == "passed"
             assert result["live_upgrade"]["candidate_wheel_sha256"] == hashes[wheel.name]
-        if full and name == "agents" and version == "0.4.0":
+        if full and name == "agents" and version in {"0.4.0", "0.4.1"}:
             tutorial_output = (
                 args.report.resolve().parent / "installed-tutorial.json"
                 if args.report

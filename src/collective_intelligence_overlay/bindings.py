@@ -772,6 +772,25 @@ class Registry:
         prepared = self.prepare(binding_id, expected_digest, arguments, context)
 
         async def actuator() -> Any:
+            if frame is not None and frame.invocation_context is not None:
+                from sqlalchemy import select
+
+                from .invocations import invocation_resolutions
+
+                def resolved_parent() -> bool:
+                    with self.overlay.store.engine.connect() as conn:
+                        return (
+                            conn.execute(
+                                select(invocation_resolutions.c.invocation_id).where(
+                                    invocation_resolutions.c.invocation_context
+                                    == frame.invocation_context
+                                )
+                            ).first()
+                            is not None
+                        )
+
+                if await run_blocking(resolved_parent):
+                    raise ValueError("resolved original invocation cannot dispatch more child work")
             current = self._selected(binding_id, expected_digest, context)
             if current is not entry or current.digest != prepared.binding_digest:
                 raise ValueError("binding changed before execution")
@@ -857,7 +876,13 @@ class Registry:
 
         async def operation(arguments: dict[str, Any]) -> Any:
             from .adapters.a2a import send
-            from .calls import MissingCallIdentity, RemoteCalls, active_call
+            from .calls import (
+                MissingCallIdentity,
+                ProviderResponseMismatch,
+                RemoteCalls,
+                active_call,
+                validate_provider_response,
+            )
 
             instance = active_call.get()
             if instance is None:
@@ -896,10 +921,9 @@ class Registry:
                     "purpose": "reuse",
                 },
             )
-            if response.get("state") != "completed":
-                raise ValueError(
-                    "remote invocation is incomplete or unknown; reconcile by invocation ID"
-                )
+            reason = validate_provider_response(saved, identity.name, response)
+            if reason != "PROVIDER_REPORTED_COMPLETED":
+                raise ProviderResponseMismatch(reason)
             return response["result"]
 
         self._register(binding, operation, assess, remote_identity=True)
@@ -908,6 +932,7 @@ class Registry:
         self,
         context: ExecutionContext,
         *,
+        original_caller: str | None = None,
         invocation_id: str | None = None,
         call_scope: str | None = None,
         limit: int = 32,
@@ -919,8 +944,9 @@ class Registry:
         """
         from .calls import RemoteCalls
 
-        return RemoteCalls(self.overlay.store).page(
-            context.caller,
+        calls = RemoteCalls(self.overlay.store)
+        return calls.page(
+            calls.lookup_caller(context.caller, original_caller),
             invocation_id=invocation_id,
             call_scope=call_scope,
             limit=limit,
@@ -928,7 +954,13 @@ class Registry:
         )
 
     async def query_remote_call(
-        self, call_key: str, context: ExecutionContext, config: Config, identity: Identity
+        self,
+        call_key: str,
+        context: ExecutionContext,
+        config: Config,
+        identity: Identity,
+        *,
+        original_caller: str | None = None,
     ) -> dict[str, Any] | None:
         """Query the saved provider ID without issuing an invocation or recomputing IDs."""
         from .adapters.a2a import send
@@ -936,7 +968,10 @@ class Registry:
 
         if identity.name != self.overlay.store.owner or config.owner != identity.name:
             raise ValueError("remote lookup requires the local owner")
-        saved = await run_blocking(RemoteCalls(self.overlay.store).get, context.caller, call_key)
+        calls = RemoteCalls(self.overlay.store)
+        saved = await run_blocking(
+            calls.get, calls.lookup_caller(context.caller, original_caller), call_key
+        )
         if saved is None:
             return None
         peer = next((peer for peer in config.peers if peer.identity == saved.provider), None)

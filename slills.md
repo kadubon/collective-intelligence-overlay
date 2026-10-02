@@ -17,6 +17,9 @@ Its current acceptance and publication status are in
 [production 0.4.0](docs/production-040.md) and
 [actual release results](docs/release-040-results.json). The accepted profile does
 not grant execution authority or independent PASS to a new application result.
+The 0.4.1 candidate adds delegated-caller lookup, owner effect resolution,
+staging/backup boundaries and explicit local-model recording. Its actual local
+and outstanding validation status is in [the audit report](docs/audit-041.md).
 Keep the skill alongside this repository when
 using its relative references. Its `name`/`description` frontmatter and repository
 location follow the [official skill documentation](https://learn.chatgpt.com/docs/build-skills),

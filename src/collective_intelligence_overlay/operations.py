@@ -297,6 +297,7 @@ class Operations:
             "discover",
             "remote_calls",
             "reconcile",
+            "resolve_invocation",
             "sync",
             "recovery_state",
             "recovery_review",

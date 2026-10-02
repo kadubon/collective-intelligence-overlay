@@ -143,6 +143,15 @@ class PeerAuthentication(AuthenticationBackend):
             raise AuthenticationError("invalid credentials") from exc
 
 
+def _operation_seconds(data: dict[str, Any], run_seconds: int) -> int:
+    # Installed host uses "run"; the retained reference exposes these two
+    # legacy aliases for the same bounded goal runner. Other operations keep
+    # the short deadline, including unknown application operations.
+    if data.get("operation") in {"run", "adaptive-run", "static-run"}:
+        return min(run_seconds, 300) + 5
+    return 30
+
+
 class ExtensionExecutor(AgentExecutor):
     def __init__(self, handler: Handler, limit: int, run_seconds: int = 120) -> None:
         self.handler = handler
@@ -162,7 +171,7 @@ class ExtensionExecutor(AgentExecutor):
         if not principal.is_authenticated:
             raise ValueError("unauthenticated peer")
         data = read_extension_data(message.parts[0].data)
-        seconds = self.run_seconds + 5 if data.get("operation") == "run" else 30
+        seconds = _operation_seconds(data, self.run_seconds)
         async with asyncio.timeout(seconds):
             async with self.semaphore:
                 result = await self.handler(principal.user_name, data)
@@ -297,7 +306,7 @@ async def _send(
             url,
             response_validator=validate_peer_response,
             tls_context=config.tls_context(),
-            seconds=min(config.max_seconds, 300) + 5 if data.get("operation") == "run" else 30,
+            seconds=_operation_seconds(data, config.max_seconds),
             readonly_post=data.get("operation")
             in {
                 "status",
@@ -310,7 +319,7 @@ async def _send(
                 "recovery_state",
             },
         ),
-        timeout=min(config.max_seconds, 300) + 5 if data.get("operation") == "run" else 30,
+        timeout=_operation_seconds(data, config.max_seconds),
         follow_redirects=False,
         trust_env=False,
         headers={"Authorization": f"Bearer {token}", "A2A-Extensions": EXTENSION},

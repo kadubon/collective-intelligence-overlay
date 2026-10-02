@@ -12,9 +12,10 @@ hostとDBの管理者を信頼する構成です。
 
 [English](README.md) · [Tutorial](docs/quickstart.md) · [API・CLI](docs/api.md)
 
-この手順は**0.4.0**を対象にしています。実際の公開状態、candidateのhash、検証状況は
-[公開記録](docs/releasing.md)、測定した範囲は[本番profileと受入表](docs/production-040.md)
-で確認してください。公開前は、下のPyPIコマンドの代わりにレビュー済みcandidate wheelを
+この手順は**0.4.1**を対象にしています。実際の公開状態、candidateのhash、検証状況は
+[公開記録](docs/releasing.md)、測定範囲は[0.4.1監査・Gemma実験](docs/gemma-041.md)
+で確認してください。[0.4.0本番profile](docs/production-040.md)は過去の証拠として保持します。
+公開前は、下のPyPIコマンドの代わりにレビュー済みcandidate wheelを
 installします。
 
 ## 提供する機能
@@ -42,7 +43,7 @@ CPython 3.12.14・3.13.15・3.14.7と、Linux x86_64、Windows x86_64、native m
 ```sh
 uv venv --python 3.12.14 .venv
 . .venv/bin/activate
-uv pip install 'collective-intelligence-overlay[agents]==0.4.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.1'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa
 ```
@@ -52,7 +53,7 @@ Windows PowerShellでは次を実行します。
 ```powershell
 uv venv --python 3.12.14 .venv
 . .venv/Scripts/Activate.ps1
-uv pip install 'collective-intelligence-overlay[agents]==0.4.0'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.1'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```
@@ -75,6 +76,11 @@ restricted roleとHTTPSを使います。
 coreはrecord・policy・CLI、`agents` extraはMAF・MCP・A2A連携、`model` extraは
 任意の実model例を提供します。有料推論は標準でOFFで、明示的なopt-inが必要です。
 PostgreSQLとOPAは外部要件です。install・importでservice起動やbinary downloadをしません。
+
+`ollama` extraは公開MAFのlocal Ollama clientを追加します。明示したloopback serverを使い、
+weightsのpullやcloudへのfallbackは行いません。[実験手順](docs/gemma-041.md)にはsourceからの
+実行と、推論を呼ばない`verify`・`analyze`を記載しています。5組のpilotでは両条件とも
+heldout課題30件中30件に成功しました。この天井結果は適応方式の品質上の優位を示しません。
 
 ## 自分のアプリケーションを登録する
 

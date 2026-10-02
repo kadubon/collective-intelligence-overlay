@@ -14,6 +14,7 @@ from typing import Any, cast
 from pydantic import Field, TypeAdapter
 from sqlalchemy import (
     JSON,
+    Boolean,
     Column,
     DateTime,
     Integer,
@@ -35,6 +36,7 @@ from .bindings import (
     formation_steps,
 )
 from .blocking import BlockingCapacity, run_blocking
+from .calls import ProviderResponseMismatch
 from .models import Cost, Event, ExecutionReceipt, Identifier, Model, ReceiptRef, Verdict, now, uid
 from .overlay import AdmissionDenied
 from .security import Identity
@@ -68,6 +70,41 @@ invocations = Table(
     Column("created_at", DateTime(timezone=True), nullable=False),
     Column("updated_at", DateTime(timezone=True), nullable=False),
 )
+
+invocation_resolutions = Table(
+    "invocation_resolutions",
+    metadata,
+    Column("caller", String(160), primary_key=True),
+    Column("invocation_id", String(160), primary_key=True),
+    Column("owner", String(160), nullable=False),
+    Column("invocation_context", String(64), nullable=False, unique=True),
+    Column("receipt_id", String(160), nullable=False),
+    Column("state_digest", String(64), nullable=False),
+    Column("revisions", JSON, nullable=False),
+    Column("closed", Boolean, nullable=False),
+    Column("closed_at", DateTime(timezone=True), nullable=False),
+)
+
+
+def uncertain_effects(owner: str, *, current: bool = True) -> Any:
+    """One predicate for the admission gate and owner-local operational counts."""
+    predicate = (
+        (invocations.c.owner == owner)
+        & invocations.c.state.in_(("unknown", "cancelled", "rejected"))
+        & invocations.c.reservation_state.in_(("held", "legacy_unknown"))
+    )
+    if current:
+        predicate &= (
+            ~select(invocation_resolutions.c.invocation_id)
+            .where(
+                (invocation_resolutions.c.owner == invocations.c.owner)
+                & (invocation_resolutions.c.caller == invocations.c.caller)
+                & (invocation_resolutions.c.invocation_id == invocations.c.id)
+                & invocation_resolutions.c.closed.is_(True)
+            )
+            .exists()
+        )
+    return predicate
 
 
 class Reservation(Model):
@@ -442,11 +479,7 @@ class InvocationStore:
                 )
             unresolved = conn.execute(
                 select(invocations.c.id)
-                .where(
-                    (invocations.c.owner == self.store.owner)
-                    & invocations.c.state.in_(("unknown", "cancelled", "rejected"))
-                    & invocations.c.reservation_state.in_(("held", "legacy_unknown"))
-                )
+                .where(uncertain_effects(self.store.owner))
                 .limit(allowance.max_unresolved)
             ).all()
             if len(unresolved) >= allowance.max_unresolved:
@@ -793,6 +826,8 @@ class Executor:
                 reason = "owner_unresolved_effects_refused"
             elif isinstance(exc, BlockingCapacity):
                 reason = "owner_blocking_capacity_refused"
+            elif isinstance(exc, ProviderResponseMismatch):
+                reason = exc.reason
             elif isinstance(exc, TimeoutError):
                 reason = "execution_timed_out"
             elif isinstance(exc, asyncio.CancelledError):

@@ -5,6 +5,9 @@
 
 ## 0.3.2: bounded invocation cleanup
 
+The 0.4.1 candidate adds the owner resolution path below. Its local audit and
+unverified release/native scope are recorded in [audit status](audit-041-status.json).
+
 `InvocationStore.cleanup_expired(owner=..., limit=32, seconds=5, dry_run=False)`
 is an operator-local operation; owner must equal Store.owner. Bounds are 1–128
 rows and 1–30 seconds of DB work after connection acquisition. Store's finite
@@ -1017,6 +1020,18 @@ saved provider ID. Repeat the same command ID to recover its historical signed
 observation and original stored DSSE envelope without signing it again; use a new
 operator command ID for a new observation.
 
+For C→B→A, B uses `--original-caller C` with `remote-calls` and `reconcile` to
+select the C-origin parent stored inside B. Authorization actor/resource owner
+remain B, and A still sees the original outbound authentication principal B.
+The SDK exposes `original_caller` on `Registry.remote_calls/query_remote_call`
+and `Reconciliations.observe`. C and other peers cannot list B's private history.
+The persisted `[B,C,invocation]` context and provider ID remain unchanged.
+`query_remote_call` reads an immutable saved ID even if the installed local binding
+has changed; it never executes that binding. Signed reconciliation with an original
+receipt uses that receipt's subject. A standalone legacy call without a receipt
+needs its original manifest for a new observation, while raw ID lookup remains
+available. Missing historical arguments stay UNKNOWN.
+
 Reconciliation matches caller, provider, binding, argument digest, result digest
 and original parent. Event v4 retains the local request fingerprint, provider
 fingerprint, response digest, original UNKNOWN receipt and observed cost. Older
@@ -1032,6 +1047,64 @@ owner verification grant and actual argument checks. `--reconciler ID` selects
 only that explicitly registered binding. Mismatched or missing observations stay
 UNKNOWN. Neither query path invokes the original uncertain action, changes its
 result, releases its reservation, issues a fresh attempt or creates PASS.
+
+### Owner resolution of historical uncertain effects
+
+`host.resolutions.register(BINDING_ID)` installs an owner-approved read-only
+whole-invocation query, separately from individual child effect queries. It receives
+`{"state": REVIEW_STATE, "arguments": OWNER_ARGUMENTS}`. The state includes the
+original caller/ID, fingerprint, immutable uncertain receipt, logical lease fence,
+complete saved child keys, observation references and state digest. The application
+must inspect authoritative local/remote originals itself and return
+`ResolutionObservation`: matching caller/ID/state digest, known `effect`, positive
+`all_effects_checked`, `all_results_checked`, `worker_quiescent`, an external
+`observation_digest` and reason. A cancelled lease alone does not prove physical
+quiescence. Normal provider completion, not-found, one confirmed child, unknown
+legacy identity and incomplete local-result inspection cannot close the parent.
+The installed query and its operational authority are a stated trust assumption;
+the overlay cannot infer arbitrary external effects from a hash or model answer.
+
+```python
+event = await host.resolutions.review(
+    config.owner,
+    original_id,
+    command_id,
+    installed_query_id,
+    tuple(original_child_observation_refs),
+    original_caller=original_caller,
+)
+active = host.resolutions.active(original_caller, original_id)
+```
+
+The corresponding owner CLI is:
+
+```text
+collective-intelligence-overlay resolve-invocation --config owner/config.json --invocation-id ORIGINAL --original-caller CALLER --command-id REVIEW --checker INSTALLED_QUERY --observations-file ORIGINAL_REFS.json
+```
+
+`ORIGINAL_REFS.json` contains the array of exact `{issuer,id}` child reconciliation
+receipt references; optional `--arguments-file PATH` supplies installed-query
+arguments. Query registration is trusted application code, not a CLI/model grant.
+Read-only review remains available at the default 32 unresolved limit and during
+drain. Restored intake requires the separate recovery procedure first.
+
+Event v5 records an explicit owner resolution and measured review overhead; it
+asserts no independent quality PASS. Migration 0021 starts the indexed current
+projection empty, preserving every original invocation/receipt/balance and v1–v4
+signed bytes. Claim subtracts only active owner closures from current unresolved
+capacity. Budget remains held, original outcome remains UNKNOWN, and no operation
+is resent. Concurrent close/claim is serialized with the existing budget→capacity
+→invocation→lease→feed order. Historical closed parents cannot dispatch new children.
+Repeating the same command/contract returns the historical resolution; changed
+contracts conflict and a second close does not recover another slot. Failed owner
+reviews retain signed UNKNOWN observation costs without a closure projection.
+
+Resolution is a historical effect disposition, separate from current quality
+admission: ordinary evidence updates/expiry and foreign withdrawals do not retract
+it. An owner's whole-subject withdrawal of a reviewed local binding reopens its
+projection, retaining the historical resolution. Restore invalidates all closures.
+A later explicit review needs fresh original observations and unchanged state;
+neither inactive history nor a prior closure authorizes refund or re-execution.
 
 The installed document receiver registers `document-original-result`. Supply
 `--reconciler document-original-result` with the receiver's original
@@ -1068,8 +1141,17 @@ and a final digest manifest. It contains secrets: protect/encrypt it with existi
 backup tooling. A failed/interrupted backup has no accepted final manifest and is
 retained for diagnosis. Existing destinations are refused.
 
-`verify-backup --directory PATH` checks bytes and reports
-`business_restore_verified: false`. It does not restore a database or establish
+`verify-backup --directory PATH` checks schema-1 manifest structure, exact required
+and conditional file references, key self-pin, bounded inventories, digests and
+the PostgreSQL custom-archive directory through `pg_restore --list`. The official
+`pg_restore` client must be on PATH (or supplied by `CIO_PG_TOOL_PREFIX` JSON argv).
+It reports `checksums_verified`, `structure_complete` and `dump_format_verified`
+separately from `restoration_tested: false`, `manifest_authenticated: false`,
+`external_reconciliation: "not_performed"` and `business_restore_verified: false`.
+`complete` retains the compatibility meaning of structure/checksum completion.
+These checks do not test archive data restoration, authenticate an unsigned
+manifest or reconcile its declared generation with restored database contents.
+It does not restore a database or establish
 that external work since the backup is represented. `restore-state --config PATH`
 requires an offline owner lock, rotates the feed and invalidates freshness. It now
 persists closed intake and the commit-ordered publication boundary across restart.
@@ -1214,6 +1296,18 @@ Capacity refusal retains existing bytes. `usage()` reports a 90-percent warning;
 it never purges signed evidence, withdrawal, call mappings or uncertain leases.
 Backup/archive retained history before adjusting limits; deleting such rows is
 not a supported retention operation.
+
+The same-volume sibling staging directory separates incomplete writes from the
+published CAS. Construction and `recover_staging()` acquire the same bounded
+native writer lock. They remove abandoned staging writes and quarantine legacy
+CAS `.write-*` bytes outside published inventory. Quarantined bytes remain for
+owner review; they are neither promoted nor silently deleted. Unknown entries,
+symlinks and staging capacity exhaustion fail closed. `usage()` separates
+`staging_bytes`, `staging_files` and `legacy_quarantined_files` from published
+`bytes`/`files`. Restart the owner's artifact store before retrying a backup after
+a killed legacy writer. POSIX file/directory fsync and atomic rename are used;
+Windows has no portable directory-fsync guarantee here. Process-kill recovery
+does not establish power-loss durability.
 
 Operational database observations include `database_capacity_warning` at the
 configured `database_warning_bytes` threshold (default 8 GiB), and

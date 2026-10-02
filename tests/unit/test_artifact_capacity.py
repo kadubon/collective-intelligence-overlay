@@ -61,13 +61,14 @@ def test_empty_native_lock_is_initialized_only_by_its_holder(tmp_path):
     # initialization. The other process must wait instead of writing that byte.
     artifacts = Artifacts(tmp_path / "held-cas", max_bytes=16, capacity_bytes=32)
     lock_path = tmp_path / "held-cas.lock"
+    lock_path.write_bytes(b"")
     ready = tmp_path / "ready"
     script = """
 import sys
 from pathlib import Path
 from collective_intelligence_overlay.artifacts import Artifacts
-a = Artifacts(Path(sys.argv[1]), max_bytes=16, capacity_bytes=32)
 Path(sys.argv[2]).touch()
+a = Artifacts(Path(sys.argv[1]), max_bytes=16, capacity_bytes=32)
 a.put(b'original')
 """
     child = None

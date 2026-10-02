@@ -238,12 +238,25 @@ class Overlay:
                         )
                 formation_state = next((s for s in order if s in input_outcomes), Outcome.ACCEPT)
                 applicable_evidence = []
+                source_issuers = {cap.issuer}
                 for e in evidence:
                     if e.subject != subject:
                         continue
+                    issuer = self.store.principals[e.issuer]
+                    producer = self.store.principals[cap.issuer]
+                    applicable = (
+                        e.scope == req.scope
+                        and e.binding_digest == req.binding_digest
+                        and e.claim == cap.claim
+                        and req.receiver in e.receivers
+                    )
+                    authorized = e.method in issuer.methods
+                    relevant = applicable and authorized
+                    if relevant:
+                        source_issuers.add(e.issuer)
                     if (
-                        e.created_at <= timestamp < e.expires_at
-                        and e.scope == req.scope
+                        relevant
+                        and e.created_at <= timestamp < e.expires_at
                         and (not formation_only or e.verdict == "FAIL")
                     ):
                         valid_until = min(
@@ -252,8 +265,6 @@ class Overlay:
                             e.created_at
                             + timedelta(seconds=self.policy.settings.max_evidence_age_seconds),
                         )
-                    issuer = self.store.principals[e.issuer]
-                    producer = self.store.principals[cap.issuer]
                     withdrawn = any(
                         r.evidence_id == e.id and r.issuer == e.issuer for r in revocations
                     )
@@ -261,31 +272,19 @@ class Overlay:
                         {
                             "id": e.id,
                             "verdict": e.verdict,
-                            "applicable": e.scope == req.scope
-                            and e.binding_digest == req.binding_digest
-                            and e.claim == cap.claim
-                            and req.receiver in e.receivers,
+                            "applicable": applicable,
                             "fresh": e.created_at <= timestamp < e.expires_at
                             and not withdrawn
                             and (timestamp - e.created_at).total_seconds()
                             <= self.policy.settings.max_evidence_age_seconds,
-                            "authorized": e.method in issuer.methods,
+                            "authorized": authorized,
                             "withdrawn": withdrawn,
                             "independent": e.issuer != cap.issuer
                             and issuer.trust_group != producer.trust_group,
                             "obligations": e.obligations,
-                            "support_valid": evidence_supported(e, frozenset()),
+                            "support_valid": relevant and evidence_supported(e, frozenset()),
                         }
                     )
-                source_issuers = {cap.issuer} | {
-                    e.issuer
-                    for e in evidence
-                    if e.subject == subject
-                    and e.scope == req.scope
-                    and e.claim == cap.claim
-                    and req.receiver in e.receivers
-                    and e.method in self.store.principals[e.issuer].methods
-                }
                 source_fresh = all(source_current(issuer, subject) for issuer in source_issuers)
                 for source_issuer in source_issuers - {self.store.owner}:
                     observed = observation(source_issuer, subject)

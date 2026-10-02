@@ -87,6 +87,17 @@ state; the Decision/Evidence payload contains business acceptance.
 
 ## MCP
 
+The 0.4.1 candidate uses the public `httpx2.AsyncClient` response hook with pinned
+MCP 2.2.0. Defaults bound raw received bytes to 262144, JSON nesting to 64,
+aggregate tools to 128, pages to 16 and the complete exchange to 20 seconds.
+`ReceiveLimits` permits only finite operator bounds (at most 1 MiB / 128 levels /
+1024 tools / 30 seconds). Both JSON and SSE are bounded before SDK JSON parsing;
+the official SDK still parses protocol messages, discovery and tools. Compression
+and redirects are refused at this pinned endpoint. Violations and cancellation
+cannot yield a result or PASS. The SDK's existing SSE 1 MiB limit does not cover
+its whole-buffer JSON response path. These are application receive bounds, not a
+claim that a Python client prevents every infrastructure denial of service.
+
 `adapters.mcp.call_tool` uses MCP 2.x `Client` and `streamable_http_client`. Both
 endpoint and tool name must appear in operator allowlists; admission is rechecked
 before the call. Tool success never produces a verification PASS. The initial adapter
@@ -97,6 +108,48 @@ uv run python -m collective_intelligence_overlay.reference_mcp --port 8050
 ```
 
 ## Model-backed opt-in example
+
+### Explicit local Ollama
+
+Install the candidate's `[agents,ollama]` extras to use its public
+`adapters.ollama.local_ollama_client` context manager. It injects the official
+`ollama.AsyncClient` into MAF's `OllamaChatClient`, accepts an explicit loopback IP
+and finite timeout, disables environment proxies/redirects/retries and closes its
+owned public HTTP transport. It does not start a server or change installed weights.
+The operator separately disables cloud, verifies `/api/version`, `/api/tags`,
+`/api/show`, `/api/ps`, and pins the actual model digest. Loopback alone is insufficient.
+
+```python
+from agent_framework import Message
+from collective_intelligence_overlay.adapters.ollama import local_ollama_client
+
+async with local_ollama_client("http://127.0.0.1:11439", model="gemma4:e4b") as client:
+    response = await client.get_response(
+        [Message(role="user", contents=["Return a small public JSON example."])],
+        options={
+            "response_format": "json",
+            "think": False,
+            "keep_alive": "5m",
+            "options": {
+                "seed": 17,
+                "num_ctx": 4096,
+                "num_predict": 256,
+                "draft_num_predict": 0,
+                "temperature": 0,
+            },
+        },
+    )
+```
+
+The nested native options preserve parameters that the MAF top-level translation
+does not enumerate. Requested values are not automatically effective settings.
+MAF exposes input/output usage from the same response; the source-only
+`scripts/ollama_observer.py` additionally preserves exact actual payloads, native
+final counters/durations and partial raw streams before any host validation.
+Missing usage retains its upper reservation. Thinking tokens are already included
+in native `eval_count` and must not be added again. Model output remains untrusted
+builder input; no model response grants a checker, key, permission or quality PASS.
+See [local connection observations and remaining comparison work](audit-041.md).
 
 `examples/live_agent.py` performs authenticated A2A discovery, installs MAF middleware,
 and exposes a function that calls the real MCP adapter. Supply an owner config,

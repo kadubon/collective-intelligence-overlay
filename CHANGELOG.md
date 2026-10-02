@@ -1,5 +1,29 @@
 # Changelog
 
+## 0.4.1 (candidate)
+
+- Validate normal and reconciled A2A responses against the saved outbound request;
+  keep original caller, actor and administrative owner distinct across delegation.
+- Add owner-signed whole-invocation resolution with bounded read-only effect and
+  quiescence queries. Keep original UNKNOWN receipts and held allowance; project
+  active closures for capacity without turning disposition into quality PASS.
+- Apply the same relevant evidence/support/freshness rules to synchronized negatives.
+- Stage CAS writes outside canonical inventory, atomically publish complete files,
+  recover abandoned staging and quarantine legacy partials without promoting them.
+- Type and validate the complete backup structure and conditional runtime references;
+  retain distinct structural, restoration, authentication and external-effect checks.
+- Bound raw MCP JSON/SSE bytes, depth, tool-list length and elapsed receive time with
+  public transport hooks in the pinned SDK. Preserve cancellation and UNKNOWN.
+- Add optional public MAF/Ollama integration and a finite tabular application whose
+  actual model parameters determine executed primitives and MAF composition.
+  Source-only observer, paired harness and offline analysis retain original requests,
+  responses, usage and signed execution records. Five-pair pilot quality difference
+  is zero at a ceiling; preregistered confirmation and publication remain pending.
+- Apply the existing bounded goal-run deadline to retained reference aliases on
+  both client and server; ordinary API operations keep their 30-second limit.
+- Separate lightweight push/PR checks from representative and full native milestones.
+  Reuse a successful, hash-bound full candidate at tag publication through OIDC.
+
 ## 0.4.0 (2026-10-02)
 
 - The immutable tag and cache-disabled actual-PyPI workflows passed all 12 native

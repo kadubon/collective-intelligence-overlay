@@ -148,7 +148,7 @@ def restrict_and_migrate(config, admin_url, config_path):
 
 def initialize_runtime(args):
     assert os.name == "posix", "legacy graceful-stop protocol requires POSIX SIGTERM"
-    assert importlib.metadata.version("collective-intelligence-overlay") == "0.4.0"
+    assert importlib.metadata.version("collective-intelligence-overlay") in {"0.4.0", "0.4.1"}
     assert (
         Path(
             importlib.metadata.distribution("collective-intelligence-overlay").locate_file(
@@ -272,7 +272,7 @@ async def main(args):
     report = {
         "status": "running",
         "legacy": "0.3.2",
-        "candidate": "0.4.0",
+        "candidate": importlib.metadata.version("collective-intelligence-overlay"),
         "scope": "POSIX stopped-writer loopback CSV compatibility; no HTTPS-profile claim",
         "legacy_wheel_sha256": hashlib.sha256(args.legacy_wheel.read_bytes()).hexdigest(),
         "candidate_wheel_sha256": hashlib.sha256(args.candidate_wheel.read_bytes()).hexdigest(),

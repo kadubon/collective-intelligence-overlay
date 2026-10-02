@@ -172,7 +172,7 @@ async def test_explicit_effect_query_and_mismatched_unknown_hold_allowance(servi
         changed = copy.deepcopy(actual)
         changed[field] = value
 
-        async def bad_query(*_, result=changed):
+        async def bad_query(*_, result=changed, **__):
             return result
 
         monkeypatch.setattr(p.registry, "query_remote_call", bad_query)
@@ -185,6 +185,13 @@ async def test_explicit_effect_query_and_mismatched_unknown_hold_allowance(servi
         )
         assert invalid.reconciliation.reported_state == "unknown"
         assert invalid.reconciliation.effect == "unknown"
+        assert invalid.reconciliation.reason == (
+            "PROVIDER_REQUEST_MISMATCH"
+            if index < 4
+            else "PROVIDER_RESULT_DIGEST_MISMATCH"
+            if index == 4
+            else "PROVIDER_DIGEST_INVALID"
+        )
         assert len(query_calls) == 1 and remaining(p) == allowance and count(p) == 1
     # An actual saved legacy map has no positive argument identity proof.
     with p.registry.overlay.store.engine.begin() as conn:

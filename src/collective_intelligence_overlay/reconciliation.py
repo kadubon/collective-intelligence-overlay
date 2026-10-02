@@ -6,16 +6,16 @@ import time
 from decimal import Decimal
 from typing import Any, Literal
 
-from pydantic import BaseModel, ConfigDict, TypeAdapter, ValidationError
+from pydantic import BaseModel, ConfigDict, TypeAdapter
 
 from .bindings import ExecutionContext, Registry, fingerprint
 from .blocking import run_blocking
-from .calls import RemoteCall, RemoteCalls
+from .calls import RemoteCalls, validate_provider_response
 from .config import Config
 from .invocations import InvocationStore
 from .models import Cost, Digest, Event, Identifier, ReceiptRef, ReconciliationReceipt
 from .queries import RecordQuery
-from .security import Identity
+from .security import Identity, verify
 from .storage import Conflict
 
 
@@ -46,9 +46,16 @@ class Reconciliations:
             or binding.effects != "read-only"
             or self.store.owner not in binding.verification_callers
             or binding_id in self._queries
+            or len(self._queries) >= 64
         ):
             raise ValueError("reconciler requires one owner-approved read-only query binding")
         self._queries[binding_id] = binding.digest
+
+    def installed_query(self, binding_digest: str) -> str:
+        for name, pinned in self._queries.items():
+            if pinned == binding_digest and self.registry.inspect(name).digest == pinned:
+                return name
+        raise ValueError("resolution requires the original owner-approved effect query")
 
     def _saved(self, event_id: str) -> Event | None:
         page = self.store.record_page(
@@ -61,54 +68,20 @@ class Reconciliations:
             raise Conflict("reconciliation command ID already used for another event")
         return record
 
-    @staticmethod
-    def _validate(saved: RemoteCall, owner: str, response: dict[str, Any] | None) -> str:
-        if saved.arguments_digest is None:
-            return "LEGACY_REMOTE_ARGUMENTS_UNKNOWN"
-        if response is None:
-            return "PROVIDER_RESULT_ABSENT"
-        if (
-            response.get("id") != saved.remote_invocation_id
-            or response.get("caller") != owner
-            or response.get("owner") != saved.provider
-            or response.get("binding_id") != saved.provider_binding_id
-            or response.get("binding_digest") != saved.provider_binding_digest
-            or response.get("arguments_digest") != saved.arguments_digest
-            or response.get("purpose") != "reuse"
-        ):
-            return "PROVIDER_REQUEST_MISMATCH"
-        if response.get("state") not in {
-            "completed",
-            "running",
-            "unknown",
-            "cancelled",
-            "rejected",
-        }:
-            return "PROVIDER_STATE_INVALID"
-        if response["state"] == "completed" and (
-            not response.get("result_digest")
-            or response["result_digest"] != fingerprint(response.get("result"))
-        ):
-            return "PROVIDER_RESULT_DIGEST_MISMATCH"
-        try:
-            TypeAdapter(Digest).validate_python(response.get("fingerprint"))
-            if response.get("result_digest") is not None:
-                TypeAdapter(Digest).validate_python(response["result_digest"])
-        except ValidationError:
-            return "PROVIDER_DIGEST_INVALID"
-        return "PROVIDER_REPORTED_" + str(response["state"]).upper()
-
     async def observe(
         self,
         caller: str,
         call_key: str,
         command_id: str,
         *,
+        original_caller: str | None = None,
         invocation_id: str | None = None,
         reconciler: str | None = None,
     ) -> Event:
         if caller != self.store.owner:
             raise ValueError("reconciliation is owner-only")
+        calls = RemoteCalls(self.store)
+        target_caller = calls.lookup_caller(caller, original_caller)
         # Stable operator command IDs deduplicate an observation, not future queries.
         TypeAdapter(Identifier).validate_python(command_id)
         event_id = "reconcile-" + fingerprint([caller, command_id])
@@ -116,32 +89,57 @@ class Reconciliations:
         if previous is not None:
             assert previous.reconciliation is not None
             r = previous.reconciliation
-            if r.call_key != call_key or r.original_invocation_id != invocation_id:
+            if (
+                r.call_key != call_key
+                or r.original_invocation_id != invocation_id
+                or r.caller != target_caller
+            ):
                 raise Conflict("reconciliation command changed its original call")
             expected_query = self._queries[reconciler] if reconciler else None
             if r.reconciler_binding_digest != expected_query:
                 raise Conflict("reconciliation command changed its query contract")
             return previous
-        saved = await run_blocking(RemoteCalls(self.store).get, caller, call_key)
+        saved = await run_blocking(calls.get, target_caller, call_key)
         if saved is None:
             raise ValueError(
                 "original remote call mapping is missing; do not reconstruct or invoke"
             )
         if saved.invocation_context is not None and (
             invocation_id is None
-            or saved.invocation_context != fingerprint([self.store.owner, caller, invocation_id])
+            or saved.invocation_context
+            != fingerprint([self.store.owner, target_caller, invocation_id])
         ):
             raise ValueError("reconciliation must retain the original parent invocation")
         original = (
-            await run_blocking(InvocationStore(self.store).get, caller, invocation_id)
+            await run_blocking(InvocationStore(self.store).get, target_caller, invocation_id)
             if invocation_id is not None
             else None
         )
         if invocation_id is not None and original is None:
             raise ValueError("original local invocation is missing")
-        binding = self.registry.inspect(saved.binding_id)
-        if binding.digest != saved.binding_digest:
-            raise ValueError("original local binding is not installed; explicit recovery required")
+        if original and original["receipt_id"]:
+            reference = await run_blocking(
+                self.store.reference, "event", self.store.owner, original["receipt_id"]
+            )
+            event = verify(
+                await run_blocking(self.store.signed_record, reference), self.store.principals
+            )
+            if (
+                not isinstance(event, Event)
+                or event.execution is None
+                or event.execution.invocation_id != invocation_id
+                or event.execution.caller != target_caller
+                or event.execution.binding_digest != original["binding_digest"]
+            ):
+                raise ValueError("original local invocation receipt does not match")
+            subject = event.subject
+        else:
+            binding = self.registry.inspect(saved.binding_id)
+            if binding.digest != saved.binding_digest:
+                raise ValueError(
+                    "original manifest unavailable for observation; query saved ID only"
+                )
+            subject = binding.subject
         started = time.perf_counter()
         response: dict[str, Any] | None = None
         try:
@@ -150,8 +148,9 @@ class Reconciliations:
                 ExecutionContext(caller=caller, environment=self.config.execution_environment),
                 self.config,
                 self.identity,
+                original_caller=target_caller,
             )
-            reason = self._validate(saved, caller, response)
+            reason = validate_provider_response(saved, self.identity.name, response)
         except Exception:
             reason = "PROVIDER_QUERY_UNAVAILABLE"
         valid = reason.startswith("PROVIDER_REPORTED_")
@@ -194,7 +193,7 @@ class Reconciliations:
                 except Exception:
                     reason = "EFFECT_QUERY_UNAVAILABLE"
         receipt = ReconciliationReceipt(
-            caller=caller,
+            caller=target_caller,
             call_key=call_key,
             provider=saved.provider,
             provider_invocation_id=saved.remote_invocation_id,
@@ -207,7 +206,7 @@ class Reconciliations:
             else None,
             provider_result_digest=response.get("result_digest") if valid and response else None,
             original_invocation_id=invocation_id,
-            original_receipt=ReceiptRef(issuer=caller, id=original["receipt_id"])
+            original_receipt=ReceiptRef(issuer=self.store.owner, id=original["receipt_id"])
             if original and original["receipt_id"]
             else None,
             reported_state=response["state"]
@@ -223,7 +222,7 @@ class Reconciliations:
             schema_version="4",
             id=event_id,
             issuer=caller,
-            subject=binding.subject,
+            subject=subject,
             action="recommendation",
             task_id=invocation_id or saved.call_id,
             attempt_id=command_id,

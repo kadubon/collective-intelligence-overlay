@@ -45,12 +45,13 @@ class ProductionSession:
     def seconds(self):
         return time.monotonic() - self.started
 
-    async def call(self, owner, *, category="control", **data):
+    async def call(self, owner, *, category="control", destination=None, **data):
         if len(self.calls) >= 8192:
             raise ValueError("finite observation call bound exceeded")
         item = {
             "call_index": len(self.calls),
             "owner": owner,
+            "destination": destination or owner,
             "phase": self.phase,
             "category": category,
             "operation": data["operation"],
@@ -61,11 +62,23 @@ class ProductionSession:
         self.calls.append(item)
         before = time.monotonic()
         try:
-            value = await send(self.configs[owner], self.identities[owner], owner, data)
+            value = await send(
+                self.configs[owner], self.identities[owner], destination or owner, data
+            )
             item.update(status="returned", result=value)
             return value
         except Exception as error:
             item.update(status="failed", error_type=type(error).__name__)
+            chain, current = [], error
+            for _ in range(8):
+                chain.append(type(current).__name__)
+                current = current.__cause__ or current.__context__
+                if current is None:
+                    break
+            item["error_chain"] = chain
+            # Types/status only: exception text and authentication headers can
+            # contain private operator information and are never copied here.
+            item["http_status"] = getattr(error, "status_code", None)
             return {"error_type": type(error).__name__}
         finally:
             item["wall_seconds"] = time.monotonic() - before
@@ -283,9 +296,10 @@ class ProductionSession:
                 )
                 forbidden = [
                     config.database_url.get_secret_value().encode(),
-                    self.mesh.mcp_token.encode(),
                     b"BEGIN PRIVATE KEY",
                 ]
+                if token := getattr(self.mesh, "mcp_token", None):
+                    forbidden.append(token.encode())
                 # Public deterministic fixture inputs also must not leak into
                 # standard service logs. Keep raw and JSON-escaped spellings.
                 texts = {self.training}
