@@ -228,3 +228,12 @@ Separate the model, code and output licenses. Completed pilot/comparison and
 publication records, negative/ceiling results and limits are in
 [audit status](../../../docs/audit-041.md) and [actual release results](../../../docs/release-041-results.json);
 do not treat connection or HTTP success as completed comparative evidence.
+
+For 0.4.2 accumulation work, follow the source-only
+[study protocol](../../../docs/accumulation-042.md) and
+[current audit](../../../docs/audit-042.md). Preserve immutable full/empty/real
+foreign-stock views while keeping safety history, rights and keys intact. Use
+whole worlds as repeated-measurement units. Require a pushed fixed protocol and
+the exact installed candidate before confirmation. Keep ordinary executable
+shared memory strong, retain every failed/censored request and do not infer
+H_SHARE/H_ADAPT from unperformed panels or equivalence from degenerate bootstrap.

@@ -1,0 +1,39 @@
+{
+  "profile_id": "permissioned-native-fault-042-v1",
+  "target_version": "0.4.2",
+  "protocol": "production-short-042-v1",
+  "declared_at": "2026-10-02T12:36:02.502119+00:00",
+  "scope": "New 0.4.2 native source and immutable installed artifact short fault validation; this profile alone does not approve a formal long soak or release.",
+  "change_policy": "Preserve all historical profiles and failed run37005064285. All nineteen required injections and numerical bounds are inherited unchanged. The additional receiptless process-kill protocol runs in integration tests and has separate raw evidence.",
+  "inherited_numeric_profile": "permissioned-single-owner-040-v1",
+  "fault_protocol": {
+    "required_injections": [
+      "owner process kill",
+      "database physical disconnect",
+      "provider stop",
+      "delayed response and timeout",
+      "duplicate response/request",
+      "owner Python clock offset plus DB clock checks",
+      "bad signature",
+      "evidence withdrawal",
+      "execution and unresolved capacity exhaustion",
+      "budget exhaustion",
+      "checker failure and checker unavailability",
+      "backup interruption",
+      "restored intake closed until verification/sync/reconciliation",
+      "new effect request during drain",
+      "duplicate owner boot",
+      "HTTP 429 and 503 with Retry-After",
+      "routine key rotation",
+      "compromised historical key",
+      "protected trial regression"
+    ],
+    "short_ci": {
+      "duration_seconds_min": 120,
+      "owners": 3,
+      "maximum_total_seconds": 600,
+      "runs_per_native_profile": 1
+    }
+  },
+  "reason": "Declare the exact new candidate-version profile before rerunning affected fault validation; never relabel the failed 0.4.2 run that lacked this declaration."
+}

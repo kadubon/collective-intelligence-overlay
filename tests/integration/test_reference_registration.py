@@ -151,12 +151,31 @@ async def test_reference_peer_publishes_registered_candidates_and_durable_probes
     # A dispatched cancellation retains held uncertainty.
     # New independent work stops with its policy reason; original IDs stay queryable.
     ledger = restarted.executor.store
+    with pytest.raises(ValueError, match="complete original request"):
+        ledger.claim(
+            "receiver",
+            "incomplete-request",
+            binding.id,
+            binding.digest,
+            request["arguments"],
+            restarted.executor.allowance,
+        )
+    assert ledger.get("receiver", "incomplete-request") is None
     claim, fresh = ledger.claim(
         "receiver",
         "uncertain-effect",
         binding.id,
         binding.digest,
-        request["arguments"],
+        {
+            "owner": "receiver",
+            "caller": "receiver",
+            "purpose": "reuse",
+            "binding": binding.id,
+            "binding_digest": binding.digest,
+            "arguments": request["arguments"],
+            "environment": config.execution_environment,
+            "permissions": [],
+        },
         restarted.executor.allowance,
     )
     assert fresh

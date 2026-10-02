@@ -16,7 +16,7 @@ def validator(monkeypatch):
     return importlib.import_module("validate_short_protocol")
 
 
-@pytest.mark.parametrize("version", ["0.4.0", "0.4.1"])
+@pytest.mark.parametrize("version", ["0.4.0", "0.4.1", "0.4.2"])
 def test_version_profiles_retain_identical_short_fault_requirements(validator, version):
     profile, protocol = validator.load_profile(ROOT, version)
     original, _ = validator.load_profile(ROOT, "0.4.0")
@@ -78,7 +78,7 @@ def test_candidate_version_and_complete_original_proof_required(validator, tmp_p
     elif change == "wrong-candidate":
         expected = "0.4.0"
     elif change == "unknown-version":
-        expected = "0.4.2"
+        expected = "9.9.9"
     elif change == "missing-injection":
         report["observed_injections"].pop()
     elif change == "too-short":

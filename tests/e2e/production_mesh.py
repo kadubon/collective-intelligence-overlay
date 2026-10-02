@@ -44,12 +44,34 @@ def stop_process(process, *, kill=False):
 
 
 class ProductionMesh:
-    def __init__(self, directory, operator_url, opa, caddy, allowance):
+    def __init__(
+        self,
+        directory,
+        operator_url,
+        opa,
+        caddy,
+        allowance,
+        *,
+        proxy_seconds=180,
+        owners=("producer", "verifier", "receiver"),
+    ):
+        if (
+            not isinstance(proxy_seconds, int)
+            or isinstance(proxy_seconds, bool)
+            or not (30 <= proxy_seconds <= 3600)
+        ):
+            raise ValueError("explicit bounded owned-proxy deadline required")
+        self.proxy_seconds = proxy_seconds
+        if owners not in {
+            ("producer", "verifier", "receiver"),
+            ("producer", "verifier", "receiver", "newreceiver"),
+        }:
+            raise ValueError("explicit finite owned peer topology required")
         self.directory = directory
         self.directory.mkdir(mode=0o700)
         # A separately closed free_port() may immediately return the previous
         # owner's port. Keep all eight sockets bound during batch allocation.
-        self.ports = iter(free_ports(8))
+        self.ports = iter(free_ports(2 * len(owners) + 2))
         # Administrative CREATE/DROP may need a PostgreSQL checkpoint. This
         # bounded cleanup connection is never handed to runtime peers; their
         # Store/socket/statement/lock bounds remain unchanged.
@@ -89,7 +111,7 @@ class ProductionMesh:
         )
         os.chmod(self.key, 0o600)
         try:
-            for owner in ("producer", "verifier", "receiver"):
+            for owner in owners:
                 resource = "cio_mesh_" + uuid4().hex
                 runtime = make_url(operator_url).set(
                     username=resource,
@@ -191,9 +213,14 @@ class ProductionMesh:
 
     def start_proxy(self, owner, endpoint, port):
         path = self.directory / owner / "Caddyfile"
-        path.write_bytes(
-            (files("collective_intelligence_overlay") / "starter/Caddyfile").read_bytes()
-        )
+        template = (files("collective_intelligence_overlay") / "starter/Caddyfile").read_bytes()
+        if self.proxy_seconds != 180:
+            # Dedicated experiment gateways may follow the explicit SDK deadline.
+            # Existing native/reference defaults and package template stay at 180s.
+            if template.count(b"180s") != 4:
+                raise ValueError("owned proxy timeout template changed")
+            template = template.replace(b"180s", f"{self.proxy_seconds}s".encode())
+        path.write_bytes(template)
         environment = {
             **os.environ,
             "CIO_PUBLIC_ADDRESS": endpoint.rstrip("/"),

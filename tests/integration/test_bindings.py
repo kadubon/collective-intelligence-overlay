@@ -51,6 +51,11 @@ async def transform_regression(arguments):
     return {"total": str(sum(arguments["amounts"]) + 1)}
 
 
+async def transform_after_thirty_seconds(arguments):
+    await asyncio.sleep(30.25)
+    return {"total": str(sum(arguments["amounts"]))}
+
+
 def setup_binding(overlay, identities, records, *, legacy=False):
     cap, evidence = records
     # Separate subject keeps the unchanged baseline fixture in the same real store.
@@ -129,6 +134,50 @@ async def test_local_binding_actual_execution_and_input_boundaries(overlay, iden
         await registry.execute(binding.id, binding.digest, {**args, "amounts": ["7"]}, context)
     with pytest.raises(AdmissionDenied):
         await registry.execute(binding.id, binding.digest, {**args, "amounts": []}, context)
+
+
+async def test_explicit_executor_deadline_reaches_both_admission_boundaries(
+    overlay, identities, records
+):
+    registry, original, context = setup_binding(overlay, identities, records)
+    source = callable_digest(transform_after_thirty_seconds)
+    binding = original.model_copy(
+        update={
+            "revision": "deadline-1",
+            "subject": original.subject.model_copy(
+                update={"version": "deadline-1", "digest": source}
+            ),
+            "target": original.target.model_copy(update={"interface_digest": source}),
+        }
+    )
+    registry.register_local(binding, transform_after_thirty_seconds, lambda _: True)
+    candidate, evidence = records
+    for record in (candidate, evidence):
+        update = {
+            "schema_version": "2",
+            "subject": binding.subject,
+            "binding_digest": binding.digest,
+        }
+        if isinstance(record, Evidence):
+            update["id"] = "deadline-check"
+        overlay.store.put(
+            identities[record.issuer].sign(
+                type(record).model_validate({**record.model_dump(), **update})
+            )
+        )
+    overlay.store.set_budget("work", Decimal(5))
+    executor = Executor(registry, identities["receiver"], Reservation(seconds=45))
+    args = {"amounts": [7, 11], "tenant": "tenant-a"}
+    result = await executor.invoke(
+        "declared-long-deadline", binding.id, binding.digest, args, context
+    )
+    assert result["state"] == "completed" and result["result"] == {"total": "18"}
+    # An independently tighter reservation remains UNKNOWN/held on real timeout.
+    short = Executor(registry, identities["receiver"], Reservation(seconds=1))
+    result = await short.invoke(
+        "declared-short-deadline", binding.id, binding.digest, args, context
+    )
+    assert result["state"] == "unknown" and result["reservation_state"] == "held"
 
 
 async def test_legacy_evidence_cannot_invent_a_checked_binding(overlay, identities, records):

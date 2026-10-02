@@ -229,6 +229,31 @@ class InvocationStore:
         if self.identity is None or self.registry is None:
             # Low-level legacy callers are not silently upgraded into signed facts.
             return
+        request = row["request"]
+        if (
+            set(request)
+            != {
+                "owner",
+                "caller",
+                "purpose",
+                "binding",
+                "binding_digest",
+                "arguments",
+                "environment",
+                "permissions",
+            }
+            or request["purpose"] not in {"reuse", "verification"}
+            or any(
+                request[key] != expected
+                for key, expected in {
+                    "owner": self.store.owner,
+                    "caller": row["caller"],
+                    "binding": row["binding_id"],
+                    "binding_digest": row["binding_digest"],
+                }.items()
+            )
+        ):
+            raise ValueError("anchored invocation requires the complete original request")
         binding = self.registry.inspect(row["binding_id"], expected_digest=row["binding_digest"])
         accepted_ref = None
         accepted_observation = None
@@ -899,6 +924,7 @@ class Executor:
                     context,
                     before_call=boundary,
                     call_id=invocation_id,
+                    deadline_seconds=self.allowance.seconds,
                 )
                 completed_event = event(claim, False, result)
                 await run_blocking(self.store.finish, claim, result, self.identity, completed_event)

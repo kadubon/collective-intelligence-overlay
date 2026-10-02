@@ -382,6 +382,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
                     "pytest>=9,<10",
                     "pytest-asyncio>=1,<2",
                     "hypothesis>=6,<7",
+                    "scipy>=1.18.1,<1.19",
                 ],
                 cwd=temp,
             )
@@ -468,7 +469,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
         if (
             full
             and name == "agents"
-            and version in {"0.4.0", "0.4.1"}
+            and version in {"0.4.0", "0.4.1", "0.4.2"}
             and platform.system() == "Linux"
             and requested["minor"] == [3, 12]
         ):
@@ -498,7 +499,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
             result["live_upgrade"] = json.loads((upgrade_output / "report.json").read_text())
             assert result["live_upgrade"]["status"] == "passed"
             assert result["live_upgrade"]["candidate_wheel_sha256"] == hashes[wheel.name]
-        if full and name == "agents" and version in {"0.4.0", "0.4.1"}:
+        if full and name == "agents" and version in {"0.4.0", "0.4.1", "0.4.2"}:
             tutorial_output = (
                 args.report.resolve().parent / "installed-tutorial.json"
                 if args.report

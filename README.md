@@ -23,6 +23,12 @@ The fixed 30-pair Gemma assessment passed 180/180 heldout tasks per arm; B−A w
 at a ceiling, with no demonstrated adaptive advantage or equivalence.
 See the [nine-part report](docs/release-041-report.ja.md).
 
+The unreleased 0.4.2 work adds receiptless UNKNOWN recovery and a separate
+[longitudinal study](docs/accumulation-042.md). Its [audit status](docs/audit-042.md)
+distinguishes real smoke, deterministic controls, running calibration and pending
+confirmation/publication. These checks do not yet establish an accumulation or
+CIO advantage.
+
 ## What it provides
 
 - Versioned capabilities and independently issued PASS / FAIL / UNKNOWN evidence.

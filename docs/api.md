@@ -3,6 +3,12 @@
 [Generated command help](cli-help.txt) lists every CLI command and option. Use
 `collective-intelligence-overlay COMMAND --help` for your installed version.
 
+`Registry.execute(..., deadline_seconds=30)` keeps its bounded default. An
+`Executor` now passes its explicit `Reservation.seconds` to both use-time
+admission boundaries; a declared longer safe operation is no longer silently
+cancelled by the inner 30-second default. Admission/revocation/input rechecks
+still run immediately before actuation. Timeouts remain UNKNOWN/held.
+
 ## 0.3.2: bounded invocation cleanup
 
 Published 0.4.1 adds the owner resolution path below. Its completed audit/native

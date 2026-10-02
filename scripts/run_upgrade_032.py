@@ -148,7 +148,11 @@ def restrict_and_migrate(config, admin_url, config_path):
 
 def initialize_runtime(args):
     assert os.name == "posix", "legacy graceful-stop protocol requires POSIX SIGTERM"
-    assert importlib.metadata.version("collective-intelligence-overlay") in {"0.4.0", "0.4.1"}
+    assert importlib.metadata.version("collective-intelligence-overlay") in {
+        "0.4.0",
+        "0.4.1",
+        "0.4.2",
+    }
     assert (
         Path(
             importlib.metadata.distribution("collective-intelligence-overlay").locate_file(

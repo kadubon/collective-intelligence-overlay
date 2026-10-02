@@ -12,6 +12,14 @@
   Closure releases capacity only; it never refunds, retries or issues quality PASS.
 - Add migration 0022's local parent index without rewriting signed records.
   Stop older writers/readers before upgrading; this is an offline upgrade.
+- Forward the Executor's explicit finite execution deadline through Registry's
+  nested Overlay calls; preserve the default 30-second bound and UNKNOWN/held
+  semantics after timeout. Incomplete low-level claim anchors fail clearly.
+- Add a source-only longitudinal application with separate SQL/calibration
+  families, actual MAF composition, immutable cognitive views, ordinary shared
+  executable memory, cold receiver reconstruction and original raw verification.
+  Smoke and deterministic controls do not establish efficacy; calibration and
+  independent confirmation status is in `docs/audit-042.md`.
 
 ## 0.4.1 (2026-10-02)
 

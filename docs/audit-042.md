@@ -69,10 +69,86 @@ added; migration 0022 adds only a bounded lookup index to existing records.
 
 ## New study boundary
 
-The new study will retain cognitive stock across multiple episodes within an
+The [source-only study](accumulation-042.md) retains cognitive stock across episodes within an
 independent world. E/I/M/C/A, the primary C-minus-M comparison, checkpoint quality,
 full/empty/irrelevant stock interventions, new receivers and later capability
 formation must be distinguished. The exact feasible cohort and aggregate caps
 will be selected from separate calibration worlds and pushed before any
-confirmation request. No new calibration or confirmation inference has run yet.
+confirmation request. The first E/M calibration cohort was stopped and declared
+invalid because E/M did not maintain constructor-source freshness. All four arm
+exports completed without error; the original 1,315.063-second cohort and its
+operator invalidation remain retained. No confirmation inference has run. Its separate positive
+control completed ten out of ten cases (two independent execution forms each).
 Unperformed panels and insufficient precision will be reported as unjudged.
+
+The source-only application now uses SQLite's compiled read-only authorizer and
+bounded numeric operators, with two different families and an actual MAF
+SQL/numeric/reduction composition. Operator order is a model parameter: the wrong
+order changes held-out outputs. Stored plans are finite reconstruction data for
+installed code, never received Python or shell. The model's proposed SQL and
+coefficients determine actual checker results. All executable fields must appear
+in the wire response. A short derivation precedes those fields in the new schema;
+missing fields cannot become default coefficients and be called discovery.
+
+Native development checks passed 71 deterministic protocol/primitive/statistical/
+raw-verifier tests, including the original real smoke and 19 adverse-file checks.
+Twelve actual PG/OPA/TLS/A2A reconstruction tests passed in 274.65 seconds; six
+affected new-receiver tests then passed in 152.11 seconds with both original
+providers physically stopped. The new identity starts with empty signed history
+and CAS, and has its own runtime DB role and signing key. These deterministic
+controls use explicit test-only reference plans; they are not real-model efficacy
+data. Full/empty views leave the operational ledger, keys and ACLs in place.
+Evaluator feedback is never added to a training snapshot.
+
+Four separate smoke cohorts are retained. The first failed before inference due
+to a relative-path Caddy launch and made zero model requests. The second made two
+requests, including a 30-second inner timeout with missing usage and its
+conservative 9,728-token reservation. Registry now forwards Executor's explicit
+finite deadline to both nested Overlay calls; the default remains 30 seconds.
+A real operation beyond 30 seconds completes with an explicit 45-second
+allowance, while a one-second allowance retains UNKNOWN/held. The third completed
+two responses but its offline checker audit exposed loss of table column order
+during JSON persistence. Its originals remain unchanged and it is not a valid
+efficacy cohort. Primitive contract 2 introduced explicit column order; contract 3
+adds explicit composition operator selection. Old signed/raw bytes receive no
+invented fields.
+
+The fourth smoke completed two real HTTP 200 responses: prompt/generated tokens
+701/312 and 459/848, total 2,320. Both independent outcomes were FAIL. Its original
+raw/DSSE/CAS/request-to-execution chain verified offline. The compact original
+archive is the adversarial fixture documented in
+[fixture provenance](../tests/fixtures/accumulation-smoke-v4.md). Connection/usage
+success is excluded from performance. Its original arm action counter omitted
+startup readiness probes; the new driver counts them rather than backfilling it.
+
+The finite calibration declaration has two distinct worlds, E/M only, low/middle/
+high strata, checkpoints 0/3/6, six unused parallel anchor forms per checkpoint,
+real foreign-world placebo formation, full/empty/irrelevant final interventions,
+unseen/drift/negative challenges and an unseen composition probe. A cold fourth
+receiver imports actual artifacts and requalifies local bindings on separate
+forms before both original providers stop. Blank transfer probes then operate
+locally. Positive reference controls use separate identities and storage.
+The gate uses E/M sensitivity (30–80%), reference success (at least 90%) and
+measured response completion (at least 90%); no C-minus-M sign enters selection.
+At most two calibration cohorts may be used. These are declarations, not results.
+The second calibration uses new seeds and refreshes the same required sources for
+every arm. Low numerical difficulty explicitly declares its affine contract and
+known zero quadratic term; the model still infers the unknown intercept and slope.
+This selection does not inspect a C-minus-M sign. Local admission decisions are
+unsigned projections, distinct from the original DSSE evidence/events; subsequent
+cohorts export their exact original bodies and projection digests separately.
+
+Each world/arm has at most 64 model requests, 655,360 conservatively charged
+tokens, 4,096 driver RPCs and 4,096 reserved primitive executions, 1,024 checker
+cases, 80 retrievals and 10,000 seconds inclusive wall. Stock is bounded to
+128 KiB, retrieval to 10,000 bytes and prompts to 20,000 bytes. Each owner's CAS
+is bounded to 16 MiB; model concurrency is one. The OS sampler starts before the
+owned cloud-disabled Ollama process. Short-lived descendant CPU, shared WSL
+PostgreSQL CPU, GPU counters and energy remain incomplete/unavailable.
+
+The standard representative CI attempt failed after 535 source tests passed:
+0.4.2 had no declared native fault profile and a legacy low-level claim test used
+incomplete request anchors. The failures and original candidate remain retained.
+Both causes are corrected locally without relaxing numeric gates. The affected
+native Windows 19-fault profile passed in 214.96 seconds. This is not the complete
+final matrix or evidence for a final immutable wheel.

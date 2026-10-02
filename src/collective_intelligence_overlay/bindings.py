@@ -738,6 +738,7 @@ class Registry:
         before_call: Callable[[], Awaitable[None]] | None = None,
         call_id: str | None = None,
         call_scope: str | None = None,
+        deadline_seconds: float = 30,
     ) -> Any:
         from .calls import MissingCallIdentity, RemoteCalls, active_call, call_instance
         from .invocations import invocation_request
@@ -820,12 +821,16 @@ class Registry:
                 return await self.overlay.execute(
                     prepared.request,
                     actuator,
+                    deadline_seconds=deadline_seconds,
                     verification_granted=context.purpose == "verification",
                 )
             return await actuator()
 
         return await self.overlay.execute(
-            prepared.request, operation, verification_granted=context.purpose == "verification"
+            prepared.request,
+            operation,
+            deadline_seconds=deadline_seconds,
+            verification_granted=context.purpose == "verification",
         )
 
     def register_mcp(

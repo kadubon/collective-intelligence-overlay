@@ -20,6 +20,10 @@ hostとDBの管理者を信頼する構成です。
 固定30 paired episodesでは両条件ともheldout 180/180、主差B−Aは天井で0でした。
 適応方式の優位や同等性は確認できていません。[9項目報告](docs/release-041-report.ja.md)を参照してください。
 
+未公開の0.4.2ではreceiptのないUNKNOWNの回復と、別の[縦断実験](docs/accumulation-042.ja.md)
+を追加しています。[監査状況](docs/audit-042.md)で、実smoke、決定的control、実行中の校正と、
+未実施の確認・公開を区別します。現時点の検査は、蓄積やCIOの優位を示すものではありません。
+
 ## 提供する機能
 
 - 版付きの能力と、独立した主体が発行するPASS・FAIL・UNKNOWNの証拠。
