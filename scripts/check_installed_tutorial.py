@@ -66,7 +66,9 @@ def run(wheel, output):
         python = venv / ("Scripts/python.exe" if windows else "bin/python")
         environment = os.environ.copy()
         environment["PATH"] = str(pg_bin) + os.pathsep + environment["PATH"]
-        # Venv creation is infrastructure; CLI/demo startup retains the package guard.
+        # Venv creation and dependency installation are infrastructure. uv may
+        # run dependency build backends in separate isolated environments; the
+        # package's CLI/demo and its own PEP-517 check retain their exact guard.
         creation_env = {k: v for k, v in environment.items() if not k.startswith("CIO_PACKAGE_")}
         subprocess.run(
             ["uv", "venv", "--python", sys.executable, str(venv)],
@@ -85,8 +87,21 @@ def run(wheel, output):
         installation = [
             line.replace(requirement, local_requirement + "[agents]") for line in installation
         ]
+        assert installation[0] == (
+            ". .venv/Scripts/Activate.ps1" if windows else ". .venv/bin/activate"
+        )
+        assert installation[1].startswith("uv pip install ")
+        install_text = "\n".join(installation[:2]) + "\n"
+        if windows:
+            install_text = "$ErrorActionPreference = 'Stop'\n" + install_text
+            install_text += "if ($LASTEXITCODE -ne 0) { throw 'Tutorial installation failed' }\n"
+        else:
+            install_text = "set -eu\n" + install_text
+        install_script = directory / ("installation.ps1" if windows else "installation.sh")
+        install_script.write_text(install_text, encoding="utf-8")
         tutorial = quickstart.replace("55439", str(port))
-        lines = installation + tutorial.splitlines()
+        # Activate the same fresh venv in the separately guarded runtime shell.
+        lines = installation[:1] + installation[2:] + tutorial.splitlines()
         for index, line in enumerate(lines):
             if line.startswith("collective-intelligence-overlay demo "):
                 lines[index] = line + " > demo.json"
@@ -109,6 +124,20 @@ def run(wheel, output):
                 [shell, "-NoProfile", "-File", str(script)] if windows else [shell, str(script)]
             )
             with (directory / "commands.log").open("wb") as log:
+                install_command = (
+                    [shell, "-NoProfile", "-File", str(install_script)]
+                    if windows
+                    else [shell, str(install_script)]
+                )
+                subprocess.run(
+                    install_command,
+                    cwd=directory,
+                    env=creation_env,
+                    stdout=log,
+                    stderr=subprocess.STDOUT,
+                    check=True,
+                    timeout=360,
+                )
                 subprocess.run(
                     command,
                     cwd=directory,

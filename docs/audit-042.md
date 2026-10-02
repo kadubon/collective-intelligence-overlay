@@ -363,3 +363,26 @@ use the existing recorded metadata with zero new requests. This is an actual
 startup correction, not another calibration. The updated validation source
 requires a new hash-bound native gate and a distinct confirmation protocol ID
 before inference; there are no confirmation world outcomes to select or replace.
+
+The updated full run [37071819377](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37071819377)
+retained an actual Windows/Python 3.14.7 tutorial installation failure. Source
+tests (776) and installed agents tests (770) passed before that failure. The
+fresh README installation selected SQLAlchemy 2.1.3 while its CPython 3.14
+Windows wheel was not yet available in the observed PyPI file list. uv's isolated
+dependency build interpreter was incorrectly rejected by the test-only package
+runtime guard. This run is not a passing release gate.
+
+The tutorial checker now installs dependencies in a separate infrastructure
+shell, then runs the actual installed commands in the same fresh venv with the
+original exact interpreter/import guard. The package's own PEP-517 interpreter
+proof is unchanged. A real native Windows/Python 3.14.7 regression forced a
+SQLAlchemy 2.1.3 source build: the old instrumentation failed, the infrastructure
+build passed, the installed candidate CLI reported 0.4.2, and a wrong interpreter
+was still rejected. Original failed logs, the observed PyPI metadata and both
+regression outcomes remain separate. This correction changes validation source
+and requires a newly bound successful gate before confirmation registration.
+The revised Linux/Python 3.12.14 tutorial also passed with ten actual guarded
+child-runtime records: three peers, ACCEPT, total 117.00, environment REQUALIFY,
+withdrawal REJECT, and live PostgreSQL/OPA doctor checks. It generated no model
+requests. These targeted checks establish the correction; they do not replace
+the full candidate matrix.
