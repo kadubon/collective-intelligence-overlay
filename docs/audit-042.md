@@ -198,3 +198,26 @@ check, not completed-cohort performance analysis. Occasional local validation
 and Git activity ran on the same host during calibration. The pilot is therefore
 not a controlled CPU-isolation timing experiment; owned-process samples and
 measured API usage remain distinct from unavailable complete compute/energy.
+
+The corrected import boundary subsequently passed the hosted quick gate on
+`667a443de94c01e12043792455702b07bdc1c34c` (run `37036702017`): 79 checks,
+zero errors/failures/skips in the original JUnit. The final native gate remains
+outstanding. Independent preconfirmation helpers now have 24 installed-identity,
+22 actual-state/missing-history and four renderer-boundary unit cases. They are
+not yet connected to the frozen pilot runtime. The 17-file state fixture retains
+the first completed E/M world summaries and immutable states verbatim, with
+archive SHA256 `ff1e744eb606fce42b46a5ea4cf83b2810942de792e45aae060ef275d3cb54d8`.
+Both completed arms passed the corrected diagnostic reader; M consumed 59 model
+attempts and 70,378 measured/charged tokens with no missing final usage. M's
+trained stock is empty, so its state intervention is nonidentifying.
+
+An isolated actual-wheel identity probe checked all 86 package files of the
+earlier representative candidate, including rejection of a changed installed
+file and a real `PYTHONPATH` source shadow. That candidate's source gate failed,
+so this probe is not final native or package-function validation; dependencies
+were intentionally not installed. The initial strict archive-info check rejected
+uv's actual local-wheel metadata. uv records the supplied SHA256 in the exact
+file URL fragment while leaving `archive_info` empty. The new helper accepts
+that explicit representation only for the declared local wheel, still compares
+every byte/import origin, and rejects missing/conflicting hashes. Both rejected
+observations are retained. No installer metadata was backfilled.

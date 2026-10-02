@@ -55,7 +55,7 @@ jobs:
       - run: uv run python scripts/check_docs.py
       - run: uv run python scripts/runtime_matrix.py --check-docs
       - run: uv run python scripts/check_gemma_report.py
-      - run: uv run pytest tests/unit/test_artifacts.py tests/unit/test_artifact_crash.py tests/unit/test_backup_minimum.py tests/unit/test_release_candidate.py tests/unit/test_release_gate.py tests/unit/test_publication_resume.py tests/unit/test_native_fault_profile.py tests/unit/test_gemma_public.py -q --junitxml=.local/quick-tests.xml
+      - run: uv run pytest tests/unit/test_artifacts.py tests/unit/test_artifact_crash.py tests/unit/test_backup_minimum.py tests/unit/test_release_candidate.py tests/unit/test_release_gate.py tests/unit/test_publication_resume.py tests/unit/test_native_fault_profile.py tests/unit/test_gemma_public.py tests/unit/test_gemma_candidate.py tests/unit/test_gemma_state.py tests/unit/test_accumulation_report.py -q --junitxml=.local/quick-tests.xml
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:

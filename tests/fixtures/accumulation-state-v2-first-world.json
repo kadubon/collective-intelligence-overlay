@@ -1,0 +1,29 @@
+{
+  "classification": "actual-completed-arm-state-fixture-not-cohort-performance",
+  "archive_sha256": "ff1e744eb606fce42b46a5ea4cf83b2810942de792e45aae060ef275d3cb54d8",
+  "original_file_sha256": {
+    "protocol.json": "890ee35832989e4fa36e590f4784b414912433612ff6c87590ce9221cfb85bcd",
+    "world-e72d6fd2bb3903cd1cf8-E/arm-result.json": "be388a474d202e1ceee1c9f98ed82e424edecbb042abfa5e0c97e84302df1734",
+    "world-e72d6fd2bb3903cd1cf8-E/final-stock.json": "2e3649b520bd88761538e79e602c007cbb6b6a122ee61bed9af38bab79b62bfe",
+    "world-e72d6fd2bb3903cd1cf8-E/initial-stock.json": "4dee133624c2b2ac02b95f44e9a58d04493b620e5ff6a755753a055f72f70c84",
+    "world-e72d6fd2bb3903cd1cf8-E/irrelevant-stock.json": "d46051f7c65452d0ace6334003fb64c620f279dc91612c52ca2bb2d8bdb15310",
+    "world-e72d6fd2bb3903cd1cf8-E/new-receiver-stock.json": "2e3649b520bd88761538e79e602c007cbb6b6a122ee61bed9af38bab79b62bfe",
+    "world-e72d6fd2bb3903cd1cf8-E/snapshot-0.json": "4dee133624c2b2ac02b95f44e9a58d04493b620e5ff6a755753a055f72f70c84",
+    "world-e72d6fd2bb3903cd1cf8-E/snapshot-3.json": "c156f420a18110cde46a77988609a1ee73bf4af14d5bc038f5cbfb73e2a5c747",
+    "world-e72d6fd2bb3903cd1cf8-E/snapshot-6.json": "2e3649b520bd88761538e79e602c007cbb6b6a122ee61bed9af38bab79b62bfe",
+    "world-e72d6fd2bb3903cd1cf8-M/arm-result.json": "396d64b721a73f6e34c6e551076185f07c8e03ee66c7e2ae37d3740140e0907f",
+    "world-e72d6fd2bb3903cd1cf8-M/final-stock.json": "448415d75ec6d776c1703bb53ee8b9252239db2d9c344ba89ad204f328e0a496",
+    "world-e72d6fd2bb3903cd1cf8-M/initial-stock.json": "99b66ffc6709b6fbb1672cb7145a2b44c0d41433fcf662b7eb5c1e73be92ba2e",
+    "world-e72d6fd2bb3903cd1cf8-M/irrelevant-stock.json": "9bd4521273ab404c97e4c6bcd82739056ffe0902f4e2c36937795d5436afeab7",
+    "world-e72d6fd2bb3903cd1cf8-M/new-receiver-stock.json": "448415d75ec6d776c1703bb53ee8b9252239db2d9c344ba89ad204f328e0a496",
+    "world-e72d6fd2bb3903cd1cf8-M/snapshot-0.json": "99b66ffc6709b6fbb1672cb7145a2b44c0d41433fcf662b7eb5c1e73be92ba2e",
+    "world-e72d6fd2bb3903cd1cf8-M/snapshot-3.json": "c8c69e6590cd2a64f2cbeac4d2c4f2de349916a26e7c5b489eaf366537156cbc",
+    "world-e72d6fd2bb3903cd1cf8-M/snapshot-6.json": "448415d75ec6d776c1703bb53ee8b9252239db2d9c344ba89ad204f328e0a496"
+  },
+  "completed_arm_original_diagnostics": [
+    "first-accumulation-arm-diagnostic-v1.json",
+    "first-memory-arm-diagnostic-v1.json"
+  ],
+  "raw_bytes_rewritten": false,
+  "network_or_inference_sent": false
+}
