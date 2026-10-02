@@ -17,7 +17,11 @@ These instructions describe **0.4.1**. Check the [release records](docs/releasin
 for actual publication, candidate hashes and validation status. The
 [0.4.1 audit and local Gemma experiment](docs/gemma-041.md) records its measured scope;
 the [0.4.0 production profile](docs/production-040.md) remains historical evidence.
-Before publication, install the reviewed candidate wheel instead of the PyPI command below.
+0.4.1 is published on [PyPI](https://pypi.org/project/collective-intelligence-overlay/0.4.1/).
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1) contains raw experiment/failure/native records and checksums.
+The fixed 30-pair Gemma assessment passed 180/180 heldout tasks per arm; B−A was 0
+at a ceiling, with no demonstrated adaptive advantage or equivalence.
+See the [nine-part report](docs/release-041-report.ja.md).
 
 ## What it provides
 
@@ -37,7 +41,7 @@ and [security](docs/security.md) for application scope, infrastructure trust and
 
 ## First run from the installed package
 
-Use Python **>=3.12** and [uv](https://docs.astral.sh/uv/). Measured 0.3.2 support covers
+Use Python **>=3.12** and [uv](https://docs.astral.sh/uv/). Measured 0.4.1 candidate support covers
 CPython 3.12.14/3.13.15/3.14.7 on Linux x86_64, Windows x86_64 and native macOS Intel/arm64.
 Future interpreters are not covered by those results. In a fresh directory, on Linux/macOS:
 
@@ -81,9 +85,12 @@ and import do not start services or download binaries.
 
 The `ollama` extra adds the public MAF local Ollama client. It requires an explicit
 loopback server and never pulls weights or selects a cloud fallback. The
-[Gemma experiment guide](docs/gemma-041.md) describes source-only execution and
-offline `verify` / `analyze` commands. Its five-pair pilot passed all 30 heldout
-tasks in both arms; this ceiling result establishes no adaptive quality advantage.
+[Gemma experiment guide](docs/gemma-041.md) describes execution from a clean installed package and
+offline `verify` / `analyze` commands. The separate five-pair pilot and 30-pair
+assessment both reached a ceiling. This establishes no adaptive quality advantage.
+Use already installed exact `gemma4:e4b` on a dedicated cloud-disabled loopback
+Ollama server; the measured CPU Q4_K_M profile used context 4096, one request at
+a time and about 8.51 GB peak runner working set. Weights are not downloaded by CIO.
 
 ## Register your application
 

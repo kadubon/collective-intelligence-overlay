@@ -1,7 +1,7 @@
 # 0.4.1 監査修正・ローカル Gemma 評価の実行記録
 
-更新時点では、実モデル評価とローカル回帰が完了し、修正候補の全 native/cross/mixed/ready CI が成功しました。
-v0.4.1 tag、GitHub Release、PyPI 公開、公開後 install は未実施です。
+実モデル評価、監査回帰、全 native/cross/mixed/ready、OIDC 公開、実 PyPI の通常 install、
+公開後検査と raw upload が完了しました。[実結果 JSON](release-041-results.json) が各 source と hash を記録します。
 原記録と否定的・失敗した試行は保持しています。
 
 ## 1. 監査 6 件
@@ -46,6 +46,7 @@ tag v0.4.0 との差分は package 22 files、追加 2,696 / 削除 156 physical
 候補 1fd790d の tracked Python physical lines（空行・comment 込み）は
 package 19,148、scripts 8,506、tests 19,731、examples 700 です。
 resolution は 535、tabular application は 884、observer は 245 lines。
+配布外の公開再開 guard は別に 137 Python physical lines、回帰は 159 lines。
 新 agent framework、workflow DSL、broker、暗号方式、共有 manager は作っていません。
 
 重い hosted 検証は以下の節目に分けました。通常 push は quick のみで、
@@ -56,6 +57,9 @@ hosted runner では model を実行・download していません。
 | [36962813882](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36962813882) | 代表 Linux checkpoint。488/489 source pass。古い理由文字列の期待が失敗。原本保持後に exact reason と actuator 拒否をローカル確認 |
 | [36965233400](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36965233400) | 初回 full。11 native は 489/489 source pass。Mac Intel 3.12 は pressure fixture で 488/489。旧 0.4.0 report identity も 0.4.1 を拒否。installed gate 未到達 |
 | [36973489591](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36973489591) | 版別 profile と実同期 prerequisite を修正した full。全体成功。12 native・4 cross・mixed・ready が通過。各 source 506、installed agents 500、model 1、Ollama 5、sdist 103、skip 0 |
+| [36984866375](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36984866375) | 初回 immutable tag。candidate は通過、ready の shallow checkout が元 ancestor を取得できず停止。publish 未実行 |
+| [36986961717](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36986961717) | 固定 tag・全原 gate の照合に成功。省略した native job の状態を公開 job が継承し publish skip。原記録保持 |
+| [36987219345](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36987219345) | 明示的な candidate・ready・quick 成功条件に修正した既存 workflow/pypi/OIDC。全体・publish 成功。同一 bytes、原 native gate、固定 tag、実 recovery engine を別々に束縛 |
 
 旧 profile の数値や失敗 report は変更していません。新 native profile も 19 injections、
 3 owners、120 秒以上・600 秒未満です。53 分かかった Intel source suite と installed suite を
@@ -65,6 +69,12 @@ aged-observation probe の UNKNOWN/released/admission_denied は無 dispatch で
 実署名同期後は UNKNOWN/held が既定 32 件で停止します。先行する待機 probe の timeout と
 key positive-control の freshness 失敗も別の原本として保持しています。
 local quick は 48 pass。53 JUnit 原本は反復を含み、独立な標本数とは扱いません。
+recovery guard と既存 gate の local 29 件も通過。実 depth-one clone の祖先欠落と、
+tag object を動かさない full fetch による解消、別 ref/actor/source/candidate 拒否を確認しました。
+初期からの quick は `36962814542`、`36963417802`、`36965233551`、`36965531468`、
+`36973489879`、`36984649137`、`36986834541`、`36987091988` の 8 回成功。
+重い hosted は代表 1 回と full 2 回。tag/再開で重い native/model は再実行せず、
+全報告 hash と元 successful run を照合しました。recovery engine は元 native source と別です。
 
 ## 4. 実 model / hardware
 
@@ -138,7 +148,9 @@ nested wall を加えて total とせず、欠測 currency をゼロにしてい
 公開用コピーは原署名、CAS、model request/response、source snapshot を維持し、
 unsigned metadata の必要な path/DSN 変換だけを original/public hash 表で記録しました。
 確認用 2,011 files の 2 files が加工対象です。原本・public copy の raw 検算が通っています。
-大きい raw と CI 失敗履歴は checksum 付き archive に準備済み、upload は未実施です。
+大きい raw と CI 失敗・成功履歴を [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1) に公開しました。
+3 ZIP は計 11,568 original file copies、unsigned metadata 359 files の変換、failure omission 0。
+全 manifest hash・ZIP CRC・path/privacy scan と、全 10 assets の実公開 download hash が一致します。
 weights、private key、operator home configuration は含めていません。
 
 ```sh
@@ -161,15 +173,22 @@ offline commands は推論を呼びません。Git の LF と Windows 原解析�
 0262c0b53c936b4e08173c2340539e86e101bff4f383f4fef2aa0ee8913f2a99  collective_intelligence_overlay-0.4.1.tar.gz
 ```
 
-現時点で v0.4.1 tag / Release / PyPI は存在しません。全必須 gate が通った後、
-元 run・source/tree・全 report・artifact hashes を束縛した manifest により、
-既存 workflow.yml / pypi / OIDC で同じ pair を公開します。公開成功とはまだ報告しません。
+固定 [v0.4.1 tag](https://github.com/kadubon/collective-intelligence-overlay/tree/v0.4.1) は
+`bda9e16faeb536b705fd0659e8ca3469941d9f1e`、annotated object は `5e8fd5525db52acaa0d93cea9845e3a232672ca9`。
+実公開 engine は `91f9a802b50ef81e8cda77ceb89d12ee63e1f772`、[OIDC run](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36987219345) は成功。
+元 validation code は変更のない tag から実行し、実 workflow engine の commit/tree/hash は別 provenance です。
+[PyPI 0.4.1](https://pypi.org/project/collective-intelligence-overlay/0.4.1/) と
+[Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1) の両配布物は上の値に一致しました。
+Windows 3 stable minor の clean no-cache/no-config PyPI install は各 unit 113、model SDK 1、
+Ollama SDK 5、sdist 114 件で failure/error/skip 0。12 environments は公開 root を含む監査・license・SBOM を通過。
+最初の 3.12 index 解決が新しい版を取得できない失敗も保持し、同条件の新規 v2 は通過しました。
+別の通常 PyPI install は全 85 package files が wheel に一致し、実サービス 3 process demo は
+ACCEPT / REQUALIFY / REJECT、heldout `117.00`。配布のための再 build・tag 移動・保護設定変更はありません。
 歴史的 v0.4.0 tag・公開物・否定結果・失敗原本は変更していません。
 
 ## 9. 未実施・残存制約
 
-全 native/installed/cross 最終候補承認は完了。OIDC 公開、実 PyPI の no-cache install/hash/audit、
-Release upload は待ち状態です。新 package の実外部監査、長期 0.4.1 soak、
+宣言した監査・実験・配布の完了に必要な外部権限の待ちはありません。新 package の実外部監査、長期 0.4.1 soak、
 複数独立組織、電源断保証、GPU/別 backend での Gemma 再評価、一般的集団知能相は未実施。
 初回 v0.4.0 duplicate-soak と original Mac fault 応答の厳密な根本原因は未確定です。
 local aged-source probe は後者と整合する条件を再現しましたが、失われた応答を補完しません。

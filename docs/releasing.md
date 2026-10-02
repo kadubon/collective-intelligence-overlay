@@ -1,6 +1,48 @@
 # Release procedure and current state
 
-## 0.4.1 milestone workflow (candidate)
+## 0.4.1 published and verified on 2026-10-02
+
+[PyPI 0.4.1](https://pypi.org/project/collective-intelligence-overlay/0.4.1/),
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1)
+and [actual numerical/provenance results](release-041-results.json) are complete.
+The immutable annotated tag remains `bda9e16faeb536b705fd0659e8ca3469941d9f1e`
+(object `5e8fd5525db52acaa0d93cea9845e3a232672ca9`). Actual OIDC publication is
+[36987219345](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36987219345),
+whose separately recorded engine is `91f9a802b50ef81e8cda77ceb89d12ee63e1f772`.
+The earlier tag run failed before publication; the first recovery run
+[36986961717](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36986961717)
+passed candidate/ready but inherited skipped native dependency state and skipped
+publish. The successful recovery requires explicit successful candidate, ready
+and quick jobs. Neither attempt changed the tag, package or original full gate.
+
+Actual PyPI metadata and downloaded bytes match the original measured pair:
+
+| File | SHA256 |
+| --- | --- |
+| `collective_intelligence_overlay-0.4.1-py3-none-any.whl` | `2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9` |
+| `collective_intelligence_overlay-0.4.1.tar.gz` | `0262c0b53c936b4e08173c2340539e86e101bff4f383f4fef2aa0ee8913f2a99` |
+
+Fresh normal no-cache/no-config PyPI installs on Windows CPython
+3.12.14/3.13.15/3.14.7 pass 113 agents unit, one model SDK, five Ollama SDK and
+114 rebuilt-sdist cases per interpreter, with zero failures/errors/skips. Twelve
+separate installed core/agents/model/Ollama environments include the published
+root in advisory audits and pass license review/SBOM generation. The first 3.12
+resolver could not see the new version; its original log is retained and the
+fresh same-condition v2 succeeds. Its exact index edge cause remains unproven.
+A separate normal PyPI installation matches all 85 package files and passes the
+real PostgreSQL/OPA/MCP/A2A three-process reference demo. These postpublication
+checks do not rerun the full native matrix or model experiment.
+
+All ten Release assets were downloaded from their public URLs and match their
+recorded SHA256, including the three raw/failure/native-publication ZIPs,
+original wheel/sdist, licenses/provenance, collection manifest and checksums.
+There are 11,568 retained original file copies, 359 transformed unsigned metadata
+files and zero omitted failure records; copies and nested receipts are not
+independent samples. No weights, private keys or operator configs are published.
+[The Japanese nine-part report](release-041-report.ja.md) records the zero primary
+contrast at a ceiling and wider scientific/operational limits.
+
+## 0.4.1 milestone and immutable publication procedure
 
 Ordinary main pushes and pull requests run lightweight formatting, typing,
 documentation and focused local-boundary tests. Dispatch `workflow.yml` with

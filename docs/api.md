@@ -5,8 +5,9 @@
 
 ## 0.3.2: bounded invocation cleanup
 
-The 0.4.1 candidate adds the owner resolution path below. Its local audit and
-unverified release/native scope are recorded in [audit status](audit-041-status.json).
+Published 0.4.1 adds the owner resolution path below. Its completed audit/native
+and actual-index verification, with remaining limits, are recorded in
+[actual release results](release-041-results.json) and [audit status](audit-041-status.json).
 
 `InvocationStore.cleanup_expired(owner=..., limit=32, seconds=5, dry_run=False)`
 is an operator-local operation; owner must equal Store.owner. Bounds are 1–128

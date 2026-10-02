@@ -1,5 +1,12 @@
 # Implementation status
 
+Published 0.4.1 completes the six audit corrections, bounded MCP receiving,
+preregistered local Gemma assessment, full native candidate gates and same-byte
+OIDC/index/Release verification. See [the current audit register](audit-041-status.json)
+and [actual 0.4.1 results](release-041-results.json). The zero primary contrast at
+a ceiling does not establish adaptive superiority/equivalence. Wider operational
+limits and the historical 0.4.0 results below remain separate.
+
 0.4.0 is published and the predeclared permissioned single-owner profile passes.
 [Immutable tag CI / PyPA OIDC](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36911991678) and
 [cache-disabled actual-PyPI CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36922605705) are whole-workflow successful at `f3f6ae30de6f088c160e0c69f49796e4f52d2546`.

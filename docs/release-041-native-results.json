@@ -957,7 +957,7 @@
       "installed_tutorial_passed": true
     }
   ],
-  "native_installation_scope": "candidate wheel normal dependency resolution; prepublication root excluded from advisory audit only; actual postpublication root audit still pending",
+  "native_installation_scope": "Original prepublication native candidate resolution; unpublished root exclusion remains historical. Separate actual postpublication three-stable-Windows-interpreter root-inclusive audit results: release-041-results.json.",
   "real_ollama_inference_in_hosted_ci": false,
   "new_041_hour_soak": false,
   "cross_readers_passed": 4,

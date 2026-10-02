@@ -1,8 +1,9 @@
-# 0.4.1 audit and local-model work in progress
+# 0.4.1 completed audit, local-model assessment and publication
 
-This page describes observed candidate behavior. 0.4.1 is not yet
-published; its corrected full native/cross/mixed/ready validation is complete,
-while OIDC publication, actual-index checks and public raw upload remain pending.
+0.4.1 is published with its measured immutable pair. Corrected full native/cross/
+mixed/ready validation, OIDC publication, actual-index checks and public raw upload
+are complete; [actual results](release-041-results.json) identify each source and
+workflow separately. [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1) retains all selected raw failure/success records.
 The preregistered A/B assessment is complete. The historical 0.4.0 release,
 signed originals and failed formal run are unchanged. The machine-readable
 [status and original-attempt catalog](audit-041-status.json) is the current
@@ -107,9 +108,9 @@ available; local API charge zero does not mean zero compute or energy cost.
 The optional packages are `agent-framework-ollama==1.0.0b260813` and
 `ollama==0.5.3`, both MIT. Existing MAF core 1.19.0 remains locked. Five HTTP
 test-double instrumentation tests are separately labelled; they are not Gemma
-data. Raw `/api/show` includes third-party calibration paths and remains private
-pending a documented original/public hash and path redaction. Weights are not
-part of the code, wheel or planned result assets; model license metadata is
+data. Raw `/api/show` includes third-party calibration paths; its public copy
+redacts those unsigned paths with original/public hashes while preserving the
+private original. Weights are not part of the code, wheel or release assets; model license metadata is
 tracked separately from code Apache-2.0 and dataset/output provenance.
 
 ## Commands and sources
@@ -127,7 +128,7 @@ dispatch; partial raw streams and host validation are separate files. This
 command performs real local inference and is not the API-key-free deterministic
 unit/demo command. The [task guide](gemma-041.md) documents completed pilot and
 offline analysis commands. Preregistered assessment is complete; raw assets are
-prepared separately from originals and await the release gate and upload.
+published separately from originals with redaction/checksum manifests in [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1).
 
 ## Native candidate checkpoint
 
@@ -137,7 +138,7 @@ failed. Eleven native profiles passed all 489 source tests; Mac Intel/Python
 3.12.14 passed 488 and failed the combined host pressure fault case. No mandatory
 source test was skipped. The other eleven jobs then failed because the report
 generator/validator bound actual 0.4.1 to historical 0.4.0 profile identity.
-Installed-artifact gates were not reached; the candidate is not release approved.
+Installed-artifact gates were not reached; that original run did not approve publication.
 All twelve original artifacts and complete workflow logs are retained.
 
 A distinct [0.4.1 native fault profile](profiles/native-fault-041.json) preserves

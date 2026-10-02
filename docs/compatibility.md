@@ -1,11 +1,12 @@
 # Compatibility and licensing
 
-The 0.4.1 working candidate is not yet published. Audit changes add Event v5
+0.4.1 is published; [actual results](release-041-results.json) bind its immutable
+tag, same measured wheel/sdist, OIDC workflow and public records. Audit changes add Event v5
 owner resolution and migration 0021 without rewriting v1–v4 DSSE or historical
 UNKNOWN/allowance. The additive projection starts empty and offline migration is
 required before a new owner service uses it. Rolling interoperability is not
-claimed. [Audit status](audit-041.md) distinguishes completed local/full candidate
-validation from pending OIDC publication and actual-index checks. All twelve
+claimed. [Audit status](audit-041.md) distinguishes original native candidate
+validation from the completed publication and postpublication unit/provider checks. All twelve
 native profiles, four cross readers, mixed Python and the hash-bound ready gate
 pass in [run 36973489591](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36973489591).
 The [new native numerical records](release-041-native-results.json) concern 0.4.1;

@@ -1,6 +1,14 @@
 # Changelog
 
-## 0.4.1 (candidate)
+## 0.4.1 (2026-10-02)
+
+- Publish the measured immutable pair via the existing OIDC workflow after all
+  twelve native candidate profiles, cross readers and mixed Python pass. Preserve
+  the initial shallow-checkout failure and skipped-publisher recovery, then bind
+  the successful recovery engine separately from the unchanged tag/native gate.
+  Actual PyPI hashes, three stable Windows interpreter installs, twelve root-inclusive
+  audits and all ten public Release asset downloads pass. Raw experiment and failure
+  records are available with checksums in the release; see `docs/release-041-results.json`.
 
 - Validate normal and reconciled A2A responses against the saved outbound request;
   keep original caller, actor and administrative owner distinct across delegation.

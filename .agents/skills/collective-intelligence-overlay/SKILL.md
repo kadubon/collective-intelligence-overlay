@@ -195,7 +195,7 @@ contract, and refused choices preserve the old binding. Follow the API's explici
 input/pin/comparison fields. Check the linked current results before claiming an
 installed candidate's native or production support.
 
-For the 0.4.1 candidate, use `--original-caller` to select delegated C-origin work
+For published 0.4.1, use `--original-caller` to select delegated C-origin work
 inside owner B without granting C access to B's history. Saved-ID lookup reads
 original mappings after binding changes; it grants no execution or retry. A child
 effect observation cannot close the whole parent. The owner may use the installed
@@ -215,6 +215,7 @@ a dedicated cloud-disabled server. Check actual resident/backend observations;
 localhost alone is insufficient. Preserve request intent before sending, raw
 response, host validation and all failure/partial usage records. Missing final
 usage keeps its conservative reservation; model self-evaluation creates no PASS.
-Separate the model, code and output licenses. The local smoke and outstanding
-pilot/comparison/release work are in [audit status](../../../docs/audit-041.md);
+Separate the model, code and output licenses. Completed pilot/comparison and
+publication records, negative/ceiling results and limits are in
+[audit status](../../../docs/audit-041.md) and [actual release results](../../../docs/release-041-results.json);
 do not treat connection or HTTP success as completed comparative evidence.

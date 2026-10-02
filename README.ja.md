@@ -15,8 +15,10 @@ hostとDBの管理者を信頼する構成です。
 この手順は**0.4.1**を対象にしています。実際の公開状態、candidateのhash、検証状況は
 [公開記録](docs/releasing.md)、測定範囲は[0.4.1監査・Gemma実験](docs/gemma-041.md)
 で確認してください。[0.4.0本番profile](docs/production-040.md)は過去の証拠として保持します。
-公開前は、下のPyPIコマンドの代わりにレビュー済みcandidate wheelを
-installします。
+0.4.1は[PyPI](https://pypi.org/project/collective-intelligence-overlay/0.4.1/)公開済みです。
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1)に実験・失敗・native検証の原記録とchecksumがあります。
+固定30 paired episodesでは両条件ともheldout 180/180、主差B−Aは天井で0でした。
+適応方式の優位や同等性は確認できていません。[9項目報告](docs/release-041-report.ja.md)を参照してください。
 
 ## 提供する機能
 
@@ -35,7 +37,7 @@ installします。
 
 ## install済みpackageでの初回実行
 
-Python **>=3.12**と[uv](https://docs.astral.sh/uv/)を使います。0.3.2の実測対象は
+Python **>=3.12**と[uv](https://docs.astral.sh/uv/)を使います。0.4.1候補の実測対象は
 CPython 3.12.14・3.13.15・3.14.7と、Linux x86_64、Windows x86_64、native macOS Intel・arm64
 です。将来のinterpreterまで検証したという意味ではありません。
 新しいdirectoryで、Linux・macOSでは次を実行します。
@@ -78,9 +80,11 @@ coreはrecord・policy・CLI、`agents` extraはMAF・MCP・A2A連携、`model` 
 PostgreSQLとOPAは外部要件です。install・importでservice起動やbinary downloadをしません。
 
 `ollama` extraは公開MAFのlocal Ollama clientを追加します。明示したloopback serverを使い、
-weightsのpullやcloudへのfallbackは行いません。[実験手順](docs/gemma-041.md)にはsourceからの
-実行と、推論を呼ばない`verify`・`analyze`を記載しています。5組のpilotでは両条件とも
-heldout課題30件中30件に成功しました。この天井結果は適応方式の品質上の優位を示しません。
+weightsのpullやcloudへのfallbackは行いません。[実験手順](docs/gemma-041.md)にはclean installからの
+実行と、推論を呼ばない`verify`・`analyze`を記載しています。別の5組pilotと固定30組評価は
+ともに天井で、適応方式の品質上の優位を示しません。exact `gemma4:e4b`を準備し、専用の
+cloud-disabled Ollama loopback serverを使います。測定したCPU Q4_K_M構成はcontext 4096、
+推論並列1、runnerの観測peak working set約8.51 GBです。CIOはweightsをdownloadしません。
 
 ## 自分のアプリケーションを登録する
 

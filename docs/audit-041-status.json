@@ -1,7 +1,7 @@
 {
   "schema_version": "1",
   "candidate_version": "0.4.1",
-  "status": "in_progress",
+  "status": "complete_declared_audit_model_native_publication_scope",
   "baseline": {
     "tag_commit": "f3f6ae30de6f088c160e0c69f49796e4f52d2546",
     "starting_main": "4f96cf9519dd48ea2474b7319c9a15256a8e8080",
@@ -32,7 +32,7 @@
     {
       "id": "CIO-040-05",
       "status": "local_and_all_native_source_installed_regression_passed",
-      "evidence": "Native Windows ten kill/lock/capacity/quarantine/symlink cases; Linux actual crash plus pg_dump/pg_restore pass. Native Mac release checks pending. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
+      "evidence": "Native Windows ten kill/lock/capacity/quarantine/symlink cases; Linux actual crash plus pg_dump/pg_restore pass. Native Mac checks were pending at that local checkpoint; they subsequently passed. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
     },
     {
       "id": "CIO-040-06",
@@ -57,7 +57,7 @@
     {
       "id": "C-Ollama-observer",
       "status": "real_connection_smoke_complete",
-      "evidence": "Dedicated cloud-disabled Ollama 0.35.0, exact gemma4:e4b digest, actual CPU resident. Public MAF/native SDK observer and ten actual inference/API probes executed; original metadata retained and separate path-redacted public copies prepared with original/public hash maps; upload pending."
+      "evidence": "Dedicated cloud-disabled Ollama 0.35.0, exact gemma4:e4b digest, actual CPU resident. Public MAF/native SDK observer and ten actual inference/API probes executed; original metadata retained and separate path-redacted public copies published with original/public hash maps in the immutable 0.4.1 Release."
     },
     {
       "id": "D-smoke-pilot-freeze-preregister-comparison",
@@ -66,13 +66,13 @@
     },
     {
       "id": "E-originals-analysis-docs-publication",
-      "status": "analysis_verified_public_assets_prepared_upload_pending",
-      "evidence": "Original and public-copy raw verification passed; 2011 original confirmation files/two unsigned metadata transformations, zero omitted failures. Difference 0, degenerate paired 95% CI [0,0], p=1; ceiling prevents equivalence. Adaptive used 17 more generated tokens and longer secondary wall. GitHub/PyPI publication awaits native gate."
+      "status": "complete_analysis_verified_all_raw_and_failure_assets_published",
+      "evidence": "Original and public-copy raw verification passed; 2011 original confirmation files/two unsigned metadata transformations, zero omitted failures. Difference 0, degenerate paired 95% CI [0,0], p=1; ceiling prevents equivalence. Adaptive used 17 more generated tokens and longer secondary wall. GitHub/PyPI publication and all ten actual public downloads verified; 11568 original file copies, 359 unsigned metadata transformations and no omitted failure records."
     },
     {
       "id": "F-final-requirement-audit",
-      "status": "oidc_publication_actual_index_install_and_asset_upload_pending",
-      "evidence": "Local model assessment and all candidate gates complete; actual publication/postpublication checks/assets remain pending."
+      "status": "complete_declared_audit_model_native_publication_scope",
+      "evidence": "Local audit and fixed model assessment, original full native gates, immutable-tag OIDC publication 36987219345, actual index bytes/three stable interpreter installations/twelve root-inclusive audits, real service demo and public raw assets complete. Scientific/operational limitations remain explicit in release-041-results.json."
     }
   ],
   "local_environment_observations": {
@@ -122,16 +122,23 @@
     }
   ],
   "publication": {
-    "tag_041_exists": false,
-    "pypi_041_exists": false,
-    "published_this_task": false
+    "tag_041_exists": true,
+    "pypi_041_exists": true,
+    "published_this_task": true,
+    "release_041_exists": true,
+    "publication_run_id": "36987219345",
+    "actual_public_downloads_verified": 10,
+    "actual_index_audits_including_root": 12,
+    "same_measured_pair": true,
+    "tag_moved": false,
+    "results": "release-041-results.json"
   },
   "limits": [
-    "Corrected pilot, preregistered fixed assessment and full native/cross/mixed/ready candidate validation complete; OIDC publication, actual-index checks and Release upload pending.",
+    "Declared pilot, preregistered fixed assessment, full native gates, OIDC publication, actual-index verification and public raw upload completed; scientific and wider operational limits remain.",
     "Original 0.4.0 formal failure, release assets and signed records remain unchanged.",
     "Matching responses are not truth; provider fingerprint format is not equality to unexposed request fields.",
     "Owner resolution is historical disposition, not quality admission/refund/reexecution; whole-query physical/effect inventory is application-trusted.",
-    "Original local files remain unchanged. Separate shareable copies retain original/public hashes and documented unsigned-metadata path/DSN transformations; Release upload remains pending."
+    "Original files remain unchanged. Separate published copies retain original/public hashes and documented unsigned-metadata transformations; failure omissions 0."
   ],
   "local_original_junit_catalog": [
     {
@@ -1061,6 +1068,48 @@
       "cross_readers": 4,
       "mandatory_skips": 0,
       "model_inference_requests": 0
+    },
+    {
+      "run_id": "36973489879",
+      "purpose": "candidate-source quick",
+      "conclusion": "success",
+      "new_model_or_native_samples": 0
+    },
+    {
+      "run_id": "36984649137",
+      "purpose": "native-results documentation quick",
+      "conclusion": "success",
+      "new_model_or_native_samples": 0
+    },
+    {
+      "run_id": "36984866375",
+      "purpose": "immutable tag; shallow ready ancestry failed before publisher",
+      "conclusion": "failure",
+      "new_model_or_native_samples": 0
+    },
+    {
+      "run_id": "36986834541",
+      "purpose": "recovery-engine guard quick",
+      "conclusion": "success",
+      "new_model_or_native_samples": 0
+    },
+    {
+      "run_id": "36986961717",
+      "purpose": "recovery candidate/ready passed; publisher skipped",
+      "conclusion": "success",
+      "new_model_or_native_samples": 0
+    },
+    {
+      "run_id": "36987091988",
+      "purpose": "publication dependency-condition quick",
+      "conclusion": "success",
+      "new_model_or_native_samples": 0
+    },
+    {
+      "run_id": "36987219345",
+      "purpose": "immutable-tag OIDC resume; original full native gate and same bytes",
+      "conclusion": "success",
+      "new_model_or_native_samples": 0
     }
   ],
   "preregistered_assessment": {
@@ -1087,7 +1136,7 @@
     "whole_run_elapsed_seconds": 3277.0687218999956,
     "model_or_control_changes_during_run": false,
     "source_failure_or_missing_usage_count": 0,
-    "publication_status": "native_gate_complete_oidc_publication_pending",
+    "publication_status": "same_measured_pair_published_and_actual_index_verified",
     "runtime_metadata": "66 locked installed distributions in retained runtime.json",
     "os_resource_scope": "185 late-start read-only point/lifetime samples; no full arm CPU, RAM or energy certification",
     "analysis": "docs/experiments/gemma-041/confirmation-v1/analysis.json",
@@ -1335,5 +1384,25 @@
         600
       ]
     }
+  },
+  "postpublication": {
+    "normal_index_interpreters": [
+      "3.12.14",
+      "3.13.15",
+      "3.14.7"
+    ],
+    "profiles": 12,
+    "tests_per_interpreter": {
+      "agents_unit": 113,
+      "model_sdk": 1,
+      "ollama_sdk": 5,
+      "rebuilt_sdist": 114
+    },
+    "failures_errors_skips": 0,
+    "real_service_demo": "passed; 85 installed files match wheel",
+    "initial_index_visibility_failure_preserved": true,
+    "raw_original_file_copies": 11568,
+    "transformed_unsigned_metadata_files": 359,
+    "omitted_failure_records": 0
   }
 }

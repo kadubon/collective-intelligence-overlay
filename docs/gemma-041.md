@@ -2,7 +2,8 @@
 
 Status: corrected-treatment five-pair pilot and preregistered 30-pair assessment
 complete; original and public-copy offline verification passed. Corrected native
-candidate validation and 0.4.1 publication remain pending. These results do not
+candidate validation, OIDC publication and actual-index verification are complete.
+See [actual release results](release-041-results.json) and [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1). These results do not
 replace the [audit register](audit-041.md) or historical 0.4.0 measurements.
 
 ## What is tested
@@ -229,9 +230,12 @@ snapshots; they are not quietly relabeled successful pilot pairs. The first offl
 pilot verification failed because concurrent monitoring completion order was
 mistaken for dispatch order; a corrected verifier checks unique contiguous IDs
 without changing the raw journal. Original failed verification is retained.
-Public raw asset locations and redaction/checksum records will be added after
-candidate publication; no weights, private keys or private home configuration
-belong in those assets.
+Public raw assets and original/public redaction hashes are in [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1).
+Download `cio-041-gemma-raw-v1.zip`; after extraction, `confirmation-v1` is the
+assessment run directory for offline `verify` / `analyze`. The two other ZIPs retain
+audit/CI failures and successful native/publication/post-installation records.
+Check `SHA256SUMS.txt` and `COLLECTION_MANIFEST.json`. No weights, private keys or
+private home configuration belong in these assets.
 
 The first corrected-treatment launch (pilot-v2) failed before inference because
 its server-log argument was wrong; the distinct retry pilot-v3 completed all

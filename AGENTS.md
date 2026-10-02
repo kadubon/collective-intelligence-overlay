@@ -58,7 +58,10 @@ responses or repeat the complete native soak/matrix. Reuse of CI artifacts needs
 trusted repo/workflow/source/tree/lock/toolchain and exact wheel/sdist hashes;
 changes to tests, policies or protocols invalidate affected evidence. Preserve
 existing protected publishing settings. See `docs/audit-041-status.json` for what
-has actually run; this instruction does not mark the candidate released.
+has actually run. 0.4.1 publication and actual-index results are in
+`docs/release-041-results.json`; preserve the tag, original gate and experiment.
+The narrowly declared main recovery workflow has separate engine provenance.
+Never treat its source changes as new native/model evidence or republish 0.4.1.
 Real local-model work uses a dedicated cloud-disabled loopback server, explicit
 model/digest/options and finite aggregate token/wall budgets. Preserve every raw
 attempt, including invalid, censored and negative results; never rerun for a

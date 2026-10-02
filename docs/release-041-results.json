@@ -1,0 +1,436 @@
+{
+  "schema_version": "1",
+  "version": "0.4.1",
+  "status": "published_and_declared_verification_complete",
+  "repository": "https://github.com/kadubon/collective-intelligence-overlay",
+  "package_candidate_source_commit": "1fd790d6c777841c37a142f1f5a16a4d3ce6e6a5",
+  "tag": "v0.4.1",
+  "tag_object": "5e8fd5525db52acaa0d93cea9845e3a232672ca9",
+  "tag_commit": "bda9e16faeb536b705fd0659e8ca3469941d9f1e",
+  "native_candidate_run_id": "36973489591",
+  "native_profiles_passed": 12,
+  "cross_readers_passed": 4,
+  "mixed_python_passed": true,
+  "publication_run_id": "36987219345",
+  "publication_run_url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36987219345",
+  "publication_engine": {
+    "actual_declaration_sha256": "88bcf3ee0c9b9e6cc609263d2022a03606d0cf1ca9707b6c8792f44e891ef083",
+    "actual_engine_source_commit": "91f9a802b50ef81e8cda77ceb89d12ee63e1f772",
+    "actual_engine_source_tree": "05fc3d2a90ff3e541f87738d8e82cf4fbc5b1c3b",
+    "actual_engine_workflow_sha256": "cc399c4165d8fc879846babf0ffa785899eccc80490622be32b9acfae1432a3c",
+    "actual_event": "workflow_dispatch",
+    "actual_ref": "refs/heads/main",
+    "actual_run_id": "36987219345",
+    "actual_selector_sha256": "b4d8eda564deb5207b23570e44d7fe6e0840927454e028b2e277e43523ff6cc4",
+    "id": "cio-041-immutable-publication-resume-v1",
+    "immutable_tag_commit": "bda9e16faeb536b705fd0659e8ca3469941d9f1e",
+    "immutable_tag_object": "5e8fd5525db52acaa0d93cea9845e3a232672ca9",
+    "new_native_or_model_samples": 0,
+    "original_candidate_run_id": "36973489591",
+    "original_gate_sha256": "1c0ed1dae45efaea7db9b0eb9639bedf90c5396659481e7d4b931fb66e113072",
+    "repository": "kadubon/collective-intelligence-overlay",
+    "tagged_validation_sources_changed": false
+  },
+  "initial_tag_run_id": "36984866375",
+  "initial_tag_conclusion": "failure_before_publish",
+  "first_resume_run_id": "36986961717",
+  "first_resume_publisher": "skipped; candidate/ready passed",
+  "pypi_url": "https://pypi.org/project/collective-intelligence-overlay/0.4.1/",
+  "pypi_files": [
+    {
+      "filename": "collective_intelligence_overlay-0.4.1-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/30/27/221324ca787cd74d4ea17d52b07e920f10810d8769f14f86fa7bb3963e40/collective_intelligence_overlay-0.4.1-py3-none-any.whl",
+      "upload_time_iso_8601": "2026-10-02T09:01:10.780585Z",
+      "size": 252192,
+      "sha256": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9"
+    },
+    {
+      "filename": "collective_intelligence_overlay-0.4.1.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/1a/ef/c9a55db7b5a00db76a08afb397b582238d2fab1864045c3c1914126727a9/collective_intelligence_overlay-0.4.1.tar.gz",
+      "upload_time_iso_8601": "2026-10-02T09:01:12.382652Z",
+      "size": 199973,
+      "sha256": "0262c0b53c936b4e08173c2340539e86e101bff4f383f4fef2aa0ee8913f2a99"
+    }
+  ],
+  "pypi_index_original_sha256": "fddc908d4aaee68e82f3c6d34eee3795b6529a1b26c37b3897ee8a60903498a6",
+  "downloaded_artifacts": {
+    "collective_intelligence_overlay-0.4.1-py3-none-any.whl": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+    "collective_intelligence_overlay-0.4.1.tar.gz": "0262c0b53c936b4e08173c2340539e86e101bff4f383f4fef2aa0ee8913f2a99"
+  },
+  "same_experiment_artifacts": true,
+  "rebuild_for_publication": false,
+  "tag_moved": false,
+  "postpublication_profiles": [
+    {
+      "python": "3.12.14",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "core",
+      "resolved_distributions": 31,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "2ff34cab6799c11da338b85322ae27d68e69a33fe972235a72e2acbc9e917997",
+      "original_audit_sha256": "3ba0a7e8b4ef77912d628fa5257db3bd8e407e490a7634861113083b392cf1ce"
+    },
+    {
+      "python": "3.12.14",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents",
+      "resolved_distributions": 64,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "2ff34cab6799c11da338b85322ae27d68e69a33fe972235a72e2acbc9e917997",
+      "original_audit_sha256": "79c6320390d644df6a31db78389876c1d2907f062be33b34447a4da02e129e3c",
+      "tests": {
+        "tests": 113,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.12.14",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents-model",
+      "resolved_distributions": 67,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "2ff34cab6799c11da338b85322ae27d68e69a33fe972235a72e2acbc9e917997",
+      "original_audit_sha256": "14e1b9d823566bad72094aa4d8340ac8f7bbec5c711a69da263678b647b3b397",
+      "tests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "sdist_tests": {
+        "tests": 114,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.12.14",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents-ollama",
+      "resolved_distributions": 66,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "2ff34cab6799c11da338b85322ae27d68e69a33fe972235a72e2acbc9e917997",
+      "original_audit_sha256": "dfcaf2fbcc31b095115f30351b5708a18b86f562fcf513775e71558932e3c4e5",
+      "tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.13.15",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "core",
+      "resolved_distributions": 31,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "fb4170b0b817716edb309955eaed5377f0792a3fac70688c31d13320d240caa0",
+      "original_audit_sha256": "3ba0a7e8b4ef77912d628fa5257db3bd8e407e490a7634861113083b392cf1ce"
+    },
+    {
+      "python": "3.13.15",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents",
+      "resolved_distributions": 60,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "fb4170b0b817716edb309955eaed5377f0792a3fac70688c31d13320d240caa0",
+      "original_audit_sha256": "3fde55f08b98f34ede848d2eaf611298a2cfe6222f203f4301cdd34d1472f065",
+      "tests": {
+        "tests": 113,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.13.15",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents-model",
+      "resolved_distributions": 64,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "fb4170b0b817716edb309955eaed5377f0792a3fac70688c31d13320d240caa0",
+      "original_audit_sha256": "ad11f7138371adb51089c033cf61397544f18d9bf0227fb5cbd010b14a640ce5",
+      "tests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "sdist_tests": {
+        "tests": 114,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.13.15",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents-ollama",
+      "resolved_distributions": 62,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "fb4170b0b817716edb309955eaed5377f0792a3fac70688c31d13320d240caa0",
+      "original_audit_sha256": "0e3e44e27c278f7d00b5f818bbb36890329f7e73e4ae7faa8fd680c4d1584717",
+      "tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.14.7",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "core",
+      "resolved_distributions": 31,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "f51e5802a9218d2450a6a7721f11b27fbcf350f780619e45beabf3e7242163ce",
+      "original_audit_sha256": "3ba0a7e8b4ef77912d628fa5257db3bd8e407e490a7634861113083b392cf1ce"
+    },
+    {
+      "python": "3.14.7",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents",
+      "resolved_distributions": 60,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "f51e5802a9218d2450a6a7721f11b27fbcf350f780619e45beabf3e7242163ce",
+      "original_audit_sha256": "3fde55f08b98f34ede848d2eaf611298a2cfe6222f203f4301cdd34d1472f065",
+      "tests": {
+        "tests": 113,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.14.7",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents-model",
+      "resolved_distributions": 64,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "f51e5802a9218d2450a6a7721f11b27fbcf350f780619e45beabf3e7242163ce",
+      "original_audit_sha256": "ad11f7138371adb51089c033cf61397544f18d9bf0227fb5cbd010b14a640ce5",
+      "tests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "sdist_tests": {
+        "tests": 114,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.14.7",
+      "os": "Windows",
+      "architecture": "AMD64",
+      "profile": "agents-ollama",
+      "resolved_distributions": 62,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "license_review": "passed",
+      "sbom": "retained",
+      "original_package_report_sha256": "f51e5802a9218d2450a6a7721f11b27fbcf350f780619e45beabf3e7242163ce",
+      "original_audit_sha256": "0e3e44e27c278f7d00b5f818bbb36890329f7e73e4ae7faa8fd680c4d1584717",
+      "tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "root_inclusive_normal_index_audits": 12,
+  "postpublication_scope": "Three stable Windows interpreters; unit/provider/sdist checks and one real local three-process service demo. Full native gates remain original prepublication evidence; not a second postpublication native matrix.",
+  "normal_index_initial_failure": "First 3.12.14 index resolver did not see newly published 0.4.1; original log retained, fresh identical-condition attempt v2 passed. Exact cause unproven.",
+  "network_smoke": {
+    "status": "passed",
+    "installation": "normal-PyPI-no-cache-no-config",
+    "inference_requests": 0,
+    "wheel_sha256": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+    "installed_package_files_identical": 85,
+    "scope": "actual PostgreSQL/OPA/MCP/A2A three-process deterministic reference; not a model rerun"
+  },
+  "network_demo": {
+    "processes": 3,
+    "admission": "ACCEPT",
+    "held_out_result": "<p>Rows: 3; total: 117.00</p>",
+    "changed_environment": "REQUALIFY",
+    "after_dependency_revocation": "REJECT",
+    "claims": "deterministic interoperability demonstration; no intelligence-growth claim"
+  },
+  "release_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.1",
+  "release_id": 401673498,
+  "release_published_at": "2026-10-02T09:08:33Z",
+  "assets": [
+    {
+      "id": 605226807,
+      "name": "cio-041-audit-failure-history-v1.zip",
+      "size": 28809635,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/cio-041-audit-failure-history-v1.zip",
+      "sha256": "c256eccd9deaee815eb6b960f3afac54d5cb44f8a94d2ce8fae050f28608782c",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226799,
+      "name": "cio-041-gemma-raw-v1.zip",
+      "size": 27274031,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/cio-041-gemma-raw-v1.zip",
+      "sha256": "f7c6ead41ce3bab963ec159a2e5fc1462b18823d36daed601df0a8dfcf6ac921",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226805,
+      "name": "cio-041-native-publication-evidence-v1.zip",
+      "size": 33315913,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/cio-041-native-publication-evidence-v1.zip",
+      "sha256": "40387c4d536c753dc8f843afbb972b1b9c8ca2cfd5bb72d70be4dbcf24589225",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226781,
+      "name": "COLLECTION_MANIFEST.json",
+      "size": 2992,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/COLLECTION_MANIFEST.json",
+      "sha256": "8124c0ab270985fc70c0d5adbe385d8a55c8ceb5dfac8dbb8f8e0fca01a9f0b6",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226804,
+      "name": "collective_intelligence_overlay-0.4.1-py3-none-any.whl",
+      "size": 252192,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/collective_intelligence_overlay-0.4.1-py3-none-any.whl",
+      "sha256": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226803,
+      "name": "collective_intelligence_overlay-0.4.1.tar.gz",
+      "size": 199973,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/collective_intelligence_overlay-0.4.1.tar.gz",
+      "sha256": "0262c0b53c936b4e08173c2340539e86e101bff4f383f4fef2aa0ee8913f2a99",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226783,
+      "name": "LICENSE",
+      "size": 11358,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/LICENSE",
+      "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226784,
+      "name": "MODEL_LICENSE_AND_RECORD_PROVENANCE.txt",
+      "size": 2231,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/MODEL_LICENSE_AND_RECORD_PROVENANCE.txt",
+      "sha256": "afb092ad461c20c409ea3ba894aed864db7801ca5bb8cd6460d99baeed50c64e",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226779,
+      "name": "NOTICE",
+      "size": 181,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/NOTICE",
+      "sha256": "60cc264c3c2dea6aca4396e37e1c289ad5ffbaf8c8546a4ada55f4cd17c2ac96",
+      "actual_public_download_verified": true
+    },
+    {
+      "id": 605226782,
+      "name": "SHA256SUMS.txt",
+      "size": 888,
+      "browser_download_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/SHA256SUMS.txt",
+      "sha256": "eaeee3553bfe567bfca212f9191ea2286bdebadd66f3ba1490b6ad947ae086d4",
+      "actual_public_download_verified": true
+    }
+  ],
+  "archive_validation": {
+    "status": "verified",
+    "assets": {
+      "cio-041-gemma-raw-v1.zip": {
+        "sha256": "f7c6ead41ce3bab963ec159a2e5fc1462b18823d36daed601df0a8dfcf6ac921",
+        "zip_members": 3838,
+        "manifest_files_verified": 3825,
+        "mapped_originals": 3812,
+        "transformed_unsigned_metadata": 24,
+        "findings": []
+      },
+      "cio-041-audit-failure-history-v1.zip": {
+        "sha256": "c256eccd9deaee815eb6b960f3afac54d5cb44f8a94d2ce8fae050f28608782c",
+        "zip_members": 3836,
+        "manifest_files_verified": 3827,
+        "mapped_originals": 3818,
+        "transformed_unsigned_metadata": 137,
+        "findings": []
+      },
+      "cio-041-native-publication-evidence-v1.zip": {
+        "sha256": "40387c4d536c753dc8f843afbb972b1b9c8ca2cfd5bb72d70be4dbcf24589225",
+        "zip_members": 3954,
+        "manifest_files_verified": 3946,
+        "mapped_originals": 3938,
+        "transformed_unsigned_metadata": 198,
+        "findings": []
+      }
+    }
+  },
+  "raw_original_file_copies": 11568,
+  "transformed_unsigned_metadata_files": 359,
+  "omitted_failure_records": 0,
+  "new_native_or_model_samples_in_publication": 0,
+  "new_041_hour_soak": false,
+  "limits": [
+    "No adaptive superiority or equivalence established at the synthetic task ceiling.",
+    "No external audit, independent-organization deployment, power-loss guarantee, GPU/other-backend or general collective-phase certification.",
+    "Historical initial 0.4.0 duplicate-soak and original unretained Mac response root causes remain unproven."
+  ]
+}
