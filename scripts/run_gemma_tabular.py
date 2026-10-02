@@ -433,6 +433,18 @@ async def run(args):
     args.opa, args.caddy = args.opa.resolve(), args.caddy.resolve()
     output, home = args.output.resolve(), args.home.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    args.created_output = True
+    write_new(
+        output / "launch-intent.json",
+        {
+            "id": args.run_id,
+            "classification": args.classification,
+            "pairs": args.pairs,
+            "started_at": datetime.now(UTC).isoformat(),
+            "real_model_required": True,
+            "sources": source_hashes(),
+        },
+    )
     home.mkdir(parents=True, exist_ok=False)
     if 'msg="Ollama cloud disabled: true"' not in args.server_log.read_text(encoding="utf-8"):
         raise ValueError("dedicated cloud-disabled server evidence required")
@@ -601,7 +613,25 @@ def main():
     parser.add_argument("--preregistration", type=Path)
     parser.add_argument("--prereg-commit")
     parser.add_argument("--candidate-wheel", type=Path)
-    raise SystemExit(asyncio.run(run(parser.parse_args())))
+    args = parser.parse_args()
+    try:
+        result = asyncio.run(run(args))
+    except BaseException as error:
+        if getattr(args, "created_output", False):
+            write_new(
+                args.output / "termination.json",
+                {
+                    "completed": False,
+                    "classification": "retained_global_or_startup_failure",
+                    "error_type": type(error).__name__,
+                    "at": datetime.now(UTC).isoformat(),
+                    "inference_observation_files": len(
+                        list(args.output.glob("block-*/model/attempt-*/observation.json"))
+                    ),
+                },
+            )
+        raise
+    raise SystemExit(result)
 
 
 if __name__ == "__main__":

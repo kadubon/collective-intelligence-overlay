@@ -342,6 +342,8 @@ def verify_run(directory):
                         "reason": str(error)[:200],
                     }
                 )
+    if not any(e["dispatched_inference_requests"] for e in episodes):
+        errors.append("required real-model inference was not dispatched")
     return {
         "status": "verified" if not errors else "UNKNOWN",
         "protocol": protocol,

@@ -113,6 +113,15 @@ Public raw asset locations and redaction/checksum records will be added after
 candidate publication; no weights, private keys or private home configuration
 belong in those assets.
 
+The first corrected-treatment launch (pilot-v2) failed before inference because
+its server-log argument was wrong; the distinct retry pilot-v3 completed all
+offered arms but dispatched no model requests. Its clean peer processes could
+not import the then source-only observer. Both are retained as invalid
+zero-inference attempts, and offline verification reports UNKNOWN for pilot-v3.
+The observer is now a packaged public transport module, allowing the installed
+producer to record inference without implicit development PYTHONPATH settings.
+Further validation uses a new run ID and source hash.
+
 Code is Apache-2.0; Ollama and the optional MAF provider/Python client are MIT.
 The installed model's `/api/show` supplies Apache-2.0 text, also shown for the
 matching llama.cpp digest on the [official model page](https://ollama.com/library/gemma4:e4b).

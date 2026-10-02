@@ -831,11 +831,27 @@
     }
   ],
   "corrected_treatment_pilot": {
-    "status": "pending",
+    "status": "pending_after_retained_setup_failures",
     "static": "fixed goal order; current-goal-only observation and static allocation",
     "adaptive": "bounded full-goal shortage observation and adaptive allocation",
     "seeds": "pilot hidden86000+17block, practice5101+block, followup5201+block, model51000+11block, order51021",
-    "original_results_preserved": true
+    "original_results_preserved": true,
+    "attempts": [
+      {
+        "id": "pilot-v2",
+        "status": "wrong_server_log_argument",
+        "inference_requests": 0
+      },
+      {
+        "id": "pilot-v3",
+        "status": "completed_source_failure_missing_packaged_observer",
+        "offered_arm_episodes": 10,
+        "offered_tasks": 60,
+        "passed_tasks": 0,
+        "inference_requests": 0,
+        "offline_status": "UNKNOWN"
+      }
+    ]
   },
   "legacy_run_deadline_regression": {
     "original_batch": "audit-041-all-source-v1.xml",

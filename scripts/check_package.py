@@ -84,6 +84,7 @@ with zipfile.ZipFile(wheel) as archive:
         "starter/adaptive_documents.py",
         "starter/tabular.py",
         "adapters/ollama.py",
+        "adapters/inference_observer.py",
         "calls.py",
         "reobservation.py",
         "schemas/event.json",

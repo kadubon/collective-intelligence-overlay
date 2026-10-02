@@ -474,11 +474,10 @@ class TabularApplication:
         if opportunity.work_kind not in {"formation", "repair", "connection"}:
             return ProposalDrafts(alternatives=())
         # The LLM has no tools and sees no evaluator module, hidden inputs or seed.
-        from ollama_observer import (  # type: ignore[import-not-found]
+        from collective_intelligence_overlay.adapters.inference_observer import (
             RawInferenceTransport,
             write_new,
         )
-
         from collective_intelligence_overlay.adapters.ollama import local_ollama_client
 
         maximum = self.settings["model"]["token_budget"]

@@ -16,7 +16,7 @@
   public transport hooks in the pinned SDK. Preserve cancellation and UNKNOWN.
 - Add optional public MAF/Ollama integration and a finite tabular application whose
   actual model parameters determine executed primitives and MAF composition.
-  Source-only observer, paired harness and offline analysis retain original requests,
+  A packaged observer, source-only paired harness and offline analysis retain requests,
   responses, usage and signed execution records. Five-pair pilot quality difference
   is zero at a ceiling; preregistered confirmation and publication remain pending.
 - Apply the existing bounded goal-run deadline to retained reference aliases on

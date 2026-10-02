@@ -13,10 +13,10 @@ import pytest
 from agent_framework import Message
 from pydantic import BaseModel
 
+from collective_intelligence_overlay.adapters.inference_observer import RawInferenceTransport
 from collective_intelligence_overlay.adapters.ollama import local_ollama_client
 
 sys.path.insert(0, str(Path(__file__).parents[2] / "scripts"))
-from ollama_observer import RawInferenceTransport  # noqa: E402
 
 
 class Answer(BaseModel):
