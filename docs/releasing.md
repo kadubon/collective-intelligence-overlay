@@ -14,7 +14,8 @@ Hosted CI does not run Ollama or download model weights.
 
 The complete run retains candidate source/tree, lock, workflow/gate source and
 toolchain pins, original artifact hashes, and a hash-bound `release-gate` of all
-original reports. `docs/release-041.json` will record its trusted main run ID,
+original reports. [The completed full run](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36973489591)
+passed all required gates. `docs/release-041.json` records its trusted main run ID,
 source commit/tree, wheel/sdist hashes and gate file SHA256. The tag publication
 requires the original successful repository/workflow/main run with all twelve
 native jobs and four cross readers completed. It restores the unchanged bytes

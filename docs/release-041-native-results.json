@@ -1,0 +1,967 @@
+{
+  "status": "complete_trusted_full_candidate_native_cross_mixed_ready_validation",
+  "ci_run_id": "36973489591",
+  "ci_url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36973489591",
+  "candidate_source_commit": "1fd790d6c777841c37a142f1f5a16a4d3ce6e6a5",
+  "candidate_artifacts": {
+    "collective_intelligence_overlay-0.4.1-py3-none-any.whl": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+    "collective_intelligence_overlay-0.4.1.tar.gz": "0262c0b53c936b4e08173c2340539e86e101bff4f383f4fef2aa0ee8913f2a99"
+  },
+  "profiles": [
+    {
+      "os": "Darwin",
+      "architecture": "amd64",
+      "python": "3.12.14",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "0111e2d3e9dac8fc5e748b319c7c05e7d5f5160548506a67a39218fc9889fce1",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 283.49864765799987,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "b6779823bd856d2a2ce17b21415874a538b5de597496510301910a30f6441c25"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 147.80598524200013,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "f423ad1fa4a27550e3c18b674cef7646225c0ed7cfcfad2dadce2901671464f3"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 65,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 64,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Darwin",
+      "architecture": "amd64",
+      "python": "3.13.15",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "584b212884c528dcff195bf6dfa82a041f1188b4f55fc9a0675c6d69e9088b8c",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 240.85076987899993,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "5d2e7824f613e2f77eb23f9beb99268abf7b10df93f26ace0896638bca908a16"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 151.53694969599974,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "6399bc41a9642205ffe6dcb083f340267c10f20bf1f1bbca52322db91c60ef17"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 58,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 60,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Darwin",
+      "architecture": "amd64",
+      "python": "3.14.7",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "55efc0378cabdfa75d8ba96d3f2615c0422b2b7866b9f8737c7af241cc6ea379",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 245.52924982199988,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "3faddd07df450a01e609b3e3a452a728ae8ca50fdabd45431d07276b47920205"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 153.90218164099997,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "eb95ca5632754a78360f0bce559491a47337d76621f7e2313ff20a6980ed9439"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 58,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 60,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Darwin",
+      "architecture": "arm64",
+      "python": "3.12.14",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "77296cbc2e4ca2d42365f8bcd5744fc70593855b1264a8b45e7d02f306082e5b",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 141.08349116700003,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "7b9576e2b978d92aad0a24f87528d1dfb3b0bb946831e982f01cbafcee8a85b8"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 120.03270550000002,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "ed0dd9be636ed3efae1d68eb0861e19423f3711d50f93cda2536dcc6121f1d0b"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 65,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 64,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Darwin",
+      "architecture": "arm64",
+      "python": "3.13.15",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "b297977218af783ec15c7d89cc930861eb2c0422fcc8866a9615446554bde8e3",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 144.68097362499998,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "45b4de3c0a528631f3ec0c926f443b47d09069073c49a686f33a338919b17bf5"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 120.50267204200009,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "4e34a528cdf1393421778b9ab90d6dba1389b9bb7a5617db551a53d1e4584b5f"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 58,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 60,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Darwin",
+      "architecture": "arm64",
+      "python": "3.14.7",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "076375feae7dba6373171c3872a303d6b4e4a4af9b5dac2aead968d811c5e806",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 129.328934625,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "daac60ced8ba63019594d048f2c6d84b2ad7cfc4c90f5bd5596b0f2e3e480615"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 121.32967229099995,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "03c4ab134683aeaa3b183fdac0cc8cdb81a0f799eb128fc203747544815897ae"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 58,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 60,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Linux",
+      "architecture": "amd64",
+      "python": "3.12.14",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "50fce045abc782ff2b9c713961b85dfe42c80bd7b2427e6bd8b9ac8e420f8bea",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 132.90171038300002,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "a8cf0e3e6be8c99480ae5ef2696a6508f729fb3ed88087a89aae517693e6d740"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 120.80471439400003,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "b380d26e604416df34c3768450586ed802362870d6c59437e8de08a079174427"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 65,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 64,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Linux",
+      "architecture": "amd64",
+      "python": "3.13.15",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "da8208e7b4efe38324aed1081de4804a919958f4bd3b73fb6946a4bc661f4dcc",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 121.87276006099995,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "7613ece6321ea3d9ab5759761d70bbb62fb7ff9e0ca5628066f77c7181821878"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 120.5822757599999,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "bff8394e83a51c38efbe5695795e8e7ebe56b1e4bc7a27e1b3a5865660c1fe02"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 58,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 60,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Linux",
+      "architecture": "amd64",
+      "python": "3.14.7",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "2351d6452e202c8eba384ece8e213cd0aafd911ee04ad11817573b047017191e",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 122.169317589,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "fb0775f750f2ce51cefebe7ce76099c809527e009f15bda701988f692ca398ed"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 120.88421029400024,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "36c466a1862c514d4d4f6c0caf650fb70895839b75600081fae565b12cbf2d6f"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 58,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 62,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 60,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Windows",
+      "architecture": "amd64",
+      "python": "3.12.14",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "6873535a010c502e1c7370fb0a901389101d111037a773ae7ee4b2938f485ee9",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 187.42200000000048,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "1f7b4a457b61ed62a20c2a83a3405809bdea5461f6947bb06a973ab3eeaeaf48"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 139.98499999999967,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "141ac1057363dbbf7575a3efa32294e4245c7bf1cc210fdb6dba91c739da3aad"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 63,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 66,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 65,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Windows",
+      "architecture": "amd64",
+      "python": "3.13.15",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "46ec2fb2636a99c77b08d4f00c8035d186d2888738c20e41208d0c68bd1da21b",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 198.64330080000002,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "12eb481a92d442d264a28ef73aba50d4358f7e8a28d36d92aabcfa5a79b716b0"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 153.97979989999976,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "7342382a485875b0440b7ef32437b5ef9a7ff311763018062cefc3fa29da3c8d"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 59,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 63,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 61,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    },
+    {
+      "os": "Windows",
+      "architecture": "amd64",
+      "python": "3.14.7",
+      "source_tests": {
+        "tests": 506,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "source_junit_sha256": "5931a6ab723912ce4dd141782c3a3f326421b4082e71ca897e7a43064da53a7e",
+      "short_fault_protocols": {
+        "source": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 182.60665080000035,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "5b3075e7155f39a3a77b133f1de2411bb5f280723f2a2f9c7525a2b9e00e9188"
+        },
+        "installed-agents": {
+          "profile_id": "permissioned-native-fault-041-v1",
+          "elapsed_seconds": 140.5641822000007,
+          "required_injections": 19,
+          "owners": 3,
+          "original_report_sha256": "52e58cdfdfc3dc77ad9922add4dca312f0db008634019f93b508426eeca87a23"
+        }
+      },
+      "environments": {
+        "core": {
+          "tests": null,
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 30,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents": {
+          "tests": {
+            "tests": 500,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 59,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 103,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "actual_resolved_audit_count_excluding_unpublished_root": 63,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": null,
+          "actual_resolved_audit_count_excluding_unpublished_root": 61,
+          "unpublished_root_audited": false,
+          "vulnerability_findings": 0
+        }
+      },
+      "installed_tutorial_passed": true
+    }
+  ],
+  "native_installation_scope": "candidate wheel normal dependency resolution; prepublication root excluded from advisory audit only; actual postpublication root audit still pending",
+  "real_ollama_inference_in_hosted_ci": false,
+  "new_041_hour_soak": false,
+  "cross_readers_passed": 4,
+  "mixed_python_passed": true,
+  "ready_gate_sha256": "1c0ed1dae45efaea7db9b0eb9639bedf90c5396659481e7d4b931fb66e113072",
+  "complete_run_conclusion": "success"
+}

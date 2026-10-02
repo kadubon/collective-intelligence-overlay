@@ -4,8 +4,12 @@ The 0.4.1 working candidate is not yet published. Audit changes add Event v5
 owner resolution and migration 0021 without rewriting v1–v4 DSSE or historical
 UNKNOWN/allowance. The additive projection starts empty and offline migration is
 required before a new owner service uses it. Rolling interoperability is not
-claimed. [Audit status](audit-041.md) distinguishes local regressions from pending
-full native/candidate publication gates.
+claimed. [Audit status](audit-041.md) distinguishes completed local/full candidate
+validation from pending OIDC publication and actual-index checks. All twelve
+native profiles, four cross readers, mixed Python and the hash-bound ready gate
+pass in [run 36973489591](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36973489591).
+The [new native numerical records](release-041-native-results.json) concern 0.4.1;
+the historical 0.4.0 table below remains evidence for its own immutable artifacts.
 
 Optional `[ollama]` adds `agent-framework-ollama==1.0.0b260813` (MIT, beta) and
 `ollama==0.5.3` (MIT), compatible in the frozen environment with MAF core 1.19.0.
@@ -13,8 +17,9 @@ The public native integration accepts an injected client and forwards structured
 schema, thinking, usage and native options. The installed wheels' LICENSE files
 were inspected; upstream MIT notices remain in their distributions. Five SDK
 HTTP instrumentation tests and ten separately labelled actual local Gemma smoke
-attempts ran on Windows Python 3.12.14. New optional-extra native Mac and newer
-Python distribution gates remain pending. This is not a compatibility guarantee
+attempts ran on Windows Python 3.12.14. Five installed SDK HTTP tests also pass
+on all twelve declared native OS/CPU/Python profiles; hosted CI does not run
+actual Ollama inference. This is not a compatibility guarantee
 for untested Ollama servers or model digests. Model weights, their own license
 metadata and raw output provenance are separate from the software license and
 are never included in this distribution.

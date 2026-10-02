@@ -11,38 +11,38 @@
   "requirements": [
     {
       "id": "CIO-040-01",
-      "status": "local_regression_passed_native_release_pending",
-      "evidence": "Common normal/reconciliation validator; 12 real malformed/missing A2A responses and existing reconciliation regressions pass locally."
+      "status": "local_and_all_native_source_installed_regression_passed",
+      "evidence": "Common normal/reconciliation validator; 12 real malformed/missing A2A responses and existing reconciliation regressions pass locally. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
     },
     {
       "id": "CIO-040-02",
-      "status": "local_regression_passed_native_release_pending",
-      "evidence": "Real three-process C-to-B-to-A, response loss, B restart, owner original-caller lookup, other/caller denial and ID separation pass locally."
+      "status": "local_and_all_native_source_installed_regression_passed",
+      "evidence": "Real three-process C-to-B-to-A, response loss, B restart, owner original-caller lookup, other/caller denial and ID separation pass locally. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
     },
     {
       "id": "CIO-040-03",
-      "status": "local_regression_passed_native_release_pending",
-      "evidence": "Default real-DB 32-parent unresolved gate; whole-effect/results/quiescence review and atomic closure preserve original UNKNOWN/held allowance. Withdrawal precision and current/historical UNKNOWN metrics regressions passed after retaining the earlier fixture error."
+      "status": "local_and_all_native_source_installed_regression_passed",
+      "evidence": "Default real-DB 32-parent unresolved gate; whole-effect/results/quiescence review and atomic closure preserve original UNKNOWN/held allowance. Withdrawal precision and current/historical UNKNOWN metrics regressions passed after retaining the earlier fixture error. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
     },
     {
       "id": "CIO-040-04",
-      "status": "local_regression_passed_native_release_pending",
-      "evidence": "Actual PostgreSQL/OPA applicability/support/freshness regression and related negative-admission cases pass locally."
+      "status": "local_and_all_native_source_installed_regression_passed",
+      "evidence": "Actual PostgreSQL/OPA applicability/support/freshness regression and related negative-admission cases pass locally. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
     },
     {
       "id": "CIO-040-05",
-      "status": "local_regression_passed_native_release_pending",
-      "evidence": "Native Windows ten kill/lock/capacity/quarantine/symlink cases; Linux actual crash plus pg_dump/pg_restore pass. Native Mac release checks pending."
+      "status": "local_and_all_native_source_installed_regression_passed",
+      "evidence": "Native Windows ten kill/lock/capacity/quarantine/symlink cases; Linux actual crash plus pg_dump/pg_restore pass. Native Mac release checks pending. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
     },
     {
       "id": "CIO-040-06",
-      "status": "local_regression_passed_native_release_pending",
-      "evidence": "Typed schema-1 backup structure, exact references and bounded pg_restore directory inspection; 29 structural/conditional cases, actual restore and old migration regressions pass locally."
+      "status": "local_and_all_native_source_installed_regression_passed",
+      "evidence": "Typed schema-1 backup structure, exact references and bounded pg_restore directory inspection; 29 structural/conditional cases, actual restore and old migration regressions pass locally. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
     },
     {
       "id": "A7-MCP",
-      "status": "local_regression_passed_native_release_pending",
-      "evidence": "Pinned actual MCP SDK JSON receive gap observed; public hook and 13 real protocol/receive probes pass locally."
+      "status": "local_and_all_native_source_installed_regression_passed",
+      "evidence": "Pinned actual MCP SDK JSON receive gap observed; public hook and 13 real protocol/receive probes pass locally. Final trusted run 36973489591: twelve native profiles, source 506/506 and installed agents 500/500 per profile, zero failures/errors/skips."
     },
     {
       "id": "A7-duplicate-soak",
@@ -51,13 +51,13 @@
     },
     {
       "id": "B-CI-milestones",
-      "status": "full_candidate_failed_corrections_in_progress",
-      "evidence": "Representative 36962813882 failed exact reason expectation, preserved and corrected. Full 36965233400: eleven native profiles 489/489 source pass; Mac Intel 3.12 488/489 pressure fault case failure; no skips. Old 0.4.0 report identity then rejected 0.4.1 in eleven jobs. All originals preserved; installed gates not reached. New version profile keeps numeric bounds and requires fresh validation."
+      "status": "complete_trusted_same_pair_full_candidate_validation",
+      "evidence": "Representative 36962813882 and first full 36965233400 failures remain original. Corrected full 36973489591 at 1fd790d6 is whole-workflow successful: all twelve native source/installed profiles, optional model/Ollama, rebuilt sdist, four cross readers, mixed Python, live legacy upgrade, tutorials, proxy source review and hash-bound ready gate. Same measured wheel/sdist; publication reuses these exact bytes."
     },
     {
       "id": "C-Ollama-observer",
       "status": "real_connection_smoke_complete",
-      "evidence": "Dedicated cloud-disabled Ollama 0.35.0, exact gemma4:e4b digest, actual CPU resident. Public MAF/native SDK observer and ten actual inference/API probes executed; original metadata private pending path redaction."
+      "evidence": "Dedicated cloud-disabled Ollama 0.35.0, exact gemma4:e4b digest, actual CPU resident. Public MAF/native SDK observer and ten actual inference/API probes executed; original metadata retained and separate path-redacted public copies prepared with original/public hash maps; upload pending."
     },
     {
       "id": "D-smoke-pilot-freeze-preregister-comparison",
@@ -71,8 +71,8 @@
     },
     {
       "id": "F-final-requirement-audit",
-      "status": "pending",
-      "evidence": "Pending remaining milestones; no claim of complete task or published 0.4.1."
+      "status": "oidc_publication_actual_index_install_and_asset_upload_pending",
+      "evidence": "Local model assessment and all candidate gates complete; actual publication/postpublication checks/assets remain pending."
     }
   ],
   "local_environment_observations": {
@@ -127,11 +127,11 @@
     "published_this_task": false
   },
   "limits": [
-    "Corrected-treatment pilot is complete; preregistration, new full native candidate gate and0.4.1 publication remain pending.",
+    "Corrected pilot, preregistered fixed assessment and full native/cross/mixed/ready candidate validation complete; OIDC publication, actual-index checks and Release upload pending.",
     "Original 0.4.0 formal failure, release assets and signed records remain unchanged.",
     "Matching responses are not truth; provider fingerprint format is not equality to unexposed request fields.",
     "Owner resolution is historical disposition, not quality admission/refund/reexecution; whole-query physical/effect inventory is application-trusted.",
-    "Only original local hashes are cataloged here; shareable XML/model metadata copies still need recorded path redaction and asset publication."
+    "Original local files remain unchanged. Separate shareable copies retain original/public hashes and documented unsigned-metadata path/DSN transformations; Release upload remains pending."
   ],
   "local_original_junit_catalog": [
     {
@@ -1051,6 +1051,16 @@
       "purpose": "first full native candidate milestone",
       "status": "failure",
       "originals_retained": true
+    },
+    {
+      "run_id": "36973489591",
+      "source_commit": "1fd790d6c777841c37a142f1f5a16a4d3ce6e6a5",
+      "purpose": "corrected immutable same-pair full release candidate",
+      "conclusion": "success",
+      "native_profiles": 12,
+      "cross_readers": 4,
+      "mandatory_skips": 0,
+      "model_inference_requests": 0
     }
   ],
   "preregistered_assessment": {
@@ -1077,11 +1087,16 @@
     "whole_run_elapsed_seconds": 3277.0687218999956,
     "model_or_control_changes_during_run": false,
     "source_failure_or_missing_usage_count": 0,
-    "publication_status": "pending_required_native_gate",
-    "analysis_sha256": "2ed8a40c36d5fd2c288cf5900a3e4102b5fe794b9f2b67bff6815f3a5163eb18",
+    "publication_status": "native_gate_complete_oidc_publication_pending",
     "runtime_metadata": "66 locked installed distributions in retained runtime.json",
     "os_resource_scope": "185 late-start read-only point/lifetime samples; no full arm CPU, RAM or energy certification",
-    "analysis": "docs/experiments/gemma-041/confirmation-v1/analysis.json"
+    "analysis": "docs/experiments/gemma-041/confirmation-v1/analysis.json",
+    "analysis_original_sha256": "2ed8a40c36d5fd2c288cf5900a3e4102b5fe794b9f2b67bff6815f3a5163eb18",
+    "analysis_git_blob_sha256": "42a053ab6f61c6df0ef200eddffd5ebd364a9d76e693beb76a0e29b72626dc8c",
+    "analysis_byte_normalization": "Git canonical LF differs from the retained Windows original CRLF; parsed numeric analysis is identical. Both original and committed hashes are explicit.",
+    "corrected_native_candidate_run_id": "36973489591",
+    "corrected_candidate_source_commit": "1fd790d6c777841c37a142f1f5a16a4d3ce6e6a5",
+    "same_measured_candidate_pair_reconfirmed": true
   },
   "first_full_candidate_failure": {
     "run": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36965233400",
@@ -1291,7 +1306,7 @@
     ]
   },
   "native_fault_fixture_corrections": {
-    "status": "local_actual_protocol_passed_final_native_gate_pending",
+    "status": "local_and_all_24_native_source_installed_protocols_passed",
     "initial_mac_response_not_retained": "Exact original cause unproven; partial source freshness hypothesis is consistent with 393.799-second test timing",
     "diagnostic_v1": "301-second real wait expired whole 600-second deadline before response; original failed",
     "diagnostic_v2": "Deliberately aged local DB source anchor yields UNKNOWN/released/admission_denied and no actuator. Actual signed sync then passes held-effect pressure through 32-current ceiling; later key positive control failed stale source prerequisite",
@@ -1309,6 +1324,16 @@
       "tests": 48,
       "failures": 0,
       "original": "audit-041-final-quick-v3.xml"
+    },
+    "final_native_protocols": {
+      "count": 24,
+      "min_elapsed_seconds": 120.03270550000002,
+      "max_elapsed_seconds": 283.49864765799987,
+      "required_injections_per_protocol": 19,
+      "declared_bounds_unchanged": [
+        120,
+        600
+      ]
     }
   }
 }

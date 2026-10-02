@@ -17,8 +17,10 @@
 - Add optional public MAF/Ollama integration and a finite tabular application whose
   actual model parameters determine executed primitives and MAF composition.
   A packaged observer, source-only paired harness and offline analysis retain requests,
-  responses, usage and signed execution records. Five-pair pilot quality difference
-  is zero at a ceiling; preregistered confirmation and publication remain pending.
+  responses, usage and signed execution records. The corrected five-pair pilot and
+  fixed preregistered 30-pair assessment both have zero observed quality difference
+  at a ceiling; adaptive used 17 more generated tokens and longer mean active wall
+  in the assessment. Neither superiority nor equivalence is established.
 - Apply the existing bounded goal-run deadline to retained reference aliases on
   both client and server; ordinary API operations keep their 30-second limit.
 - Separate lightweight push/PR checks from representative and full native milestones.

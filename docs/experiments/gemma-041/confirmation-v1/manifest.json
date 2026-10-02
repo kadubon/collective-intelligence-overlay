@@ -22,8 +22,13 @@
   "whole_run_elapsed_seconds": 3277.0687218999956,
   "model_or_control_changes_during_run": false,
   "source_failure_or_missing_usage_count": 0,
-  "publication_status": "pending_required_native_gate",
-  "analysis_sha256": "2ed8a40c36d5fd2c288cf5900a3e4102b5fe794b9f2b67bff6815f3a5163eb18",
+  "publication_status": "native_gate_complete_oidc_publication_pending",
   "runtime_metadata": "66 locked installed distributions in retained runtime.json",
-  "os_resource_scope": "185 late-start read-only point/lifetime samples; no full arm CPU, RAM or energy certification"
+  "os_resource_scope": "185 late-start read-only point/lifetime samples; no full arm CPU, RAM or energy certification",
+  "analysis_original_sha256": "2ed8a40c36d5fd2c288cf5900a3e4102b5fe794b9f2b67bff6815f3a5163eb18",
+  "analysis_git_blob_sha256": "42a053ab6f61c6df0ef200eddffd5ebd364a9d76e693beb76a0e29b72626dc8c",
+  "analysis_byte_normalization": "Git canonical LF differs from the retained Windows original CRLF; parsed numeric analysis is identical. Both original and committed hashes are explicit.",
+  "corrected_native_candidate_run_id": "36973489591",
+  "corrected_candidate_source_commit": "1fd790d6c777841c37a142f1f5a16a4d3ce6e6a5",
+  "same_measured_candidate_pair_reconfirmed": true
 }

@@ -202,6 +202,26 @@ Missing or inconsistent records yield UNKNOWN. Signatures and hashes establish
 record integrity under the retained public identity pins, not ground truth.
 Analysis uses development-only NumPy/SciPy public paired statistics APIs.
 
+The completed thirty-pair run additionally used a separate **installed** interpreter,
+the committed preregistration and the exact measured wheel. An editable checkout
+does not satisfy its installed-byte check. These commands show that installation
+and launch contract on POSIX; on Windows select `Scripts/python.exe` instead of
+`bin/python`. Use fresh destinations and a newly declared replication ID/budget;
+the historical run is complete and must not be replaced or extended.
+
+```sh
+uv export --frozen --no-dev --extra agents --extra ollama --no-emit-project --output-file .local/YOUR-NEW-LOCKED-REQUIREMENTS.txt
+uv venv --python 3.12.14 .local/YOUR-NEW-INFERENCE-ENV
+uv pip install --python .local/YOUR-NEW-INFERENCE-ENV/bin/python --require-hashes -r .local/YOUR-NEW-LOCKED-REQUIREMENTS.txt
+uv pip install --python .local/YOUR-NEW-INFERENCE-ENV/bin/python --no-deps YOUR-EXACT-041-WHEEL
+.local/YOUR-NEW-INFERENCE-ENV/bin/python scripts/run_gemma_tabular.py --classification confirmation --pairs 30 --run-id YOUR-NEW-REPLICATION-ID --preregistration docs/experiments/gemma-041/preregistration-v1.json --prereg-commit 35245df2bc902f52524916f10891f16cfb4904c4 --candidate-wheel YOUR-EXACT-041-WHEEL --host http://127.0.0.1:11439 --server-log YOUR-SERVER-LOG --opa YOUR-OPA --caddy YOUR-CADDY --output YOUR-NEW-RAW-DIR --home YOUR-NEW-PRIVATE-DIR
+```
+
+The original frozen source hashes and wheel SHA256 must still match, and the
+preregistration file must retain its committed bytes. A changed protocol/model/
+prompt/checker requires a distinct preregistration rather than reusing this one.
+For inspecting the published result, use only the offline verify/analyze commands.
+
 Each run keeps a unique manifest, source snapshot, all calls and inference attempts,
 raw model bytes, signed originals and independent evaluation cases. Setup failures
 and unsuccessful task smokes are retained separately with their actual source

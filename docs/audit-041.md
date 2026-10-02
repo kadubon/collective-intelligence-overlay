@@ -1,8 +1,9 @@
 # 0.4.1 audit and local-model work in progress
 
-This page describes locally observed candidate behavior. 0.4.1 is not yet
-published; corrected full candidate/native validation and public raw asset upload
-remain pending. The preregistered A/B assessment is complete. The historical 0.4.0 release,
+This page describes observed candidate behavior. 0.4.1 is not yet
+published; its corrected full native/cross/mixed/ready validation is complete,
+while OIDC publication, actual-index checks and public raw upload remain pending.
+The preregistered A/B assessment is complete. The historical 0.4.0 release,
 signed originals and failed formal run are unchanged. The machine-readable
 [status and original-attempt catalog](audit-041-status.json) is the current
 requirement register; success is not inferred from a later rerun.
@@ -22,7 +23,7 @@ episode quality difference is zero at a ceiling; it does not establish equivalen
 | CIO-040-02 | Owner actor and original caller are distinct selectors; original mapping/ID remains immutable | Actual C→B→A processes, loss of valid response, B restart/lookup, C/other denial, ID separation | Standalone old calls without receipts may need their original manifest for a new signed observation |
 | CIO-040-03 | Explicit whole-invocation owner review and indexed resolution projection | Actual default 32 held UNKNOWN parents; complete/partial/absent/unknown, concurrent close/claim, restore, signature/stale/authorization refusal | Application must positively establish every local/remote effect/result and physical quiescence; no refund, retry or PASS |
 | CIO-040-04 | One applicability filter controls evidence support, source issuers and deadlines | Actual PostgreSQL/OPA unrelated binding/claim/receiver/scope/method and support-expiry checks, existing negative-admission regressions | Scoped synchronization/freshness and relevant negative evidence remain required |
-| CIO-040-05 | Same-volume separate staging; locked abandoned-write recovery and retained legacy quarantine | Native Windows process kills at five boundaries, capacity/concurrency/symlink; Linux kills with actual pg_dump/pg_restore | Native Mac candidate checks pending; process-kill tests do not prove power-loss durability |
+| CIO-040-05 | Same-volume separate staging; locked abandoned-write recovery and retained legacy quarantine | Native Windows process kills at five boundaries, capacity/concurrency/symlink; Linux kills with actual pg_dump/pg_restore; all declared native candidate profiles passed | Process-kill tests do not prove power-loss durability |
 | CIO-040-06 | Typed complete schema-1 inventory/references and bounded archive inspection | 29 actual dump structural/TLS/CAS cases, separate actual restore and old-schema migrations | Unsigned checksum manifest is not an authenticity anchor; verify does not restore or authorize resume |
 
 The unchanged published 0.4.0 wheel was separately extracted after its SHA256
@@ -160,8 +161,17 @@ This is a deterministic fixture correction, not an admission relaxation or a
 model-control change. The corrected path passed the local real
 PostgreSQL/OPA/TLS/A2A/MCP case in 436.19 seconds. Its new 0.4.1 report retains
 all nineteen injection proofs and measured protocol elapsed 415.7126 seconds,
-within the unchanged under-600-second bound. The final immutable native
-source/installed matrix is still pending.
+within the unchanged under-600-second bound. The corrected immutable full run
+[`36973489591`](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36973489591)
+is whole-workflow successful. All twelve native profiles pass 506 source cases,
+500 installed agents cases, one model SDK case, five Ollama SDK cases and 103
+rebuilt-sdist cases, with zero mandatory skips. Four cross readers, mixed Python,
+live legacy upgrade, tutorials, proxy source review and the ready gate pass.
+All 24 source/installed short-fault protocols retain 19 required injections and
+elapsed 120.0327–283.4986 seconds within the unchanged 120-to-under-600 bounds.
+[Native numerical reports](release-041-native-results.json) and the
+[publication manifest](release-041.json) preserve the actual source/tree and hashes.
+The wheel/sdist pair is byte-identical to the completed model assessment.
 
 Primary interfaces:
 [MAF native Ollama sample](https://github.com/microsoft/agent-framework/blob/main/python/samples/02-agents/providers/ollama/README.md),
