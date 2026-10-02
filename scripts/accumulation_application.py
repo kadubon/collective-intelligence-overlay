@@ -6,9 +6,10 @@ verifier alone loads expected cases. Nothing here is a new runtime or executor.
 """
 
 import base64
+import hashlib
 import json
 import time
-from datetime import timedelta
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 from pathlib import Path
 from typing import Literal
@@ -17,6 +18,7 @@ import httpx
 from accumulation_primitives import ENVIRONMENT, Problem, Solution, factory
 from accumulation_stock import CognitiveView, Skill, Snapshot, ViewSkill, prompt, retrieve
 from agent_framework import Message
+from check_gemma_transport import persist_originals, validate_wire
 from pydantic import BaseModel, ConfigDict, Field, ValidationError
 
 from collective_intelligence_overlay.adapters.a2a import send
@@ -24,7 +26,6 @@ from collective_intelligence_overlay.adapters.inference_observer import (
     RawInferenceTransport,
     write_new,
 )
-from collective_intelligence_overlay.adapters.ollama import local_ollama_client
 from collective_intelligence_overlay.application import ApplicationHost
 from collective_intelligence_overlay.bindings import (
     ArtifactSpec,
@@ -49,6 +50,7 @@ from collective_intelligence_overlay.models import (
     now,
 )
 from collective_intelligence_overlay.opportunities import Goal
+from collective_intelligence_overlay.storage import projection_digest
 
 MODEL = "gemma4:e4b"
 DIGEST = "dc35e8d9c6061baa6f0fa870975ab6932e2542b579b13ea0f199fa4bb7300c9c"
@@ -287,7 +289,7 @@ class AccumulationApplication:
             problem.specification,
         )
 
-    async def authenticate(self, skill, *, checked):
+    async def authenticate(self, skill, *, checked, audit=None):
         skill.validate_artifact(self.artifacts.get(skill.artifact_digest))
         ref = self.store.reference("capability", skill.producer, skill.source_binding.subject.key)
         cap = self.store.resolve_reference(ref)
@@ -298,6 +300,7 @@ class AccumulationApplication:
             or cap.license != "Apache-2.0"
         ):
             raise ValueError("stock is not the original authenticated candidate")
+        decision = None
         if checked:
             ref = self.store.reference("evidence", "verifier", skill.evidence_id)
             evidence = self.store.resolve_reference(ref)
@@ -319,9 +322,17 @@ class AccumulationApplication:
                     semantic_fit="confirmed",
                 )
             )
-            if decision.outcome != "ACCEPT":
-                return False
-        return True
+        if audit is not None:
+            body = decision.model_dump(mode="json") if decision is not None else None
+            audit.append(
+                {
+                    "skill_id": skill.id,
+                    "capability_subject_key": cap.subject.key,
+                    "decision": body,
+                    "decision_projection_digest": projection_digest(body) if body else None,
+                }
+            )
+        return decision is None or decision.outcome == "ACCEPT"
 
     async def run(self, maximum, candidates):
         if maximum != 1 or candidates != 1 or self.pending is None:
@@ -336,11 +347,17 @@ class AccumulationApplication:
         if stock.digest != data["snapshot_digest"]:
             raise ValueError("checkpoint snapshot digest changed")
         problem = Problem.model_validate(data["problem"])
-        visible = retrieve(stock, problem, self.config.owner, view=data["view"])
+        visible = retrieve(
+            stock,
+            problem,
+            self.config.owner,
+            view=data["view"],
+            revision=self.settings.get("retrieval_revision", "1"),
+        )
         checked = stock.arm in {"C", "A", "I"}
-        admitted = []
+        admitted, admission_records = [], []
         for skill in visible:
-            if await self.authenticate(skill, checked=checked):
+            if await self.authenticate(skill, checked=checked, audit=admission_records):
                 admitted.append(skill)
         restricted = CognitiveView(
             world=stock.world,
@@ -354,12 +371,16 @@ class AccumulationApplication:
             visible_snapshot=restricted.model_dump(mode="json"),
             feedback=data.get("feedback"),
             snapshot_artifact=self.artifacts.put(stock.model_dump_json().encode()),
+            retrieval_candidates=[ViewSkill.from_skill(s).model_dump(mode="json") for s in visible],
+            admission_records=admission_records,
         )
         return await self.executor.invoke(
             "propose-" + data["id"], self.proposer.id, self.proposer.digest, arguments, self.context
         )
 
     async def infer(self, arguments):
+        from collective_intelligence_overlay.adapters.ollama import local_ollama_client
+
         problem = Problem.model_validate(arguments["problem"])
         view = CognitiveView.model_validate(arguments["visible_snapshot"])
         text = prompt(
@@ -369,6 +390,10 @@ class AccumulationApplication:
             # Only the previous public verdict/error type, never hidden cases/answers.
             text += "\nPrevious attempt public feedback: " + str(arguments["feedback"])[:600]
         model = self.settings["model"]
+        schema = wire_schema(problem.family, problem.difficulty).model_json_schema()
+        if model.get("observation_binding_schema") == "2":
+            if model["wire_schemas"][problem.family + "/" + problem.difficulty] != schema:
+                raise ValueError("declared family wire changed before inference")
         options = {**model["options"], "seed": arguments["model_seed"]}
         if options.get("draft_num_predict") != 0 or options.get("num_predict", 0) < 1024:
             raise ValueError("explicit no-draft and adequate output limit required")
@@ -397,12 +422,36 @@ class AccumulationApplication:
             real_model=True,
         )
         solution, error = None, None
+        identity = {
+            "identity_schema": "1",
+            "endpoint": "/api/tags",
+            "projection_scope": "selected-model-only",
+            "observed_at": datetime.now(UTC).isoformat(),
+            "transport_dispatch_started": False,
+            "status": None,
+            "selected_model": None,
+            "native_response_sha256": None,
+            "native_response_bytes": None,
+            "error_type": None,
+            "unrelated_inventory_retained": False,
+        }
         try:
             async with httpx.AsyncClient(
                 base_url=model["host"], timeout=5, trust_env=False
             ) as http:
-                tags = (await http.get("/api/tags")).json()
+                identity["transport_dispatch_started"] = True
+                reply = await http.get("/api/tags")
+                identity.update(
+                    status=reply.status_code,
+                    native_response_sha256=hashlib.sha256(reply.content).hexdigest(),
+                    native_response_bytes=len(reply.content),
+                )
+                if len(reply.content) > 1048576:
+                    raise ValueError("model identity response byte cap")
+                reply.raise_for_status()
+                tags = reply.json()
                 selected = next(m for m in tags["models"] if m["name"] == MODEL)
+                identity["selected_model"] = selected
                 if selected["digest"] != DIGEST:
                     raise ValueError("pinned model changed; no alternate/pull is permitted")
             async with local_ollama_client(
@@ -417,10 +466,16 @@ class AccumulationApplication:
                         "response_format": wire_schema(problem.family, problem.difficulty),
                     },
                 )
-                solution = Solution.model_validate_json(response.text)
+                solution = validate_wire(response.text, schema, Solution)
         except Exception as exc:
             error = type(exc).__name__
         finally:
+            if (
+                identity["selected_model"] is None
+                or identity["selected_model"].get("digest") != DIGEST
+            ):
+                identity["error_type"] = error or "UnconfirmedModelIdentity"
+            write_new(path / "model-identity.json", identity)
             await observer.aclose()
             observation = json.loads((path / "observation.json").read_bytes())
             error = error or observation["error_type"]
@@ -431,12 +486,25 @@ class AccumulationApplication:
                 "full_snapshot_digest": arguments["snapshot_digest"],
                 "full_snapshot_artifact": arguments["snapshot_artifact"],
             }
+            if model.get("observation_binding_schema") == "2":
+                transcript.update(
+                    observation_binding_schema="2",
+                    retrieval_candidates=arguments["retrieval_candidates"],
+                    admission_records=arguments["admission_records"],
+                    original_transport_artifacts=persist_originals(
+                        path, observation, self.artifacts
+                    ),
+                )
             write_new(path / "parsed.json", transcript)
             artifact = self.artifacts.put(json.dumps(transcript, sort_keys=True).encode())
             event = Event(
                 id="model-" + arguments["id"],
                 issuer=self.config.owner,
-                subject=Subject(id="study-model-output", version="1", digest=artifact),
+                subject=Subject(
+                    id="study-model-output",
+                    version=model.get("observation_binding_schema", "1"),
+                    digest=artifact,
+                ),
                 action="proposal" if solution else "failure",
                 task_id=problem.id,
                 attempt_id=arguments["id"],
@@ -497,12 +565,19 @@ class AccumulationApplication:
                 Problem.model_validate(data["problem"]),
                 Solution.model_validate(data["solution"]),
             )
+            source_admission = []
             if data.get("copied", False):
                 source = Skill.model_validate(data["source_skill"])
                 if source.solution != solution or not await self.authenticate(
-                    source, checked=self.settings["arm"] in {"C", "I", "A"}
+                    source,
+                    checked=self.settings["arm"] in {"C", "I", "A"},
+                    audit=source_admission,
                 ):
-                    raise ValueError("copied parameters lack currently qualified source")
+                    return {
+                        "state": "unformed",
+                        "reason": "source_inadmissible",
+                        "source_admission": source_admission,
+                    }
             formed = self.settings["arm"] in {"C", "I", "A"} and not data.get("copied", False)
 
             async def construct(context, publish):
@@ -540,7 +615,11 @@ class AccumulationApplication:
             else:
                 built, binding = await construct(self.context, True)
             if binding is None:
-                return {"state": "unformed", "construction": built}
+                return {
+                    "state": "unformed",
+                    "construction": built,
+                    "source_admission": source_admission,
+                }
             return {
                 "state": "constructed",
                 "binding": binding.model_dump(mode="json"),
@@ -548,6 +627,7 @@ class AccumulationApplication:
                 "formation_event": formation_event.model_dump(mode="json")
                 if formation_event
                 else None,
+                "source_admission": source_admission,
             }
         if operation == "app.execute":
             binding = self.installed[data["name"]]
@@ -672,6 +752,39 @@ class AccumulationApplication:
 
 def configure(host: ApplicationHost):
     app = AccumulationApplication(host)
+    if app.settings.get("installed_candidate"):
+        from check_gemma_candidate import installed_candidate
+
+        inspected = installed_candidate(
+            Path(__file__).resolve().parents[1], app.settings["installed_candidate"]
+        )
+        artifact = app.artifacts.put(
+            json.dumps(
+                {
+                    "wheel_sha256": inspected["installed_wheel_sha256"],
+                    "version": inspected["version"],
+                    "original_package_file_sha256": inspected["original_package_file_sha256"],
+                    "package_within_actual_interpreter_prefix": True,
+                    "all_loaded_package_modules_from_candidate": True,
+                    "editable": False,
+                    "inspection_scope": "trusted-host bytes/origins; no attestation",
+                },
+                sort_keys=True,
+            ).encode()
+        )
+        app.store.put(
+            app.identity.sign(
+                Event(
+                    id="candidate-installed-runtime",
+                    issuer=app.config.owner,
+                    subject=Subject(id="study-installed-candidate", version="1", digest=artifact),
+                    action="verification",
+                    task_id="startup",
+                    attempt_id="startup",
+                    correlation_id="startup",
+                )
+            )
+        )
     for name in ("app.stage", "app.construct", "app.export", "app.import", "app.execute"):
         if host.config.owner != "verifier":
             host.register_operation(name, app.handle, callers=(host.config.owner,))

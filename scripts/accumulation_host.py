@@ -4,6 +4,7 @@ import asyncio
 import hashlib
 import importlib.metadata
 import json
+import math
 import os
 import platform
 import shutil
@@ -19,6 +20,105 @@ import httpx
 from accumulation_application import DIGEST, MODEL
 
 from collective_intelligence_overlay.adapters.inference_observer import write_new
+from collective_intelligence_overlay.bindings import fingerprint
+
+
+def server_environment_digest(environment):
+    """Pin model/backend/proxy overrides without republishing private values or paths."""
+    keys = {
+        "CUDA_VISIBLE_DEVICES",
+        "GGML_VK_VISIBLE_DEVICES",
+        "GPU_DEVICE_ORDINAL",
+        "HIP_VISIBLE_DEVICES",
+        "HSA_OVERRIDE_GFX_VERSION",
+        "ROCR_VISIBLE_DEVICES",
+        "LLAMA_ARG_FIT",
+        "LLAMA_ARG_FIT_TARGET",
+        "HTTP_PROXY",
+        "HTTPS_PROXY",
+        "ALL_PROXY",
+        "NO_PROXY",
+        "OMP_NUM_THREADS",
+        "MKL_NUM_THREADS",
+    }
+    return fingerprint(
+        {k: v for k, v in environment.items() if k.startswith("OLLAMA_") or k in keys}
+    )
+
+
+def runtime_contract(manifest):
+    selected = next(
+        m for m in manifest["tags"]["models"] if m["name"] == manifest["requested_model"]
+    )
+    return {
+        "ollama_version": manifest["version"]["version"],
+        "ollama_binary_sha256": manifest["ollama_binary_sha256"],
+        "python": manifest["hardware"]["python"],
+        "dependencies": manifest["hardware"]["selected_dependencies"],
+        "operating_system": manifest["operating_system"],
+        "machine": manifest["machine"],
+        "hardware_native": manifest["hardware"].get("native"),
+        "owned_server_settings": manifest["settings"],
+        "owned_server_environment_sha256": manifest["owned_server_environment_sha256"],
+        "selected_model_digest": selected["digest"],
+        "selected_model_details": selected["details"],
+        "selected_model_show_sha256": fingerprint(manifest["show"]),
+    }
+
+
+def check_metadata_observations(rows, manifest, maximum):
+    if not rows or [r["index"] for r in rows] != list(range(1, len(rows) + 1)):
+        raise ValueError("missing or duplicated owned-server metadata observations")
+    if len(rows) > maximum or manifest["metadata_observation_call_cap"] != maximum:
+        raise ValueError("owned-server metadata budget changed or exceeded")
+    before = manifest["metadata_observations_before_inference"]
+    if type(before) is not int or not 5 <= before <= len(rows):
+        raise ValueError("missing owned-server startup observations")
+    for r in rows:
+        elapsed = r["client_elapsed_seconds"]
+        if (
+            (r["method"], r["path"])
+            not in {
+                ("GET", "/api/version"),
+                ("GET", "/api/tags"),
+                ("GET", "/api/ps"),
+                ("POST", "/api/show"),
+            }
+            or isinstance(elapsed, bool)
+            or not isinstance(elapsed, int | float)
+            or not math.isfinite(elapsed)
+            or elapsed < 0
+            or r["raw_inventory_or_private_model_path_republished"] is not False
+        ):
+            raise ValueError("invalid original owned-server metadata observation")
+        if r["response_bytes"] is not None:
+            if (
+                type(r["response_bytes"]) is not int
+                or not 0 <= r["response_bytes"] <= 1048576
+                or not isinstance(r["native_response_sha256"], str)
+                or len(r["native_response_sha256"]) != 64
+            ):
+                raise ValueError("metadata response hash or byte bound changed")
+    startup = [(r["method"], r["path"]) for r in rows[:before] if r["status"] == 200]
+    for required in (
+        ("GET", "/api/version"),
+        ("GET", "/api/tags"),
+        ("GET", "/api/ps"),
+        ("POST", "/api/show"),
+    ):
+        if required not in startup:
+            raise ValueError("required original startup model observation is missing")
+    if [(r["method"], r["path"]) for r in rows[before:]] != [
+        ("GET", "/api/ps"),
+        ("GET", "/api/version"),
+    ]:
+        raise ValueError("required owned-server final observations changed")
+    return {
+        "startup_and_readiness_calls": before,
+        "final_calls": len(rows) - before,
+        "total_calls": len(rows),
+        "cap": maximum,
+    }
 
 
 class ProcessObserver:
@@ -78,8 +178,9 @@ class ProcessObserver:
             else:
                 from run_production_experiment import process_sample, subtree
 
-                snapshot = process_sample()
+                snapshot, vanished = process_sample()
                 item["processes"] = subtree(snapshot, tuple(self.roots))
+                item["vanished_during_sample"] = vanished
                 item["method"] = "native Linux proc ancestry/cumulative CPU/RSS"
             item["status"] = "measured"
         except Exception as error:
@@ -156,11 +257,48 @@ def hardware_profile():
 
 
 class OwnedOllama:
-    def __init__(self, home, output, *, port=11443, context=8192):
+    def __init__(self, home, output, *, port=11443, context=8192, metadata_cap=160):
         self.home, self.output = Path(home), Path(output)
         self.port, self.context = port, context
         self.process, self.log = None, None
         self.host = f"http://127.0.0.1:{port}"
+        if type(metadata_cap) is not int or not 1 <= metadata_cap <= 256:
+            raise ValueError("finite owned-server metadata call cap required")
+        self.metadata_cap, self.metadata_calls = metadata_cap, 0
+
+    async def metadata(self, client, method, path, **options):
+        if self.metadata_calls >= self.metadata_cap:
+            raise ValueError("owned-server metadata observation cap")
+        self.metadata_calls += 1
+        record = {
+            "index": self.metadata_calls,
+            "method": method,
+            "path": path,
+            "at": datetime.now(UTC).isoformat(),
+            "status": None,
+            "response_bytes": None,
+            "native_response_sha256": None,
+            "error_type": None,
+            "raw_inventory_or_private_model_path_republished": False,
+        }
+        started = time.monotonic()
+        try:
+            response = await client.request(method, path, **options)
+            record.update(
+                status=response.status_code,
+                response_bytes=len(response.content),
+                native_response_sha256=hashlib.sha256(response.content).hexdigest(),
+            )
+            if len(response.content) > 1048576:
+                raise ValueError("owned-server metadata response byte cap")
+            return response
+        except BaseException as error:
+            record["error_type"] = type(error).__name__
+            raise
+        finally:
+            record["client_elapsed_seconds"] = time.monotonic() - started
+            with (self.output / "model-metadata-calls.jsonl").open("a", encoding="utf-8") as log:
+                log.write(json.dumps(record, allow_nan=False) + "\n")
 
     async def start(self):
         self.home.mkdir()  # Never reuse another server home.
@@ -181,10 +319,11 @@ class OwnedOllama:
             "OLLAMA_DEBUG": "1",
         }
         self.log = (self.home / "server.log").open("xb")
+        process_environment = {**os.environ, **settings}
         self.process = await asyncio.to_thread(
             subprocess.Popen,
             [binary, "serve"],
-            env={**os.environ, **settings},
+            env=process_environment,
             stdout=self.log,
             stderr=subprocess.STDOUT,
             creationflags=subprocess.CREATE_NO_WINDOW if sys_platform_windows() else 0,
@@ -208,16 +347,18 @@ class OwnedOllama:
                     if self.process.poll() is not None:
                         raise RuntimeError("owned Ollama exited")
                     try:
-                        if (await client.get("/api/version")).status_code == 200:
+                        if (await self.metadata(client, "GET", "/api/version")).status_code == 200:
                             break
                     except httpx.HTTPError:
                         pass
                     await asyncio.sleep(0.2)
             values = {
-                "version": (await client.get("/api/version")).json(),
-                "tags": (await client.get("/api/tags")).json(),
-                "show": (await client.post("/api/show", json={"model": MODEL})).json(),
-                "ps_before": (await client.get("/api/ps")).json(),
+                "version": (await self.metadata(client, "GET", "/api/version")).json(),
+                "tags": (await self.metadata(client, "GET", "/api/tags")).json(),
+                "show": (
+                    await self.metadata(client, "POST", "/api/show", json={"model": MODEL})
+                ).json(),
+                "ps_before": (await self.metadata(client, "GET", "/api/ps")).json(),
             }
         selected = next((m for m in values["tags"]["models"] if m["name"] == MODEL), None)
         if selected is None or selected["digest"] != DIGEST:
@@ -231,6 +372,7 @@ class OwnedOllama:
             requested_model=MODEL,
             digest=DIGEST,
             settings=settings,
+            owned_server_environment_sha256=server_environment_digest(process_environment),
             operating_system=platform.platform(),
             processor=platform.processor(),
             machine=platform.machine(),
@@ -238,6 +380,8 @@ class OwnedOllama:
             gpu_compute_counters=None,
             global_model_config_changed=False,
             weights_republished=False,
+            metadata_observation_call_cap=self.metadata_cap,
+            metadata_observations_before_inference=self.metadata_calls,
         )
         write_new(self.output / "model-manifest.json", values)
         return values
@@ -251,8 +395,8 @@ class OwnedOllama:
                     write_new(
                         self.output / "model-after.json",
                         {
-                            "ps_after": (await c.get("/api/ps")).json(),
-                            "version_after": (await c.get("/api/version")).json(),
+                            "ps_after": (await self.metadata(c, "GET", "/api/ps")).json(),
+                            "version_after": (await self.metadata(c, "GET", "/api/version")).json(),
                         },
                     )
             finally:

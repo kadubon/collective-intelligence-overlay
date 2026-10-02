@@ -235,6 +235,8 @@ def render(analysis, output):
         "formation_means",
         "budget_frontier",
         "cost_accounting",
+        "placebo_retrieval_doses",
+        "condition_outcomes",
     ):
         write_csv(output / (key.replace("_", "-") + ".csv"), data.get(key, []))
     write_csv(
@@ -249,7 +251,31 @@ def render(analysis, output):
         if primary
         else "C/M primary contrast not performed in calibration."
     )
-    common = f"\n{results}\n\n```json\n{primary_text}\n```\n"
+    hypotheses = "\n".join(
+        f"| {name} | {value['judgment']} |"
+        for name, value in data.get("hypothesis_judgments", {}).items()
+    )
+    hypothesis_table = "| Hypothesis | Judgment |\n|---|---|\n" + hypotheses
+    measured_tokens = sum(r["model_tokens_measured"] for r in data["arm_world_rows"])
+    calls = sum(r["model_calls"] for r in data["arm_world_rows"])
+    elapsed = data.get("cohort_inclusive_wall_seconds")
+    sensitivity = data["sensitivity"]
+    diagnostic = json.dumps(
+        {
+            "assay_insensitive": sensitivity["assay_insensitive"],
+            "family_sensitive_strata": sensitivity["E_M_candidate_strata_without_C_minus_M"],
+            "legacy_pooled_gate_passed": sensitivity["legacy_preregistered_pooled_gate_passed"],
+            "family_review_was_pilot_preregistered": sensitivity[
+                "family_review_was_pilot_preregistered"
+            ],
+        },
+        ensure_ascii=False,
+        indent=2,
+    )
+    common = (
+        f"\n{results}\n\n{hypothesis_table}\n\n"
+        f"```json\n{primary_text}\n```\n\n```json\n{diagnostic}\n```\n"
+    )
     english = (
         f"# {data['protocol_id']} — {data['classification']}\n\n"
         f"The independent unit is the world (N={data['independent_worlds']}). "
@@ -258,6 +284,14 @@ def render(analysis, output):
         "establish equivalence. Degenerate bootstrap intervals are unavailable; "
         "the conservative independent-world bound remains visible.\n"
         + common
+        + f"\nActual inference: {calls} calls and {measured_tokens:,} measured tokens. "
+        + (
+            f"Inclusive cohort time before final model-server cleanup: {elapsed:.3f} seconds. "
+            if elapsed is not None
+            else "Complete cohort elapsed time unavailable. "
+        )
+        + "The family review keeps pooled pilot selection separate: a mean of one floor "
+        "and one ceiling family does not establish measurement sensitivity. "
         + "\nH_SHARE and H_ADAPT are unjudged because I/A were not performed. "
         "Empty or unmatched retained state does not identify a causal placebo effect. "
         "Restricted formation time/resource penalties for failure are separate from "
@@ -269,6 +303,10 @@ def render(analysis, output):
         "sustained self-acceleration result. Analysis bytes and renderer versions are "
         "recorded in the manifest. Raw verification is performed upstream by the offline "
         "verifier/analyzer; this renderer makes no network or inference request.\n"
+        "Formation uses a newly composed callable and alternate heldout form. Its transfer "
+        "to a new receiver is unmeasured; the separate transfer panel concerns learned "
+        "SQL/calibration procedures. Model uses IDs are context references, not proof of "
+        "executed dependency composition.\n"
     )
     japanese = (
         f"# {data['protocol_id']} — {data['classification']}\n\n"
@@ -277,6 +315,14 @@ def render(analysis, output):
         "C−M品質差です。有意差がないことから同等性は結論しません。退化したbootstrap区間"
         "は利用不能とし、独立worldを仮定する保守的な区間を併記します。\n"
         + common
+        + f"\n実推論は{calls} calls、実測tokensは{measured_tokens:,}です。"
+        + (
+            f"model serverの最終停止前のcohort実経過時間は{elapsed:.3f}秒です。"
+            if elapsed is not None
+            else "cohort全体の実経過時間は欠測です。"
+        )
+        + "familyごとの事後レビューと、当初のpooled校正規則を分離して残します。"
+        "床のfamilyと天井のfamilyの平均が中間であっても、測定感度は確立しません。"
         + "\nI/Aは未実施のためH_SHARE/H_ADAPTは未判定です。stockが空または無関連対照"
         "の実際の量が対応していない場合、介入の因果効果は識別できません。形成失敗に"
         "対するrestricted time/resourceの上限値は、実測消費とは別のendpointです。"
@@ -286,6 +332,9 @@ def render(analysis, output):
         "独立Nを増やさず、普遍的知能や持続的な自己加速を示しません。解析の原byteと"
         "描画toolの版はmanifestに残します。原記録は上流のoffline verifier/analyzerで"
         "検証し、このrendererはネットワーク通信や推論を行いません。\n"
+        "新能力形成は新しい構成の実行体と別のheldout formで評価します。その新能力を"
+        "新receiverへ移す効果は未測定であり、別transfer panelの対象は学習したSQL/校正手順です。"
+        "modelのuses IDはcontext参照であり、依存実行による合成の証拠ではありません。\n"
     )
     (output / "report.en.md").write_text(english, encoding="utf-8")
     (output / "report.ja.md").write_text(japanese, encoding="utf-8")
@@ -295,7 +344,20 @@ def render(analysis, output):
         "renderer_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "python": sys.version,
         "render_packages": {
-            name: importlib.metadata.version(name) for name in ("matplotlib", "numpy")
+            name: importlib.metadata.version(name)
+            for name in (
+                "matplotlib",
+                "numpy",
+                "contourpy",
+                "cycler",
+                "fonttools",
+                "kiwisolver",
+                "packaging",
+                "pillow",
+                "pyparsing",
+                "python-dateutil",
+                "six",
+            )
         },
         "original_verification_is_upstream_analyzer": True,
         "network_or_inference_sent": False,

@@ -83,18 +83,25 @@ def schedule(world, arm, protocol):
     def anchors(checkpoint, views=("full",)):
         tasks = [(f, level) for level in LEVELS for f in ("sql", "calibration")]
         for index, (family, level) in enumerate(tasks):
-            order = list(views)
+            order = [(view, 1) for view in views]
+            if checkpoint == 6 and protocol.get("schedule_schema") == "2":
+                if protocol["budget_frontier"] != [1, 2]:
+                    raise ValueError("declared one/two-draft frontier required")
+                order += [(view, 2) for view in ("full", "empty") if view in views]
             random.Random(f"{protocol['order_seed']}/{world.seed}/{checkpoint}/{index}").shuffle(
                 order
             )
-            for view in order:
+            for view, budget in order:
                 add(
-                    f"anchor-{checkpoint}-{index}-{view}",
-                    "anchor",
+                    f"anchor-{checkpoint}-{index}-{view}"
+                    if budget == 1
+                    else f"frontier-{checkpoint}-{index}-{view}",
+                    "anchor" if budget == 1 else "frontier",
                     checkpoint,
                     family,
                     level,
                     view=view,
+                    attempts=budget,
                     split=f"anchor-{checkpoint}-{index}",
                 )
 
@@ -140,7 +147,10 @@ def schedule(world, arm, protocol):
         revision="negative-1",
         condition="negative",
     )
-    for view in ("full", "empty") if arm != "E" else ("full",):
+    formation_views = list(("full", "empty") if arm != "E" else ("full",))
+    if protocol.get("schedule_schema") == "2":
+        random.Random(f"{protocol['order_seed']}/{world.seed}/formation").shuffle(formation_views)
+    for view in formation_views:
         p = world.composition("new-formation")
         q = world.composition("new-formation/independent-check")
         result.append(
@@ -164,7 +174,12 @@ def schedule(world, arm, protocol):
         ):
             add(f"qualify-{index}", "qualification", 6, family, level, peer="newreceiver")
         for index, family in enumerate(("sql", "calibration")):
-            for view in ("full", "empty"):
+            transfer_views = ["full", "empty"]
+            if protocol.get("schedule_schema") == "2":
+                random.Random(f"{protocol['order_seed']}/{world.seed}/transfer/{index}").shuffle(
+                    transfer_views
+                )
+            for view in transfer_views:
                 add(
                     f"transfer-{index}-{view}",
                     "transfer",

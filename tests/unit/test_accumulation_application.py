@@ -3,6 +3,7 @@
 import json
 import sqlite3
 import sys
+from datetime import timedelta
 from pathlib import Path
 
 import pytest
@@ -19,10 +20,24 @@ from accumulation_primitives import (  # noqa: E402
 )
 from accumulation_stock import Skill, Snapshot, prompt, retrieve  # noqa: E402
 from accumulation_tasks import LEVELS, World, compare  # noqa: E402
+from check_gemma_state import (  # noqa: E402
+    check_cognitive_admission,
+    matched_retrieval_dose,
+    retrieval_dose,
+)
 
 from collective_intelligence_overlay.bindings import ArtifactSpec, Binding, Target, callable_digest
-from collective_intelligence_overlay.models import Scope, Subject
+from collective_intelligence_overlay.models import (
+    Capability,
+    Decision,
+    Evidence,
+    Scope,
+    Subject,
+    UseRequest,
+    now,
+)
 from collective_intelligence_overlay.security import digest
+from collective_intelligence_overlay.storage import projection_digest
 
 
 @pytest.mark.parametrize("seed", [91831, 51912, 74093])
@@ -247,11 +262,184 @@ def test_shared_model_cap_is_conservative_and_does_not_multiply_by_peer():
     assert cap.report()["charged_tokens"] == 16
     assert cap.report()["measured_tokens"] == 6
     assert cap.report()["missing_usage_requests"] == 1
+    assert cap.report()["model_identity_observations_reserved"] == 2
+    assert cap.report()["model_retrieval_calls_reserved"] == 2
     cap.action()
     cap.action()
     cap.action()
     with pytest.raises(ValueError, match="aggregate"):
         cap.action()
+
+
+async def test_pre_model_failure_preserves_offering_and_advances_failed_training_checkpoint(
+    tmp_path,
+):
+    from accumulation_session import SharedCap, StudySession
+
+    world = World(91831)
+    study = StudySession.__new__(StudySession)
+    study.world, study.arm, study.protocol = world, "M", {"id": "unit-only-failure"}
+    study.output = tmp_path
+    study.cap = SharedCap(
+        {
+            "model_calls": 2,
+            "model_tokens": 20,
+            "wall_seconds": 60,
+            "application_actions": 3,
+            "retrieval_calls": 0,
+        },
+        context=8,
+        predict=2,
+    )
+    study.stock = Snapshot(world=world.id, arm="M", checkpoint=0, skills=())
+    p = world.sales("unit-failed-training", "low")
+    result = await study.offer(
+        "producer", "failed-training", p, study.stock, episode=1, learn=True, phase="training"
+    )
+    assert result["error_type"] == "ValueError"
+    assert not result["succeeded"] and not result["learning_succeeded"]
+    assert study.stock.checkpoint == 1 and not study.stock.skills
+    assert result["budget_after"]["model_calls"] == 0
+    assert json.loads((tmp_path / "offers/failed-training/result.json").read_bytes()) == result
+
+
+def test_irrelevant_retrieval_uses_same_contract_filter_and_measures_actual_dose():
+    from accumulation_protocol import unrelated_world
+    from accumulation_stock import ViewSkill
+
+    world = World(91831)
+    original = skill(world)
+    foreign = skill(unrelated_world(world))
+    stock = Snapshot(world=world.id, arm="M", checkpoint=1, skills=(original,))
+    pool = Snapshot(
+        world=world.id,
+        arm="M",
+        checkpoint=1,
+        skills=(foreign,),
+        origin="irrelevant",
+        matched_snapshot_digest=stock.digest,
+    )
+    p = original.source_problem
+    left = retrieve(stock, p, "receiver", revision="2")
+    right = retrieve(pool, p, "receiver", view="irrelevant", revision="2")
+    assert left == (original,) and right == (foreign,)
+    doses = [
+        retrieval_dose([ViewSkill.from_skill(s).model_dump(mode="json") for s in v])
+        for v in (left, right)
+    ]
+    assert matched_retrieval_dose(*doses)
+    changed = p.model_copy(update={"contract": "another-business-contract"})
+    assert retrieve(pool, changed, "receiver", view="irrelevant", revision="2") == ()
+    assert retrieve(pool, changed, "receiver", view="irrelevant", revision="1") == (foreign,)
+    assert not matched_retrieval_dose(doses[0], retrieval_dose([]))
+    mismatch = {**doses[1], "family_contract_revision_counts": {"sql/other/1": 1}}
+    assert not matched_retrieval_dose(doses[0], mismatch)
+    assert not matched_retrieval_dose(
+        doses[0],
+        {**doses[1], "serialized_cognitive_bytes": doses[0]["serialized_cognitive_bytes"] * 3},
+    )
+
+
+@pytest.mark.parametrize("checked", [False, True])
+@pytest.mark.parametrize(
+    "target",
+    ["original", "decision_outcome", "changed_scope", "missing_artifact", "missing_evidence"],
+)
+def test_exact_cognitive_source_and_local_admission_readership(checked, target):
+    from accumulation_stock import ViewSkill
+
+    item = skill(World(91831))
+    binding = item.source_binding
+    raw = (
+        ArtifactSpec(
+            builder_id="study-plan",
+            builder_version="1",
+            builder_source=callable_digest(factory),
+            parameters=item.solution.model_dump(mode="json"),
+            environment=ENVIRONMENT,
+        )
+        .model_dump_json()
+        .encode()
+    )
+    cap = Capability(
+        schema_version="2",
+        issuer=item.producer,
+        subject=binding.subject,
+        binding_digest=binding.digest,
+        scope=binding.scope,
+        entrypoint=binding.id,
+        claim="synthetic-task-contract",
+        license="Apache-2.0",
+        provenance="deterministic unit only",
+        classification="declared-new",
+        expires_at=now() + timedelta(hours=1),
+    )
+    evidence = Evidence(
+        schema_version="2",
+        id=item.evidence_id,
+        issuer="verifier",
+        subject=cap.subject,
+        binding_digest=cap.binding_digest,
+        claim=cap.claim,
+        scope=cap.scope,
+        receivers=("receiver",),
+        verdict="PASS",
+        method="reference-check",
+        verifier_version="unit",
+        artifact_digest="a" * 64,
+        expires_at=now() + timedelta(hours=1),
+    )
+    decision = Decision(
+        request=UseRequest(
+            receiver="receiver",
+            capability_issuer=cap.issuer,
+            subject=cap.subject,
+            binding_digest=cap.binding_digest,
+            scope=cap.scope,
+            semantic_fit="confirmed",
+        ),
+        outcome="ACCEPT",
+        reasons=("unit local projection",),
+        policy_digest="b" * 64,
+    )
+    body = decision.model_dump(mode="json") if checked else None
+    parsed = {
+        "admission_records": [
+            {
+                "skill_id": item.id,
+                "capability_subject_key": cap.subject.key,
+                "decision": body,
+                "decision_projection_digest": projection_digest(body) if body else None,
+            }
+        ],
+        "visible_snapshot": {"skills": [ViewSkill.from_skill(item).model_dump(mode="json")]},
+    }
+    signed = {
+        ("capability", item.producer, cap.subject.key): cap,
+        ("evidence", "verifier", item.evidence_id): evidence,
+    }
+    artifacts = {("receiver", item.artifact_digest): raw}
+    decisions = {decision.id: body} if checked else {}
+    if target == "decision_outcome":
+        parsed["visible_snapshot"]["skills"] = []
+    elif target == "changed_scope":
+        signed["capability", item.producer, cap.subject.key] = cap.model_copy(
+            update={"license": "unknown"}
+        )
+    elif target == "missing_artifact":
+        artifacts.clear()
+    elif target == "missing_evidence":
+        signed.pop(("evidence", "verifier", item.evidence_id))
+    valid = target == "original" or (not checked and target == "missing_evidence")
+    if valid:
+        check_cognitive_admission(
+            (item,), parsed, "receiver", signed, artifacts, decisions, checked=checked
+        )
+    else:
+        with pytest.raises((ValueError, KeyError)):
+            check_cognitive_admission(
+                (item,), parsed, "receiver", signed, artifacts, decisions, checked=checked
+            )
 
 
 def test_model_wire_schema_cannot_complete_by_omitting_the_executable_parameters():

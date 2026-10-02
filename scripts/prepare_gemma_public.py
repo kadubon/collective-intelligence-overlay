@@ -6,6 +6,13 @@ import json
 import re
 from pathlib import Path
 
+PATH_TRANSFORMATIONS = (
+    (rb"C:(?:\\\\|\\|/)Users(?:\\\\|\\|/)[^/\\\s\"']+", b"[LOCAL_HOME]", "operator_home_path"),
+    (rb"/mnt/[a-z]/Users/[^/\\\s\"']+", b"[LOCAL_HOME]", "operator_wsl_home_path"),
+    (rb"/home/[^/\\\s\"']+", b"[LOCAL_HOME]", "operator_linux_home_path"),
+    (rb"/Users/[^/\\\s\"']+", b"[UPSTREAM_HOME]", "upstream_calibration_home_path"),
+)
+
 
 def sha(raw):
     return hashlib.sha256(raw).hexdigest()
@@ -50,6 +57,25 @@ def public_bytes(path, raw):
             # Frozen source may contain example URIs, never an operator secret.
             if not {"source-snapshot", "source"} & set(path.parts):
                 raise ValueError("private DSN in protected observation " + path.as_posix())
+        if path.name == "cohort.json":
+            value = json.loads(raw)
+            registration = value.get("preregistration") or {}
+            inspected = registration.get("installed_candidate_inspection")
+            if inspected:
+                metadata = json.dumps(inspected).encode()
+                for pattern, replacement, reason in PATH_TRANSFORMATIONS:
+                    metadata, count = re.subn(pattern, replacement, metadata)
+                    if count:
+                        changes.append(
+                            {
+                                "kind": reason,
+                                "count": count,
+                                "scope": "unsigned_preregistration_installed_inspection",
+                            }
+                        )
+                if changes:
+                    registration["installed_candidate_inspection"] = json.loads(metadata)
+                    raw = (json.dumps(value, ensure_ascii=False, indent=2) + "\n").encode()
         return raw, changes
     if path.name == "before-tags.raw":
         value = json.loads(raw)
@@ -77,14 +103,7 @@ def public_bytes(path, raw):
             b"[REDACTED_DATABASE_DSN]",
             "operator_database_dsn",
         ),
-        (
-            rb"C:(?:\\\\|\\|/)Users(?:\\\\|\\|/)[^/\\\s\"']+",
-            b"[LOCAL_HOME]",
-            "operator_home_path",
-        ),
-        (rb"/mnt/[a-z]/Users/[^/\\\s\"']+", b"[LOCAL_HOME]", "operator_wsl_home_path"),
-        (rb"/home/[^/\\\s\"']+", b"[LOCAL_HOME]", "operator_linux_home_path"),
-        (rb"/Users/[^/\\\s\"']+", b"[UPSTREAM_HOME]", "upstream_calibration_home_path"),
+        *PATH_TRANSFORMATIONS,
     )
     for pattern, replacement, reason in patterns:
         raw, count = re.subn(pattern, replacement, raw)

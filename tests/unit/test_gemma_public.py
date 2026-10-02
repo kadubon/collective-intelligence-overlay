@@ -54,6 +54,32 @@ def test_unsigned_host_metadata_removes_only_unrelated_model_inventory(publicati
     assert json.loads(original)["tags"]["models"][-1]["name"] == "other"
 
 
+def test_confirmation_redacts_only_unsigned_installed_inspection_paths(publication):
+    body = {
+        "arms": [{"id": "unchanged", "diagnostic_path": "C:/Users/synthetic/study"}],
+        "preregistration": {
+            "protocol_sha256": "a" * 64,
+            "installed_candidate_inspection": {
+                "interpreter_prefix": "C:/Users/private-user/local-runtime",
+                "imported_module_origins": {"package": "/home/private-user/runtime/package.py"},
+                "installed_wheel_sha256": "b" * 64,
+            },
+        },
+    }
+    original = json.dumps(body).encode()
+    public, changes = publication.public_bytes(Path("cohort.json"), original)
+    result = json.loads(public)
+    assert result["arms"] == body["arms"]
+    assert result["preregistration"]["protocol_sha256"] == "a" * 64
+    assert (
+        result["preregistration"]["installed_candidate_inspection"]["installed_wheel_sha256"]
+        == "b" * 64
+    )
+    assert b"private-user" not in public and public != original
+    assert all(c["scope"] == "unsigned_preregistration_installed_inspection" for c in changes)
+    assert b"private-user" in original
+
+
 def test_secret_dsn_in_proof_is_rejected_without_rewriting_original(publication):
     original = b'{"private_dsn":"postgresql+pg8000://user:secret@localhost/database"}'
     with pytest.raises(ValueError, match="private DSN"):

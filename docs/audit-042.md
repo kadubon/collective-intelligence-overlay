@@ -1,8 +1,9 @@
 # 0.4.2 audit and accumulation study
 
 Status: implementation in progress; 0.4.2 is not yet published. A positive model
-result is not a release condition. The complete protocol, calibration, independent
-confirmation, raw verification and publication remain outstanding at this milestone.
+result is not a release condition. Two calibration cohorts are retained: the first
+is invalid and the second is complete and verified offline. The independent
+confirmation, exact final candidate/native gate and publication remain outstanding.
 
 ## Original 0.4.1 records
 
@@ -164,9 +165,10 @@ Unsigned owner admission projections are now exported separately from DSSE.
 Second calibration `cio-042-accumulation-calibration-v2` began on
 2026-10-02 at 15:39 UTC with new worlds 307191/872131, counterbalanced E/M, and
 isolated reference world 3439169. Source, settings and task plans remain frozen
-through the run. Its isolated actual reference controls passed 10/10; main E/M
-results are not yet complete or performance-verified. No C-minus-M result is used
-for calibration, and no third calibration or confirmation is claimed.
+through the completed run. Its isolated actual reference controls passed 10/10.
+The later completed-cohort offline review below supersedes this checkpoint's
+pending main E/M status. No C-minus-M result is used for calibration; no third
+calibration or confirmation has run.
 The pushed source checkpoint is `45d85a05301e3cd6f04b2c2bf25322da367fcccf`.
 [Quick CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37028892640)
 passed; the
@@ -221,3 +223,82 @@ file URL fragment while leaving `archive_info` empty. The new helper accepts
 that explicit representation only for the declared local wheel, still compares
 every byte/import origin, and rejects missing/conflicting hashes. Both rejected
 observations are retained. No installer metadata was backfilled.
+
+## Completed second calibration and prospective confirmation work
+
+The original second calibration completed four E/M arms and the separate
+ten-case reference control. All 93 frozen runtime files remained unchanged
+through inference. Socket-blocked verification checked every original
+request/response/native usage, DSSE/CAS, execution, checker and ordered stock
+transition. It sent no inference. This review corrects the training checkpoint
+comparison in the reader, preserving the original pilot reader and raw bytes.
+
+| World seed | Arm | Offers | Model calls | Measured/charged tokens | Missing usage |
+|---:|---|---:|---:|---:|---:|
+| 307191 | E | 38 | 44 | 52,108 | 0 |
+| 307191 | M | 51 | 59 | 70,378 | 0 |
+| 872131 | M | 51 | 58 | 68,087 | 0 |
+| 872131 | E | 38 | 44 | 52,781 | 0 |
+
+Total consumption was 205 real requests, 243,354 measured/charged tokens and
+10,438.812 seconds inclusive cohort time before final server cleanup. The older
+cohort did not record a complete cleanup interval; none is fabricated now.
+Every final full-stock Q was 1/6. Both M stocks were empty. SQL was at the floor
+at all final difficulty levels; low calibration was at the ceiling and middle/
+high calibration at the floor. The old preregistered pooled low-level gate
+passed at Q=0.5. The separate, explicitly post-pilot family review finds no
+sensitive family band and labels this assay insensitive. It does not rewrite
+the old selection rule. Empty state leaves H_ACC/H_FORM state contribution
+unjudged; C/I/A were not performance arms in calibration.
+
+Prospective schema 2 now binds exact original wire/identity files and offer
+clock/budget/state observations into existing CAS and owner-signed Events.
+The reader independently reconstructs seeds, ordered states, actual retrieval,
+admission projections, candidate classification and bounded builder formation
+receipts. Irrelevant retrieval uses the same family/contract/version filters;
+per-task type/count/byte doses are reported, and unmatched or unobserved dose
+cannot identify a causal placebo effect. Legacy records acquire no new facts.
+
+The new source/admission lineage regression passed all twelve actual PG/OPA/
+TLS/A2A conditions without skips in 291.40 seconds. It checked exact offer CAS
+bytes, actual receiver decisions, imported copies and scratch builder lineage
+after original provider absence. The grouped offline/application/protocol/
+statistics/candidate/state/transport/report tests passed 185 cases before the
+additional runtime/planning refinements. These are development checks, not the
+final immutable release gate.
+
+An owned metadata-only runtime observation made seven metadata calls and zero
+model generation calls, then physically stopped its dedicated server. It is
+neither calibration nor efficacy data. The user server and global settings were
+unchanged. Actual binary, dependencies, hardware, selected model/show and a hash
+of relevant private environment values are available for pre-inference freezing.
+
+The prospective finite plan is three new E/M/C worlds with Latin-square arm
+orders, all existing difficulty strata, two training drafts, final one/two-draft
+frontiers and no I/A panel or third calibration. Two training drafts have not
+been pilot-validated, and the insensitive pilot limits interpretation. Planned
+maxima are 723 scheduled model drafts, with equal 96-call/983,040-token hard
+caps per world/arm (864 calls/8,847,360 tokens across nine arms), serial inference,
+15 hours cohort wall and 300 seconds explicit physical-cleanup grace. Driver
+and child retrieval reservations share a 256-call whole-arm bound. The final
+protocol will bind the exact full-native-tested installed wheel/sdist and all
+runtime/source/analysis inputs before commit/push and the first request.
+
+Precision planning covers 432 beta-binomial scenarios: shifts 5/10 points,
+multiple baseline/correlation/censoring settings and world counts. N=3 is
+declared limited-power. The conservative independent-world bound requires
+2,952 worlds for a 95% halfwidth of five points, or 4,794 at the declared 99.5%
+per-contrast level. These are conservative sufficient bounds, not sample-size
+guarantees from the zero-SD pilot. Parametric planning power is separate from
+the actual bounded analysis. Quality MCID/harm margin is five points; a 20%
+complete-compute benefit additionally requires quality precision and complete
+investment/verification/transfer/maintenance costs, currently unavailable.
+### Fixed candidate checkpoint after calibration
+
+The completed calibration remains unchanged. The final local checkpoint passed
+213 longitudinal/transport/candidate/privacy unit tests in 22.40 seconds, with
+no skips. Ruff lint, all 292 Python formatting checks, and mypy over 78 source
+files passed. The source-admission/formation-lineage native regression previously
+passed all 12 declared E/M/C, family and receiver combinations in 291.40 seconds.
+These observations do not replace the final complete native candidate gate.
+

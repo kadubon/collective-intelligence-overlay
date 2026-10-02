@@ -15,6 +15,11 @@ from accumulation_primitives import Solution  # noqa: E402
 from accumulation_session import StudySession  # noqa: E402
 from accumulation_stock import Skill, Snapshot, retrieve  # noqa: E402
 from accumulation_tasks import World  # noqa: E402
+from verify_gemma_accumulation import (  # noqa: E402
+    check_construction_lineage,
+    check_copied_admission,
+    records,
+)
 
 from collective_intelligence_overlay.bindings import Binding  # noqa: E402
 from collective_intelligence_overlay.models import now  # noqa: E402
@@ -49,6 +54,8 @@ async def test_scratch_and_checked_local_reconstruction_survive_original_provide
         "id": "test-only-not-real-inference",
         "sources": {},
         "new_receiver": receiver == "newreceiver",
+        "observation_binding_schema": "2",
+        "retrieval_revision": "2",
         "caps": {
             "application_actions": 512,
             "model_calls": 2,
@@ -157,15 +164,15 @@ async def test_scratch_and_checked_local_reconstruction_survive_original_provide
             await s.session.stop("receiver")
             assert s.session.processes["receiver"].poll() is not None
         assert s.session.processes["producer"].poll() is not None
-        fresh = await s.check_constructed(
-            receiver,
-            "new-receiver",
-            q,
-            solution,
-            "test-local-reconstruction",
-            copied=copied,
-            source_skill=skill if copied else None,
-        )
+        if copied:
+            offered = await s.offer(receiver, "new-receiver", q, s.stock, learn=False)
+            assert offered["succeeded"] and len(offered["attempts"]) == 1, offered
+            fresh = offered["attempts"][0]
+            assert fresh["kind"] == "copied-executable"
+        else:
+            fresh = await s.check_constructed(
+                receiver, "new-receiver", q, solution, "test-local-reconstruction", copied=False
+            )
         assert fresh["succeeded"], fresh
         assert not (s.output / "model").exists()
         if arm == "C":
@@ -175,3 +182,40 @@ async def test_scratch_and_checked_local_reconstruction_survive_original_provide
     finally:
         exported = await s.finish()
         assert exported["export_errors"] == {}
+    signed, _, artifacts = records(s.output, new_receiver=receiver == "newreceiver")
+    if copied:
+        assert check_copied_admission(
+            fresh["construction"], skill, receiver, arm, s.output, signed, artifacts
+        )
+        observation = signed["event", receiver, "offer-observation-new-receiver"]
+        assert (
+            artifacts[receiver, observation.subject.digest]
+            == (s.output / "offers/new-receiver/result.json").read_bytes()
+        )
+    calls = [json.loads(line) for line in (s.output / "calls.jsonl").read_text().splitlines()]
+    for owner, candidate, is_copy in (("producer", result, False), (receiver, fresh, copied)):
+        b = Binding.model_validate(candidate["construction"]["binding"])
+        builder = Binding.model_validate(
+            next(
+                c["result"]["binding"]
+                for c in calls
+                if c["operation"] == "app.describe" and c["owner"] == owner
+            )
+        )
+        cap = signed["capability", owner, b.subject.key]
+        check_construction_lineage(
+            candidate["construction"], cap, b, builder, owner, arm, signed, copied=is_copy
+        )
+        with pytest.raises(ValueError, match="classified executable"):
+            check_construction_lineage(
+                candidate["construction"],
+                cap.model_copy(
+                    update={"classification": "declared-new" if is_copy else "imported"}
+                ),
+                b,
+                builder,
+                owner,
+                arm,
+                signed,
+                copied=is_copy,
+            )

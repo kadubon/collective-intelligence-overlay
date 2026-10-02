@@ -50,8 +50,9 @@ def test_multiplicity_does_not_turn_unperformed_panels_into_significance():
 def test_failure_endpoint_time_is_censored_and_not_measured_consumption():
     assert restricted_formation_time(False, 3, 600) == 600
     assert restricted_formation_time(True, 3, 600) == 3
+    assert restricted_formation_time(True, 601, 600) == 600
     with pytest.raises(ValueError, match="outside"):
-        restricted_formation_time(True, 601, 600)
+        restricted_formation_time(True, -1, 600)
 
 
 def test_planning_uses_multiple_cluster_and_censoring_scenarios():
@@ -62,3 +63,13 @@ def test_planning_uses_multiple_cluster_and_censoring_scenarios():
     assert {r["censor_probability"] for r in rows} == {0, 0.1, 0.2}
     assert {r["baseline"] for r in rows} == {0.3, 0.5, 0.8}
     assert result["zero_variance_pilot_used"] is False
+    assert result["distribution_free_worlds_for_simultaneous_halfwidth005"] == 4794
+    assert result["distribution_free_worlds_for_95_halfwidth005"] == 2952
+    assert result["simultaneous_planning_compares_zero_and_MCID_separately"]
+    assert all(r["simultaneous_one_sided_alpha"] == 0.0025 for r in rows)
+    for row in rows:
+        assert 0 <= row["paired_t_probability_exceeding_MCID_simultaneous"] <= 1
+        assert (
+            row["paired_t_probability_exceeding_MCID_simultaneous"]
+            <= row["paired_t_power_against_zero_simultaneous"]
+        )

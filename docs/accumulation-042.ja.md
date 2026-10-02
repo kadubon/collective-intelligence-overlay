@@ -3,8 +3,9 @@
 実験の正本は[英語の方法・上限・再現コマンド](accumulation-042.md)、実際の実行状況は
 [監査記録](audit-042.md)です。実装の存在、接続成功、独立品質のPASS、将来性能への効果を
 区別します。第1校正はE/Mのconstructor鮮度維持の欠落により無効として保存しました。
-全armの同期維持を実サービスで検査し、第2校正は新しいworldで開始しました。
-校正中のsource・prompt・設定は固定しています。確認実験・0.4.2公開は未実施です。
+全armの同期維持を実サービスで検査し、第2校正は新しいworldで完了しました。
+校正中のsource・prompt・設定は固定し、全205推論・usage・DSSE/CAS・stock遷移を
+socket遮断下で再検算しました。確認実験・0.4.2公開は未実施です。
 
 ## 検証する問い
 
@@ -68,6 +69,25 @@ API料金が0でも計算費が0とは扱いません。
 主要指標は最終QのC−M、蓄積介入と新形成は別指標です。未達形成も打切りとして残し、
 初期形成投資を含めます。失敗の900秒endpoint chargeは実測wallへ置き換えません。
 非有意・bootstrap[0,0]を同等性へ読み替えず、未実施panelや精度不足は未判定とします。
+
+第2校正は243,354実測tokens、欠測usage 0、約2.9時間でした。Mの学習stockは両worldで
+空でした。当初のpooled low正答率は0.5ですが、実際はSQLの床と低難度校正の天井の平均です。
+元の選択規則は保存し、別のfamily別レビューを事後検査と明記して`assay_insensitive`とします。
+第3校正は行いません。蓄積状態の寄与は未判定です。
+
+確認前の有限計画は、新しい独立world 3個×E/M/Cです。品質差MCIDと許容害は各5ポイント、
+対比ごとの有界区間は99.5%、実施する8対比の多重性を管理します。432条件の精度計画を行い、
+N=3では5ポイント差を十分な精度で判定できない`limited-power`と宣言します。
+2 draftのtrainingと、最終評価の1/2 draft frontierを事前固定します。このtraining予算は
+pilotで検証済みとは扱いません。9 arm全体のhard capは864 model requests・8,847,360 tokens、
+推論並列度1、cohort wall 15時間、物理停止のgrace 300秒です。固定scheduleの最大draft数は723。
+最終の実native gate・wheel/sdist・source・runtime・解析入力を結び付けてcommit/pushした後に
+開始します。I/Aは実行しないためH_SHARE/H_ADAPTは未判定です。
+
+形成成功は固定2 draftの方策で測り、900秒はrestricted time endpointの上限です。
+失敗は900秒、遅い成功も900秒へ制限しますが、実際に消費したwallは別に全量保持します。
+900秒のendpoint値を、物理停止時刻や実CPU消費とは扱いません。新しい合成能力について
+別の未見formを検査しますが、その合成能力の新receiverへの移転は今回未測定です。
 今回の有限課題分布の機能尺度から普遍的知能・持続的自己加速へ外挿しません。
 
 offline verifierは原DSSE、CAS、request/response、usage、選択手順、実行、checker、

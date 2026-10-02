@@ -133,3 +133,36 @@ def installed_candidate(root, artifact):
         if archive_hash is not None
         else "exact_local_file_url_sha256_fragment",
     }
+
+
+def check_candidate_observations(protocol, signed, artifacts, owners):
+    """Check each original owner startup observation; this is host evidence, not attestation."""
+    expected = {
+        "wheel_sha256": protocol["installed_wheel"]["sha256"],
+        "version": "0.4.2",
+        "original_package_file_sha256": protocol["installed_wheel"]["package_file_sha256"],
+        "package_within_actual_interpreter_prefix": True,
+        "all_loaded_package_modules_from_candidate": True,
+        "editable": False,
+        "inspection_scope": "trusted-host bytes/origins; no attestation",
+    }
+    for owner in owners:
+        event = signed["event", owner, "candidate-installed-runtime"]
+        if (
+            event.subject.id != "study-installed-candidate"
+            or event.subject.version != "1"
+            or event.action != "verification"
+            or event.outcome is not None
+            or event.task_id != "startup"
+            or event.attempt_id != "startup"
+            or json.loads(artifacts[owner, event.subject.digest]) != expected
+        ):
+            raise ValueError("owner lacks the exact installed candidate startup observation")
+        if any(
+            record.occurred_at < event.occurred_at
+            for (kind, issuer, _), record in signed.items()
+            if kind == "event"
+            and issuer == owner
+            and (record.execution is not None or record.id.startswith("model-"))
+        ):
+            raise ValueError("candidate inspection was recorded after original execution")

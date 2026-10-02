@@ -12,7 +12,7 @@ hostとDBの管理者を信頼する構成です。
 
 [English](README.md) · [Tutorial](docs/quickstart.md) · [API・CLI](docs/api.md)
 
-この手順は**0.4.1**を対象にしています。実際の公開状態、candidateのhash、検証状況は
+この手順は**0.4.2**を対象にしています。実際の公開状態、candidateのhash、検証状況は
 [公開記録](docs/releasing.md)、測定範囲は[0.4.1監査・Gemma実験](docs/gemma-041.md)
 で確認してください。[0.4.0本番profile](docs/production-040.md)は過去の証拠として保持します。
 0.4.1は[PyPI](https://pypi.org/project/collective-intelligence-overlay/0.4.1/)公開済みです。
@@ -20,9 +20,10 @@ hostとDBの管理者を信頼する構成です。
 固定30 paired episodesでは両条件ともheldout 180/180、主差B−Aは天井で0でした。
 適応方式の優位や同等性は確認できていません。[9項目報告](docs/release-041-report.ja.md)を参照してください。
 
-未公開の0.4.2ではreceiptのないUNKNOWNの回復と、別の[縦断実験](docs/accumulation-042.ja.md)
-を追加しています。[監査状況](docs/audit-042.md)で、実smoke、決定的control、実行中の校正と、
-未実施の確認・公開を区別します。現時点の検査は、蓄積やCIOの優位を示すものではありません。
+0.4.2ではreceiptのないUNKNOWNの回復と、別の[縦断実験](docs/accumulation-042.ja.md)
+を追加しています。[監査状況](docs/audit-042.md)で、smoke、決定的control、完了した校正、
+独立確認と実際の公開状態を区別します。第2校正は実205推論を保持し、Mの学習stockが空で、
+family別の測定感度が不足していました。この校正は蓄積やCIO固有の優位を確立していません。
 
 ## 提供する機能
 
@@ -49,7 +50,7 @@ CPython 3.12.14・3.13.15・3.14.7と、Linux x86_64、Windows x86_64、native m
 ```sh
 uv venv --python 3.12.14 .venv
 . .venv/bin/activate
-uv pip install 'collective-intelligence-overlay[agents]==0.4.1'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.2'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa
 ```
@@ -59,7 +60,7 @@ Windows PowerShellでは次を実行します。
 ```powershell
 uv venv --python 3.12.14 .venv
 . .venv/Scripts/Activate.ps1
-uv pip install 'collective-intelligence-overlay[agents]==0.4.1'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.2'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```

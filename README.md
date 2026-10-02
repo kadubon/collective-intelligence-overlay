@@ -13,7 +13,7 @@ required. The host and database operator remain trusted.
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [API/CLI](docs/api.md)
 
-These instructions describe **0.4.1**. Check the [release records](docs/releasing.md)
+These instructions target **0.4.2**. Check the [release records](docs/releasing.md)
 for actual publication, candidate hashes and validation status. The
 [0.4.1 audit and local Gemma experiment](docs/gemma-041.md) records its measured scope;
 the [0.4.0 production profile](docs/production-040.md) remains historical evidence.
@@ -23,11 +23,12 @@ The fixed 30-pair Gemma assessment passed 180/180 heldout tasks per arm; B−A w
 at a ceiling, with no demonstrated adaptive advantage or equivalence.
 See the [nine-part report](docs/release-041-report.ja.md).
 
-The unreleased 0.4.2 work adds receiptless UNKNOWN recovery and a separate
+The 0.4.2 work adds receiptless UNKNOWN recovery and a separate
 [longitudinal study](docs/accumulation-042.md). Its [audit status](docs/audit-042.md)
-distinguishes real smoke, deterministic controls, running calibration and pending
-confirmation/publication. These checks do not yet establish an accumulation or
-CIO advantage.
+distinguishes smoke, deterministic controls, completed calibration, independent
+confirmation and actual publication. The second calibration retained 205 real
+requests and found empty learned memory and insensitive family strata. Its
+results establish neither retained-state benefit nor CIO-specific advantage.
 
 ## What it provides
 
@@ -54,7 +55,7 @@ Future interpreters are not covered by those results. In a fresh directory, on L
 ```sh
 uv venv --python 3.12.14 .venv
 . .venv/bin/activate
-uv pip install 'collective-intelligence-overlay[agents]==0.4.1'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.2'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa
 ```
@@ -64,7 +65,7 @@ On Windows PowerShell:
 ```powershell
 uv venv --python 3.12.14 .venv
 . .venv/Scripts/Activate.ps1
-uv pip install 'collective-intelligence-overlay[agents]==0.4.1'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.2'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```

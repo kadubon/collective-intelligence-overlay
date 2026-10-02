@@ -65,6 +65,12 @@ cognitive byte size (one-half to twice the paired plan's size). Missing matches
 are retained and marked unavailable; a training pool is never relabelled as a
 placebo. Empty training stock does not yield an identifying stock intervention.
 
+Prospective retrieval revision 2 applies the same family/contract/version and
+eligibility filters to full and real foreign stock. The verifier reports actual
+per-task retrieved type/count/byte doses, direct admission and each model context.
+Missing, empty or unmatched retrieval doses leave the causal placebo contrast
+unjudged, even when the whole stock pool met its declared size rule.
+
 Separate challenges test an unseen reduction, schema/latent drift and a workload
 with little reuse opportunity. The formation probe requires a new readings
 connector combining SQL, calibration and group reduction. The model selects both
@@ -81,14 +87,22 @@ original proposer processes stop before the transfer probes. The probes use the
 new local capabilities and a blank conversation; old provider access is absent.
 Copying, import, local construction, qualification and maintenance costs remain
 in the same world/arm budget. Successful import is not independent PASS.
+This transfer panel concerns learned SQL/calibration plans. The separate newly
+composed capability is checked on an alternate unseen form, but its transfer to
+a new receiver is unmeasured. Model `uses` IDs are context references, not actual
+executed dependency lineage; only the observed builder receipt proves formation
+of reconstruction data for the installed factory.
 
 The first calibration declaration uses two separate E/M worlds and an isolated
 positive-control world. Each world/arm is bounded to 64 model requests, 655,360
 conservatively charged input/output tokens, 4,096 driver RPCs, 4,096 reserved
-execution invocations, 1,024 checker cases, 80 retrievals and 10,000 inclusive
+execution invocations, 1,024 checker cases, 80 driver retrievals and 10,000 inclusive
 seconds. Storage is bounded to 16 MiB CAS per owner and 128 KiB cognitive stock;
 retrieval is at most three plans/10,000 bytes and a prompt at most 20,000 bytes.
 Model concurrency is one. The cohort wall bound is 43,200 seconds.
+The older counter did not separately reserve child model-side lookups (bounded
+by the 64 model-attempt limit). It is not an observed complete retrieval total.
+Prospective schema 2 reserves driver and child retrievals under one shared cap.
 
 The exact local GGUF model is `gemma4:e4b`, digest
 `dc35e8d9c6061baa6f0fa870975ab6932e2542b579b13ea0f199fa4bb7300c9c`.
@@ -120,14 +134,55 @@ analysis/model and installed candidate-wheel identity are committed and pushed.
 The primary endpoint is final full-stock world quality C minus M. Full-minus-empty
 and full-minus-real-irrelevant interventions separately address H_ACC. Formation
 success, restricted time and resources include failures and initial training
-investment. A failed formation receives the declared 900-second endpoint censor
-charge; that charge is never substituted for measured wall consumption.
+investment. A failed formation receives the declared 900-second restricted
+endpoint; successful time is truncated at the same horizon. This is a finite
+two-draft policy endpoint, not Kaplan–Meier estimation or a physical-stop deadline.
+Actual wall consumption is retained separately, including values above the
+restriction. Its prospective success budget is two drafts/20,480 reserved tokens
+within the finite whole-arm execution/checker/time caps.
 Bootstrap resamples whole paired worlds. Degenerate bootstrap intervals are
 unavailable, with a conservative independent-world Hoeffding interval alongside.
 Multiplicity is controlled across performed predeclared claims, and missing
 panels receive no fabricated p-value. Quality MCID/cost margins and feasible N
 are fixed after calibration and before confirmation. Small feasible N is declared
 limited-power, without task-level inflation or claims of equivalence from p>0.05.
+
+The complete second calibration used 205 real requests and 243,354 measured
+tokens with no missing final usage. Both M stocks were empty; each final Q was
+1/6. A post-pilot family review finds all SQL levels at floor, low calibration
+at ceiling and the remaining calibration levels at floor. It preserves the
+preregistered pooled low-level gate pass (0.5) separately and calls the assay
+insensitive. No third calibration is allowed, and no C-M sign selected tasks.
+
+The finite prospective confirmation declaration has three independent E/M/C
+worlds in Latin-square orders, all existing strata and a final randomized
+one/two-draft frontier on identical public/checker forms and first seeds.
+Two training drafts are an unvalidated setting change declared before inference.
+Equal world/arm caps are 96 model attempts/983,040 charged tokens, 8,192 driver
+RPCs/8,192 reserved execution invocations, 2,048 checker cases and 256 combined
+driver/child retrieval reservations. Nine-arm hard totals are 864 requests and
+8,847,360 tokens; the fixed schedule can require at most 723 drafts. Cohort wall
+is 15 hours, with a separate 300-second physical-cleanup grace. Five-second OS
+sampling has at most 10,801 samples. Stock/context/CAS bounds remain unchanged.
+
+Quality MCID and allowed harm are each five percentage points. At most eight
+quality contrasts use 99.5% independent-world bounds (Bonferroni family budget)
+and Holm-adjusted performed one-sided bounds. The 432-scenario planning exercise
+uses shifts 0.05/0.10, baseline/correlation/censoring alternatives and whole-world
+sampling. Three feasible worlds cannot guarantee five-point precision; the
+distribution-free sufficient N for that halfwidth is 2,952 at 95%, or 4,794 at
+99.5%. Parametric planning power is distinct from the bounded analysis, and
+zero pilot SD never establishes future zero variance. Complete 20% compute
+reduction remains unjudged without matched quality and complete costs.
+
+Confirmation requires an exact installed noneditable native-tested wheel and
+sdist, byte/import-origin checks in the driver and each actual child process,
+the original trusted full-native gate and pushed preregistration. Runtime
+comparison includes the binary, dependency versions, hardware, selected model/
+show, explicit server settings and hashed relevant environment values. Original
+transport/identity and offer-clock/accounting files are bound into existing CAS
+and signed Events. Metadata-only runtime observations do not constitute a new
+calibration or model-generation cohort.
 
 ## Commands and evidence
 
@@ -136,6 +191,8 @@ python scripts/prepare_accumulation_protocol.py --id NEW_CALIBRATION_ID --output
 python scripts/run_gemma_accumulation.py --classification calibration --protocol NEW_PROTOCOL.json --output NEW_RAW --home NEW_PRIVATE_HOME
 python scripts/verify_gemma_accumulation.py --run RAW_DIRECTORY --output NEW_VERIFICATION.json
 python scripts/analyze_gemma_accumulation.py --run RAW_DIRECTORY --output NEW_ANALYSIS.json
+python scripts/prepare_accumulation_protocol.py --classification planning --id NEW_PLAN_ID --output NEW_PRECISION.json
+python scripts/report_gemma_accumulation.py --analysis NEW_ANALYSIS.json --output NEW_REPORT_DIRECTORY
 ```
 
 The verifier never sends inference and checks original DSSE/CAS/request/usage/

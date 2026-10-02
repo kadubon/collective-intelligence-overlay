@@ -14,13 +14,13 @@ from pathlib import Path
 
 from accumulation_application import DIGEST, FACTORY, MODEL
 from accumulation_primitives import ENVIRONMENT, Solution
-from accumulation_stock import Skill, Snapshot, retrieve
+from accumulation_stock import Skill, Snapshot, ViewSkill, retrieve
 from production_session import ProductionSession
 from sqlalchemy import select
 
 from collective_intelligence_overlay.adapters.inference_observer import write_new
 from collective_intelligence_overlay.bindings import ArtifactSpec, Binding
-from collective_intelligence_overlay.models import Evidence, now
+from collective_intelligence_overlay.models import Event, Evidence, Subject, now
 from collective_intelligence_overlay.queries import RecordQuery
 from collective_intelligence_overlay.starter.adaptive_documents import write_json
 from collective_intelligence_overlay.storage import decisions, projection_digest
@@ -38,6 +38,8 @@ class SharedCap:
         self.missing_usage = self.actions = 0
         self.execution_invocations = self.checker_cases = self.retrievals = 0
         self.not_sent = 0
+        self.identity_observations_reserved = 0
+        self.model_retrievals_reserved = 0
         self.started = time.monotonic()
 
     def action(self):
@@ -57,18 +59,26 @@ class SharedCap:
         self.checker_cases += cases
 
     def retrieval(self):
-        if self.retrievals >= self.limits.get("retrieval_calls", 256):
+        if self.retrievals + self.model_retrievals_reserved >= self.limits.get(
+            "retrieval_calls", 256
+        ):
             raise ValueError("aggregate retrieval cap")
         self.retrievals += 1
 
     def reserve_model(self):
         if (
             self.calls >= self.limits["model_calls"]
+            or self.identity_observations_reserved
+            >= self.limits.get("model_identity_observations", self.limits["model_calls"])
             or self.charged_tokens + self.reservation > self.limits["model_tokens"]
+            or self.retrievals + self.model_retrievals_reserved
+            >= self.limits.get("retrieval_calls", 256)
             or time.monotonic() - self.started >= self.limits["wall_seconds"]
         ):
             return False
         self.calls += 1
+        self.identity_observations_reserved += 1
+        self.model_retrievals_reserved += 1
         self.charged_tokens += self.reservation
         return True
 
@@ -92,6 +102,8 @@ class SharedCap:
         return {
             "limits": self.limits,
             "model_calls": self.calls,
+            "model_identity_observations_reserved": self.identity_observations_reserved,
+            "model_retrieval_calls_reserved": self.model_retrievals_reserved,
             "charged_tokens": self.charged_tokens,
             "measured_tokens": self.measured_tokens,
             "missing_usage_requests": self.missing_usage,
@@ -201,7 +213,13 @@ class StudySession:
             data = config.model_dump(mode="json", exclude={"database_url"})
             data["database_url_file"] = "secrets/database-url"
             write_json(config.private_key.parent / "config.json", data)
-            settings = {"world": self.world.id, "arm": self.arm}
+            settings = {
+                "world": self.world.id,
+                "arm": self.arm,
+                "retrieval_revision": self.protocol.get("retrieval_revision", "1"),
+            }
+            if self.protocol.get("classification") == "confirmation":
+                settings["installed_candidate"] = self.protocol["installed_wheel"]
             if owner == "verifier":
                 settings.update(
                     checks=self.checks,
@@ -213,6 +231,10 @@ class StudySession:
             else:
                 settings["model"] = {
                     **self.model,
+                    "observation_binding_schema": self.protocol.get(
+                        "observation_binding_schema", "1"
+                    ),
+                    "wire_schemas": self.protocol.get("wire_schemas", {}),
                     "output": str(self.output / "model"),
                     "identity": {
                         "world": self.world.id,
@@ -381,10 +403,19 @@ class StudySession:
         write_new(directory / "intent.json", {k: v for k, v in record.items() if k != "attempts"})
         before = time.monotonic()
         original_stock = self.stock.digest
-        self.cap.retrieval()
-        visible = retrieve(snapshot, problem, peer, view=view)
         selected = None
         try:
+            self.cap.retrieval()
+            visible = retrieve(
+                snapshot,
+                problem,
+                peer,
+                view=view,
+                revision=self.protocol.get("retrieval_revision", "1"),
+            )
+            record["retrieval_candidates"] = [
+                ViewSkill.from_skill(s).model_dump(mode="json") for s in visible
+            ]
             await self.maintain_sources(peer, ("verifier", *(s.producer for s in visible)))
             # Strong ordinary memory also tries a reconstructed callable directly.
             # Current independent checks remain identical for all strategies.
@@ -489,20 +520,51 @@ class StudySession:
                     checkpoint=episode,
                     skills=(*self.stock.skills, skill),
                 )
-                await self.transfer(skill)
+                record["learning_succeeded"] = True
+                try:
+                    await self.transfer(skill)
+                except Exception as error:
+                    record["transfer_error_type"] = type(error).__name__
             elif learn:
                 self.stock = self.stock.model_copy(update={"checkpoint": episode})
             if not learn and self.stock.digest != original_stock:
                 raise ValueError("read-only evaluation changed training stock")
         except Exception as error:
             record["error_type"] = type(error).__name__
-            record["succeeded"] = False
         finally:
+            record["succeeded"] = any(a.get("succeeded", False) for a in record["attempts"])
+            if learn:
+                record.setdefault("learning_succeeded", False)
+                self.stock = self.stock.model_copy(update={"checkpoint": episode})
             record["inclusive_wall_seconds"] = time.monotonic() - before
             record["budget_after"] = self.cap.report()
             record["stock_digest_after"] = self.stock.digest
-            write_new(directory / "result.json", record)
+            self.persist_offer(directory, record)
         return record
+
+    def persist_offer(self, directory, record):
+        write_new(directory / "result.json", record)
+        if self.protocol.get("observation_binding_schema") != "2":
+            return
+        config = self.session.configs[record["peer"]]
+        artifact = config.artifacts().put((directory / "result.json").read_bytes())
+        identity, overlay = config.runtime()
+        try:
+            overlay.store.put(
+                identity.sign(
+                    Event(
+                        id="offer-observation-" + record["id"],
+                        issuer=record["peer"],
+                        subject=Subject(id="study-offer-observation", version="2", digest=artifact),
+                        action="verification",
+                        task_id=record["problem"]["id"],
+                        attempt_id=record["id"],
+                        correlation_id=record["id"],
+                    )
+                )
+            )
+        finally:
+            overlay.store.close()
 
     def skill(self, selected, peer, problem, episode, *, source_world=None):
         binding = Binding.model_validate(selected["construction"]["binding"])

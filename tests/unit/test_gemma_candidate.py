@@ -10,6 +10,8 @@ from pathlib import Path
 
 import pytest
 
+from collective_intelligence_overlay.models import Event, Subject, now
+
 
 @pytest.fixture
 def candidate(tmp_path, monkeypatch):
@@ -76,6 +78,63 @@ def test_original_installed_bytes_and_actual_origin_are_checked(candidate):
     }
     assert result["imported_module_origins"][c.checker.PACKAGE] == c.module.__file__
     assert result["editable"] is False
+
+
+@pytest.mark.parametrize("target", ["original", "wheel", "package", "missing", "late", "PASS"])
+def test_each_owner_candidate_proof_binds_original_bytes_before_execution(candidate, target):
+    c = candidate
+    package = {
+        name: hashlib.sha256(raw).hexdigest()
+        for name, raw in c.entries.items()
+        if name.startswith(c.checker.PACKAGE + "/")
+    }
+    protocol = {"installed_wheel": {**c.artifact, "package_file_sha256": package}}
+    body = {
+        "wheel_sha256": c.artifact["sha256"],
+        "version": "0.4.2",
+        "original_package_file_sha256": package,
+        "package_within_actual_interpreter_prefix": True,
+        "all_loaded_package_modules_from_candidate": True,
+        "editable": False,
+        "inspection_scope": "trusted-host bytes/origins; no attestation",
+    }
+    observed = now()
+    event = Event(
+        id="candidate-installed-runtime",
+        issuer="producer",
+        subject=Subject(id="study-installed-candidate", version="1", digest="a" * 64),
+        action="verification",
+        task_id="startup",
+        attempt_id="startup",
+        correlation_id="startup",
+        occurred_at=observed,
+    )
+    signed = {("event", "producer", event.id): event}
+    if target == "wheel":
+        body["wheel_sha256"] = "b" * 64
+    elif target == "package":
+        body["original_package_file_sha256"] = {}
+    elif target == "missing":
+        signed.clear()
+    elif target == "late":
+        signed["event", "producer", "model-early"] = Event(
+            id="model-early",
+            issuer="producer",
+            subject=event.subject,
+            action="verification",
+            task_id="task",
+            attempt_id="task",
+            correlation_id="task",
+            occurred_at=observed.replace(year=observed.year - 1),
+        )
+    elif target == "PASS":
+        signed["event", "producer", event.id] = event.model_copy(update={"outcome": "PASS"})
+    artifacts = {("producer", event.subject.digest): json.dumps(body).encode()}
+    if target == "original":
+        c.checker.check_candidate_observations(protocol, signed, artifacts, ("producer",))
+    else:
+        with pytest.raises((ValueError, KeyError)):
+            c.checker.check_candidate_observations(protocol, signed, artifacts, ("producer",))
 
 
 @pytest.mark.parametrize("member", ["models.py", "policies/default.rego"])

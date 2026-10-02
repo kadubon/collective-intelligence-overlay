@@ -120,9 +120,15 @@ class CognitiveView(BaseModel):
     skills: tuple[ViewSkill, ...] = Field(max_length=3)
 
 
-def retrieve(snapshot: Snapshot, problem: Problem, peer: str, *, view="full", limit=3):
+def retrieve(
+    snapshot: Snapshot, problem: Problem, peer: str, *, view="full", limit=3, revision="1"
+):
     """Static, version-aware retrieval over only the explicitly provided snapshot."""
-    if view not in {"full", "empty", "irrelevant"} or not 1 <= limit <= 3:
+    if (
+        view not in {"full", "empty", "irrelevant"}
+        or not 1 <= limit <= 3
+        or revision not in {"1", "2"}
+    ):
         raise ValueError("unregistered cognitive view")
     if view == "empty" or snapshot.arm == "E":
         return ()
@@ -134,9 +140,10 @@ def retrieve(snapshot: Snapshot, problem: Problem, peer: str, *, view="full", li
         # Do not silently obtain a placebo or a useful plan from global history.
         if snapshot.origin != "irrelevant":
             raise ValueError("a training pool cannot be relabelled irrelevant")
-        eligible = [s for s in pool if s.basic_passed and not s.invalidated]
-        ranked = tuple(sorted(eligible, key=lambda s: s.id)[:limit])
-        return bounded_retrieval(ranked)
+        if revision == "1":
+            eligible = [s for s in pool if s.basic_passed and not s.invalidated]
+            ranked = tuple(sorted(eligible, key=lambda s: s.id)[:limit])
+            return bounded_retrieval(ranked)
     tokens = set(problem.specification.lower().split())
     eligible = [
         s
@@ -148,6 +155,7 @@ def retrieve(snapshot: Snapshot, problem: Problem, peer: str, *, view="full", li
         and (s.contract == problem.contract or s.contract in problem.component_contracts)
         and (
             s.schema_digest == problem.schema_digest
+            or view == "irrelevant"
             or s.family == "calibration"
             or problem.family == "composition"
         )

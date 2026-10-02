@@ -80,23 +80,25 @@ def holm(pvalues):
 
 
 def restricted_formation_time(succeeded, observed_seconds, maximum):
-    """Failed finite-policy formation is censored at the declared endpoint horizon.
+    """Finite-policy success time is infinite on failure, then restricted to a horizon.
 
-    This endpoint charge is never substituted for measured wall/CPU consumption.
+    This is not Kaplan-Meier censoring or measured wall/CPU consumption.
     """
     if not isinstance(succeeded, bool) or not math.isfinite(observed_seconds):
         raise ValueError("success status and actual observation time required")
-    if not 0 <= observed_seconds <= maximum or not math.isfinite(maximum) or maximum <= 0:
+    if observed_seconds < 0 or not math.isfinite(maximum) or maximum <= 0:
         raise ValueError("observation outside the preregistered horizon")
-    return observed_seconds if succeeded else maximum
+    return min(observed_seconds, maximum) if succeeded else maximum
 
 
-def simulation(*, seed=820317, repetitions=4000):
+def simulation(*, seed=820317, repetitions=4000, shift=0.05, interval_alpha=0.005):
     """Beta-binomial worlds: multiple heterogeneity/dependence/censoring scenarios.
 
     Parametric paired-t planning power is sensitivity information, not the power
     of the more conservative bound or a guarantee from a zero-variance pilot.
     """
+    if not 0 < shift <= 0.5 or not 0 < interval_alpha < 0.05:
+        raise ValueError("explicit finite positive shift and simultaneous interval alpha required")
     rng = np.random.default_rng(seed)
     rows = []
     for n in (2, 3, 6, 8, 12, 24, 64, 128):
@@ -109,7 +111,7 @@ def simulation(*, seed=820317, repetitions=4000):
                         (1 - baseline) * concentration,
                         size=(repetitions, n),
                     )
-                    candidate = rng.binomial(6, np.clip(common + 0.05, 0, 1)) / 6
+                    candidate = rng.binomial(6, np.clip(common + shift, 0, 1)) / 6
                     baseline_scores = rng.binomial(6, common) / 6
                     candidate[rng.random(candidate.shape) < censor] = 0
                     baseline_scores[rng.random(baseline_scores.shape) < censor] = 0
@@ -123,6 +125,13 @@ def simulation(*, seed=820317, repetitions=4000):
                     p[~nonzero] = 1
                     halfwidth = stats.t.ppf(0.975, n - 1) * error
                     halfwidth[~nonzero] = math.sqrt(2 * math.log(40) / n)
+                    simultaneous_width = stats.t.ppf(1 - interval_alpha / 2, n - 1) * error
+                    simultaneous_width[~nonzero] = math.sqrt(2 * math.log(2 / interval_alpha) / n)
+                    margin_t = np.divide(
+                        means - 0.05, error, out=np.zeros_like(means), where=nonzero
+                    )
+                    margin_p = stats.t.sf(margin_t, n - 1)
+                    margin_p[~nonzero] = 1
                     rows.append(
                         {
                             "worlds": n,
@@ -130,7 +139,7 @@ def simulation(*, seed=820317, repetitions=4000):
                             "baseline": baseline,
                             "within_world_correlation": correlation,
                             "censor_probability": censor,
-                            "true_shift_before_censoring": 0.05,
+                            "true_shift_before_censoring": shift,
                             "paired_t_one_sided_power_alpha025": float(np.mean(p < 0.025)),
                             "median_approximate_95_halfwidth": float(np.median(halfwidth)),
                             "distribution_free_95_halfwidth": math.sqrt(2 * math.log(40) / n),
@@ -144,6 +153,20 @@ def simulation(*, seed=820317, repetitions=4000):
                             "normal_approximation_worlds_for_95_halfwidth005": math.ceil(
                                 stats.norm.ppf(0.975) ** 2 * float(np.mean(sd * sd)) / 0.05**2
                             ),
+                            "simultaneous_interval_alpha": interval_alpha,
+                            "median_simultaneous_approximate_halfwidth": float(
+                                np.median(simultaneous_width)
+                            ),
+                            "simultaneous_distribution_free_halfwidth": math.sqrt(
+                                2 * math.log(2 / interval_alpha) / n
+                            ),
+                            "simultaneous_one_sided_alpha": interval_alpha / 2,
+                            "paired_t_power_against_zero_simultaneous": float(
+                                np.mean(p < interval_alpha / 2)
+                            ),
+                            "paired_t_probability_exceeding_MCID_simultaneous": float(
+                                np.mean(margin_p < interval_alpha / 2)
+                            ),
                         }
                     )
     return {
@@ -154,6 +177,11 @@ def simulation(*, seed=820317, repetitions=4000):
         "zero_variance_pilot_used": False,
         "mcid": 0.05,
         "distribution_free_worlds_for_95_halfwidth005": math.ceil(2 * math.log(40) / 0.05**2),
+        "simultaneous_interval_alpha": interval_alpha,
+        "distribution_free_worlds_for_simultaneous_halfwidth005": math.ceil(
+            2 * math.log(2 / interval_alpha) / 0.05**2
+        ),
+        "simultaneous_planning_compares_zero_and_MCID_separately": True,
         "planning_power_tests_zero_not_exceeding_mcid": True,
         "limited_cohort_cannot_guarantee_five_percentage_point_precision": True,
     }

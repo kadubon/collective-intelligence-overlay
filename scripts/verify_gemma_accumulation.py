@@ -6,14 +6,38 @@ import hashlib
 import json
 from pathlib import Path
 
-from accumulation_primitives import Solution
+from accumulation_host import check_metadata_observations, runtime_contract
+from accumulation_primitives import Problem, Solution
 from accumulation_protocol import schedule, unrelated_world
-from accumulation_stock import CognitiveView, Snapshot, prompt
+from accumulation_stock import CognitiveView, Snapshot, ViewSkill, prompt, retrieve
 from accumulation_tasks import World, compare
+from check_gemma_candidate import check_candidate_observations
+from check_gemma_state import (
+    check_cognitive_admission,
+    check_state_files,
+    reconstruct_states,
+    retrieval_dose,
+)
+from check_gemma_transport import (
+    check_model_attempt,
+    check_native_observation,
+    check_originals,
+    check_requested_payload,
+    check_selected_identity,
+    validate_wire,
+)
+from jsonschema.exceptions import ValidationError as SchemaError
 from securesystemslib.signer import Key
 
 from collective_intelligence_overlay.bindings import ArtifactSpec, Binding, fingerprint
-from collective_intelligence_overlay.models import Capability, Decision, Event, Evidence
+from collective_intelligence_overlay.models import (
+    Capability,
+    Decision,
+    Event,
+    Evidence,
+    FormationInput,
+    ReceiptRef,
+)
 from collective_intelligence_overlay.security import Principal, verify
 from collective_intelligence_overlay.storage import projection_digest
 
@@ -103,7 +127,79 @@ def execution(value, owner, binding, arguments, signed, states):
     return True
 
 
-def inference(path, protocol, offer, attempt, signed, states, artifacts):
+def check_construction_lineage(construction, cap, binding, builder, peer, arm, signed, *, copied):
+    """Authenticate imported provenance or actual scratch builder lineage."""
+    event = construction.get("formation_event")
+    formed = arm in {"C", "I", "A"} and not copied
+    if (
+        cap.subject != binding.subject
+        or cap.entrypoint != binding.id
+        or cap.classification != ("imported" if copied else "declared-new")
+        or cap.license != "Apache-2.0"
+    ):
+        raise ValueError("candidate is not the original classified executable")
+    if not formed:
+        if event is not None or cap.formation_inputs or cap.schema_version != "2":
+            raise ValueError("copied/ordinary procedure was relabelled observed formation")
+        return
+    original = signed["event", peer, event["id"]]
+    formation = original.formation
+    if (
+        original.model_dump(mode="json") != event
+        or original.subject != binding.subject
+        or original.action != "formation"
+        or original.outcome != "UNKNOWN"
+        or formation is None
+        or formation.binding_digest != binding.digest
+        or formation.scope != binding.scope
+        or formation.relationship != "observed-use"
+        or formation.receipts
+        != (ReceiptRef(issuer=peer, id=construction["construction"]["receipt_id"]),)
+        or cap.schema_version != "3"
+        or cap.formation_inputs
+        != (FormationInput(subject=builder.subject, issuer=peer, binding_digest=builder.digest),)
+    ):
+        raise ValueError("scratch formation lacks its original bounded builder lineage")
+    receipt = signed["event", peer, formation.receipts[0].id].execution
+    if (
+        receipt is None
+        or receipt.purpose != "reuse"
+        or receipt.state != "completed"
+        or receipt.binding_digest != builder.digest
+        or receipt.scope != builder.scope
+        or builder.subject == cap.subject
+    ):
+        raise ValueError("formation is cyclic or lacks actual completed builder use")
+
+
+def check_copied_admission(construction, source, peer, arm, directory, signed, artifacts):
+    audits = construction["source_admission"]
+    if len(audits) != 1:
+        raise ValueError("copied executable lacks its actual original source admission")
+    body = audits[0]["decision"]
+    admitted = body is None or body["outcome"] == "ACCEPT"
+    local = read(directory / (peer + "-decisions.json"))
+    check_cognitive_admission(
+        (source,),
+        {
+            "admission_records": audits,
+            "visible_snapshot": {
+                "skills": [ViewSkill.from_skill(source).model_dump(mode="json")] if admitted else []
+            },
+        },
+        peer,
+        signed,
+        artifacts,
+        {r["body"]["id"]: r["body"] for r in local["original_local_projections"]},
+        checked=arm in {"C", "I", "A"},
+    )
+    if not admitted and construction.get("state") == "constructed":
+        raise ValueError("copied procedure bypassed original receiver denial")
+    return admitted
+
+
+def inference(path, protocol, offer, attempt, signed, states, artifacts, expected_snapshot=None):
+    problem = Problem.model_validate(offer["problem"])
     intent, observed, parsed = (
         read(path / p) for p in ("intent.json", "observation.json", "parsed.json")
     )
@@ -131,6 +227,8 @@ def inference(path, protocol, offer, attempt, signed, states, artifacts):
         complete_snapshot = Snapshot.model_validate_json(
             artifacts[offer["peer"], parsed["full_snapshot_artifact"]]
         )
+        if expected_snapshot is not None and complete_snapshot != expected_snapshot:
+            raise ValueError("signed cognitive snapshot is not the ordered training state")
         if complete_snapshot.digest != offer["snapshot_digest"]:
             raise ValueError("original immutable snapshot artifact changed")
     if (
@@ -142,6 +240,9 @@ def inference(path, protocol, offer, attempt, signed, states, artifacts):
     ):
         raise ValueError("cognitive view/checkpoint changed")
     raw = (path / "response.raw").read_bytes()
+    check_native_observation(raw, observed, intent)
+    if observed["final_model"] is not None and observed["final_model"] != protocol["model"]:
+        raise ValueError("native response reports a different actual model")
     if hashlib.sha256(raw).hexdigest() != observed["raw_sha256"]:
         raise ValueError("raw inference response changed")
     if intent["settings_digest"] != fingerprint(intent["requested"]):
@@ -169,9 +270,6 @@ def inference(path, protocol, offer, attempt, signed, states, artifacts):
             or payload["messages"][0]["role"] != "user"
         ):
             raise ValueError("settings/seed/blank conversation changed")
-        from accumulation_primitives import Problem
-
-        problem = Problem.model_validate(offer["problem"])
         text = prompt(problem, snapshot.skills, revision=protocol.get("prompt_revision", "1"))
         if attempt["id"].endswith("-1"):
             text += "\nPrevious attempt public feedback: Previous independent check did not pass"
@@ -201,9 +299,13 @@ def inference(path, protocol, offer, attempt, signed, states, artifacts):
             and min(input_tokens, generated) >= 0
         )
         charge = input_tokens + generated if measured else intent["token_reservation"]
+        schema = protocol.get("wire_schemas", {}).get(problem.family + "/" + problem.difficulty)
         try:
-            actual_solution = Solution.model_validate_json(final["message"]["content"])
-        except (ValueError, TypeError, KeyError):
+            if protocol.get("observation_binding_schema") == "2":
+                actual_solution = validate_wire(final["message"]["content"], schema, Solution)
+            else:
+                actual_solution = Solution.model_validate_json(final["message"]["content"])
+        except (ValueError, TypeError, KeyError, SchemaError):
             pass
         for key in ("total_duration", "load_duration", "prompt_eval_duration", "eval_duration"):
             native = final.get(key)
@@ -223,6 +325,43 @@ def inference(path, protocol, offer, attempt, signed, states, artifacts):
     ):
         raise ValueError("usage or actual response-to-parsed-procedure changed")
     event = signed["event", offer["peer"], "model-" + attempt["id"]]
+    if protocol.get("observation_binding_schema") == "2":
+        if event.subject.version != "2":
+            raise ValueError("original model event lacks the declared observation binding")
+        check_originals(path, observed, parsed, offer["peer"], artifacts)
+        check_selected_identity(
+            read(path / "model-identity.json"),
+            protocol,
+            dispatched=observed["transport_dispatch_started"],
+        )
+        if observed["transport_dispatch_started"]:
+            check_requested_payload(
+                request, actual_request, intent, protocol, attempt["model_seed"], schema, text
+            )
+        if expected_snapshot is None:
+            raise ValueError("missing ordered cognitive-state reconstruction")
+        candidates = retrieve(
+            expected_snapshot,
+            problem,
+            offer["peer"],
+            view=offer["view"],
+            revision=protocol.get("retrieval_revision", "1"),
+        )
+        if parsed["retrieval_candidates"] != [
+            ViewSkill.from_skill(s).model_dump(mode="json") for s in candidates
+        ]:
+            raise ValueError("actual retrieval differs from declared eligible stock")
+        local = read(path.parents[1] / (offer["peer"] + "-decisions.json"))
+        decisions = {r["body"]["id"]: r["body"] for r in local["original_local_projections"]}
+        check_cognitive_admission(
+            candidates,
+            parsed,
+            offer["peer"],
+            signed,
+            artifacts,
+            decisions,
+            checked=offer["arm"] in {"C", "I", "A"},
+        )
     if json.loads(artifacts[offer["peer"], event.subject.digest]) != parsed or event.costs[
         0
     ].quantity != (input_tokens + generated if measured else None):
@@ -262,6 +401,11 @@ def inference(path, protocol, offer, attempt, signed, states, artifacts):
         "prompt_tokens": input_tokens if measured else None,
         "generated_tokens": generated if measured else None,
         "charge": charge,
+        "model_identity_observation_dispatched": read(path / "model-identity.json")[
+            "transport_dispatch_started"
+        ]
+        if protocol.get("observation_binding_schema") == "2"
+        else None,
     }
 
 
@@ -279,6 +423,19 @@ def arm(directory, protocol, world_seed, expected_arm):
         new_receiver=protocol.get("new_receiver", False)
         and summary.get("classification") != "positive-calibration-only",
     )
+    if protocol["classification"] == "confirmation":
+        check_candidate_observations(
+            protocol,
+            signed,
+            artifacts,
+            ("producer", "receiver", "verifier")
+            + (
+                ("newreceiver",)
+                if protocol.get("new_receiver")
+                and summary.get("classification") != "positive-calibration-only"
+                else ()
+            ),
+        )
     calls = [json.loads(x) for x in (directory / "calls.jsonl").read_text().splitlines()]
     if sorted(c["call_index"] for c in calls) != list(range(len(calls))):
         raise ValueError("missing/duplicate transport observations")
@@ -290,7 +447,7 @@ def arm(directory, protocol, world_seed, expected_arm):
     }:
         raise ValueError("missing predeclared connection probe")
     if (
-        protocol.get("schedule_schema") == "1"
+        protocol.get("schedule_schema") in {"1", "2"}
         and summary.get("classification") != "positive-calibration-only"
     ):
         planned = {
@@ -300,6 +457,7 @@ def arm(directory, protocol, world_seed, expected_arm):
             raise ValueError(
                 "missing/extra offered tasks; incomplete trajectories are not valid analyses"
             )
+    cognitive = reconstruct_states(summary, protocol) if planned else None
     passed = 0
     outcomes = []
     for offer in summary["offers"]:
@@ -308,6 +466,16 @@ def arm(directory, protocol, world_seed, expected_arm):
         original = read(directory / "offers" / offer["id"] / "result.json")
         if original != offer:
             raise ValueError("offered result differs from original attempt file")
+        if protocol.get("observation_binding_schema") == "2":
+            event = signed["event", offer["peer"], "offer-observation-" + offer["id"]]
+            raw = (directory / "offers" / offer["id"] / "result.json").read_bytes()
+            if (
+                event.subject.version != "2"
+                or event.task_id != offer["problem"]["id"]
+                or event.attempt_id != offer["id"]
+                or artifacts[offer["peer"], event.subject.digest] != raw
+            ):
+                raise ValueError("original offer clock/accounting/state observation changed")
         initial = read(directory / "offers" / offer["id"] / "intent.json")
         for key in (
             "id",
@@ -334,14 +502,60 @@ def arm(directory, protocol, world_seed, expected_arm):
                 offer["problem"] != expected.problem.model_dump(mode="json")
                 or offer["view"] != expected.view
                 or offer["phase"] != expected.phase
-                or offer["checkpoint"] != expected.checkpoint
+                or offer["checkpoint"]
+                != (expected.episode - 1 if expected.phase == "training" else expected.checkpoint)
                 or offer["peer"] != expected.peer
                 or offer["task_world"] != expected.world.id
             ):
                 raise ValueError("preregistered task/arm/checkpoint/snapshot intervention changed")
         successes = []
+        candidates = None
+        context_doses = []
+        direct_admitted_dose = None
+        if (
+            protocol.get("observation_binding_schema") == "2"
+            and summary.get("classification") != "positive-calibration-only"
+        ):
+            candidates = retrieve(
+                cognitive["offers"][offer["id"]],
+                Problem.model_validate(offer["problem"]),
+                offer["peer"],
+                view=offer["view"],
+                revision=protocol["retrieval_revision"],
+            )
+            if offer.get("retrieval_candidates") != [
+                ViewSkill.from_skill(s).model_dump(mode="json") for s in candidates
+            ]:
+                raise ValueError("offer actual retrieval differs from exact eligible stock")
         for attempt in offer["attempts"]:
+            if candidates is not None and attempt["kind"] == "copied-executable":
+                if (
+                    not candidates
+                    or attempt["source_skill"] != candidates[0].model_dump(mode="json")
+                    or attempt["solution"] != candidates[0].solution.model_dump(mode="json")
+                ):
+                    raise ValueError("direct reuse replaced the first eligible original source")
+                admitted = check_copied_admission(
+                    attempt["construction"],
+                    candidates[0],
+                    offer["peer"],
+                    expected_arm,
+                    directory,
+                    signed,
+                    artifacts,
+                )
+                direct_admitted_dose = retrieval_dose(
+                    [ViewSkill.from_skill(candidates[0]).model_dump(mode="json")]
+                    if admitted
+                    else []
+                )
             if attempt["kind"] == "model" and attempt.get("status") != "not_dispatched_budget":
+                if planned:
+                    check_model_attempt(
+                        offer, attempt, protocol, world_seed, planned[offer["id"]].attempts
+                    )
+                if attempt["id"] in offered_models:
+                    raise ValueError("duplicate original model attempt in offered denominator")
                 offered_models.add(attempt["id"])
                 observed_models[attempt["id"]] = inference(
                     directory / "model" / attempt["id"],
@@ -351,7 +565,11 @@ def arm(directory, protocol, world_seed, expected_arm):
                     signed,
                     states,
                     artifacts,
+                    cognitive["offers"][offer["id"]] if cognitive else None,
                 )
+                if candidates is not None:
+                    parsed = read(directory / "model" / attempt["id"] / "parsed.json")
+                    context_doses.append(retrieval_dose(parsed["visible_snapshot"]["skills"]))
             succeeded = False
             if attempt.get("construction", {}).get("state") == "constructed":
                 construction, checked = attempt["construction"], attempt["check"]
@@ -364,21 +582,33 @@ def arm(directory, protocol, world_seed, expected_arm):
                 cap = signed["capability", offer["peer"], binding.subject.key]
                 if cap.binding_digest != binding.digest or cap.scope != binding.scope:
                     raise ValueError("candidate scope differs from signed original")
+                builder = Binding.model_validate(
+                    next(
+                        c["result"]["binding"]
+                        for c in calls
+                        if c["operation"] == "app.describe" and c["owner"] == offer["peer"]
+                    )
+                )
                 execution(
                     construction["construction"],
                     offer["peer"],
                     # Builder original is authenticated and pinned in the invocation.
-                    Binding.model_validate(
-                        next(
-                            c["result"]["binding"]
-                            for c in calls
-                            if c["operation"] == "app.describe" and c["owner"] == offer["peer"]
-                        )
-                    ),
+                    builder,
                     {"solution": attempt["solution"]},
                     signed,
                     states,
                 )
+                if candidates is not None:
+                    check_construction_lineage(
+                        construction,
+                        cap,
+                        binding,
+                        builder,
+                        offer["peer"],
+                        expected_arm,
+                        signed,
+                        copied=attempt["kind"] == "copied-executable",
+                    )
                 transcript = json.loads(artifacts["verifier", checked["artifact_digest"]])
                 if (
                     transcript["binding"] != binding.model_dump(mode="json")
@@ -406,8 +636,6 @@ def arm(directory, protocol, world_seed, expected_arm):
                     raise ValueError("missing/changed independent parallel checker forms")
                 actual_pass = True
                 for case in transcript["transcripts"]:
-                    from accumulation_primitives import Problem
-
                     p = Problem.model_validate(case["case"]["problem"])
                     reference = task_world.expected(p)
                     if reference != case["case"]["expected"]:
@@ -460,6 +688,12 @@ def arm(directory, protocol, world_seed, expected_arm):
                 "condition": offer["problem"]["condition"],
                 "succeeded": offer["succeeded"],
                 "inclusive_wall_seconds": offer.get("inclusive_wall_seconds"),
+                "problem_id": offer["problem"]["id"],
+                "retrieved_dose": retrieval_dose(offer["retrieval_candidates"])
+                if candidates is not None
+                else None,
+                "direct_admitted_dose": direct_admitted_dose,
+                "model_context_doses": context_doses if candidates is not None else None,
             }
         )
     actual_directories = (
@@ -470,11 +704,49 @@ def arm(directory, protocol, world_seed, expected_arm):
     if actual_directories != offered_models:
         raise ValueError("missing/extra model attempts, including failed requests")
     if planned:
+        check_state_files(directory, cognitive, read)
         resources = read(directory / "resources.json")
         if resources["application_actions"] != len(calls):
             raise ValueError("startup/control transport overhead is missing from aggregate budget")
         if resources["charged_tokens"] != sum(o["charge"] for o in observed_models.values()):
             raise ValueError("whole-world model usage differs from original actual responses")
+        if protocol.get("observation_binding_schema") == "2":
+            checker_cases = sum(
+                len(planned[c["request"]["offer"]].cases)
+                for c in calls
+                if c["operation"] == "app.check"
+            )
+            execution_reservations = checker_cases + sum(
+                c["operation"] in {"invoke", "run", "app.construct", "app.execute"} for c in calls
+            )
+            if (
+                resources["model_calls"] != len(observed_models)
+                or resources["model_identity_observations_reserved"] != len(observed_models)
+                or resources["model_retrieval_calls_reserved"] != len(observed_models)
+                or resources["measured_tokens"]
+                != sum(o["charge"] for o in observed_models.values() if o["measured"])
+                or resources["missing_usage_requests"]
+                != sum(o["dispatched"] and not o["measured"] for o in observed_models.values())
+                or resources["proven_not_sent_requests"]
+                != sum(not o["dispatched"] for o in observed_models.values())
+                or resources["checker_cases_reserved"] != checker_cases
+                or resources["execution_invocations_reserved"] != execution_reservations
+                or resources["retrieval_calls"] != len(summary["offers"])
+            ):
+                raise ValueError("aggregate reservations or original consumption counters changed")
+            for key, field in (
+                ("model_identity_observations", "model_identity_observations_reserved"),
+                ("execution_invocations", "execution_invocations_reserved"),
+                ("checker_cases", "checker_cases_reserved"),
+                ("retrieval_calls", "retrieval_calls"),
+            ):
+                if resources[field] > protocol["caps"][key]:
+                    raise ValueError("aggregate observation/execution/checker cap exceeded")
+            if (
+                resources["retrieval_calls"] + resources["model_retrieval_calls_reserved"]
+                > protocol["caps"]["retrieval_calls"]
+            ):
+                raise ValueError("driver plus child retrieval reservations exceed whole-arm cap")
         if (
             resources["model_calls"] > protocol["caps"]["model_calls"]
             or resources["charged_tokens"] > protocol["caps"]["model_tokens"]
@@ -519,7 +791,16 @@ def arm(directory, protocol, world_seed, expected_arm):
             ):
                 raise ValueError("blank receiver or physical provider-absence proof missing")
             verify_qualifications(
-                summary, final, receiver, world, protocol, signed, states, artifacts, calls
+                summary,
+                final,
+                receiver,
+                world,
+                protocol,
+                signed,
+                states,
+                artifacts,
+                calls,
+                directory=directory,
             )
     return {
         "world": world.id,
@@ -535,7 +816,7 @@ def arm(directory, protocol, world_seed, expected_arm):
 
 
 def verify_qualifications(
-    summary, final, receiver, world, protocol, signed, states, artifacts, calls
+    summary, final, receiver, world, protocol, signed, states, artifacts, calls, *, directory=None
 ):
     offered = {
         o.id: o for o in schedule(world, summary["arm"], protocol) if o.phase == "qualification"
@@ -558,6 +839,26 @@ def verify_qualifications(
                 if c["operation"] == "app.describe" and c["owner"] == "newreceiver"
             )
         )
+        if protocol.get("observation_binding_schema") == "2":
+            check_copied_admission(
+                q["construction"],
+                source,
+                "newreceiver",
+                summary["arm"],
+                directory,
+                signed,
+                artifacts,
+            )
+            check_construction_lineage(
+                q["construction"],
+                signed["capability", "newreceiver", binding.subject.key],
+                binding,
+                builder,
+                "newreceiver",
+                summary["arm"],
+                signed,
+                copied=True,
+            )
         if ArtifactSpec.model_validate_json(
             artifacts["newreceiver", binding.artifact_digest]
         ).parameters != source.solution.model_dump(mode="json"):
@@ -584,8 +885,6 @@ def verify_qualifications(
             raise ValueError("new local capability lacks the original independent recheck")
         all_passed = True
         for case in transcript["transcripts"]:
-            from accumulation_primitives import Problem
-
             p = Problem.model_validate(case["case"]["problem"])
             expected = world.expected(p)
             complete = execution(
@@ -631,6 +930,39 @@ def verify_run(directory):
         or manifest["requested_model"] != protocol["model"]
     ):
         raise ValueError("model/server manifest mismatch")
+    metadata_accounting = None
+    if protocol["classification"] == "confirmation":
+        if runtime_contract(manifest) != protocol["runtime_contract"]:
+            raise ValueError("original confirmation runtime differs from preregistered contract")
+        metadata_accounting = check_metadata_observations(
+            [
+                json.loads(line)
+                for line in (directory / "model-metadata-calls.jsonl").read_text().splitlines()
+            ],
+            manifest,
+            protocol["owned_server_metadata_calls"],
+        )
+        samples = (directory / "os-processes.jsonl").read_text().splitlines()
+        if not samples or len(samples) > protocol["maximum_OS_observation_samples"]:
+            raise ValueError("missing or excessive original OS resource observations")
+        registration = read(directory / "cohort.json")["preregistration"]
+        if (
+            registration["protocol_sha256"]
+            != hashlib.sha256((directory / "protocol.json").read_bytes()).hexdigest()
+            or registration["installed_wheel_sha256"] != protocol["installed_wheel"]["sha256"]
+        ):
+            raise ValueError("original preregistration/candidate binding changed")
+        cleanup = read(directory / "cleanup.json")
+        if (
+            cleanup["errors"]
+            or not cleanup["owned_server_physically_stopped"]
+            or not cleanup["process_observer_physically_stopped"]
+            or cleanup["cleanup_grace_seconds"] != protocol["cleanup_grace_seconds"]
+            or not 0 <= cleanup["cleanup_wall_seconds"] <= protocol["cleanup_grace_seconds"]
+            or cleanup["inclusive_cohort_wall_including_cleanup_seconds"]
+            > protocol["cohort_wall_seconds"] + protocol["cleanup_grace_seconds"]
+        ):
+            raise ValueError("owned physical cleanup or complete cohort wall cap failed")
     results = [
         arm(directory / (World(seed).id + "-" + a), protocol, seed, a)
         for seed in protocol["world_seeds"]
@@ -655,6 +987,7 @@ def verify_run(directory):
         "classification": protocol["classification"],
         "arms": results,
         "positive_controls": controls,
+        "owned_server_metadata_accounting": metadata_accounting,
         "network_or_inference_sent_by_verifier": False,
         "interpretation": "raw consistency under trusted local host; no model attestation",
     }

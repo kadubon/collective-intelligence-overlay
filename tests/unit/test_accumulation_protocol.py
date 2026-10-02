@@ -1,11 +1,15 @@
 """State-independent schedule, fixed forms, finite budgets and sign-blind selection."""
 
+import hashlib
+import json
 import sys
+import zipfile
 from pathlib import Path
 
 import pytest
 
 sys.path.insert(0, str(Path(__file__).parents[2] / "scripts"))
+import prepare_accumulation_protocol as prepare  # noqa: E402
 from accumulation_protocol import schedule, unrelated_world  # noqa: E402
 from accumulation_tasks import World  # noqa: E402
 from prepare_accumulation_protocol import calibration  # noqa: E402
@@ -51,6 +55,65 @@ def test_task_forms_and_intervention_order_are_fixed_before_outcomes(seed):
     assert all(o.peer == "newreceiver" for o in m if o.phase in {"qualification", "transfer"})
 
 
+def test_confirmation_declaration_has_finite_whole_world_caps_and_no_outcome_selection(
+    tmp_path, monkeypatch
+):
+    monkeypatch.setattr(prepare, "ROOT", tmp_path)
+    candidate = tmp_path / "candidate"
+    (candidate / "dist").mkdir(parents=True)
+    wheel = candidate / "dist/collective_intelligence_overlay-0.4.2-py3-none-any.whl"
+    with zipfile.ZipFile(wheel, "w") as package:
+        package.writestr("collective_intelligence_overlay/__init__.py", b"unit candidate fixture")
+    archive = candidate / "dist/collective_intelligence_overlay-0.4.2.tar.gz"
+    archive.write_bytes(b"unit pair declaration only; no native gate claim")
+    (candidate / "artifacts.json").write_text(
+        json.dumps({p.name: hashlib.sha256(p.read_bytes()).hexdigest() for p in (wheel, archive)})
+    )
+    runtime, precision, pilot = [
+        tmp_path / name for name in ("runtime.json", "plan.json", "pilot.json")
+    ]
+    runtime.write_text("{}")
+    precision.write_text(json.dumps({"limited_power": True, "selected_independent_worlds": 3}))
+    pilot.write_text(
+        json.dumps(
+            {
+                "verified_originals": True,
+                "classification": "calibration",
+                "sensitivity": {"assay_insensitive": True},
+            }
+        )
+    )
+    manifest, gate = tmp_path / "manifest.json", tmp_path / "gate.json"
+    manifest.write_text("{}")
+    gate.write_text("{}")
+    protocol = prepare.confirmation(
+        "unit-declaration-not-inference",
+        candidate=candidate,
+        gate=gate,
+        release_manifest=manifest,
+        reports=tmp_path,
+        runtime=runtime,
+        precision=precision,
+        pilot_analysis=pilot,
+    )
+    assert protocol["classification"] == "confirmation"
+    assert len(protocol["world_seeds"]) == 3 and protocol["arms"] == ["E", "M", "C"]
+    assert protocol["no_third_calibration"] and protocol["limited_power"]
+    assert protocol["assay_insensitive_carried_from_pilot"]
+    assert protocol["maximum_preregistered_quality_contrasts"] * protocol["interval_alpha"] <= 0.05
+    assert protocol["aggregate_main_caps"]["model_requests"] == 9 * protocol["caps"]["model_calls"]
+    assert protocol["aggregate_main_caps"]["model_tokens"] == 9 * protocol["caps"]["model_tokens"]
+    drafts = sum(
+        o.attempts
+        for arm in protocol["arms"]
+        for o in schedule(World(123), arm, protocol)
+        if o.phase != "qualification"
+    )
+    assert drafts * 3 == protocol["maximum_scheduled_main_model_drafts"]
+    assert "equivalence" in protocol["sensitivity_gate"]["selection"]
+    assert protocol["installed_wheel"]["sha256"] == hashlib.sha256(wheel.read_bytes()).hexdigest()
+
+
 def test_pilot_never_selects_on_C_minus_M_or_confirmation_seeds():
     p = calibration("unit-not-inference")
     assert p["arms"] == ["E", "M"] and len(p["world_seeds"]) == 2
@@ -67,3 +130,24 @@ def test_pilot_never_selects_on_C_minus_M_or_confirmation_seeds():
     assert p["sensitivity_gate"]["maximum_calibration_cohorts"] == 2
     assert p["caps"]["concurrent_model_requests"] == 1
     assert p["cohort_wall_seconds"] == 43200
+
+
+def test_prospective_frontier_randomizes_packets_and_reuses_exact_anchor_forms():
+    protocol = calibration("prospective-unit-not-inference")
+    protocol.update(schedule_schema="2", budget_frontier=[1, 2], training_attempts=2)
+    world = World(191307171)
+    for name in ("E", "M", "C"):
+        offered = schedule(world, name, protocol)
+        assert len({o.id for o in offered}) == len(offered)
+        ordinary = [o for o in offered if o.phase != "qualification"]
+        assert sum(o.attempts for o in ordinary) == (63 if name == "E" else 89)
+        for o in [o for o in offered if o.phase == "frontier"]:
+            anchor = next(a for a in offered if a.id == o.id.replace("frontier-", "anchor-"))
+            assert anchor.problem == o.problem and anchor.cases == o.cases
+            assert anchor.attempts == 1 and o.attempts == 2
+        final = [o for o in offered if o.phase in {"anchor", "frontier"} and o.checkpoint == 6]
+        assert len(final) == (12 if name == "E" else 30)
+        assert any(
+            o.phase == "anchor"
+            for o in final[final.index(next(o for o in final if o.phase == "frontier")) + 1 :]
+        )

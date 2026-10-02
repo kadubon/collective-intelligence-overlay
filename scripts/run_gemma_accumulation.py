@@ -7,19 +7,19 @@ Confirmation refuses unpushed preregistration or changed source/options/seeds.
 import argparse
 import asyncio
 import hashlib
-import importlib.metadata
 import json
 import subprocess
 import time
 from datetime import UTC, datetime
 from pathlib import Path
 
-from accumulation_application import DIGEST, MODEL
-from accumulation_host import OwnedOllama, ProcessObserver
+from accumulation_application import DIGEST, MODEL, wire_schema
+from accumulation_host import OwnedOllama, ProcessObserver, runtime_contract
 from accumulation_protocol import checker_settings, matched_placebo, schedule
 from accumulation_session import ROOT, StudySession
 from accumulation_stock import Snapshot
 from accumulation_tasks import World
+from check_gemma_candidate import installed_candidate
 
 from collective_intelligence_overlay.adapters.inference_observer import write_new
 
@@ -35,6 +35,12 @@ def sources():
             "scripts/verify_gemma_accumulation.py",
             "scripts/analyze_gemma_accumulation.py",
             "scripts/prepare_accumulation_protocol.py",
+            "scripts/check_gemma_candidate.py",
+            "scripts/check_gemma_state.py",
+            "scripts/check_gemma_transport.py",
+            "scripts/report_gemma_accumulation.py",
+            "scripts/release_gate.py",
+            "scripts/release_candidate.py",
             "scripts/production_session.py",
             "scripts/run_production_experiment.py",
             "tests/e2e/production_mesh.py",
@@ -72,26 +78,63 @@ def preregistration(args, protocol):
     )
     if protocol["classification"] != "confirmation" or protocol["model_digest"] != DIGEST:
         raise ValueError("explicit independent confirmation protocol required")
+    schema_catalog = {
+        family + "/" + level: wire_schema(family, level).model_json_schema()
+        for family in ("sql", "calibration", "composition")
+        for level in ("low", "middle", "high")
+    }
+    if (
+        protocol.get("schedule_schema") != "2"
+        or protocol.get("retrieval_revision") != "2"
+        or protocol.get("observation_binding_schema") != "2"
+        or protocol.get("wire_schemas") != schema_catalog
+    ):
+        raise ValueError("confirmation requires the complete current schema and state contracts")
     if datetime.fromisoformat(protocol["registered_at"]) >= datetime.now(UTC):
         raise ValueError("preregistration must precede the first confirmation request")
     if protocol["sources"] != sources():
         raise ValueError("confirmation source/lock/factory/checker changed")
     artifact = protocol["installed_wheel"]
-    if hashlib.sha256(Path(artifact["path"]).read_bytes()).hexdigest() != artifact["sha256"]:
-        raise ValueError("exact preregistered candidate wheel changed")
-    distribution = importlib.metadata.distribution("collective-intelligence-overlay")
-    direct = json.loads(distribution.read_text("direct_url.json") or "{}")
-    if direct.get("dir_info", {}).get("editable") or distribution.version != "0.4.2":
-        raise ValueError(
-            "confirmation requires the actual installed candidate, not editable source"
-        )
-    if direct.get("archive_info", {}).get("hashes", {}).get("sha256") != artifact["sha256"]:
-        raise ValueError("installed wheel provenance differs from preregistered tested bytes")
+    inspected = installed_candidate(ROOT, artifact)
+    if inspected["original_package_file_sha256"] != artifact["package_file_sha256"]:
+        raise ValueError("installed candidate package manifest differs from preregistration")
+    from release_gate import check_reuse, trusted_run
+
+    gate = protocol["native_gate"]
+    paths = {}
+    for key in ("candidate_directory", "gate", "release_manifest", "reports_directory"):
+        path = (ROOT / gate[key]).resolve()
+        if not path.is_relative_to(ROOT):
+            raise ValueError("native gate evidence must belong to this repository")
+        paths[key] = path
+    manifest_raw = paths["release_manifest"].read_bytes()
+    if hashlib.sha256(manifest_raw).hexdigest() != gate["release_manifest_sha256"]:
+        raise ValueError("original candidate release manifest changed")
+    native_manifest = json.loads(manifest_raw)
+    check_reuse(
+        paths["candidate_directory"],
+        paths["gate"],
+        native_manifest,
+        reports=paths["reports_directory"],
+    )
+    trusted_run(native_manifest["candidate_run_id"], native_manifest["source_commit"])
+    if native_manifest["artifacts"][Path(artifact["path"]).name] != artifact["sha256"]:
+        raise ValueError("confirmation wheel is not the original full-native-tested candidate")
+    sdist = protocol["installed_sdist"]
+    if (
+        native_manifest["artifacts"][Path(sdist["path"]).name] != sdist["sha256"]
+        or hashlib.sha256((ROOT / sdist["path"]).read_bytes()).hexdigest() != sdist["sha256"]
+    ):
+        raise ValueError("confirmation sdist is not the original full-native-tested pair")
     return {
         "commit": args.prereg_commit,
         "protocol_sha256": hashlib.sha256(committed).hexdigest(),
         "remote_head_before_inference": remote,
         "installed_wheel_sha256": artifact["sha256"],
+        "installed_candidate_inspection": inspected,
+        "native_gate_sha256": native_manifest["gate_sha256"],
+        "native_gate_run_id": native_manifest["candidate_run_id"],
+        "native_gate_source_commit": native_manifest["source_commit"],
     }
 
 
@@ -154,19 +197,33 @@ async def run(args):
         destination = args.output / "source" / name
         destination.parent.mkdir(parents=True, exist_ok=True)
         destination.write_bytes((ROOT / name).read_bytes())
-    observer = ProcessObserver(args.output / "os-processes.jsonl", protocol["cohort_wall_seconds"])
+    observer = ProcessObserver(
+        args.output / "os-processes.jsonl",
+        protocol["cohort_wall_seconds"],
+        interval=protocol.get("OS_observation_interval_seconds", 5),
+    )
     server = OwnedOllama(
         args.home / "ollama",
         args.output,
         port=args.port,
         context=protocol["model_options"]["num_ctx"],
+        metadata_cap=protocol.get("owned_server_metadata_calls", 160),
     )
     start = time.monotonic()
     cohorts = []
     observer.start()
     try:
-        await server.start()
-        async with asyncio.timeout(protocol["cohort_wall_seconds"]):
+        observed_runtime = await server.start()
+        if args.classification == "confirmation" and (
+            runtime_contract(observed_runtime) != protocol["runtime_contract"]
+        ):
+            raise ValueError(
+                "actual host/model/dependency/backend settings changed before inference"
+            )
+        remaining = protocol["cohort_wall_seconds"] - (time.monotonic() - start)
+        if remaining <= 0:
+            raise TimeoutError("cohort wall budget exhausted during owned server startup")
+        async with asyncio.timeout(remaining):
             controls = []
             for seed in protocol.get("positive_control_seeds", ()):
                 controls.append(await positive_control(args, World(seed), protocol, server))
@@ -265,8 +322,34 @@ async def run(args):
             },
         )
     finally:
-        await server.close()
-        observer.close()
+        cleanup_started = time.monotonic()
+        errors = {}
+        try:
+            await server.close()
+        except BaseException as error:
+            errors["owned_server"] = type(error).__name__
+        finally:
+            try:
+                observer.close()
+            except BaseException as error:
+                errors["process_observer"] = type(error).__name__
+        cleanup_seconds = time.monotonic() - cleanup_started
+        write_new(
+            args.output / "cleanup.json",
+            {
+                "cleanup_wall_seconds": cleanup_seconds,
+                "cleanup_grace_seconds": protocol.get("cleanup_grace_seconds", 300),
+                "inclusive_cohort_wall_including_cleanup_seconds": time.monotonic() - start,
+                "owned_server_physically_stopped": server.process is None
+                or server.process.poll() is not None,
+                "process_observer_physically_stopped": observer.thread is None
+                or not observer.thread.is_alive(),
+                "errors": errors,
+                "no_past_OS_reobservation_claim": True,
+            },
+        )
+        if errors or cleanup_seconds > protocol.get("cleanup_grace_seconds", 300):
+            raise RuntimeError("owned cleanup incomplete or outside declared finite grace")
     clean = all(not c.get("error_type") for c in cohorts)
     return 0 if clean and (connected or args.classification != "smoke") else 1
 
@@ -333,7 +416,7 @@ async def positive_control(args, world, protocol, server):
             write_new(
                 directory / "intent.json", {k: v for k, v in record.items() if k != "attempts"}
             )
-            write_new(directory / "result.json", record)
+            s.persist_offer(directory, record)
             result["offers"].append(record)
     except Exception as error:
         result["error_type"] = type(error).__name__
@@ -410,7 +493,7 @@ async def trajectory(s, offers, result):
                     s.output / f"snapshot-{item.checkpoint}.json", s.stock.model_dump(mode="json")
                 )
                 result["snapshots"][str(item.checkpoint)] = s.stock.digest
-        if item.phase == "anchor" and item.checkpoint == 6 and irrelevant is None:
+        if item.phase in {"anchor", "frontier"} and item.checkpoint == 6 and irrelevant is None:
             irrelevant, match = matched_placebo(final, pool)
             result["placebo_matching"] = match
             write_new(s.output / "irrelevant-stock.json", irrelevant.model_dump(mode="json"))
