@@ -9,7 +9,7 @@ import time
 from contextvars import ContextVar
 from datetime import datetime
 from decimal import Decimal
-from typing import Any, cast
+from typing import Any, Literal, cast
 
 from pydantic import Field, TypeAdapter
 from sqlalchemy import (
@@ -37,10 +37,21 @@ from .bindings import (
 )
 from .blocking import BlockingCapacity, run_blocking
 from .calls import ProviderResponseMismatch
-from .models import Cost, Event, ExecutionReceipt, Identifier, Model, ReceiptRef, Verdict, now, uid
+from .models import (
+    Cost,
+    Event,
+    ExecutionReceipt,
+    Identifier,
+    InvocationObservation,
+    Model,
+    ReceiptRef,
+    Verdict,
+    now,
+    uid,
+)
 from .overlay import AdmissionDenied
-from .security import Identity
-from .storage import Conflict, Store, budgets, leases, metadata
+from .security import Identity, verify
+from .storage import Conflict, Store, budgets, leases, metadata, records
 
 _allowance_floors: ContextVar[dict[tuple[str, str], Decimal] | None] = ContextVar(
     "allowance_floors", default=None
@@ -202,9 +213,81 @@ def _public(row: Any) -> dict[str, Any]:
     return result
 
 
+def invocation_basis_id(owner: str, caller: str, invocation_id: str, phase: str) -> str:
+    return "invocation-" + fingerprint([owner, caller, invocation_id, phase])
+
+
 class InvocationStore:
-    def __init__(self, store: Store) -> None:
-        self.store = store
+    def __init__(
+        self, store: Store, identity: Identity | None = None, registry: Registry | None = None
+    ) -> None:
+        self.store, self.identity, self.registry = store, identity, registry
+        if (identity is None) != (registry is None) or (identity and identity.name != store.owner):
+            raise ValueError("invocation transaction signer must own the installed registry")
+
+    def _anchor(self, conn: Any, row: Any, phase: Literal["accepted", "dispatched"]) -> None:
+        if self.identity is None or self.registry is None:
+            # Low-level legacy callers are not silently upgraded into signed facts.
+            return
+        binding = self.registry.inspect(row["binding_id"], expected_digest=row["binding_digest"])
+        accepted_ref = None
+        accepted_observation = None
+        parent = active_invocation.get()
+        if phase == "dispatched":
+            accepted_ref = ReceiptRef(
+                issuer=self.store.owner,
+                id=invocation_basis_id(self.store.owner, row["caller"], row["id"], "accepted"),
+            )
+            envelope = conn.execute(
+                select(records.c.envelope).where(
+                    (records.c.issuer == self.store.owner)
+                    & (records.c.kind == "event")
+                    & (records.c.record_id == accepted_ref.id)
+                )
+            ).scalar_one()
+            accepted = verify(envelope, self.store.principals)
+            if not isinstance(accepted, Event) or accepted.invocation_observation is None:
+                raise Conflict("invocation acceptance anchor missing")
+            accepted_observation = accepted.invocation_observation
+            parent = accepted_observation.parent_invocation
+        anchor = InvocationObservation(
+            caller=row["caller"],
+            invocation_id=row["id"],
+            resource_owner=self.store.owner,
+            binding_id=row["binding_id"],
+            binding_digest=row["binding_digest"],
+            request_fingerprint=row["fingerprint"],
+            arguments_digest=fingerprint(row["request"]["arguments"]),
+            scope=binding.scope,
+            lease_id=row["lease_id"],
+            worker=row["worker"],
+            fence=row["fence"],
+            phase=phase,
+            origin="execution_transaction",
+            accepted_receipt=accepted_ref,
+            parent_invocation=parent,
+        )
+        if (
+            accepted_observation is not None
+            and accepted_observation.model_copy(
+                update={"phase": "dispatched", "accepted_receipt": accepted_ref}
+            )
+            != anchor
+        ):
+            raise Conflict("invocation acceptance content changed before dispatch")
+        event = Event(
+            schema_version="6",
+            id=invocation_basis_id(self.store.owner, row["caller"], row["id"], phase),
+            issuer=self.store.owner,
+            subject=binding.subject,
+            action="recommendation",
+            task_id=row["id"],
+            attempt_id=row["lease_id"],
+            correlation_id=row["fingerprint"],
+            causation_id=accepted_ref.id if accepted_ref else None,
+            invocation_observation=anchor,
+        )
+        self.store._insert(conn, event, self.identity.sign(event))
 
     @staticmethod
     def _locked(conn: Any, caller: str, invocation_id: str) -> tuple[Any, Any]:
@@ -533,11 +616,13 @@ class InvocationStore:
                 updated_at=now(),
             )
             conn.execute(insert(invocations).values(**values))
+            self._anchor(conn, values, "accepted")
             return values, True
 
     def dispatched(self, claim: dict[str, Any]) -> None:
         with self.store.engine.begin() as conn:
             self._owned(conn, claim)
+            self._anchor(conn, claim, "dispatched")
             conn.execute(
                 update(invocations)
                 .where(_selector(claim["caller"], claim["id"]))
@@ -664,7 +749,7 @@ class Executor:
 
     def __init__(self, registry: Registry, identity: Identity, allowance: Reservation) -> None:
         self.registry, self.identity, self.allowance = registry, identity, allowance
-        self.store = InvocationStore(registry.overlay.store)
+        self.store = InvocationStore(registry.overlay.store, identity, registry)
         self._cleanup: set[asyncio.Task[None]] = set()
         if identity.name != self.store.store.owner:
             raise ValueError("executor identity must own resources")

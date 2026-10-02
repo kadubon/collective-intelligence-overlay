@@ -153,7 +153,7 @@ def test_actual_published_032_upgrade_and_old_dump_preserve_originals(
     assert {e.verdict for e in store.evidence()} == {"PASS", "FAIL", "UNKNOWN"}
     with store.engine.connect() as conn:
         assert conn.execute(select(invocation_resolutions)).all() == []
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0021"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0022"
         assert conn.execute(select(remote_calls.c.arguments_digest)).scalar_one() is None
         assert (
             conn.execute(
@@ -422,7 +422,7 @@ def test_actual_030_upgrade_preserves_execution_and_unknown_history(unmigrated_s
         assert selection["cause_id"] == projection["cause_id"]
         assert conn.execute(select(requests)).first() is None
         assert conn.execute(select(remote_calls)).first() is None
-        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0021"
+        assert conn.execute(text("SELECT version_num FROM alembic_version")).scalar_one() == "0022"
         assert conn.execute(
             select(invocations.c.id).where(invocations.c.id == fixture["legacy_remote_id"])
         ).scalar_one()
@@ -548,7 +548,7 @@ def test_interrupted_backfill_rolls_back_and_resumes_without_rewriting(unmigrate
 
 
 @contextmanager
-def database_copy(store):
+def database_copy(store, *, operator_url=None):
     prefix = json.loads(os.environ.get("CIO_PG_TOOL_PREFIX", "[]"))
     if not prefix and (not shutil.which("pg_dump") or not shutil.which("pg_restore")):
         pytest.skip("real pg_dump/pg_restore required; set CIO_PG_TOOL_PREFIX for WSL")
@@ -567,7 +567,22 @@ def database_copy(store):
     ).stdout
     assert dump.startswith(b"PGDMP")
     database = "cio_restore_" + uuid4().hex
-    admin = create_engine(url.set(database="postgres"), isolation_level="AUTOCOMMIT")
+    admin = create_engine(
+        operator_url or url.set(database="postgres"), isolation_level="AUTOCOMMIT"
+    )
+    restore_url = admin.url if operator_url else url
+    restore_connection = [
+        "-h",
+        restore_url.host,
+        "-p",
+        str(restore_url.port or 5432),
+        "-U",
+        restore_url.username,
+    ]
+    if restore_url.password:
+        environment["PGPASSWORD"] = restore_url.password
+    else:
+        environment.pop("PGPASSWORD", None)
     restored = None
     try:
         with admin.connect() as conn:
@@ -576,7 +591,7 @@ def database_copy(store):
             [
                 *prefix,
                 "pg_restore",
-                *connection,
+                *restore_connection,
                 "--no-owner",
                 "--no-acl",
                 "--exit-on-error",
@@ -590,7 +605,7 @@ def database_copy(store):
             timeout=60,
         )
         restored = Store(
-            url.set(database=database).render_as_string(hide_password=False),
+            restore_url.set(database=database).render_as_string(hide_password=False),
             store.owner,
             store.principals,
         )

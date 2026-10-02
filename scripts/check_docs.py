@@ -43,7 +43,7 @@ for command in commands:
     cli_reference += "\n" + cli_help(command.strip())
 cli_path = root / "docs/cli-help.txt"
 if args.write_cli_help:
-    cli_path.write_text(cli_reference, encoding="utf-8")
+    cli_path.write_text(cli_reference, encoding="utf-8", newline="\n")
 else:
     saved = cli_path.read_text(encoding="utf-8")
     # argparse wrapping/color can differ across supported interpreters. Check
@@ -57,7 +57,7 @@ for model in (Capability, Evidence, Event, Opportunity, Proposal, Binding, Artif
     content = json.dumps(model.model_json_schema(), indent=2) + "\n"
     if args.write_schemas:
         path.parent.mkdir(exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        path.write_text(content, encoding="utf-8", newline="\n")
     elif path.read_text(encoding="utf-8") != content:
         raise SystemExit(f"stale schema: {path}")
 for path in [*root.glob("*.md"), *root.glob("docs/*.md"), *root.glob(".agents/skills/*/SKILL.md")]:

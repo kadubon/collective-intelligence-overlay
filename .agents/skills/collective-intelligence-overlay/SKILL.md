@@ -41,6 +41,15 @@ After a lost response, use `executor.store.get(caller, invocation_id)` or the
 authenticated A2A `invocation` operation. Repeat the same request/ID only to obtain
 its running or saved result. Changed requests conflict; UNKNOWN after dispatch
 requires reconciliation before a new attempt. Cancellation does not prove zero cost.
+
+For 0.4.2 receiptless UNKNOWN/held work, use the existing owner resolution path
+only with an installed authoritative query that checks the immutable original
+request, every local/remote child, effects/results and actual physical quiescence.
+The [API](../../../docs/api.md#owner-resolution-of-historical-uncertain-effects)
+distinguishes atomic new-worker anchors from current legacy recovery observations.
+Do not reconstruct a missing old receipt, assume no mapping means no effect,
+refund or retry. Insufficient provenance stays UNKNOWN. Stop older readers/writers
+for the offline v6/0022 upgrade described in [deployment](../../../docs/deployment.md).
 In 0.2.1, inspect `reservation_state` and `release_reason` separately from business
 state. Only a database-confirmed undispatched reservation is released after fencing;
 dispatched and legacy-unknown work remains held. Inspection overhead stays recorded.

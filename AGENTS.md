@@ -4,6 +4,19 @@ Build a thin overlay for evidence sharing and receiver-local capability admissio
 Do not build an agent runtime, workflow engine, protocol implementation or global manager.
 Use neutral reasoning and distinguish observations from claims.
 
+For 0.4.2 preserve the published 0.4.1 originals and its ceiling/zero-difference
+result. New accumulation work belongs primarily outside the package and requires
+independent longitudinal worlds, a strong ordinary shared-skills baseline,
+read-only checkpoint state interventions and a pushed preregistration before
+confirmation inference. Pilot sensitivity selection must not use the C-minus-M
+sign. Preserve every failure/censoring and charge missing usage conservatively.
+See `docs/audit-042.md` for actual progress; never call stock counts intelligence.
+Receiptless recovery retains UNKNOWN/held and every original byte. New atomic
+anchors differ from current legacy owner observations. Complete authoritative
+request/descendant/result/effect and physical-quiescence inspection is mandatory.
+Stop old v1-v5 readers/writers for the offline v6/0022 upgrade. No 0.4.1 publishing
+recovery exception may be widened to 0.4.2.
+
 `src/collective_intelligence_overlay` holds typed records, PostgreSQL storage,
 OPA admission, SDK adapters and deterministic reference applications. Keep example
 business logic out of the generic core. `tests` covers unit, integration and E2E paths.

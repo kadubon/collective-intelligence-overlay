@@ -256,6 +256,154 @@
       "title": "FormationReceipt",
       "type": "object"
     },
+    "InvocationObservation": {
+      "additionalProperties": false,
+      "description": "Owner transaction anchor or a new observation of missing historical facts.\n\nDispatch records permission crossing, not completion, effect absence or PASS.\nA recovered observation attests current retained state, never a past worker.\nFull immutable request content remains in the owner's invocation row; its\nfingerprint covers arguments, environment, caller and permissions together.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "caller": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Caller",
+          "type": "string"
+        },
+        "invocation_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Invocation Id",
+          "type": "string"
+        },
+        "resource_owner": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Resource Owner",
+          "type": "string"
+        },
+        "binding_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Binding Id",
+          "type": "string"
+        },
+        "binding_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Binding Digest",
+          "type": "string"
+        },
+        "request_fingerprint": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Request Fingerprint",
+          "type": "string"
+        },
+        "arguments_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Arguments Digest",
+          "type": "string"
+        },
+        "scope": {
+          "$ref": "#/$defs/Scope"
+        },
+        "lease_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Lease Id",
+          "type": "string"
+        },
+        "worker": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Worker",
+          "type": "string"
+        },
+        "fence": {
+          "minimum": 1,
+          "title": "Fence",
+          "type": "integer"
+        },
+        "phase": {
+          "enum": [
+            "accepted",
+            "dispatched",
+            "recovered"
+          ],
+          "title": "Phase",
+          "type": "string"
+        },
+        "origin": {
+          "enum": [
+            "execution_transaction",
+            "legacy_recovery_observation"
+          ],
+          "title": "Origin",
+          "type": "string"
+        },
+        "accepted_receipt": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ReceiptRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "parent_invocation": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Parent Invocation"
+        },
+        "observed_state_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Observed State Digest"
+        }
+      },
+      "required": [
+        "caller",
+        "invocation_id",
+        "resource_owner",
+        "binding_id",
+        "binding_digest",
+        "request_fingerprint",
+        "arguments_digest",
+        "scope",
+        "lease_id",
+        "worker",
+        "fence",
+        "phase",
+        "origin"
+      ],
+      "title": "InvocationObservation",
+      "type": "object"
+    },
     "Outcome": {
       "enum": [
         "ACCEPT",
@@ -500,6 +648,154 @@
         "reason"
       ],
       "title": "ReconciliationReceipt",
+      "type": "object"
+    },
+    "RecoveryResolutionReceipt": {
+      "additionalProperties": false,
+      "description": "Receiptless owner review; no original terminal receipt is manufactured.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "caller": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Caller",
+          "type": "string"
+        },
+        "invocation_id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Invocation Id",
+          "type": "string"
+        },
+        "original_receipt": {
+          "default": null,
+          "title": "Original Receipt",
+          "type": "null"
+        },
+        "original_fingerprint": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Original Fingerprint",
+          "type": "string"
+        },
+        "state_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "State Digest",
+          "type": "string"
+        },
+        "remote_calls_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Remote Calls Digest",
+          "type": "string"
+        },
+        "observations": {
+          "items": {
+            "$ref": "#/$defs/ReceiptRef"
+          },
+          "maxItems": 64,
+          "title": "Observations",
+          "type": "array"
+        },
+        "review_binding_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Review Binding Digest",
+          "type": "string"
+        },
+        "review_observation_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Review Observation Digest",
+          "type": "string"
+        },
+        "effect": {
+          "enum": [
+            "confirmed",
+            "absent"
+          ],
+          "title": "Effect",
+          "type": "string"
+        },
+        "all_results_checked": {
+          "const": true,
+          "title": "All Results Checked",
+          "type": "boolean"
+        },
+        "worker_quiescent": {
+          "const": true,
+          "title": "Worker Quiescent",
+          "type": "boolean"
+        },
+        "independent_verification": {
+          "const": "UNKNOWN",
+          "default": "UNKNOWN",
+          "title": "Independent Verification",
+          "type": "string"
+        },
+        "allowance_changed": {
+          "const": false,
+          "default": false,
+          "title": "Allowance Changed",
+          "type": "boolean"
+        },
+        "reason": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Reason",
+          "type": "string"
+        },
+        "command_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Command Digest",
+          "type": "string"
+        },
+        "basis": {
+          "$ref": "#/$defs/ReceiptRef"
+        },
+        "basis_origin": {
+          "enum": [
+            "execution_transaction",
+            "legacy_recovery_observation"
+          ],
+          "title": "Basis Origin",
+          "type": "string"
+        },
+        "original_request_checked": {
+          "const": true,
+          "title": "Original Request Checked",
+          "type": "boolean"
+        },
+        "all_children_checked": {
+          "const": true,
+          "title": "All Children Checked",
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "caller",
+        "invocation_id",
+        "original_fingerprint",
+        "state_digest",
+        "remote_calls_digest",
+        "observations",
+        "review_binding_digest",
+        "review_observation_digest",
+        "effect",
+        "all_results_checked",
+        "worker_quiescent",
+        "reason",
+        "command_digest",
+        "basis",
+        "basis_origin",
+        "original_request_checked",
+        "all_children_checked"
+      ],
+      "title": "RecoveryResolutionReceipt",
       "type": "object"
     },
     "ResolutionReceipt": {
@@ -902,7 +1198,8 @@
         "2",
         "3",
         "4",
-        "5"
+        "5",
+        "6"
       ],
       "title": "Schema Version",
       "type": "string"
@@ -955,6 +1252,21 @@
       "anyOf": [
         {
           "$ref": "#/$defs/ResolutionReceipt"
+        },
+        {
+          "$ref": "#/$defs/RecoveryResolutionReceipt"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Resolution"
+    },
+    "invocation_observation": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/InvocationObservation"
         },
         {
           "type": "null"

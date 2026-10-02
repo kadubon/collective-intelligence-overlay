@@ -1065,6 +1065,32 @@ legacy identity and incomplete local-result inspection cannot close the parent.
 The installed query and its operational authority are a stated trust assumption;
 the overlay cannot infer arbitrary external effects from a hash or model answer.
 
+In 0.4.2, a fenced dispatched UNKNOWN/held invocation with no terminal receipt
+can use the same review API. New Executor claims and dispatches append owner-signed
+Event v6 anchors in the corresponding database transactions. They bind the full
+immutable request, scope/environment, binding, lease/worker/fence and observed local
+parent. The read-only review state additionally includes `request`, `basis`,
+`binding` and `local_children`. The query must positively return
+`original_request_checked: true` and `all_children_checked: true` as well as the
+existing effect/result/quiescence checks. Every recorded local descendant must
+have an authenticated completed result or its own active owner resolution; every
+remote descendant needs the exact independent original-ID observation. The bound
+is 64 descendants/observations. Exceeding it or encountering partial anchors fails
+closed. A local completed result still does not prove arbitrary external effects.
+
+For an older writer with neither anchor, explicit review first signs a **current**
+recovery observation over the retained row and lease. It does not invent acceptance,
+dispatch, a parent relationship or a worker receipt. The installed authoritative
+query must establish the full original request and all local/remote/MCP work,
+including work absent from the overlay's mappings. Missing external provenance or
+physical termination leaves UNKNOWN. The resulting v6 recovery resolution has
+`original_receipt: null`, a separate basis reference and origin, and independent
+verification UNKNOWN. The original row and held allowance are unchanged. Old
+terminal-receipt resolution remains v5. Anchor costs are nested in execution wall
+observations; do not count them as an additional charge or treat killed work's
+unmeasured consumption as zero. Owner review records inclusive inspection/query
+wall overhead; command replay returns its original observation without another query.
+
 ```python
 event = await host.resolutions.review(
     config.owner,

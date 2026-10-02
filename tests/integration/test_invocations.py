@@ -529,7 +529,12 @@ async def test_cancelled_claim_waits_for_confirmed_commit_before_release(
     assert result["reservation_state"] == "released"
     assert result["reason"] == "cancelled_during_claim"
     assert effects == []
-    assert len(overlay.store.events()) == 1
+    events = overlay.store.events()
+    terminal = [event for event in events if event.execution is not None]
+    anchors = [event for event in events if event.invocation_observation is not None]
+    assert len(terminal) == 1
+    assert [event.invocation_observation.phase for event in anchors] == ["accepted"]
+    assert anchors[0].costs == ()
     with overlay.store.engine.connect() as conn:
         assert conn.execute(select(budgets.c.remaining)).scalar_one() == 10
 

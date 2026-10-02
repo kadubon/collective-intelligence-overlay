@@ -18,6 +18,7 @@ PAYLOAD_TYPE_V2 = "application/vnd.collective-intelligence-overlay.record.v2+jso
 PAYLOAD_TYPE_V3 = "application/vnd.collective-intelligence-overlay.record.v3+json"
 PAYLOAD_TYPE_V4 = "application/vnd.collective-intelligence-overlay.record.v4+json"
 PAYLOAD_TYPE_V5 = "application/vnd.collective-intelligence-overlay.record.v5+json"
+PAYLOAD_TYPE_V6 = "application/vnd.collective-intelligence-overlay.record.v6+json"
 MAX_RECORD_BYTES = 262144
 record_adapter: TypeAdapter[Record] = TypeAdapter(Record)
 
@@ -54,8 +55,10 @@ class Identity:
             exclude.add("work")
         if isinstance(record, Event) and record.schema_version != "4":
             exclude.add("reconciliation")
-        if isinstance(record, Event) and record.schema_version != "5":
+        if isinstance(record, Event) and record.schema_version not in {"5", "6"}:
             exclude.add("resolution")
+        if isinstance(record, Event) and record.schema_version != "6":
+            exclude.add("invocation_observation")
         if isinstance(record, Capability) and record.schema_version == "1":
             exclude.add("dependency_issuers")
         if isinstance(record, Capability) and record.schema_version != "3":
@@ -66,6 +69,7 @@ class Identity:
             "3": PAYLOAD_TYPE_V3,
             "4": PAYLOAD_TYPE_V4,
             "5": PAYLOAD_TYPE_V5,
+            "6": PAYLOAD_TYPE_V6,
         }[record.schema_version]
         envelope = Envelope(record.model_dump_json(exclude=exclude).encode(), payload_type, {})
         envelope.sign(self.signer)
@@ -87,6 +91,7 @@ def verify(
         PAYLOAD_TYPE_V3,
         PAYLOAD_TYPE_V4,
         PAYLOAD_TYPE_V5,
+        PAYLOAD_TYPE_V6,
     }:
         raise ValueError("unsupported payload type")
     untrusted = json.loads(envelope.payload)
@@ -108,6 +113,7 @@ def verify(
         "3": PAYLOAD_TYPE_V3,
         "4": PAYLOAD_TYPE_V4,
         "5": PAYLOAD_TYPE_V5,
+        "6": PAYLOAD_TYPE_V6,
     }[record.schema_version]
     if envelope.payload_type != expected:
         raise ValueError("record schema and DSSE media type differ")

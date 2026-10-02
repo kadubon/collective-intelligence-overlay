@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.4.2 (unreleased)
+
+- Record owner-signed acceptance and dispatch anchors atomically in the existing
+  ledger. Wire version 6 preserves all earlier signed payloads and distinguishes
+  receiptless owner recovery from an original worker terminal receipt.
+- Permit bounded owner review of fenced UNKNOWN/held invocations without a
+  terminal receipt. Require the immutable request, pinned binding, complete local
+  and remote descendants, authoritative results and physical quiescence. Legacy
+  cases retain a current recovery observation rather than reconstructed history.
+  Closure releases capacity only; it never refunds, retries or issues quality PASS.
+- Add migration 0022's local parent index without rewriting signed records.
+  Stop older writers/readers before upgrading; this is an offline upgrade.
+
 ## 0.4.1 (2026-10-02)
 
 - Publish the measured immutable pair via the existing OIDC workflow after all

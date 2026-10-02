@@ -6,7 +6,15 @@ from enum import StrEnum
 from typing import Annotated, Any, Literal, Self
 from uuid import uuid4
 
-from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
+from pydantic import (
+    AwareDatetime,
+    BaseModel,
+    ConfigDict,
+    Field,
+    SerializerFunctionWrapHandler,
+    model_serializer,
+    model_validator,
+)
 
 Identifier = Annotated[str, Field(min_length=1, max_length=160, pattern=r"^[a-zA-Z0-9_.:/-]+$")]
 Digest = Annotated[str, Field(pattern=r"^[a-f0-9]{64}$")]
@@ -323,13 +331,84 @@ class ResolutionReceipt(Model):
     command_digest: Digest
 
 
+class InvocationObservation(Model):
+    """Owner transaction anchor or a new observation of missing historical facts.
+
+    Dispatch records permission crossing, not completion, effect absence or PASS.
+    A recovered observation attests current retained state, never a past worker.
+    Full immutable request content remains in the owner's invocation row; its
+    fingerprint covers arguments, environment, caller and permissions together.
+    """
+
+    caller: Identifier
+    invocation_id: Identifier
+    resource_owner: Identifier
+    binding_id: Identifier
+    binding_digest: Digest
+    request_fingerprint: Digest
+    arguments_digest: Digest
+    scope: Scope
+    lease_id: Identifier
+    worker: Identifier
+    fence: int = Field(ge=1)
+    phase: Literal["accepted", "dispatched", "recovered"]
+    origin: Literal["execution_transaction", "legacy_recovery_observation"]
+    accepted_receipt: ReceiptRef | None = None
+    parent_invocation: Digest | None = None
+    observed_state_digest: Digest | None = None
+
+    @model_validator(mode="after")
+    def observation_kind(self) -> Self:
+        if self.phase == "recovered":
+            if (
+                self.origin != "legacy_recovery_observation"
+                or self.observed_state_digest is None
+                or self.accepted_receipt is not None
+                or self.parent_invocation is not None
+            ):
+                raise ValueError("legacy recovery is a new current-state observation")
+        elif (
+            self.origin != "execution_transaction"
+            or self.observed_state_digest is not None
+            or ((self.phase == "dispatched") != (self.accepted_receipt is not None))
+        ):
+            raise ValueError("dispatch requires its original transaction acceptance")
+        return self
+
+
+class RecoveryResolutionReceipt(Model):
+    """Receiptless owner review; no original terminal receipt is manufactured."""
+
+    caller: Identifier
+    invocation_id: Identifier
+    original_receipt: None = None
+    original_fingerprint: Digest
+    state_digest: Digest
+    remote_calls_digest: Digest
+    observations: tuple[ReceiptRef, ...] = Field(max_length=64)
+    review_binding_digest: Digest
+    review_observation_digest: Digest
+    effect: Literal["confirmed", "absent"]
+    all_results_checked: Literal[True]
+    worker_quiescent: Literal[True]
+    independent_verification: Literal["UNKNOWN"] = "UNKNOWN"
+    allowance_changed: Literal[False] = False
+    reason: Identifier
+    command_digest: Digest
+    basis: ReceiptRef
+    basis_origin: Literal["execution_transaction", "legacy_recovery_observation"]
+    original_request_checked: Literal[True]
+    all_children_checked: Literal[True]
+
+
 class Event(RecordModel):
-    schema_version: Literal["1", "2", "3", "4", "5"] = "1"
+    schema_version: Literal["1", "2", "3", "4", "5", "6"] = "1"
     execution: ExecutionReceipt | None = None
     formation: FormationReceipt | None = None
     work: WorkObservation | None = None
     reconciliation: ReconciliationReceipt | None = None
-    resolution: ResolutionReceipt | None = None
+    resolution: ResolutionReceipt | RecoveryResolutionReceipt | None = None
+    invocation_observation: InvocationObservation | None = None
     kind: Literal["event"] = "event"
     id: Identifier = Field(default_factory=uid)
     issuer: Identifier
@@ -356,9 +435,40 @@ class Event(RecordModel):
     outcome: Outcome | Verdict | None = None
     duration_seconds: float | None = Field(default=None, ge=0, allow_inf_nan=False)
 
+    @model_serializer(mode="wrap")
+    def retain_old_shape(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
+        body: dict[str, Any] = handler(self)
+        if self.schema_version != "6":
+            body.pop("invocation_observation", None)
+        return body
+
     @model_validator(mode="after")
     def receipt_version(self) -> Self:
         count = int(self.execution is not None) + int(self.formation is not None)
+        if self.schema_version == "6":
+            if (
+                count
+                or self.work is not None
+                or self.reconciliation is not None
+                or self.action != "recommendation"
+                or self.outcome is not None
+            ):
+                raise ValueError("v6 owner observations make no execution or truth claim")
+            if (self.invocation_observation is None) == (self.resolution is None):
+                raise ValueError("v6 requires one invocation observation or receiptless review")
+            if self.resolution is not None and not isinstance(
+                self.resolution, RecoveryResolutionReceipt
+            ):
+                raise ValueError("v6 resolution requires its explicit missing-receipt basis")
+            if (
+                self.invocation_observation
+                and self.invocation_observation.resource_owner != self.issuer
+            ):
+                raise ValueError("invocation observation belongs to its resource owner")
+        elif self.invocation_observation is not None or isinstance(
+            self.resolution, RecoveryResolutionReceipt
+        ):
+            raise ValueError("receiptless observations require event v6")
         if self.schema_version == "5":
             if (
                 count
@@ -369,7 +479,7 @@ class Event(RecordModel):
                 or self.outcome is not None
             ):
                 raise ValueError("v5 resolution requires one owner review and no truth claim")
-        elif self.resolution is not None:
+        elif self.resolution is not None and self.schema_version != "6":
             raise ValueError("resolution receipts require event v5")
         if self.schema_version == "4":
             if (

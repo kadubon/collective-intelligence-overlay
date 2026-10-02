@@ -219,6 +219,34 @@ no retained work depends on them. It never drops unrelated databases automatical
 
 ## Change an application, checker or allocation setting
 
+### Offline 0.4.2 upgrade and receiptless recovery
+
+Stop intake, drain or physically stop all old peers and wait for actual worker
+termination before taking and verifying a coherent backup. Upgrade all writers
+and readers together: older readers reject Event v6, and older writers cannot
+produce its atomic acceptance/dispatch anchors. This release does not establish
+a mixed-version rolling upgrade. Use the existing explicit DDL operator connection
+for migration 0022; it adds an index over accepted parent observations in existing
+records without changing signed bytes, historical requests, balances or leases.
+Do not give DDL privileges to the runtime role. Restore through the normal closed
+generation procedure before attempting any resolution.
+
+A missing terminal receipt after dispatch remains UNKNOWN with held allowance.
+The owner can install an authoritative read-only whole-invocation query and use
+the existing `resolve-invocation` API. See [the API contract](api.md#owner-resolution-of-historical-uncertain-effects).
+The query must inspect the pinned original request and all results/effects and
+establish physical quiescence of the worker and children. Lease fencing, an expired
+lease, model output, absence of a mapping or a provider not-found response is
+insufficient. Legacy requests require independently preserved provenance; the
+current owner observation is not a backdated worker receipt. Missing inventory,
+untracked effects, unavailable originals or more than 64 descendants keeps the
+capacity slot unresolved. A successful review closes capacity only. It never
+refunds, retries, overwrites UNKNOWN, or grants quality PASS. Preserve the new
+basis and closure records in backups along with all original history.
+
+The real local fault protocol and the ongoing accumulation study are documented
+in [the 0.4.2 audit](audit-042.md); an in-progress study is not a published result.
+
 Keep the current installed factory, protected settings, exact binding/checker pins,
 operator choices and coherent backup until a replacement is accepted. The operator
 owns this procedure; a proposal, model output or remote manifest cannot perform it.
