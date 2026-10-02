@@ -1,8 +1,12 @@
 # 0.4.2 confirmation preparation
 
 This is a prospective design note, **not a pushed confirmation preregistration**.
-The second and final allowed E/M calibration cohort is still running. Its frozen
-93-file source remains unchanged. Confirmation inference has not started.
+The second and final allowed E/M calibration cohort is complete and verified
+offline. Its frozen 93-file source remained unchanged during inference.
+Confirmation inference has not started. The [actual calibration report](studies/accumulation-042/calibration-v2/report.en.md),
+[analysis](studies/accumulation-042/calibration-v2/analysis.json) and
+[review provenance](studies/accumulation-042/calibration-v2/review-provenance.json)
+retain the pooled gate pass separately from the insensitive family review.
 The final JSON protocol and exact installed candidate wheel will be committed and
 pushed before any confirmation request.
 
@@ -12,9 +16,8 @@ strong ordinary shared skills. The primary endpoint remains the final fixed
 checkpoint quality difference C minus M. Neither task selection nor stopping may
 depend on that difference's sign.
 
-The following reader/runtime corrections are being prepared independently of the
-running calibration. Their prospective integration must finish before candidate
-freeze: exact ordered stock reconstruction; checkpoint-before-learning identity;
+The following reader/runtime corrections are implemented after calibration:
+exact ordered stock reconstruction; checkpoint-before-learning identity;
 declared family-wire validation without default completion; lazy optional Ollama
 import; authenticated copy/qualification lineage; and exact installed package
 bytes/import origins. Original calibration records and frozen code remain intact.
@@ -25,8 +28,14 @@ metadata retains a supplied hash in its file URL fragment rather than filling
 `archive_info.hashes`; both explicit representations are checked, with complete
 package-byte comparison. Install the eventual tested wheel through a local file
 URL containing `#sha256=<registered digest>` so its provenance is explicit. This
-probe used an earlier candidate whose source/native gate was incomplete and
-installed no runtime dependencies; it is not the required final installed gate.
+initial probe used an earlier candidate whose source/native gate was incomplete
+and installed no runtime dependencies; it is not the required final installed gate.
+A later clean installed runtime verified all 86 final wheel package files and
+36 loaded executable modules. The real `adapters` namespace now requires the
+standard namespace loader and one archive-backed location. Four actual peer
+startup observations and reconstruction after provider termination passed in
+a deterministic PG/OPA/TLS/A2A test with zero model requests. The complete native
+gate is still required before confirmation.
 
 Whole-pool foreign type/size matching alone is insufficient for a placebo. The
 confirmation design will also check the family, public contract, version, count
@@ -50,6 +59,15 @@ worlds are an explicitly limited-power host study, not enough evidence to resolv
 a five-percentage-point population difference. Task, peer, checkpoint and repeated
 draft rows do not increase the independent N. No third calibration cohort or
 p-value-dependent extension is allowed.
+
+The [432-scenario precision plan](studies/accumulation-042/confirmation-precision-planning-v2.json)
+records its source, NumPy/SciPy versions, 4,000 repetitions per scenario and
+simulation seed. The [seed inventory](studies/accumulation-042/confirmation-seed-separation-v1.json)
+found no overlap between 427319/619843/953117 and prior saved protocol seeds.
+The [actual runtime contract](studies/accumulation-042/runtime-contract-v1.json)
+was observed using seven bounded metadata calls and zero generation requests;
+its [review](studies/accumulation-042/runtime-observation-review-v1.json) records
+physical cleanup. These files are planning inputs, not confirmation results.
 
 Quality MCID 0.05 represents at least one additional correct task per twenty
 similar business tasks. A 20% complete cost improvement would be material only

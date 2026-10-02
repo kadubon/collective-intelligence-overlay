@@ -1,0 +1,13 @@
+world,arm,problem_id,family,difficulty,full_retrieved_dose,irrelevant_retrieved_dose,retrieved_type_count_bytes_matched,full_direct_admitted_dose,irrelevant_direct_admitted_dose,full_model_context_doses,irrelevant_model_context_doses,matching_is_not_semantic_equivalence
+world-6e8766a70eeb5a077f90,M,task-5b5379d600f85bda20d9ef83,sql,low,,,,,,,,True
+world-6e8766a70eeb5a077f90,M,task-6f9bfcfcb1be2dadc8f14db0,calibration,low,,,,,,,,True
+world-6e8766a70eeb5a077f90,M,task-40ebf1e4f89859d107aaa1ba,sql,middle,,,,,,,,True
+world-6e8766a70eeb5a077f90,M,task-8c99f5eddbb0c2a941c401a3,calibration,middle,,,,,,,,True
+world-6e8766a70eeb5a077f90,M,task-bf02a0f7857e542f3283270d,sql,high,,,,,,,,True
+world-6e8766a70eeb5a077f90,M,task-f21379198946d9c32506b9cd,calibration,high,,,,,,,,True
+world-e72d6fd2bb3903cd1cf8,M,task-e7e53fae61fea7d5fb3b22b6,sql,low,,,,,,,,True
+world-e72d6fd2bb3903cd1cf8,M,task-ada38e4e228f2bdec334f575,calibration,low,,,,,,,,True
+world-e72d6fd2bb3903cd1cf8,M,task-5b448d46e493d14f3f85789c,sql,middle,,,,,,,,True
+world-e72d6fd2bb3903cd1cf8,M,task-df54a4e2b749b8de767eb879,calibration,middle,,,,,,,,True
+world-e72d6fd2bb3903cd1cf8,M,task-9900bde337e0e205d045a088,sql,high,,,,,,,,True
+world-e72d6fd2bb3903cd1cf8,M,task-e09a80bc8b740006d2cbce46,calibration,high,,,,,,,,True

@@ -1,0 +1,13 @@
+arm,family,difficulty,world_scores,mean_Q,all_floor,all_ceiling
+E,sql,low,"[0.0, 0.0]",0.0,True,False
+E,sql,middle,"[0.0, 0.0]",0.0,True,False
+E,sql,high,"[0.0, 0.0]",0.0,True,False
+E,calibration,low,"[1.0, 1.0]",1.0,False,True
+E,calibration,middle,"[0.0, 0.0]",0.0,True,False
+E,calibration,high,"[0.0, 0.0]",0.0,True,False
+M,sql,low,"[0.0, 0.0]",0.0,True,False
+M,sql,middle,"[0.0, 0.0]",0.0,True,False
+M,sql,high,"[0.0, 0.0]",0.0,True,False
+M,calibration,low,"[1.0, 1.0]",1.0,False,True
+M,calibration,middle,"[0.0, 0.0]",0.0,True,False
+M,calibration,high,"[0.0, 0.0]",0.0,True,False

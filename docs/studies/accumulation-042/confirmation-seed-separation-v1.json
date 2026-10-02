@@ -1,0 +1,424 @@
+{
+  "confirmation_seeds": [
+    427319,
+    619843,
+    953117
+  ],
+  "prior_protocol_files_read": 524,
+  "prior_protocols_with_seed_metadata": 48,
+  "prior_distinct_seeds": [
+    0,
+    17,
+    29,
+    43,
+    71,
+    101,
+    401,
+    1009,
+    1013,
+    1019,
+    1409,
+    1913,
+    2111,
+    2221,
+    307191,
+    598412,
+    741913,
+    872131,
+    982317,
+    3439169,
+    68302743
+  ],
+  "overlap": [],
+  "confirmation_outcomes_inspected": false,
+  "protocols": [
+    {
+      "path": ".local/document-comparison-pilot-1/protocol.json",
+      "sha256": "78800776b285d11b4bb103a5f8ba2a581413a2225b9a63deeb8f496abe351526",
+      "seeds": [
+        0
+      ]
+    },
+    {
+      "path": ".local/document-comparison-pilot-2/protocol.json",
+      "sha256": "71113d4f3a222e33c750d145856091d1c1c68979d92e2e4e58c4126c3051cc4a",
+      "seeds": [
+        0
+      ]
+    },
+    {
+      "path": ".local/document-comparison-pilot-3/protocol.json",
+      "sha256": "f939e077059818d5cfeb06738938460aac11fb439123d0e84576e02d85ecfea0",
+      "seeds": [
+        0
+      ]
+    },
+    {
+      "path": ".local/gemma-042-calibration-v1-protocol.json",
+      "sha256": "6338d20d0e2cbd09ab706790ff343e3ed7c167a5d26120a6c732e662b5e829dd",
+      "seeds": [
+        598412,
+        741913,
+        68302743
+      ]
+    },
+    {
+      "path": ".local/gemma-042-calibration-v1/protocol.json",
+      "sha256": "6338d20d0e2cbd09ab706790ff343e3ed7c167a5d26120a6c732e662b5e829dd",
+      "seeds": [
+        598412,
+        741913,
+        68302743
+      ]
+    },
+    {
+      "path": ".local/gemma-042-calibration-v2-protocol.json",
+      "sha256": "890ee35832989e4fa36e590f4784b414912433612ff6c87590ce9221cfb85bcd",
+      "seeds": [
+        307191,
+        872131,
+        3439169
+      ]
+    },
+    {
+      "path": ".local/gemma-042-calibration-v2/protocol.json",
+      "sha256": "890ee35832989e4fa36e590f4784b414912433612ff6c87590ce9221cfb85bcd",
+      "seeds": [
+        307191,
+        872131,
+        3439169
+      ]
+    },
+    {
+      "path": ".local/gemma-042-smoke-v1/protocol.json",
+      "sha256": "10e7221dbec15180d33ff844f29430120b603e57ca7b30226ac7574d47ad7b46",
+      "seeds": [
+        982317
+      ]
+    },
+    {
+      "path": ".local/gemma-042-smoke-v2/protocol.json",
+      "sha256": "69895a40c6ff7e18f7d056c58d38a683dfeb52a49c5c1185e53653ae25bc4789",
+      "seeds": [
+        982317
+      ]
+    },
+    {
+      "path": ".local/gemma-042-smoke-v3/protocol.json",
+      "sha256": "53030f71bfad4412ac7be792f17a550dbd1971f301ed697750f9bb5ee01e42ec",
+      "seeds": [
+        982317
+      ]
+    },
+    {
+      "path": ".local/gemma-042-smoke-v4/protocol.json",
+      "sha256": "d3a8855e7b6612e25fd745ad462ff7219b236e6c644dcc53655b4f8b7791dfb5",
+      "seeds": [
+        982317
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36848916312/formal-archive-verified/reports-production/experiment/protocol.json",
+      "sha256": "26488d5fff1e95e3ba17277d82f5ae311cfc66103a79017f4fae151e60aac316",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36848916312/formal-archive-verified/reports-production/soak/protocol.json",
+      "sha256": "98eddebaf4e24bab9445d2f5cea38b1c5f19f570110e094405f64716af950c48",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36848916312/formal-originals/reports-production/experiment/protocol.json",
+      "sha256": "26488d5fff1e95e3ba17277d82f5ae311cfc66103a79017f4fae151e60aac316",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36848916312/formal-originals/reports-production/soak/protocol.json",
+      "sha256": "98eddebaf4e24bab9445d2f5cea38b1c5f19f570110e094405f64716af950c48",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36858429932/formal-originals/reports-production/experiment/protocol.json",
+      "sha256": "c758d5ac6162e9b797b2ff807925bde0e736dd4eb8f997dba34ae140c994a6f2",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36858429932/formal-originals/reports-production/soak/protocol.json",
+      "sha256": "66e0255d6d3f17fc8f318b8597ab2b4e3d7b16534a76f42d69cf51af66588e64",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36870275184/aggregate-updated-v1/reports-production/experiment/protocol.json",
+      "sha256": "c758d5ac6162e9b797b2ff807925bde0e736dd4eb8f997dba34ae140c994a6f2",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36870275184/aggregate-updated-v1/reports-production/soak/protocol.json",
+      "sha256": "66e0255d6d3f17fc8f318b8597ab2b4e3d7b16534a76f42d69cf51af66588e64",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36870275184/restored-prerequisites/reports-production/experiment/protocol.json",
+      "sha256": "c758d5ac6162e9b797b2ff807925bde0e736dd4eb8f997dba34ae140c994a6f2",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36870275184/restored-prerequisites/reports-production/soak/protocol.json",
+      "sha256": "66e0255d6d3f17fc8f318b8597ab2b4e3d7b16534a76f42d69cf51af66588e64",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36911991678/complete-tag-v1/reports-production/experiment/protocol.json",
+      "sha256": "c758d5ac6162e9b797b2ff807925bde0e736dd4eb8f997dba34ae140c994a6f2",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36911991678/complete-tag-v1/reports-production/soak/protocol.json",
+      "sha256": "66e0255d6d3f17fc8f318b8597ab2b4e3d7b16534a76f42d69cf51af66588e64",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36911991678/restored-prerequisites/reports-production/experiment/protocol.json",
+      "sha256": "c758d5ac6162e9b797b2ff807925bde0e736dd4eb8f997dba34ae140c994a6f2",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36911991678/restored-prerequisites/reports-production/soak/protocol.json",
+      "sha256": "66e0255d6d3f17fc8f318b8597ab2b4e3d7b16534a76f42d69cf51af66588e64",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36922605705/complete-pypi-v1/reports-production/experiment/protocol.json",
+      "sha256": "c758d5ac6162e9b797b2ff807925bde0e736dd4eb8f997dba34ae140c994a6f2",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36922605705/complete-pypi-v1/reports-production/soak/protocol.json",
+      "sha256": "66e0255d6d3f17fc8f318b8597ab2b4e3d7b16534a76f42d69cf51af66588e64",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36922605705/restored-prerequisites/reports-production/experiment/protocol.json",
+      "sha256": "c758d5ac6162e9b797b2ff807925bde0e736dd4eb8f997dba34ae140c994a6f2",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/ci-36922605705/restored-prerequisites/reports-production/soak/protocol.json",
+      "sha256": "66e0255d6d3f17fc8f318b8597ab2b4e3d7b16534a76f42d69cf51af66588e64",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-development-1009/protocol.json",
+      "sha256": "84470b3a988a3ba3679b91fb6585d71949efe8a256236c1fe97a3ddb42afcc71",
+      "seeds": [
+        1009
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-development-1013-2/protocol.json",
+      "sha256": "042934cf666a587332e1ed2ea78fa23718fd4d6d9ac5fe4e112a6d92a1d0ae88",
+      "seeds": [
+        1013
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-development-1013-3/protocol.json",
+      "sha256": "48355ebbda7cb683ef39ffa848309c83c90b07661f21574525570701545f9727",
+      "seeds": [
+        1013
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-development-1013/protocol.json",
+      "sha256": "95f14cea72b5bf9c93c6d9cb905b6f4d295b1c5a52735526672e9221cb42b386",
+      "seeds": [
+        1013
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-development-1019/protocol.json",
+      "sha256": "da57282251ab1ae52bd0a5c70254fa2417fef5f7d9a5fb94a3f7bad2957ce960",
+      "seeds": [
+        1019
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-development-2111-1/protocol.json",
+      "sha256": "650d3e44e26e3c4ed24918c80e56f5d6b8f04de1e8e0fd0689629cfad5fed41e",
+      "seeds": [
+        2111
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-formal-0747d73-v1/protocol.json",
+      "sha256": "5f2dd3e1c34bfe2c02f5062820b096739b2dc00428829f287be9a001e5189cf0",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-formal-15393d4/protocol.json",
+      "sha256": "01fa2bd535c24e41d8b9cfedbdb4806b84ace325f3db7deded27daa189faed9f",
+      "seeds": [
+        17,
+        29,
+        43,
+        71,
+        101
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-validator-tampering/business-result/protocol.json",
+      "sha256": "84470b3a988a3ba3679b91fb6585d71949efe8a256236c1fe97a3ddb42afcc71",
+      "seeds": [
+        1009
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-validator-tampering/check-artifact/protocol.json",
+      "sha256": "84470b3a988a3ba3679b91fb6585d71949efe8a256236c1fe97a3ddb42afcc71",
+      "seeds": [
+        1009
+      ]
+    },
+    {
+      "path": ".local/production-040/experiment-validator-tampering/denominator/protocol.json",
+      "sha256": "84470b3a988a3ba3679b91fb6585d71949efe8a256236c1fe97a3ddb42afcc71",
+      "seeds": [
+        1009
+      ]
+    },
+    {
+      "path": ".local/production-040/soak-development-1409-2/protocol.json",
+      "sha256": "8da25179f47ff75b21191b96a9a0866eedb53e4b962876488346b894a45f5e36",
+      "seeds": [
+        1409
+      ]
+    },
+    {
+      "path": ".local/production-040/soak-development-1409-3/protocol.json",
+      "sha256": "424eb1163d3ec5128afc3c28d75a1db44f2cf89b4356315fb2851bdd3c49d643",
+      "seeds": [
+        1409
+      ]
+    },
+    {
+      "path": ".local/production-040/soak-development-1409/protocol.json",
+      "sha256": "28933b27aa057d46dafd8c74eb1fd3b3db5f820eb7f95b4c027810e570a41202",
+      "seeds": [
+        1409
+      ]
+    },
+    {
+      "path": ".local/production-040/soak-development-1913-1/protocol.json",
+      "sha256": "6c76a9a9834baf9be7547bab485cd95c829c30a00ab269aeef0853e7be3c80e4",
+      "seeds": [
+        1913
+      ]
+    },
+    {
+      "path": ".local/production-040/soak-development-2221-1/protocol.json",
+      "sha256": "86c08ff5b30b2c9199489e89351ba20dbb2fc21bd239249134f0c004a8e6beeb",
+      "seeds": [
+        2221
+      ]
+    },
+    {
+      "path": ".local/production-040/soak-development-2221-2/protocol.json",
+      "sha256": "793010405868243046de0a2e869db24a861f2ed523bb18044f3dc94c90ad7cf3",
+      "seeds": [
+        2221
+      ]
+    },
+    {
+      "path": ".local/production-040/soak-formal-040-v1/protocol.json",
+      "sha256": "c581711aca3a55e6125e37cee2f0d3b997d263f515c717d4185bf0dd9095d32f",
+      "seeds": [
+        401
+      ]
+    },
+    {
+      "path": ".local/production-040/soak-formal-900a955-v1/protocol.json",
+      "sha256": "efe718e0faa60cab461a00801fe8f3bcbc097abcc99c26f8d03d3c952c388a23",
+      "seeds": [
+        401
+      ]
+    }
+  ]
+}

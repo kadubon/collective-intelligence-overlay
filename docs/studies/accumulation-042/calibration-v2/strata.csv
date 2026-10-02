@@ -1,0 +1,7 @@
+arm,difficulty,world_scores,mean_Q
+E,low,"[0.5, 0.5]",0.5
+E,middle,"[0.0, 0.0]",0.0
+E,high,"[0.0, 0.0]",0.0
+M,low,"[0.5, 0.5]",0.5
+M,middle,"[0.0, 0.0]",0.0
+M,high,"[0.0, 0.0]",0.0

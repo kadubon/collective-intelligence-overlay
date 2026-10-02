@@ -1,0 +1,9 @@
+world,arm,view,Q,offered,tokens_charged_per_offered_task,trained_state_nonempty,pool_matched,causal_placebo_judgment_requires_actual_retrieval_dose_match
+world-6e8766a70eeb5a077f90,E,full,0.16666666666666666,6,1219.8333333333333,False,True,True
+world-6e8766a70eeb5a077f90,M,full,0.16666666666666666,6,1210.5,False,True,True
+world-6e8766a70eeb5a077f90,M,empty,0.0,6,1101.6666666666667,False,True,True
+world-6e8766a70eeb5a077f90,M,irrelevant,0.0,6,1138.0,False,True,True
+world-e72d6fd2bb3903cd1cf8,E,full,0.16666666666666666,6,1205.3333333333333,False,True,True
+world-e72d6fd2bb3903cd1cf8,M,full,0.16666666666666666,6,1137.8333333333333,False,True,True
+world-e72d6fd2bb3903cd1cf8,M,empty,0.16666666666666666,6,1167.1666666666667,False,True,True
+world-e72d6fd2bb3903cd1cf8,M,irrelevant,0.16666666666666666,6,1199.3333333333333,False,True,True

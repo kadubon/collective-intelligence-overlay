@@ -95,3 +95,16 @@ snapshotと全denominatorを検査し、推論を再送しません。これは�
 整合性検査であり、model・物理processの暗号学的attestationではありません。
 code/task generatorのApache-2.0、model terms、生成rawの由来を区別し、weights・秘密鍵・
 operator configを公開しません。公開・確認の結果は実施後に原記録に基づいて追加します。
+
+## 完了した校正の記録
+
+2回目の校正は完了し、原記録をofflineで検証しました。
+[日本語report](studies/accumulation-042/calibration-v2/report.ja.md)、
+[英語report](studies/accumulation-042/calibration-v2/report.en.md)、
+[解析表](studies/accumulation-042/calibration-v2/analysis.json)、
+[検証結果](studies/accumulation-042/calibration-v2/verification.json)は実測からの派生物です。
+[provenance](studies/accumulation-042/derivative-provenance-v1.json)が原byteとhashを対応させます。
+205回・243,354 tokensの実推論を保持し、Mの学習stockは両worldで空でした。
+当初のpooled校正規則の合格と、familyごとの事後レビューによる感度不足を分けて記録します。
+精度計画・metadataのみのruntime観測は確認結果ではありません。
+独立した確認推論とraw archive公開は未完了です。

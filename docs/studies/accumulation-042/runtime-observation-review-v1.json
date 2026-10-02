@@ -1,0 +1,13 @@
+{
+  "classification": "metadata_only_not_calibration_or_performance",
+  "model_generation_calls": 0,
+  "metadata": {
+    "startup_and_readiness_calls": 5,
+    "final_calls": 2,
+    "total_calls": 7,
+    "cap": 16
+  },
+  "owned_process_physically_stopped": true,
+  "existing_user_server_untouched": true,
+  "actual_contract_path": "runtime-contract.json"
+}

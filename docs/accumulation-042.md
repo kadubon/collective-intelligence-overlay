@@ -186,6 +186,15 @@ calibration or model-generation cohort.
 
 ## Commands and evidence
 
+The completed calibration's [English report](studies/accumulation-042/calibration-v2/report.en.md),
+[Japanese report](studies/accumulation-042/calibration-v2/report.ja.md),
+[tables/analysis](studies/accumulation-042/calibration-v2/analysis.json) and
+[verification](studies/accumulation-042/calibration-v2/verification.json) are
+actual offline derivatives. [Provenance](studies/accumulation-042/derivative-provenance-v1.json)
+binds their exact bytes and distinguishes prospective precision/runtime inputs
+from observed model results. Public raw archive publication and independent
+confirmation remain pending.
+
 ```text
 python scripts/prepare_accumulation_protocol.py --id NEW_CALIBRATION_ID --output NEW_PROTOCOL.json
 python scripts/run_gemma_accumulation.py --classification calibration --protocol NEW_PROTOCOL.json --output NEW_RAW --home NEW_PRIVATE_HOME

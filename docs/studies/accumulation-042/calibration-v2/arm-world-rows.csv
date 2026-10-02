@@ -1,0 +1,5 @@
+world,arm,independent_unit,Q_final_full,model_calls,model_tokens_measured,model_tokens_charged,missing_usage,inclusive_arm_wall_seconds,placebo_matched,trained_state_nonempty,original_providers_absent,process_CPU_complete,energy_joules
+world-6e8766a70eeb5a077f90,E,world,0.16666666666666666,44,52781,52781,0,2209.625,True,False,True,,
+world-6e8766a70eeb5a077f90,M,world,0.16666666666666666,58,68087,68087,0,2994.7030000000086,True,False,True,,
+world-e72d6fd2bb3903cd1cf8,E,world,0.16666666666666666,44,52108,52108,0,2310.8280000000086,True,False,True,,
+world-e72d6fd2bb3903cd1cf8,M,world,0.16666666666666666,59,70378,70378,0,2882.7030000000086,True,False,True,,

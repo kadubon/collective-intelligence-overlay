@@ -1,0 +1,7 @@
+world,arm,view,succeeded,actual_observed_wall_seconds,restricted_time_endpoint,restricted_tokens_endpoint,initial_training_tokens_charged,initial_setup_actions,initial_setup_wall_seconds,training_sharing_maintenance_actions,training_sharing_maintenance_wall_seconds,marginal_tokens_charged,marginal_application_actions,investment_inclusive_tokens_charged,investment_inclusive_restricted_tokens_endpoint,endpoint_penalty_is_not_measured_consumption,initial_investment_charged_in_both_full_and_empty_interventions
+world-6e8766a70eeb5a077f90,E,full,False,75.34400000001187,900,20480,7457,83,14.60899999999674,28,335.8280000000086,2550,8,10007,27937,True,True
+world-6e8766a70eeb5a077f90,M,full,False,91.4539999999979,900,20480,6899,84,14.485000000015134,27,327.13999999998487,2587,9,9486,27379,True,True
+world-6e8766a70eeb5a077f90,M,empty,False,76.51599999997416,900,20480,6899,84,14.485000000015134,27,327.13999999998487,2565,8,9464,27379,True,True
+world-e72d6fd2bb3903cd1cf8,E,full,False,84.5,900,20480,7201,80,13.64100000000326,29,332.9990000000107,2510,8,9711,27681,True,True
+world-e72d6fd2bb3903cd1cf8,M,full,False,78.78099999998813,900,20480,8313,85,16.453000000008615,26,427.9679999999935,2574,8,10887,28793,True,True
+world-e72d6fd2bb3903cd1cf8,M,empty,False,78.85899999999674,900,20480,8313,85,16.453000000008615,26,427.9679999999935,2574,9,10887,28793,True,True

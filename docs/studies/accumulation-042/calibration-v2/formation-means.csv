@@ -1,0 +1,4 @@
+arm,view,independent_worlds,success_fraction,actual_observed_wall_seconds,restricted_time_endpoint,restricted_tokens_endpoint,marginal_tokens_charged,investment_inclusive_tokens_charged,investment_inclusive_restricted_tokens_endpoint,restricted_mean_is_finite_policy_not_Kaplan_Meier
+E,full,2,0.0,79.92200000000594,900.0,20480.0,2530.0,9859.0,27809.0,True
+M,empty,2,0.0,77.68749999998545,900.0,20480.0,2569.5,10175.5,28086.0,True
+M,full,2,0.0,85.11749999999302,900.0,20480.0,2580.5,10186.5,28086.0,True
