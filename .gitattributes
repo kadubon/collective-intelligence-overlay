@@ -1,3 +1,5 @@
 * text=auto eol=lf
 # Unified diff context has one prefix space before upstream Go tabs.
 *.patch whitespace=-space-before-tab
+# Generated scientific evidence must retain the bytes bound by its manifests.
+docs/studies/accumulation-042/** -text whitespace=-blank-at-eol
