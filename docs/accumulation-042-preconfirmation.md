@@ -1,5 +1,15 @@
 # 0.4.2 confirmation preparation
 
+The first [pushed confirmation protocol](studies/accumulation-042/confirmation-v1-protocol.json)
+stopped during runtime validation, before any model generation or offered task.
+Its [invalidation record](studies/accumulation-042/confirmation-v1-startup-invalidation.json)
+retains the eight metadata calls and physical cleanup. Ollama rendered the same
+four parameter values in a different order. The [version 3 runtime contract](studies/accumulation-042/runtime-contract-v3.json)
+and [offline review](studies/accumulation-042/runtime-projection-review-v3.json)
+normalize only unique complete parameter lines while preserving their values and
+all original metadata. A new confirmation protocol ID and updated source gate are
+required. No world outcomes were observed or selected; no third calibration ran.
+
 This is a prospective design note, **not a pushed confirmation preregistration**.
 The second and final allowed E/M calibration cohort is complete and verified
 offline. Its frozen 93-file source remained unchanged during inference.

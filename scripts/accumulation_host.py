@@ -56,6 +56,17 @@ def runtime_contract(manifest):
     show_raw = json.dumps(manifest["show"]).encode()
     for pattern, replacement, _ in PATH_TRANSFORMATIONS:
         show_raw = re.sub(pattern, replacement, show_raw)
+    show = json.loads(show_raw)
+    # /api/show renders the parameter map in process-dependent line order.
+    # Normalize only unique named entries; preserve every complete value line.
+    parameters = show["parameters"]
+    if not isinstance(parameters, str):
+        raise ValueError("model parameter listing must be text")
+    lines = parameters.split("\n") if parameters else []
+    names = [re.fullmatch(r"([a-z][a-z0-9_]*)\s+\S.*", line) for line in lines]
+    if any(name is None for name in names) or len({name[1] for name in names}) != len(lines):
+        raise ValueError("model parameter listing requires unique complete named entries")
+    show["parameters"] = sorted(lines)
     selected = next(
         m for m in manifest["tags"]["models"] if m["name"] == manifest["requested_model"]
     )
@@ -71,8 +82,8 @@ def runtime_contract(manifest):
         "owned_server_environment_sha256": manifest["owned_server_environment_sha256"],
         "selected_model_digest": selected["digest"],
         "selected_model_details": selected["details"],
-        "model_show_projection_schema": "home-path-v1",
-        "selected_model_show_public_projection_sha256": fingerprint(json.loads(show_raw)),
+        "model_show_projection_schema": "home-path-unique-parameter-order-v2",
+        "selected_model_show_public_projection_sha256": fingerprint(show),
     }
 
 

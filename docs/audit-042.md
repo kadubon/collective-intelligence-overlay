@@ -335,3 +335,31 @@ observations. Sixteen responses had measured usage (17,885 tokens), one dispatch
 request lacked final usage, and the recorded total charge was 28,125 tokens.
 These are invalid-cohort inventory counts, not efficacy results. Valid calibration
 v2 retained 205 dispatched complete responses and 243,354 measured/charged tokens.
+
+The full [native gate 37060863123](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37060863123)
+passed on source `9f96cb5cadda135ff3a9936c3cf73a06f65f8b2f`: all twelve native
+OS/architecture/Python configurations, all four cross-platform readers, mixed
+Python and the aggregate source review. All 3,819 retained report files matched
+gate SHA256 `872149aff668408fe920851e64954bf63e7d9dc275453c43591f70b761b20c2d`.
+The fixed candidate pair remained wheel `5d1ce6292a6519db8fc157cf9e34d277465c3380f76ed2a92a3b768bd9fac804`
+and sdist `24e4b522974f194f67ebfd931178232e6fac4a2ffe2d7702945b0314db77c8c5`.
+
+Confirmation protocol v1 was pushed at
+`c592b79c042cada1f698a0254267bef102552106` before startup. Its runtime guard
+stopped on 2026-10-02 at 22:08 UTC before any generation or offered task.
+The [original startup invalidation](studies/accumulation-042/confirmation-v1-startup-invalidation.json)
+records eight metadata calls, zero completed arms, zero model generations and
+physical shutdown in 9.609 seconds including cleanup. The only changed show
+field was the order of four identical named parameter lines; digest, Modelfile,
+binary, settings, dependencies and hardware were unchanged.
+
+The guard now normalizes only complete unique named parameter lines. Duplicate,
+malformed and changed entries still fail; all original response bytes/hashes and
+the old protocol/source remain preserved. Thirty-two affected tests passed,
+including all 24 line permutations and parameter-value mutations. The
+[version 3 contract](studies/accumulation-042/runtime-contract-v3.json) and
+[offline projection review](studies/accumulation-042/runtime-projection-review-v3.json)
+use the existing recorded metadata with zero new requests. This is an actual
+startup correction, not another calibration. The updated validation source
+requires a new hash-bound native gate and a distinct confirmation protocol ID
+before inference; there are no confirmation world outcomes to select or replace.

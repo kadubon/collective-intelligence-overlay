@@ -147,14 +147,30 @@ def test_runtime_show_hash_survives_public_redaction_and_pins_blob_and_options()
             'DRAFT """\nFROM C:/Users/private-user/models/sha256-draft\n"""\n'
             "PARAMETER draft_num_predict 3\n",
             "model_info": {"quantize.imatrix.file": "/Users/upstream/private.imatrix"},
-            "parameters": "draft_num_predict 3",
+            "parameters": "draft_num_predict 3\ntemperature 1\ntop_k 64\ntop_p 0.95",
         },
     }
     original = accumulation_host.runtime_contract(manifest)
     raw, changes = public_bytes(Path("model-manifest.json"), json.dumps(manifest).encode())
     assert changes and b"private-user" not in raw
     assert original == accumulation_host.runtime_contract(json.loads(raw))
-    assert original["model_show_projection_schema"] == "home-path-v1"
+    assert original["model_show_projection_schema"] == "home-path-unique-parameter-order-v2"
+    import itertools
+
+    lines = manifest["show"]["parameters"].split("\n")
+    for order in itertools.permutations(lines):
+        reordered = copy.deepcopy(manifest)
+        reordered["show"]["parameters"] = "\n".join(order)
+        assert original == accumulation_host.runtime_contract(reordered)
+    for before, after in (("3", "0"), ("1", "0.2"), ("64", "32"), ("0.95", "0.90")):
+        changed = copy.deepcopy(manifest)
+        changed["show"]["parameters"] = changed["show"]["parameters"].replace(before, after)
+        assert original != accumulation_host.runtime_contract(changed)
+    for invalid in ("top_k 64\ntop_k 32", "top_k", {"top_k": 64}):
+        changed = copy.deepcopy(manifest)
+        changed["show"]["parameters"] = invalid
+        with pytest.raises(ValueError):
+            accumulation_host.runtime_contract(changed)
     changed = copy.deepcopy(manifest)
     changed["show"]["modelfile"] = changed["show"]["modelfile"].replace(
         "sha256-draft", "sha256-other"
