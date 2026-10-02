@@ -1,7 +1,7 @@
 # Local Gemma experiment for 0.4.1
 
-Status: corrected-treatment five-pair pilot complete;
-preregistration, confirmation, fixed native
+Status: corrected-treatment five-pair pilot and preregistered 30-pair assessment
+complete; original and public-copy offline verification passed. Corrected native
 candidate validation and 0.4.1 publication remain pending. These results do not
 replace the [audit register](audit-041.md) or historical 0.4.0 measurements.
 
@@ -28,6 +28,68 @@ samples. Each arm has separate databases, CAS, keys and execution history. No
 MCP tool is used by this particular tabular task; actual MCP integration is tested
 separately by the audit/native service gates. General semantic applicability,
 intelligence growth and an ASI claim are outside this experiment.
+
+## Preregistered 30-pair assessment
+
+[Registration](experiments/gemma-041/preregistration-v1.json) was committed and
+pushed at `35245df2bc902f52524916f10891f16cfb4904c4` before the first request.
+Its SHA256 is `b8dff43a48deab2d3a7d0f5d3aec6657b8ab356eb42244fa141e608456a2763d`.
+The fixed run `cio-041-gemma-tabular-confirmation-v1` used that clean source
+snapshot, 66 frozen installed distributions and the immutable hosted wheel from
+candidate run `36965233400`, SHA256
+`2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9`.
+That CI run subsequently failed and did not approve publication. The measured
+package and experiment sources remain unchanged; later CI profile corrections
+are separate validation changes, not changes to these prompts or observations.
+
+All 30 independent paired blocks, 60 isolated arms and 360 offered heldout tasks
+finished in 3,277.0687 seconds. Balanced arm order used 15 static-first and 15
+adaptive-first blocks. No seeds, attempts or tasks were removed or replaced.
+[Offline analysis](experiments/gemma-041/confirmation-v1/analysis.json) and the
+[episode table](experiments/gemma-041/confirmation-v1/episodes.csv) retain all
+30 paired values and signed cost totals by category, unit and observation status.
+
+| Measure | Static | Adaptive |
+| --- | ---: | ---: |
+| Heldout tasks passed / offered | 180 / 180 | 180 / 180 |
+| Actual model requests | 90 | 90 |
+| Input / generated tokens | 27,238 / 2,227 | 27,238 / 2,244 |
+| Total measured tokens | 29,465 | 29,482 |
+| Mean inclusive active wall, seconds | 50.9598 | 52.6887 |
+| Mean wall including cleanup, seconds | 53.6488 | 55.4909 |
+| Qualified ordinary execution receipts / formations | 870 / 90 | 870 / 90 |
+| Missing usage / false accepts / UNKNOWN tasks | 0 / 0 / 0 | 0 / 0 / 0 |
+| Invalid drafts / uncertain A2A execution receipts | 0 / 0 | 0 / 0 |
+
+Primary adaptive-minus-static episode-fraction difference is 0. The preregistered
+95% paired percentile bootstrap (9,999 resamples, seed 41031) gives [0,0]; the
+paired two-sided randomization p-value is 1 (seed 41032). Every fraction is 1,
+so this degenerate interval reflects a ceiling in the observed distribution.
+It does not establish population equivalence, superiority, or exclusion of a
+meaningful difference on harder tasks. The registration explicitly classified
+this fixed N=30 assessment as exploratory with limited power: pilot paired SD=0
+was unreliable for power planning, MCID=.10, and conservative SD=1 normal planning
+required 785 pairs for 80% power at two-sided alpha=.05. N was not increased.
+
+Adaptive generated 17 more tokens and took 1.7289 seconds longer on mean active
+wall, and 1.8421 seconds longer including cleanup. These are secondary descriptive
+observations on a shared CPU/cache, without a superiority test or adjustment for
+multiple comparisons. Maximum observed verification candidates per allocation
+was one in both arms; no sustained verification backlog was induced. Ordinary
+receipt counts include nested primitive, provider and calibration executions;
+they are not 870 independent tasks or newly created capabilities. Each arm made
+three checked formations, including use of C1/C2 on new public inputs during C3
+formation. This demonstrates the recorded lineage, not self-accelerating growth.
+
+The [descriptive resource groups](experiments/gemma-041/confirmation-v1/resources.json)
+separate all three formation goals and retain every input hash. Aggregate/C3
+requests used 9,153 input tokens per arm, with 624 static and 612 adaptive generated
+tokens. Their API total-duration sums were 107.0055 and 106.1049 seconds; separate
+signed candidate-formation wall observations sum to 47.0157 and 44.6939 seconds.
+These nested measurements are not additive total C3 lifecycle costs, and this
+post-hoc grouping is not an additional primary comparison. Monetary costs remain
+unavailable where signed receipts say so. Recompute with
+`uv run python scripts/summarize_gemma_resources.py --run YOUR-RAW-DIR --output YOUR-NEW-RESOURCE-FILE`.
 
 ## Corrected-treatment pilot observations
 
@@ -83,7 +145,7 @@ fraction is 1. This degenerate finite-sample interval does not establish populat
 equivalence or exclude a meaningful difference on more difficult tasks. MCID is
 0.10. Observed paired SD=0 provides no reliable variance-based power calculation;
 a conservative SD=1 normal planning approximation would require 785 pairs for
-80% power at two-sided alpha=.05. Thirty confirmation pairs are planned as an
+80% power at two-sided alpha=.05. The completed thirty-pair assessment was registered as an
 exploratory resource-bounded assessment, not a powered superiority/equivalence test.
 The pilot source/inputs remain frozen in its original snapshot; confirmation uses
 different input and model seeds, fixed before the first confirmation request.
@@ -110,7 +172,13 @@ limits remain explicit. Raw API nanoseconds are converted to seconds; overlappin
 nested receipt times are not added to wall. Missing/partial response usage is
 charged by its upper reservation rather than zero. Energy and CPU/RAM usage
 are not comprehensively measured for this Windows run. Peer lifetime CPU snapshots
-are retained; peer/descendant RSS, complete model CPU time and energy are unavailable.
+are retained. A supplemental read-only Windows collector made 185 samples from
+04:48:28 through 05:34:48 UTC, starting after inference began. The owned model
+runner's process-lifetime peak working set reached 8,509,886,464 bytes; its final
+point working set was 8,430,227,456 bytes and private memory 9,135,665,152 bytes.
+These process metrics are distinct from the API model-size counter and installed
+weight size. They do not establish a whole-run/episode RAM peak or energy budget.
+Complete peer/descendant RSS, full model CPU time per arm and energy are unavailable.
 API fee is zero; local compute is not free.
 
 ## Reproduce and inspect

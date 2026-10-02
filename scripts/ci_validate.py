@@ -1,6 +1,7 @@
 """Run the same service and artifact gates on every stable Python/OS pair."""
 
 import argparse
+import importlib.metadata
 import json
 import os
 import platform
@@ -82,9 +83,13 @@ totals = {
     for key in ("tests", "failures", "errors", "skipped")
 }
 assert totals["tests"] > 0 and not any(totals[k] for k in ("failures", "errors", "skipped")), totals
-validate_short_protocol(output / "source-production-faults", root)
 runtime["source_tests"] = totals
 (output / "source-runtime.json").write_text(json.dumps(runtime, indent=2) + "\n", encoding="utf-8")
+validate_short_protocol(
+    output / "source-production-faults",
+    root,
+    expected_version=importlib.metadata.version("collective-intelligence-overlay"),
+)
 # The unpublished editable root is checked by artifact metadata/license gates;
 # pip-audit audits the installed third-party environment. Audit the actual PyPI
 # root separately after publishing, without ignoring vulnerability IDs.

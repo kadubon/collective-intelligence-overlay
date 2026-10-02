@@ -1,15 +1,16 @@
 # 0.4.1 audit and local-model work in progress
 
 This page describes locally observed candidate behavior. 0.4.1 is not yet
-published; full candidate/native validation, preregistered A/B
-comparison and public raw assets remain pending. The historical 0.4.0 release,
+published; corrected full candidate/native validation and public raw asset upload
+remain pending. The preregistered A/B assessment is complete. The historical 0.4.0 release,
 signed originals and failed formal run are unchanged. The machine-readable
 [status and original-attempt catalog](audit-041-status.json) is the current
 requirement register; success is not inferred from a later rerun.
 
-The substantive five-pair pilot is complete and its original request/response,
-signed receipt and CAS records passed offline verification. Both arms passed
-30/30 heldout tasks; measured totals are 4,956 static and 4,970 adaptive tokens.
+The corrected five-pair pilot and fixed 30-pair assessment are complete. Original
+request/response, signed receipt and CAS records passed offline verification;
+the separate public copies also passed. The assessment passed 180/180 heldout
+tasks per arm; measured totals are 29,465 static and 29,482 adaptive tokens.
 See [task design, result table and interpretation](gemma-041.md). The primary
 episode quality difference is zero at a ceiling; it does not establish equivalence.
 
@@ -92,7 +93,7 @@ Chat Completions and stateless Responses returned 200 with numeric compatible
 usage. The case named `responses-stateful-rejected` unexpectedly returned 200 for
 a nonexistent `previous_response_id`; a successful HTTP response does not prove
 stateful support. The official documentation says that flavor is unsupported.
-The A/B harness will use native `/api/chat` through the public MAF integration,
+The completed A/B harness used native `/api/chat` through the public MAF integration,
 which preserves explicit context/seed/think/options and raw native durations.
 This smoke's initial observer conservatively reserved bounds for compatible
 responses rather than parsing their usage; raw responses contain those counters
@@ -124,8 +125,43 @@ Every output directory is new. Intent and actual payload are saved before
 dispatch; partial raw streams and host validation are separate files. This
 command performs real local inference and is not the API-key-free deterministic
 unit/demo command. The [task guide](gemma-041.md) documents completed pilot and
-offline analysis commands. Preregistered confirmation and public raw assets
-remain pending.
+offline analysis commands. Preregistered assessment is complete; raw assets are
+prepared separately from originals and await the release gate and upload.
+
+## Native candidate checkpoint
+
+Full candidate run
+[`36965233400`](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36965233400)
+failed. Eleven native profiles passed all 489 source tests; Mac Intel/Python
+3.12.14 passed 488 and failed the combined host pressure fault case. No mandatory
+source test was skipped. The other eleven jobs then failed because the report
+generator/validator bound actual 0.4.1 to historical 0.4.0 profile identity.
+Installed-artifact gates were not reached; the candidate is not release approved.
+All twelve original artifacts and complete workflow logs are retained.
+
+A distinct [0.4.1 native fault profile](profiles/native-fault-041.json) preserves
+the old nineteen injections, three owners and 120-to-under-600-second bounds.
+The [0.4.0 declaration](profiles/production-040.json) and failed reports are
+unchanged. New version-specific generator/validator measurements are required.
+Tests, example helpers and both declarations are included in the release reuse
+hashes, so editing those gates cannot reuse earlier validation. Native Mac CI's
+finite job budget is 150 minutes to cover the observed 53-minute Intel source
+suite plus installed suites and the
+audited Go build; this does not change any runtime or fault-protocol deadline.
+The original Mac failure did not retain its response value, so its exact cause
+is not established retroactively. A finite local aged-observation probe reproduces
+UNKNOWN/released `admission_denied` with no actuator dispatch. Actual fresh signed
+sync restores admission, then provider-stop requests remain UNKNOWN/held and the
+unchanged 32-current-effect ceiling refuses intake. The first wait-based probe
+timed out before its target and remains a failed attempt. The subsequent probe
+completed pressure assertions but exposed the same missing freshness prerequisite
+in the later key positive control; that prerequisite is also explicitly synced.
+This is a deterministic fixture correction, not an admission relaxation or a
+model-control change. The corrected path passed the local real
+PostgreSQL/OPA/TLS/A2A/MCP case in 436.19 seconds. Its new 0.4.1 report retains
+all nineteen injection proofs and measured protocol elapsed 415.7126 seconds,
+within the unchanged under-600-second bound. The final immutable native
+source/installed matrix is still pending.
 
 Primary interfaces:
 [MAF native Ollama sample](https://github.com/microsoft/agent-framework/blob/main/python/samples/02-agents/providers/ollama/README.md),

@@ -57,7 +57,7 @@ for filename in packages:
             filename.parent / "source-production-faults",
             filename.parent / "installed-production-faults" / "agents",
         ):
-            short = validate_short_protocol(directory, root)
+            short = validate_short_protocol(directory, root, expected_version=str(version))
             assert short["runtime"]["python"] == source["patch"]
             assert short["runtime"]["os"] == source["os"]
             assert short["runtime"]["machine"].lower() == source["machine"].lower()

@@ -2,13 +2,15 @@
 
 import asyncio
 import json
+import os
 from decimal import Decimal
+from pathlib import Path
 
 from document_recovery_protocol import originals
 from production_mesh import stop_process
 from sqlalchemy import select
 
-from collective_intelligence_overlay.bindings import Binding, ExecutionContext
+from collective_intelligence_overlay.bindings import Binding, ExecutionContext, fingerprint
 from collective_intelligence_overlay.invocations import (
     InvocationStore,
     Reservation,
@@ -19,6 +21,14 @@ from collective_intelligence_overlay.storage import budgets
 
 async def run(configs, mesh, call, counter, root):
     observations = []
+
+    def retain_attempts(attempts):
+        content = json.dumps({"assertions_passed": False, "attempts": attempts}, indent=2)
+        (root / "pressure-attempts.json").write_text(content, encoding="utf-8")
+        if destination := os.environ.get("CIO_PRODUCTION_FAULT_REPORT_DIR"):
+            output = Path(destination)
+            output.mkdir(parents=True, exist_ok=True)
+            (output / "pressure-attempts.json").write_text(content, encoding="utf-8")
 
     def retain(injection, **fields):
         observations.append({"injection": injection, **fields})
@@ -152,24 +162,51 @@ async def run(configs, mesh, call, counter, root):
         positive_undispatched_release_once=True,
     )
 
+    # This injection targets a dispatched provider failure. On slow native jobs,
+    # earlier independent checks can leave the verifier's source observation
+    # older than the unchanged 300-second policy. Renew it via actual signed
+    # synchronization and positively check admission before stopping the provider.
+    refreshed = await call("producer", operation="sync", peer="verifier", max_pages=16)
+    assert refreshed["complete"], refreshed
+    admission = await call(
+        "producer",
+        operation="qualify",
+        request={
+            "receiver": "producer",
+            "subject": binding.subject.model_dump(mode="json"),
+            "capability_issuer": binding.issuer,
+            "scope": binding.scope.model_dump(mode="json"),
+            "semantic_fit": "confirmed",
+            "binding_digest": binding.digest,
+            "arguments_digest": fingerprint(refused_request["arguments"]),
+        },
+    )
+    assert admission["decision"]["outcome"] == "ACCEPT", admission
+    retain(
+        "unresolved pressure admission prerequisite", synchronization=refreshed, admission=admission
+    )
+
     worker = mesh.workers[-1]
     await asyncio.to_thread(stop_process, worker, kill=True)
     assert worker.poll() is not None
     before_stopped = await asyncio.to_thread(originals, configs["producer"])
     uncertain = []
+    attempts = []
     refusal = None
     try:
         for index in range(33):
             identifier = f"capacity-uncertain-original-{index}"
             request = {**refused_request, "invocation_id": identifier}
             result = await call("producer", **request)
+            attempts.append({"request": request, "result": result})
+            await asyncio.to_thread(retain_attempts, attempts)
             if result.get("error") == "OWNER_UNRESOLVED_EFFECTS_LIMIT":
                 refusal = result
                 assert (await call("producer", operation="invocation", invocation_id=identifier))[
                     "invocation"
                 ] is None
                 break
-            assert result["state"] == "unknown" and result["reservation_state"] == "held"
+            assert result["state"] == "unknown" and result["reservation_state"] == "held", result
             uncertain.append({"request": request, "result": result})
         assert refusal is not None and uncertain
         measured = await call("producer", operation="operational_metrics")

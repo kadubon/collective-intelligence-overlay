@@ -1,0 +1,29 @@
+{
+  "run_id": "cio-041-gemma-tabular-confirmation-v1",
+  "source_commit": "35245df2bc902f52524916f10891f16cfb4904c4",
+  "dirty_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+  "preregistration": {
+    "commit": "35245df2bc902f52524916f10891f16cfb4904c4",
+    "path": "docs/experiments/gemma-041/preregistration-v1.json",
+    "sha256": "b8dff43a48deab2d3a7d0f5d3aec6657b8ab356eb42244fa141e608456a2763d",
+    "wheel_sha256": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+    "status": "exploratory_limited_power"
+  },
+  "paired_blocks": 30,
+  "offered_arm_episodes": 60,
+  "offered_tasks": 360,
+  "actual_model_requests": 180,
+  "raw_original_files": 2011,
+  "raw_public_files_transformed": 2,
+  "raw_original_sha256": "c5a0564a33b5e3c049bba3ab8a94d35a5277654d4aa36ed4aee39d5ee30642fe",
+  "protocol_original_sha256": "de20b26ece87613d012e0250af25df0a568b58f559f26753fad32f51073f366c",
+  "original_verify": "verified",
+  "public_verify": "verified",
+  "whole_run_elapsed_seconds": 3277.0687218999956,
+  "model_or_control_changes_during_run": false,
+  "source_failure_or_missing_usage_count": 0,
+  "publication_status": "pending_required_native_gate",
+  "analysis_sha256": "2ed8a40c36d5fd2c288cf5900a3e4102b5fe794b9f2b67bff6815f3a5163eb18",
+  "runtime_metadata": "66 locked installed distributions in retained runtime.json",
+  "os_resource_scope": "185 late-start read-only point/lifetime samples; no full arm CPU, RAM or energy certification"
+}

@@ -1,0 +1,472 @@
+{
+  "classification": "postmeasurement_native_validation_context_correction",
+  "original_preregistration_commit": "35245df2bc902f52524916f10891f16cfb4904c4",
+  "original_candidate_run": "36965233400",
+  "corrected_native_run": "pending",
+  "original_experiment_sources_all_81_unchanged": true,
+  "runtime_package_and_readme_unchanged": true,
+  "original_measured_wheel_sha256": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+  "changes": {
+    ".github/workflows/workflow.yml": {
+      "original_sha256": "ced401bddc88bcd00115c32e4aeaf4c3cb891e68dff81a61198d3e7e78e3843b",
+      "corrected_validation_sha256": "668e4be332b3b6a9f612af0bce25ca1fbe1fdfa59a010ec2cdee39ba9b1e0ad7"
+    },
+    "docs/profiles/native-fault-041.json": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "3d03a264350e626569098e507397f87be61b55d718b5db8cd8165077b13cdb24"
+    },
+    "docs/profiles/production-040.json": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "2c5f182c86bd0dc6d104990673fd951df482028d3b0252e6292327e22f463344"
+    },
+    "examples/adaptive_documents.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "1fbed95252345db3aae88e70a0ea2e77a69c0a489824da5cafc55b69b0dbfe62"
+    },
+    "examples/document_application.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "569e76f54ec2fac40979edb92e35a72d69c16afdd6737b1f8be92d66e23d8bdc"
+    },
+    "examples/evaluate_documents.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "08681b6c467121fa007e4fffd11afbeef3f0ae6acb0a27e0246f706d9af6bdde"
+    },
+    "examples/live_agent.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "6b90b6c2149ab60e8efd2f458569a5056940a5b665ab36e5ca025423bd33c515"
+    },
+    "examples/reference_registration.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "037fe6fc8100af0282c5f1d5582241cb6d98447703a1f5faf74729254f5f7624"
+    },
+    "scripts/check_matrix.py": {
+      "original_sha256": "05c385711c03ae0bc9f92e9cc90c9bfae2a1efa2d85d2b83801c3733d402aee4",
+      "corrected_validation_sha256": "11647e860379bdca122201eac7f334468c06231c980faa5ebfa34b6211cf59e6"
+    },
+    "scripts/check_production_reports.py": {
+      "original_sha256": "26857b79c56c6bdf725fabf2052f508a6d0e36cb6a9099b4a990a78dfb6e5cce",
+      "corrected_validation_sha256": "b1651e96c206fecfd1dc8f3650355b947b1101bedf0726112666add460e522ea"
+    },
+    "scripts/ci_validate.py": {
+      "original_sha256": "2e8fabc262d9161130a7ddb0297d6f3cde2ec9c3e6d00b2481eecf97eb46422b",
+      "corrected_validation_sha256": "e215bb8d963da01d320fad79c47a6d2d8ba1190011709b218a4038312166d96a"
+    },
+    "scripts/native_fault_profile.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b428df2cfa9ba3ae6d80cf44d48d00586c79c9b6b050d24bb47fdd125c78b8a2"
+    },
+    "scripts/release_gate.py": {
+      "original_sha256": "b726b3c325a120fd1c3a162ccc2be8fa93e7ee8a7c8673de983b08dc220818d0",
+      "corrected_validation_sha256": "afb10ed7ef06408ce7c110cab3c6bf0855359a4425f7e4df30889d6a2ecf31f3"
+    },
+    "scripts/summarize_gemma_resources.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "19e22e82fbbf9622ea4c8f303159e456d2fcfd176b1cba4ae6bc186308a17e08"
+    },
+    "scripts/validate_short_protocol.py": {
+      "original_sha256": "a3c7fc9ccf90dd619110689ea47c22b366c3bd7f80ba28b3997cae8fec77c064",
+      "corrected_validation_sha256": "e3320fd9f8593681dc4505e794b2d86f077a58186f1596383a1480b8061ac9ad"
+    },
+    "tests/conftest.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "7713e33e9bee9d12477c33240048f1f05b2a5bdab5c94015e23fd40dea92ef6a"
+    },
+    "tests/e2e/document_checker_outage.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "6c431227d1557a03d0426dd3e948e13890ec2cd91d2154685495077f374aeb5e"
+    },
+    "tests/e2e/document_evidence_withdrawal.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "1b9bc79eb7f32bba4bb2bc88e3b6706a3733fa68ca6e1e93e7f03e60d8dd9105"
+    },
+    "tests/e2e/document_fault_report.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "933b3d0186624ff6c03cd03792c2293abe285b9b99a999699f6c0e134404bf29"
+    },
+    "tests/e2e/document_http_pressure.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "19d4757fdec7a9496ec317b04aa799c3f71b2b3328f8179bcec21320ae953b1f"
+    },
+    "tests/e2e/document_key_protocol.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "2bf10ba55d9b7b44d61ccc6084213afee337dc031870f38389f5c69fce4de8c6"
+    },
+    "tests/e2e/document_pressure_protocol.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "bc9fe10f7ed7a7a3adcc074b066294879e8429ba50e92d3cfed4c60e42c85f62"
+    },
+    "tests/e2e/document_recovery_protocol.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "aadc8792203c258065b633ef99ea40e452a442584d1d69cf7d65e3da7bd7ae41"
+    },
+    "tests/e2e/owned_document_faults.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "6f012995c358f71e7c0fd0abee8e156b69835e6283c94d229b8f88319dcbb066"
+    },
+    "tests/e2e/production_mesh.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b8e1879300f4e012d23f5e12b5200459eabe4f8d8c6a87e815813b0c03d21d1a"
+    },
+    "tests/e2e/test_adaptive_documents.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "78cde6c0f6d77a7357894c41bba91a1872982f27a1f5aaf3382e5584dcdd19ce"
+    },
+    "tests/e2e/test_document_application.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "1df7c0bbd18ed956857c59ea531d9a6ed0bc36fc33df9eda75c4f2b59e7ac875"
+    },
+    "tests/e2e/test_three_peers.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "4ab05f762fbd7aa88b101da74aa7776c59a2ea9af1c24108115abc12a6a4a9ee"
+    },
+    "tests/integration/authenticated_mcp_application.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "db711515876e6a5e2e0f60cbc32a0de9f4994baedabbc1ac8848fb64fb55ccbc"
+    },
+    "tests/integration/clock_offset_peer.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "c7c84641181da228af517c55a1527c22f8883be6e672865fdbdbf7f22fa169e6"
+    },
+    "tests/integration/conftest.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "ad796d4739856b01ac10728fde56aebd4527bd286632cb23b5351b055dd9000d"
+    },
+    "tests/integration/delayed_mcp_application.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "0f6a5516167edae68f719207298cf8960beb490bcc358a0bc4bbe3412875cb1b"
+    },
+    "tests/integration/memory_diagnostic_peer.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "e2e13552da5962e9efc492674171ec0222ce3627c7b7e6dd6da2e1ed1c5196e1"
+    },
+    "tests/integration/native_http_server.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "d603aa071ada3c94e5260cd392aeca4d1ccafd7189d4ca691bdb12d05448f696"
+    },
+    "tests/integration/process_control.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "0eef218ec88d90f8ac39596f3756260f5fca7e9054290d7162187dc0a6225497"
+    },
+    "tests/integration/python_interop_application.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "55ddcc617dc78956c630d3f1dc07bdad3f3dd9f93c9f8781afb5b68cf0e0e32c"
+    },
+    "tests/integration/remote_call_application.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "cb7d9ce6a87962bbeeb4a330195921917608e902c91c4164d7cfdd5ffee8656f"
+    },
+    "tests/integration/test_a2a_client_lifetime.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b29841db2492201747a81995ea7e377f0075fe95e54ee84c21468c19a14d93de"
+    },
+    "tests/integration/test_a2a_service.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "53dc002ffc2955856a95f0334f9c072216ac87393a10dab06d3780d6e185f3cd"
+    },
+    "tests/integration/test_admission.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "4dff47d2bceed204b47b095b4d9e8e3fb8041d87ad47d2a794ffb01b07a57105"
+    },
+    "tests/integration/test_auth.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "c41c51e7f634b0117083246808bab51bd91ef7d5f01581c374754642d6e084bf"
+    },
+    "tests/integration/test_backup_structure.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "78f64723c78e735d32de8ec1af49e149ce26a12f180650361ba38d7084794857"
+    },
+    "tests/integration/test_bindings.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b37f52c6370121974a422682a05bb9d3b6f1423ed104d2f745f7aef80c56c553"
+    },
+    "tests/integration/test_call_identity.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "182b1f654a4aba64fe4d0bb229dee05c7201eda9b7fb2907175e0f37369406fc"
+    },
+    "tests/integration/test_cas_crash_backup.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "0cac23b6fe3a2af1b05253874d70ab3549dfabcb356e19fb1d54e42eb3b6b554"
+    },
+    "tests/integration/test_concurrency.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "f6165f433c998d7b97d981a6133f8d545c0ac5b10e6402ffded4234a1ac03cb9"
+    },
+    "tests/integration/test_delegated_reconciliation.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "1945dec21b911a1e58bec7e18b62ec0b8d485afa6fc50892dffa153a1b5b2065"
+    },
+    "tests/integration/test_dependency_queries.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b6a294710bf09cbef718344416baf4f3c95b87df7f7c01e31636ab31bab4868a"
+    },
+    "tests/integration/test_document_experiment.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "227d139af91a1a42e93e4f87cd9353a2df33d14d59edb74daaa62c42c013e408"
+    },
+    "tests/integration/test_document_reconciliation.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "9f169ee8b0075ed379166e1a21ed4bed10cba73699ad4bfc35cfc48e74589717"
+    },
+    "tests/integration/test_document_recovery.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "f05e980a9c7b0caacbf515b8aaedb7deac0a78570a687e277b5a6d67ec7970e7"
+    },
+    "tests/integration/test_evaluation.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "59810ba5561fdd91375d1d8e3600ef8a36653e72b9d48f2ec655f28d50e7967d"
+    },
+    "tests/integration/test_evidence_applicability.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "3b3e2cd43af99ccdf0547f4a4f88cfecea0e3ef477e80c8dc7a825f9f5fa868f"
+    },
+    "tests/integration/test_feed.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "0940979078559e7696a1e0432aace1f8f3854a27a8f550e994352178c434b55e"
+    },
+    "tests/integration/test_http_limits.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "385a9a2d39076c4f1b280a71923b9baf2460e976fa90831409db60d47e2c0c8b"
+    },
+    "tests/integration/test_indexed_storage.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "fb0d844f19031f3075242963439f2c4c6036b5b480cac69dfb5983e26861bb80"
+    },
+    "tests/integration/test_inspection.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "a371d12effb7eba99278a96fca9e4c1ef8117462f7393def35b6b3687c029a6f"
+    },
+    "tests/integration/test_invocation_cleanup.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "a5165a8775b353af98cddf9e3542c5d3f54ad380d1232e3e7ec9f9e1096b7848"
+    },
+    "tests/integration/test_invocation_resolution.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "462b0ca39be404eeab7bf26cb2839e2815680f645b504fb41b381de6fd7a411e"
+    },
+    "tests/integration/test_invocations.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "c37ac98f7969218958d0253515a97c779c9f7d27a4ad9901dc3d653d428c62d2"
+    },
+    "tests/integration/test_lineage.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "69e1c55034a66d4d9633d2050017abdffedf0d99bfb4fb78b61ed8917e24f380"
+    },
+    "tests/integration/test_mcp_authenticated.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "92ba2c04567ff3c378f9b82b713b77d62832d39640f4f265eea38fcc37e9f957"
+    },
+    "tests/integration/test_mcp_receive_limits.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "a6d1842276225fd08f83701710381f0e348d2534a48369d352c06b7d6fc2d19a"
+    },
+    "tests/integration/test_migration.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "bc31ca128fd0a7c7c1a860c714165a942a4f45218bea2382eaf30f8e8570193c"
+    },
+    "tests/integration/test_model_adapter.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "8cfb0a2cc35becf114442c1828d836ffa84fc1eb0ca92a5fc57473d2a371f417"
+    },
+    "tests/integration/test_native_platform.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "c2da564bc50acbd1831a8b2c03951c48c2851d9f74b9fca41baa6f2068d785c0"
+    },
+    "tests/integration/test_negative_paths.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "d2923453b088e65842b69338663b55b25e8a99295d1e0b74fb559aa7649bade0"
+    },
+    "tests/integration/test_ollama_adapter.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "a1ceb7791f90d548343b1f21bdadeca2edb091219f1c303751b13925aa259d6b"
+    },
+    "tests/integration/test_opportunities.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "264baafe043ab392eb0a796c1264ffae9b5f5a1553c3a94f617be6290e987277"
+    },
+    "tests/integration/test_opportunity_storage.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "4995686834b66f2d7c2f11b8457b8fb94d1dae5da59899e10cc1661fe9c5b321"
+    },
+    "tests/integration/test_peer_revoke.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "f5470f57f17d19342e60998af9716279297131a9de69e0effc04ddb50a0985ff"
+    },
+    "tests/integration/test_persisted_bindings.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "7e13220e4a8cdbe17ea4ff73c209feb56998692cd396648efad50c441b6248cc"
+    },
+    "tests/integration/test_platform_golden.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "7561ed64c0d001152e1936f91a04df48ed10f276211b2eca3ea1998c971c7d9a"
+    },
+    "tests/integration/test_process_control.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "be496d673bec3baa551a7b08490c33cd6d7c2f3c6e8af584035f94f975ddc0ac"
+    },
+    "tests/integration/test_production_application.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "489f89f83f3fbc048ab672fea51ad9c17eaadb1404dedf7b54aa2a9720bf58fc"
+    },
+    "tests/integration/test_production_backup.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "f609750d9184f733dbc927391f17e64eec24d0880aa00db5993f716cff1cc75e"
+    },
+    "tests/integration/test_production_bootstrap.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "1a79d6a3e748b96bdb7309dc7a57310b6b40795bc2f190fac24cbc33a0fa4f2b"
+    },
+    "tests/integration/test_production_clock.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "2b04e838bef76028b43c5a09661379df969e873c1d5a399ffa583c582a4ec620"
+    },
+    "tests/integration/test_production_http_retry.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "5d8e5c2fd7e5dc35864da91ce01f9d2682b50e27466aaffc14de4f04cc094d5e"
+    },
+    "tests/integration/test_production_keyring.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "af6a9f7cabaad2b866cdde8057267349c4cb72a68b9675393d3a3b2961043e1c"
+    },
+    "tests/integration/test_production_operations.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "78dd03b4996b22d0a07d24e41f6dc1d7c434e40a7e9c838265f0e44be926f2cc"
+    },
+    "tests/integration/test_production_reconciliation.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "86a4246a703885bca205efdfb011f256b4624a3f7f0b4b55e7f1f0f48f576393"
+    },
+    "tests/integration/test_production_recovery_review.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "003e3ff252dfca4e4f3462dd08f734bd142e86b70a91ad32aa0d253e23bb491d"
+    },
+    "tests/integration/test_production_tls.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "20a59aa6460cfdd4943d08e9b3e0a49b3882dcc534788bab8aaab2cf260a0530"
+    },
+    "tests/integration/test_proposal_allowance.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "058be9f7273be79cd71dc5ceaf220ea1ece3ae9e559f08d2c12060c44fe334ed"
+    },
+    "tests/integration/test_proposal_exchange.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "3dbef5f0369e7b6d378cc8730efb336d792c1116a23476296c6ab15b6391e1a1"
+    },
+    "tests/integration/test_proposal_isolation.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "c04bc4d4723fe270076771e649a813d774424c0bd4989da1e937d6c7e1bde50c"
+    },
+    "tests/integration/test_proposal_maf.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "e543f45ab39765c2c287c764ad1bc279c9f96ffae083023c920c76ccd3a3072d"
+    },
+    "tests/integration/test_reference_lifecycle.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b6d6249fcc58fbb3f27c10c99e9ca6ae94e122a3fdbfc98be81d4d458e57d357"
+    },
+    "tests/integration/test_reference_registration.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "641853fdf7fbc337827fe176bc7ae19d42f9f25b95dbcb024febfa672b2e5a93"
+    },
+    "tests/integration/test_remote_invocation.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "ed7539b7a1b545da28223b08db39c3796888fa67f3379c2cc516899843ec3c7f"
+    },
+    "tests/integration/test_remote_response_validation.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "997277d39f4bf4a03ea5ccb2659929a1bbbfd29bf369be1d3dd5fa9416c43d6c"
+    },
+    "tests/integration/test_reobservation.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "94fcbebfb8e06380474ab273cc69d03e602885b6e449e58a527e795a23b0c88e"
+    },
+    "tests/integration/test_restore_state.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "51c9c1dcb235a9157cf63e7d180091b33ccb99414dc3eacb984cb2ca02ba6da8"
+    },
+    "tests/integration/test_scale.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "16e9d6638d126216e413884fcaddac271960aa1174adbfc99d4bc82ea7a312c1"
+    },
+    "tests/integration/test_sdks.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "466416f13633fd654f68473ad165e1a6189e5cf83f7ea306b31518f472f2623f"
+    },
+    "tests/integration/test_tabular_factories.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "8f6299ba4407ae29029a54de03897b31eddfbca19c619c4f4ef132f15cd31c0f"
+    },
+    "tests/unit/artifact_crash_writer.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "a9035554225c5ff8bfe73c52fb3edc76893a41d394d0c9cae8c32dcee86e1a97"
+    },
+    "tests/unit/test_artifact_capacity.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "f6be8212ff12b032ea0b8e16839599b1c4e7feab43469db87f541518882a41fd"
+    },
+    "tests/unit/test_artifact_crash.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "2934e24d2554b8184bd76ba9935092f1d578e711f014686730000bd37da0a627"
+    },
+    "tests/unit/test_artifacts.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "8318a5a49f5a6f8fb09f65b3967812b34471c2de0764341900f12b70c665c249"
+    },
+    "tests/unit/test_backup_minimum.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "f9aca31182299a06cf977b2d6746741be23c4b28323fa2a1db399f2ccddb283b"
+    },
+    "tests/unit/test_blocking_work.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "227521979853d99f57eff0105258b954396f2a7bba83a5d57007303c65a044fd"
+    },
+    "tests/unit/test_cli_invocations.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "3da5c8c746ddc34651b7344bb0dee7f948b6c2c92911870343d8da3de52365a5"
+    },
+    "tests/unit/test_native_fault_profile.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b54a4d4175574d6c9d47640a3e97fa2255b9b9a05acb8a9b654e75e841cb65f5"
+    },
+    "tests/unit/test_opa_install.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b20c78ea21da172a8947f61143887ade8525a9181cd9ef34c2440f4455359f4f"
+    },
+    "tests/unit/test_operational_logging.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "b8d3dd9f47647f070590495a959dcd08bd694f71fb1f2b112e7bb1512c974c78"
+    },
+    "tests/unit/test_production_http_limits.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "4119dcb2593df3ff2461332a377c96e2db77adaa6dc864b2ef8419193b77ac26"
+    },
+    "tests/unit/test_production_release_gate.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "3047fc5dd429a8485891a71ea7a3bcc81a87e5f2615603f626db1779d77c2c60"
+    },
+    "tests/unit/test_production_setup.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "ad1a4acdc5c04f2b15b4aac48aa71b0cf6b8e222ccc9787c0b61b41a38a203d5"
+    },
+    "tests/unit/test_proposal_records.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "bdf5f7b7516b59acdca18f5a60942a8151e578e558d9dc21aa2c4453d502e5f8"
+    },
+    "tests/unit/test_records.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "6c50b8509ca4c1d4a038cd762332347e14b76ccee1dee4d293299357f4bf6e1d"
+    },
+    "tests/unit/test_reference.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "444ed3c04a71f820a49d1c5f41e86f42f34340ce95f8558302d124f4fc29847f"
+    },
+    "tests/unit/test_release_candidate.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "cb6f5276f91c179981dc447fe693aa6e957d83c0b2e4617cf24fa7908f4135a0"
+    },
+    "tests/unit/test_release_gate.py": {
+      "original_sha256": null,
+      "corrected_validation_sha256": "afd712a8e858372cfa522f78f4fa43c4a8cda859745d5bcfc57eb53e61510598"
+    }
+  },
+  "interpretation": "Original data remain labeled with their original source/candidate context. New native proof generation/profile binding, actual freshness prerequisites and expanded test/example hash binding require fresh validation of the same package bytes. No new model samples, source relabeling or primary-analysis changes."
+}

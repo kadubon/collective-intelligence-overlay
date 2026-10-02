@@ -57,8 +57,14 @@ def check(candidate, reports):
         directory = reports / "reports-{os}-{architecture}-{python}-full".format(**runtime)
         package = json.loads((directory / "package.json").read_text())
         assert package["artifacts"] == expected
-        validate_short(directory / "source-production-faults", ROOT)
-        validate_short(directory / "installed-production-faults/agents", ROOT)
+        validate_short(
+            directory / "source-production-faults", ROOT, expected_version=profile["target_version"]
+        )
+        validate_short(
+            directory / "installed-production-faults/agents",
+            ROOT,
+            expected_version=profile["target_version"],
+        )
         tutorial = package["environments"]["agents"]["installed_tutorial"]
         assert (
             tutorial["passed"] is True and tutorial["wheel_sha256"] == expected[tutorial["wheel"]]

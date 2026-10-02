@@ -51,8 +51,8 @@
     },
     {
       "id": "B-CI-milestones",
-      "status": "pending",
-      "evidence": "Quick push CI passes. Representative run36962813882 retained488/489 source passes; exact reason-message test repaired and actual local case passes. Final full native gate pending."
+      "status": "full_candidate_failed_corrections_in_progress",
+      "evidence": "Representative 36962813882 failed exact reason expectation, preserved and corrected. Full 36965233400: eleven native profiles 489/489 source pass; Mac Intel 3.12 488/489 pressure fault case failure; no skips. Old 0.4.0 report identity then rejected 0.4.1 in eleven jobs. All originals preserved; installed gates not reached. New version profile keeps numeric bounds and requires fresh validation."
     },
     {
       "id": "C-Ollama-observer",
@@ -61,13 +61,13 @@
     },
     {
       "id": "D-smoke-pilot-freeze-preregister-comparison",
-      "status": "pending",
-      "evidence": "Corrected-treatment five-pair pilot-v4 completed from clean installed frozen environment: both arms30/30,30 actual requests, raw and public-copy verification pass. Historical invalid/setup/source-failed runs retained separately. Preregistration and30-pair exploratory assessment pending."
+      "status": "complete_fixed_assessment_raw_and_public_verified",
+      "evidence": "Preregistered commit 35245df2 precedes every request. Fixed 30 pairs/60 arms/360 heldout tasks and 180 actual Gemma requests completed; both arms 180/180. No control changes, replacement seeds, missing usage, UNKNOWN tasks or false accepts. Historical/source/setup failures remain separate."
     },
     {
       "id": "E-originals-analysis-docs-publication",
-      "status": "pending",
-      "evidence": "Corrected primary pilot analysis stored; quality difference0 at ceiling, p1, degenerateCI[0,0] is not equivalence. Separate public copy410files/two metadata transformations verifies; original model bytes, CAS and signed envelopes unchanged. Publication pending."
+      "status": "analysis_verified_public_assets_prepared_upload_pending",
+      "evidence": "Original and public-copy raw verification passed; 2011 original confirmation files/two unsigned metadata transformations, zero omitted failures. Difference 0, degenerate paired 95% CI [0,0], p=1; ceiling prevents equivalence. Adaptive used 17 more generated tokens and longer secondary wall. GitHub/PyPI publication awaits native gate."
     },
     {
       "id": "F-final-requirement-audit",
@@ -145,7 +145,7 @@
       },
       "passed_test_cases": 4,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a1-regression-v1.xml",
@@ -157,8 +157,8 @@
         "skipped": 0
       },
       "passed_test_cases": 12,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a2-a6-regression-v1.xml",
@@ -170,8 +170,8 @@
         "skipped": 0
       },
       "passed_test_cases": 2,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a2-a6-restore-regression-v2.xml",
@@ -183,8 +183,8 @@
         "skipped": 0
       },
       "passed_test_cases": 16,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a2-regression-v3.xml",
@@ -197,7 +197,7 @@
       },
       "passed_test_cases": 1,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a3-32-migration-v3.xml",
@@ -210,7 +210,7 @@
       },
       "passed_test_cases": 13,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a3-32-regression-v2.xml",
@@ -222,8 +222,8 @@
         "skipped": 0
       },
       "passed_test_cases": 19,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a3-baseline-wheel-v2.xml",
@@ -236,7 +236,7 @@
       },
       "passed_test_cases": 1,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a3-regression-v1.xml",
@@ -248,8 +248,8 @@
         "skipped": 0
       },
       "passed_test_cases": 13,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a4-regression-v1.xml",
@@ -262,7 +262,7 @@
       },
       "passed_test_cases": 27,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a5-linux-db-v1.xml",
@@ -275,7 +275,7 @@
       },
       "passed_test_cases": 18,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a5-windows-v1.xml",
@@ -288,7 +288,7 @@
       },
       "passed_test_cases": 9,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a6-structure-v2.xml",
@@ -301,7 +301,7 @@
       },
       "passed_test_cases": 27,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a6-unit-v1.xml",
@@ -314,7 +314,7 @@
       },
       "passed_test_cases": 1,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a7-mcp-windows-v1.xml",
@@ -326,8 +326,8 @@
         "skipped": 0
       },
       "passed_test_cases": 9,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a7-mcp-windows-v2.xml",
@@ -340,7 +340,7 @@
       },
       "passed_test_cases": 10,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-a7-mcp-windows-v3.xml",
@@ -353,7 +353,7 @@
       },
       "passed_test_cases": 13,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-all-source-v1.xml",
@@ -365,8 +365,8 @@
         "skipped": 0
       },
       "passed_test_cases": 5,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-artifacts-unit-v1.xml",
@@ -379,7 +379,7 @@
       },
       "passed_test_cases": 4,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-backup-conditional-v3.xml",
@@ -392,7 +392,7 @@
       },
       "passed_test_cases": 29,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-baseline-a1-linux.xml",
@@ -404,8 +404,8 @@
         "skipped": 0
       },
       "passed_test_cases": 0,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-baseline-a1.xml",
@@ -417,8 +417,8 @@
         "skipped": 0
       },
       "passed_test_cases": 0,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-baseline-a4.xml",
@@ -430,8 +430,8 @@
         "skipped": 0
       },
       "passed_test_cases": 4,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-baseline-a6.xml",
@@ -443,8 +443,8 @@
         "skipped": 0
       },
       "passed_test_cases": 0,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-baseline-wheel-a2-a3-a5-v1.xml",
@@ -456,8 +456,8 @@
         "skipped": 0
       },
       "passed_test_cases": 0,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-boundary-regression-v1.xml",
@@ -469,8 +469,8 @@
         "skipped": 0
       },
       "passed_test_cases": 18,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-boundary-regression-v4.xml",
@@ -483,7 +483,7 @@
       },
       "passed_test_cases": 34,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-cas-capacity-windows-v4.xml",
@@ -496,7 +496,7 @@
       },
       "passed_test_cases": 3,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-cas-native-windows-v5.xml",
@@ -509,189 +509,7 @@
       },
       "passed_test_cases": 10,
       "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-ollama-adapter-double-v1.xml",
-      "original_sha256": "ec7ebbfcbc1c481a4e64b334cb11496eebee52aac843674c016234dfc1bd7334",
-      "counts": {
-        "tests": 5,
-        "failures": 3,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 2,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-ollama-adapter-double-v2.xml",
-      "original_sha256": "4e1617108a5742bcfb8be5aeaf07b2aabf6787df9889868caf2fc272b8ec191a",
-      "counts": {
-        "tests": 5,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 5,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-precommit-041-v1.xml",
-      "original_sha256": "fb4852c8dd3ebdc446dfa1d4867242628e7fe11c92ba6402f7bfe62f8ffd72bc",
-      "counts": {
-        "tests": 27,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 27,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-quick-regression-v1.xml",
-      "original_sha256": "6bc6fce3a3dce08daf7ac7e24a8f4bf07a14d4ecc8f91c2c58095491848a920d",
-      "counts": {
-        "tests": 41,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 41,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-release-provenance-v2.xml",
-      "original_sha256": "33db55b714972bda028fcb186876c1d88b24e601a7fe8ac7d16686cb39f13ba8",
-      "counts": {
-        "tests": 11,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 11,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-resolution-footprint-v6.xml",
-      "original_sha256": "ad2612121c15e241562f7fbd17c4ccde8631e489450136c4064fb83f4599dba8",
-      "counts": {
-        "tests": 16,
-        "failures": 1,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 15,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-resolution-footprint-v7.xml",
-      "original_sha256": "d5cb3ed7a8ff667f148643fdc19d786a2f239390fc3cabac15888b3fa7054e6d",
-      "counts": {
-        "tests": 1,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 1,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-resolution-metrics-v8.xml",
-      "original_sha256": "93c30ea1f3c3ed7ecc01a7ff974282fe8c304b4137c9cefab2cdf9d9d5a1dbc6",
-      "counts": {
-        "tests": 1,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 1,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-resolution-migration-observer-v5.xml",
-      "original_sha256": "9c9eaff261fe1dee79bf6a66311d5997854ddc787bc80f5ccb09426b18bbf06c",
-      "counts": {
-        "tests": 32,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 32,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-source-deadline-v2.xml",
-      "original_sha256": "d2103c51f3169539e053cd52d6252ad9bb3b9deae5db5e6a8bfef1ed092e69a4",
-      "counts": {
-        "tests": 1,
-        "failures": 1,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 0,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-tabular-observer-v1.xml",
-      "original_sha256": "96931349afec7bf73c1ee61c8fdef55162758a890214dbb177c4e8607c7951f0",
-      "counts": {
-        "tests": 10,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 10,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-tabular-observer-v2.xml",
-      "original_sha256": "849b01c02d745e3ef6747d1f2c3a4e04c0142fc8b59084e7a1c8d2ee35afc9ea",
-      "counts": {
-        "tests": 10,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 10,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-wire-cas-windows-v2.xml",
-      "original_sha256": "3df0a066c4c075e1343c532c7ad15e3e38cfda55c71960f2d1be169f038c5dcf",
-      "counts": {
-        "tests": 0,
-        "failures": 0,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 0,
-      "classification": "all_test_cases_passed",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
-    },
-    {
-      "file": "audit-041-wire-cas-windows-v3.xml",
-      "original_sha256": "2dcead1efbdc0897218cbbe087babb631aedf32d820e138580ea2ee6866cffed",
-      "counts": {
-        "tests": 26,
-        "failures": 1,
-        "errors": 0,
-        "skipped": 0
-      },
-      "passed_test_cases": 25,
-      "classification": "retained_nonpassing_attempt",
-      "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     },
     {
       "file": "audit-041-ci-reason-regression-v1.xml",
@@ -704,7 +522,306 @@
       },
       "passed_test_cases": 1,
       "classification": "all_test_cases_passed",
-      "note": "Targeted actual PostgreSQL/A2A regression after retained hosted exception-message mismatch; no model inference."
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-final-quick-v3.xml",
+      "original_sha256": "436ca77d73db435ace9c1a3ddd33b90b2e51d17761be3d250585816b99714eb8",
+      "counts": {
+        "tests": 48,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 48,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-native-fault-corrected-v3.xml",
+      "original_sha256": "bd482a8098ee3a63ab0f80d8ae103f7858ff435443a76b2f8daf6a784b9b5d05",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-native-profile-v1.xml",
+      "original_sha256": "0868eb20f151e85c55e754dfd5e6bb724e04e65c779762ad04c787871d337fae",
+      "counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 28,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-native-profile-v2.xml",
+      "original_sha256": "c3b3ffbeff8e57a5b11f3fae2068ab7ed4e30b9d3a2c4bc0327262dfb4784209",
+      "counts": {
+        "tests": 28,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 28,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-ollama-adapter-double-v1.xml",
+      "original_sha256": "ec7ebbfcbc1c481a4e64b334cb11496eebee52aac843674c016234dfc1bd7334",
+      "counts": {
+        "tests": 5,
+        "failures": 3,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 2,
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-ollama-adapter-double-v2.xml",
+      "original_sha256": "4e1617108a5742bcfb8be5aeaf07b2aabf6787df9889868caf2fc272b8ec191a",
+      "counts": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 5,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-packaged-observer-v1.xml",
+      "original_sha256": "01b37b0f6356ddd8893a3d16380768dd60d2cd580a9a37aef9ae00cb3480b693",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 10,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-packaged-observer-v2.xml",
+      "original_sha256": "2153d3741450c6a467ce74df12ab3f65a7e689b8f9406f6b6b6cba9168ffa395",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 10,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-precommit-041-v1.xml",
+      "original_sha256": "fb4852c8dd3ebdc446dfa1d4867242628e7fe11c92ba6402f7bfe62f8ffd72bc",
+      "counts": {
+        "tests": 27,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 27,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-pressure-stale-reproduction-v1.xml",
+      "original_sha256": "ac2cd86242a404a5d986eab0e88d1537a667a732d78fdfb3f1e360de1742c338",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-pressure-stale-reproduction-v2.xml",
+      "original_sha256": "c95448ce987db0a6666152bf5a7186d3d8adb591c70c421222d04adc7666c250",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-quick-regression-v1.xml",
+      "original_sha256": "6bc6fce3a3dce08daf7ac7e24a8f4bf07a14d4ecc8f91c2c58095491848a920d",
+      "counts": {
+        "tests": 41,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 41,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-reference-run-deadline-v3.xml",
+      "original_sha256": "1285bc46d861e7594dff06466962bd5577b29c1067f012332a16e0d75b270a63",
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 8,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-release-provenance-v2.xml",
+      "original_sha256": "33db55b714972bda028fcb186876c1d88b24e601a7fe8ac7d16686cb39f13ba8",
+      "counts": {
+        "tests": 11,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 11,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-resolution-footprint-v6.xml",
+      "original_sha256": "ad2612121c15e241562f7fbd17c4ccde8631e489450136c4064fb83f4599dba8",
+      "counts": {
+        "tests": 16,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 15,
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-resolution-footprint-v7.xml",
+      "original_sha256": "d5cb3ed7a8ff667f148643fdc19d786a2f239390fc3cabac15888b3fa7054e6d",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-resolution-metrics-v8.xml",
+      "original_sha256": "93c30ea1f3c3ed7ecc01a7ff974282fe8c304b4137c9cefab2cdf9d9d5a1dbc6",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-resolution-migration-observer-v5.xml",
+      "original_sha256": "9c9eaff261fe1dee79bf6a66311d5997854ddc787bc80f5ccb09426b18bbf06c",
+      "counts": {
+        "tests": 32,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 32,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-source-deadline-v2.xml",
+      "original_sha256": "d2103c51f3169539e053cd52d6252ad9bb3b9deae5db5e6a8bfef1ed092e69a4",
+      "counts": {
+        "tests": 1,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-tabular-observer-v1.xml",
+      "original_sha256": "96931349afec7bf73c1ee61c8fdef55162758a890214dbb177c4e8607c7951f0",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 10,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-tabular-observer-v2.xml",
+      "original_sha256": "849b01c02d745e3ef6747d1f2c3a4e04c0142fc8b59084e7a1c8d2ee35afc9ea",
+      "counts": {
+        "tests": 10,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 10,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-wire-cas-windows-v2.xml",
+      "original_sha256": "3df0a066c4c075e1343c532c7ad15e3e38cfda55c71960f2d1be169f038c5dcf",
+      "counts": {
+        "tests": 0,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 0,
+      "classification": "all_test_cases_passed",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
+    },
+    {
+      "file": "audit-041-wire-cas-windows-v3.xml",
+      "original_sha256": "2dcead1efbdc0897218cbbe087babb631aedf32d820e138580ea2ee6866cffed",
+      "counts": {
+        "tests": 26,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 25,
+      "classification": "original_nonpassing_attempt_retained",
+      "note": "Related runs share cases; they are not independent samples or frozen final native candidate evidence. Original failure and environment/fixture corrections remain retained."
     }
   ],
   "finite_duplicate_diagnostics": [
@@ -748,7 +865,7 @@
     "complete_compatible_tokens": 54,
     "missing_final_usage_attempts": 2,
     "energy": "unavailable",
-    "primary_comparison": "not yet run",
+    "primary_comparison": "separate fixed 30-pair assessment completed; smoke not primary data",
     "stateful_responses_probe": "HTTP 200 for nonexistent previous_response_id; support not established"
   },
   "model_task_attempts": [
@@ -918,6 +1035,280 @@
       "id": "36963417802",
       "purpose": "quick push",
       "status": "success"
+    },
+    {
+      "id": "36965233551",
+      "purpose": "quick push",
+      "status": "success"
+    },
+    {
+      "id": "36965531468",
+      "purpose": "preregistration-only quick push; no model/full matrix",
+      "status": "success"
+    },
+    {
+      "id": "36965233400",
+      "purpose": "first full native candidate milestone",
+      "status": "failure",
+      "originals_retained": true
     }
-  ]
+  ],
+  "preregistered_assessment": {
+    "run_id": "cio-041-gemma-tabular-confirmation-v1",
+    "source_commit": "35245df2bc902f52524916f10891f16cfb4904c4",
+    "dirty_diff_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "preregistration": {
+      "commit": "35245df2bc902f52524916f10891f16cfb4904c4",
+      "path": "docs/experiments/gemma-041/preregistration-v1.json",
+      "sha256": "b8dff43a48deab2d3a7d0f5d3aec6657b8ab356eb42244fa141e608456a2763d",
+      "wheel_sha256": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+      "status": "exploratory_limited_power"
+    },
+    "paired_blocks": 30,
+    "offered_arm_episodes": 60,
+    "offered_tasks": 360,
+    "actual_model_requests": 180,
+    "raw_original_files": 2011,
+    "raw_public_files_transformed": 2,
+    "raw_original_sha256": "c5a0564a33b5e3c049bba3ab8a94d35a5277654d4aa36ed4aee39d5ee30642fe",
+    "protocol_original_sha256": "de20b26ece87613d012e0250af25df0a568b58f559f26753fad32f51073f366c",
+    "original_verify": "verified",
+    "public_verify": "verified",
+    "whole_run_elapsed_seconds": 3277.0687218999956,
+    "model_or_control_changes_during_run": false,
+    "source_failure_or_missing_usage_count": 0,
+    "publication_status": "pending_required_native_gate",
+    "analysis_sha256": "2ed8a40c36d5fd2c288cf5900a3e4102b5fe794b9f2b67bff6815f3a5163eb18",
+    "runtime_metadata": "66 locked installed distributions in retained runtime.json",
+    "os_resource_scope": "185 late-start read-only point/lifetime samples; no full arm CPU, RAM or energy certification",
+    "analysis": "docs/experiments/gemma-041/confirmation-v1/analysis.json"
+  },
+  "first_full_candidate_failure": {
+    "run": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36965233400",
+    "conclusion": "failure",
+    "native_source_tests": [
+      {
+        "path": "reports-Darwin-amd64-3.12.14-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 1,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": [
+          {
+            "test": "test_peer_selected_document_formation_restart_and_withdrawal[host-normal]",
+            "message": [
+              "AssertionError"
+            ]
+          }
+        ]
+      },
+      {
+        "path": "reports-Darwin-amd64-3.13.15-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Darwin-amd64-3.14.7-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Darwin-arm64-3.12.14-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Darwin-arm64-3.13.15-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Darwin-arm64-3.14.7-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Linux-amd64-3.12.14-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Linux-amd64-3.13.15-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Linux-amd64-3.14.7-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Windows-amd64-3.12.14-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Windows-amd64-3.13.15-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      },
+      {
+        "path": "reports-Windows-amd64-3.14.7-full\\source-tests.xml",
+        "totals": {
+          "tests": 489,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "failures": []
+      }
+    ],
+    "failed_steps": [
+      {
+        "job": "linux (Linux, amd64, ubuntu-latest, 3.12.14, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.12.14' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:39:44Z",
+        "end": "2026-10-02T04:55:55Z"
+      },
+      {
+        "job": "windows (Windows, amd64, windows-latest, 3.13.15, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.13.15' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:39:48Z",
+        "end": "2026-10-02T04:59:22Z"
+      },
+      {
+        "job": "linux (Linux, amd64, ubuntu-latest, 3.13.15, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.13.15' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:39:42Z",
+        "end": "2026-10-02T04:54:50Z"
+      },
+      {
+        "job": "linux (Linux, amd64, ubuntu-latest, 3.14.7, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.14.7' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:39:46Z",
+        "end": "2026-10-02T04:54:29Z"
+      },
+      {
+        "job": "windows (Windows, amd64, windows-latest, 3.14.7, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.14.7' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:41:14Z",
+        "end": "2026-10-02T05:05:23Z"
+      },
+      {
+        "job": "macos (Darwin, arm64, macos-15, 3.13.15, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.13.15' --architecture 'arm64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:40:14Z",
+        "end": "2026-10-02T04:55:28Z"
+      },
+      {
+        "job": "macos (Darwin, arm64, macos-15, 3.14.7, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.14.7' --architecture 'arm64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:40:48Z",
+        "end": "2026-10-02T04:55:36Z"
+      },
+      {
+        "job": "windows (Windows, amd64, windows-latest, 3.12.14, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.12.14' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:41:51Z",
+        "end": "2026-10-02T05:09:50Z"
+      },
+      {
+        "job": "macos (Darwin, amd64, macos-15-intel, 3.12.14, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.12.14' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:53:10Z",
+        "end": "2026-10-02T05:45:57Z"
+      },
+      {
+        "job": "macos (Darwin, amd64, macos-15-intel, 3.14.7, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.14.7' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:45:28Z",
+        "end": "2026-10-02T05:17:29Z"
+      },
+      {
+        "job": "macos (Darwin, amd64, macos-15-intel, 3.13.15, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.13.15' --architecture 'amd64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T05:07:10Z",
+        "end": "2026-10-02T05:41:42Z"
+      },
+      {
+        "job": "macos (Darwin, arm64, macos-15, 3.12.14, full)",
+        "step": "Run uv run python scripts/ci_validate.py --python-version '3.12.14' --architecture 'arm64' --candidate .local/candidate --report-dir .local/reports",
+        "start": "2026-10-02T04:40:18Z",
+        "end": "2026-10-02T04:57:15Z"
+      }
+    ]
+  },
+  "native_fault_fixture_corrections": {
+    "status": "local_actual_protocol_passed_final_native_gate_pending",
+    "initial_mac_response_not_retained": "Exact original cause unproven; partial source freshness hypothesis is consistent with 393.799-second test timing",
+    "diagnostic_v1": "301-second real wait expired whole 600-second deadline before response; original failed",
+    "diagnostic_v2": "Deliberately aged local DB source anchor yields UNKNOWN/released/admission_denied and no actuator. Actual signed sync then passes held-effect pressure through 32-current ceiling; later key positive control failed stale source prerequisite",
+    "correction": "Actual signed sync and positive admission prerequisite before provider-stop pressure; refresh both relevant sources for key positive control/rotation. No thresholds relaxed, no runtime/model/package changes",
+    "complete_corrected_v3": {
+      "tests": 1,
+      "failures": 0,
+      "seconds": 436.19,
+      "fault_elapsed_seconds": 415.7126494080003,
+      "required_injections": 19,
+      "profile_id": "permissioned-native-fault-041-v1",
+      "original_report_sha256": "70354a75b99675a06d29792ca0ef52e1f43d6cc102ffdb6f370513602d9ff0f2"
+    },
+    "quick_local": {
+      "tests": 48,
+      "failures": 0,
+      "original": "audit-041-final-quick-v3.xml"
+    }
+  }
 }

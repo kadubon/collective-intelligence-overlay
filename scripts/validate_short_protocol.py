@@ -4,11 +4,14 @@ import hashlib
 import json
 from pathlib import Path
 
+from native_fault_profile import load as load_profile
 
-def validate(directory: Path, root: Path):
-    profile = json.loads((root / "docs/profiles/production-040.json").read_text(encoding="utf-8"))
+
+def validate(directory: Path, root: Path, *, expected_version: str):
+    profile, protocol = load_profile(root, expected_version)
     report = json.loads((directory / "production-fault-protocol.json").read_text(encoding="utf-8"))
     assert report["profile_id"] == profile["profile_id"]
+    assert report["protocol"] == protocol
     assert report["required_injections"] == profile["fault_protocol"]["required_injections"]
     assert set(report["required_injections"]) <= set(report["observed_injections"])
     bounds = profile["fault_protocol"]["short_ci"]

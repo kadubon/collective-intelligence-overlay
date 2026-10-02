@@ -43,7 +43,18 @@ FILES = (
 
 
 def write_report(root, elapsed):
-    assert 120 <= elapsed < 600
+    # Tests run outside the checkout against the installed wheel. Only the
+    # validation helper path is added; package/application source stays absent.
+    scripts = str(Path(__file__).resolve().parents[2] / "scripts")
+    if scripts not in sys.path:
+        sys.path.insert(0, scripts)
+    from native_fault_profile import load as load_profile
+
+    version = importlib.metadata.version("collective-intelligence-overlay")
+    profile, protocol = load_profile(Path(__file__).resolve().parents[2], version)
+    bounds = profile["fault_protocol"]["short_ci"]
+    assert list(REQUIRED) == profile["fault_protocol"]["required_injections"]
+    assert bounds["duration_seconds_min"] <= elapsed < bounds["maximum_total_seconds"]
     data = {name: json.loads((root / name).read_text(encoding="utf-8")) for name in FILES}
     observations = [
         item
@@ -76,16 +87,16 @@ def write_report(root, elapsed):
         shutil.copy2(source, root / name)
         hashes[name] = hashlib.sha256(source.read_bytes()).hexdigest()
     report = {
-        "profile_id": "permissioned-single-owner-040-v1",
-        "protocol": "production-short-040-v1",
+        "profile_id": profile["profile_id"],
+        "protocol": protocol,
         "elapsed_seconds": elapsed,
-        "owners": 3,
+        "owners": bounds["owners"],
         "runtime": {
             "os": platform.system(),
             "machine": platform.machine(),
             "python": platform.python_version(),
             "executable": sys.executable,
-            "distribution_version": importlib.metadata.version("collective-intelligence-overlay"),
+            "distribution_version": version,
         },
         "required_injections": list(REQUIRED),
         "observed_injections": sorted(labels),

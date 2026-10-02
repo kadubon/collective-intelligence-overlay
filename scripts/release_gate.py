@@ -32,11 +32,22 @@ def report_files(directory):
 
 
 def provenance():
-    names = [WORKFLOW, "uv.lock", "scripts/runtime-matrix.json"]
+    names = [
+        WORKFLOW,
+        "uv.lock",
+        "scripts/runtime-matrix.json",
+        "docs/profiles/production-040.json",
+        "docs/profiles/native-fault-041.json",
+    ]
     names.extend(
         p.relative_to(ROOT).as_posix()
         for p in (ROOT / "scripts").rglob("*")
         if p.is_file() and p.suffix in {".py", ".json", ".mod", ".sum"}
+    )
+    names.extend(
+        p.relative_to(ROOT).as_posix()
+        for directory in ("tests", "examples")
+        for p in (ROOT / directory).rglob("*.py")
     )
     return {
         "repository": REPOSITORY,

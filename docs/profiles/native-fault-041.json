@@ -1,0 +1,39 @@
+{
+  "profile_id": "permissioned-native-fault-041-v1",
+  "target_version": "0.4.1",
+  "protocol": "production-short-041-v1",
+  "declared_at": "2026-10-02T05:20:24.153026+00:00",
+  "scope": "New 0.4.1 native source and immutable installed artifact short fault validation; this profile alone does not approve a formal long soak or release.",
+  "change_policy": "Preserve the 0.4.0 declaration and failed 0.4.1 reports bearing its identity. This version-specific profile requires new measurements. Numeric fault bounds and injections are inherited unchanged.",
+  "inherited_numeric_profile": "permissioned-single-owner-040-v1",
+  "fault_protocol": {
+    "required_injections": [
+      "owner process kill",
+      "database physical disconnect",
+      "provider stop",
+      "delayed response and timeout",
+      "duplicate response/request",
+      "owner Python clock offset plus DB clock checks",
+      "bad signature",
+      "evidence withdrawal",
+      "execution and unresolved capacity exhaustion",
+      "budget exhaustion",
+      "checker failure and checker unavailability",
+      "backup interruption",
+      "restored intake closed until verification/sync/reconciliation",
+      "new effect request during drain",
+      "duplicate owner boot",
+      "HTTP 429 and 503 with Retry-After",
+      "routine key rotation",
+      "compromised historical key",
+      "protected trial regression"
+    ],
+    "short_ci": {
+      "duration_seconds_min": 120,
+      "owners": 3,
+      "maximum_total_seconds": 600,
+      "runs_per_native_profile": 1
+    }
+  },
+  "reason": "Native 0.4.1 source tests passed but the report generator emitted the historical 0.4.0 profile identity. Bind new measurements to the actual candidate version; do not reinterpret failed reports."
+}

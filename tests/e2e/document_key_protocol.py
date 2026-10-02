@@ -26,9 +26,13 @@ async def run(configs, identities, mesh, start, stop, call, sync, target, root):
         "binding_digest": target.digest,
         "semantic_fit": "confirmed",
     }
+    # Key behavior is tested with otherwise current evidence. Long preceding
+    # fault injections must not turn the positive control into a freshness test.
+    for source in ("producer", "verifier"):
+        await sync("receiver", source)
     assert (await call("receiver", operation="qualify", request=request))["decision"][
         "outcome"
-    ] == "ACCEPT"
+    ] == "ACCEPT", request
     before = {
         owner: await asyncio.to_thread(originals, config) for owner, config in configs.items()
     }
@@ -92,7 +96,8 @@ async def run(configs, identities, mesh, start, stop, call, sync, target, root):
         for owner in configs:
             await start(owner)
         assert old_path.read_bytes() == old_private_bytes
-        await sync("receiver", "producer")
+        for source in ("producer", "verifier"):
+            await sync("receiver", source)
         return bundle
 
     async def old_http_refused():
