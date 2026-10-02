@@ -1,6 +1,7 @@
 """An installer assertion cannot hide changed or source-shadowed core code."""
 
 import hashlib
+import importlib.machinery
 import importlib.util
 import json
 import sys
@@ -164,6 +165,38 @@ def test_individual_loaded_core_module_cannot_escape(candidate, monkeypatch):
     monkeypatch.setitem(sys.modules, foreign.__name__, foreign)
     with pytest.raises(ValueError, match="imported core module"):
         c.checker.installed_candidate(c.repository, c.artifact)
+
+
+@pytest.mark.parametrize("kind", ["original", "foreign", "extra", "empty", "executable", "loader"])
+def test_only_original_archive_backed_namespace_is_accepted(candidate, monkeypatch, kind):
+    c = candidate
+    # policies is a namespace directory backed by the original packaged rego.
+    name = c.checker.PACKAGE + ".policies"
+    namespace = types.ModuleType(name)
+    original = str(c.package / "policies")
+    locations = [original]
+    if kind == "foreign":
+        locations = [str(c.repository / "foreign")]
+    elif kind == "extra":
+        locations.append(str(c.repository / "foreign"))
+    elif kind == "empty":
+        name = c.checker.PACKAGE + ".absent"
+        locations = [str(c.package / "absent")]
+    namespace.__path__ = locations
+    loader = importlib.machinery.NamespaceLoader(name, locations, importlib.machinery.PathFinder)
+    namespace.__spec__ = importlib.util.spec_from_loader(name, loader=loader, is_package=True)
+    namespace.__spec__.submodule_search_locations = locations
+    if kind == "executable":
+        namespace.__spec__.origin = "invented-module"
+    elif kind == "loader":
+        namespace.__spec__.loader = object()
+    monkeypatch.setitem(sys.modules, name, namespace)
+    if kind == "original":
+        result = c.checker.installed_candidate(c.repository, c.artifact)
+        assert result["imported_namespace_locations"][name] == original
+    else:
+        with pytest.raises(ValueError, match="core namespace"):
+            c.checker.installed_candidate(c.repository, c.artifact)
 
 
 def test_unregistered_package_module_is_rejected(candidate):

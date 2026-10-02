@@ -293,6 +293,7 @@ guarantees from the zero-SD pilot. Parametric planning power is separate from
 the actual bounded analysis. Quality MCID/harm margin is five points; a 20%
 complete-compute benefit additionally requires quality precision and complete
 investment/verification/transfer/maintenance costs, currently unavailable.
+
 ### Fixed candidate checkpoint after calibration
 
 The completed calibration remains unchanged. The final local checkpoint passed
@@ -302,3 +303,14 @@ files passed. The source-admission/formation-lineage native regression previousl
 passed all 12 declared E/M/C, family and receiver combinations in 291.40 seconds.
 These observations do not replace the final complete native candidate gate.
 
+The first final-gate dispatch, [37057480373](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37057480373),
+was cancelled after an actual clean-install pre-inference check found that the
+candidate reader rejected the package's genuine PEP 420 `adapters` namespace.
+Its candidate/quick/mixed successes and cancelled native observations remain
+preserved; this run is not a passing publication gate. The correction accepts
+only the standard namespace loader and a single original archive-backed location,
+rejecting foreign/extra paths and invented executable loaders. All 36 candidate
+unit tests passed. A separate real installed PG/OPA/TLS/A2A case verified startup
+observations in producer/verifier/receiver/newreceiver, all 86 package files and
+reconstruction after physical provider stop. It made zero model requests and
+is a deterministic contract test, not a third calibration or performance cohort.

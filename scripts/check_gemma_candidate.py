@@ -7,6 +7,7 @@ of treating an installer direct_url assertion alone as executable identity.
 
 import hashlib
 import importlib
+import importlib.machinery
 import importlib.metadata
 import json
 import sys
@@ -112,11 +113,33 @@ def installed_candidate(root, artifact):
         Path(p).resolve() for p in package.__path__
     ] != [package_root]:
         raise ValueError("source tree shadows the installed candidate package")
-    imported = {}
+    imported, namespaces = {}, {}
     for name, module in tuple(sys.modules.items()):
         if module is None or not (name == PACKAGE or name.startswith(PACKAGE + ".")):
             continue
         origin = getattr(module, "__file__", None)
+        if origin is None:
+            # adapters is a real PEP 420 namespace in the installed wheel.
+            # Require its single exact archive-backed directory, never a
+            # foreign search location or an invented executable module.
+            namespace = package_root.joinpath(*name.split(".")[1:])
+            locations = [Path(p).resolve() for p in getattr(module, "__path__", ())]
+            spec = getattr(module, "__spec__", None)
+            if (
+                spec is None
+                or not isinstance(spec.loader, importlib.machinery.NamespaceLoader)
+                or spec.origin is not None
+                or spec.submodule_search_locations is None
+                or locations != [namespace]
+                or [Path(p).resolve() for p in spec.submodule_search_locations] != locations
+                or namespace.is_symlink()
+                or not namespace.is_dir()
+                or not any(path.is_relative_to(namespace) for path in expected)
+                or (namespace / "__init__.py").exists()
+            ):
+                raise ValueError("imported core namespace is outside candidate package bytes")
+            namespaces[name] = str(namespace)
+            continue
         if origin is None or Path(origin).resolve() not in expected:
             raise ValueError("imported core module is outside candidate package bytes")
         imported[name] = str(Path(origin).resolve())
@@ -128,6 +151,7 @@ def installed_candidate(root, artifact):
         "package_root": str(package_root),
         "original_package_file_sha256": package_files,
         "imported_module_origins": imported,
+        "imported_namespace_locations": namespaces,
         "editable": False,
         "installer_hash_representation": "archive_info"
         if archive_hash is not None
