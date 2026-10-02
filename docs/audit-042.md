@@ -314,3 +314,24 @@ unit tests passed. A separate real installed PG/OPA/TLS/A2A case verified startu
 observations in producer/verifier/receiver/newreceiver, all 86 package files and
 reconstruction after physical provider stop. It made zero model requests and
 is a deterministic contract test, not a third calibration or performance cohort.
+
+The second full dispatch, [37058391677](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37058391677),
+was also cancelled before any confirmation request. Public metadata testing
+found that hashing the original full `/api/show` conflicted with home-path
+redaction. Runtime contract v2 now hashes the same public home-path projection
+while retaining blob names, all directives/settings and other model metadata.
+The exact weights digest and original full API response hashes remain distinct.
+The actual seven-call metadata record was reprojected offline with zero new
+metadata or generation requests; original and public contracts matched.
+Thirty-two affected host/protocol/privacy tests passed. The shared redaction
+source is now included in the prospective 100-file study source manifest.
+Original gate observations and both cancelled runs remain retained and are not
+passing publication evidence.
+
+The [cohort inventory](studies/accumulation-042/cohort-index-preconfirmation-v1.json)
+separates observations from transport dispatch. Invalid calibration v1 retained
+208 attempt observations, 17 dispatch-started requests and 191 transport-not-started
+observations. Sixteen responses had measured usage (17,885 tokens), one dispatched
+request lacked final usage, and the recorded total charge was 28,125 tokens.
+These are invalid-cohort inventory counts, not efficacy results. Valid calibration
+v2 retained 205 dispatched complete responses and 243,354 measured/charged tokens.

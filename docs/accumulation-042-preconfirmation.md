@@ -64,10 +64,15 @@ The [432-scenario precision plan](studies/accumulation-042/confirmation-precisio
 records its source, NumPy/SciPy versions, 4,000 repetitions per scenario and
 simulation seed. The [seed inventory](studies/accumulation-042/confirmation-seed-separation-v1.json)
 found no overlap between 427319/619843/953117 and prior saved protocol seeds.
-The [actual runtime contract](studies/accumulation-042/runtime-contract-v1.json)
+The [actual runtime contract](studies/accumulation-042/runtime-contract-v2.json)
 was observed using seven bounded metadata calls and zero generation requests;
 its [review](studies/accumulation-042/runtime-observation-review-v1.json) records
 physical cleanup. These files are planning inputs, not confirmation results.
+The [offline projection review](studies/accumulation-042/runtime-projection-review-v2.json)
+confirms identical contracts from original and public metadata. Home-path
+normalization retains every blob name, directive, model setting and other
+metadata; the original full API response hashes remain separate. The earlier
+full-show-hash contract is retained as a superseded planning input.
 
 Quality MCID 0.05 represents at least one additional correct task per twenty
 similar business tasks. A 20% complete cost improvement would be material only

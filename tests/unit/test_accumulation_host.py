@@ -125,3 +125,41 @@ def test_server_environment_projection_pins_private_settings_without_exposing_va
     assert original != accumulation_host.server_environment_digest(
         {**environment, "OLLAMA_MODELS": "other"}
     )
+
+
+def test_runtime_show_hash_survives_public_redaction_and_pins_blob_and_options():
+    import copy
+
+    from prepare_gemma_public import public_bytes
+
+    manifest = {
+        "requested_model": "gemma4:e4b",
+        "tags": {"models": [{"name": "gemma4:e4b", "digest": "a" * 64, "details": {}}]},
+        "version": {"version": "test-only"},
+        "ollama_binary_sha256": "b" * 64,
+        "hardware": {"python": "test-only", "selected_dependencies": {}},
+        "operating_system": "test-only",
+        "machine": "test-only",
+        "settings": {},
+        "owned_server_environment_sha256": "c" * 64,
+        "show": {
+            "modelfile": "FROM C:/Users/private-user/models/sha256-weight\n"
+            'DRAFT """\nFROM C:/Users/private-user/models/sha256-draft\n"""\n'
+            "PARAMETER draft_num_predict 3\n",
+            "model_info": {"quantize.imatrix.file": "/Users/upstream/private.imatrix"},
+            "parameters": "draft_num_predict 3",
+        },
+    }
+    original = accumulation_host.runtime_contract(manifest)
+    raw, changes = public_bytes(Path("model-manifest.json"), json.dumps(manifest).encode())
+    assert changes and b"private-user" not in raw
+    assert original == accumulation_host.runtime_contract(json.loads(raw))
+    assert original["model_show_projection_schema"] == "home-path-v1"
+    changed = copy.deepcopy(manifest)
+    changed["show"]["modelfile"] = changed["show"]["modelfile"].replace(
+        "sha256-draft", "sha256-other"
+    )
+    assert original != accumulation_host.runtime_contract(changed)
+    changed = copy.deepcopy(manifest)
+    changed["show"]["parameters"] = "draft_num_predict 0"
+    assert original != accumulation_host.runtime_contract(changed)

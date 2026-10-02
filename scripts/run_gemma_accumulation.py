@@ -35,6 +35,7 @@ def sources():
             "scripts/verify_gemma_accumulation.py",
             "scripts/analyze_gemma_accumulation.py",
             "scripts/prepare_accumulation_protocol.py",
+            "scripts/prepare_gemma_public.py",
             "scripts/check_gemma_candidate.py",
             "scripts/check_gemma_state.py",
             "scripts/check_gemma_transport.py",

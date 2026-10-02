@@ -1,0 +1,28 @@
+{
+  "classification": "offline_runtime_public_projection_not_model_results",
+  "original_metadata_calls": 7,
+  "new_metadata_calls": 0,
+  "generation_requests": 0,
+  "original_manifest_sha256": "1d0ec324ebaf6c06da65b187f7df7da9479eaa5ddea0310919c6a300d7f1a131",
+  "public_manifest_sha256": "7d8d25b9c918e5aec13bc7b257eb5c93d88b88dafdf31589cb6a1fd436d056b3",
+  "contract_sha256": "4fd66a66bc1040202da3f52ff98f8b6caec62980096f07b0e5ab85e7377c2714",
+  "original_manifest_unchanged": true,
+  "public_and_original_runtime_contract_equal": true,
+  "projection_schema": "home-path-v1",
+  "transformations": [
+    {
+      "kind": "unrelated_installed_model_metadata",
+      "count": 1
+    },
+    {
+      "kind": "operator_home_path",
+      "count": 3
+    },
+    {
+      "kind": "upstream_calibration_home_path",
+      "count": 2
+    }
+  ],
+  "full_native_API_response_hashes": "unchanged in original model-metadata-calls.jsonl",
+  "model_digest_blob_names_directives_and_other_metadata_preserved": true
+}

@@ -7,6 +7,7 @@ import json
 import math
 import os
 import platform
+import re
 import shutil
 import socket
 import subprocess
@@ -47,6 +48,14 @@ def server_environment_digest(environment):
 
 
 def runtime_contract(manifest):
+    # The original /api/show includes local FROM/DRAFT and upstream imatrix
+    # paths. Pin the same public home-path projection used by the archive,
+    # preserving blob names, every directive and all other model metadata.
+    from prepare_gemma_public import PATH_TRANSFORMATIONS
+
+    show_raw = json.dumps(manifest["show"]).encode()
+    for pattern, replacement, _ in PATH_TRANSFORMATIONS:
+        show_raw = re.sub(pattern, replacement, show_raw)
     selected = next(
         m for m in manifest["tags"]["models"] if m["name"] == manifest["requested_model"]
     )
@@ -62,7 +71,8 @@ def runtime_contract(manifest):
         "owned_server_environment_sha256": manifest["owned_server_environment_sha256"],
         "selected_model_digest": selected["digest"],
         "selected_model_details": selected["details"],
-        "selected_model_show_sha256": fingerprint(manifest["show"]),
+        "model_show_projection_schema": "home-path-v1",
+        "selected_model_show_public_projection_sha256": fingerprint(json.loads(show_raw)),
     }
 
 
