@@ -507,6 +507,14 @@ async def run(args):
         {
             "platform": platform.platform(),
             "python": platform.python_version(),
+            "installed_distribution": importlib.metadata.version("collective-intelligence-overlay"),
+            "resolved_dependencies": sorted(
+                (
+                    {"name": d.metadata["Name"], "version": d.version}
+                    for d in importlib.metadata.distributions()
+                ),
+                key=lambda d: d["name"].lower(),
+            ),
             "versions": {
                 n: importlib.metadata.version(n)
                 for n in (

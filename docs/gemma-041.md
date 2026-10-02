@@ -1,6 +1,6 @@
 # Local Gemma experiment for 0.4.1
 
-Status: initial five-pair allocation pilot complete; corrected-treatment pilot,
+Status: corrected-treatment five-pair pilot complete;
 preregistration, confirmation, fixed native
 candidate validation and 0.4.1 publication remain pending. These results do not
 replace the [audit register](audit-041.md) or historical 0.4.0 measurements.
@@ -29,12 +29,42 @@ MCP tool is used by this particular tabular task; actual MCP integration is test
 separately by the audit/native service gates. General semantic applicability,
 intelligence growth and an ASI claim are outside this experiment.
 
-## Initial allocation-only pilot observations
+## Corrected-treatment pilot observations
+
+`cio-041-gemma-tabular-pilot-v4` used a clean installed local 0.4.1 wheel,
+SHA256 `2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9`,
+with 66 frozen runtime distributions. Five distinct paired episodes completed
+in 540.2825 seconds. Original and shareable-copy raw verification both passed.
+The static one-goal observation and fixed order are checked from signed records.
+[Offline analysis](experiments/gemma-041/pilot-v4/analysis.json) and
+[episode table](experiments/gemma-041/pilot-v4/episodes.csv) retain every paired value.
+
+| Measure | Static | Adaptive |
+| --- | ---: | ---: |
+| Heldout tasks passed / offered | 30 / 30 | 30 / 30 |
+| Actual model requests | 15 | 15 |
+| Input / generated tokens | 4,494 / 347 | 4,494 / 362 |
+| Total measured tokens | 4,841 | 4,856 |
+| Mean inclusive active wall, seconds | 52.4908 | 49.8572 |
+| Mean wall including cleanup, seconds | 55.2270 | 52.7315 |
+| Qualified ordinary execution receipts / formations | 145 / 15 | 145 / 15 |
+| Missing usage / false accepts / UNKNOWN tasks | 0 / 0 / 0 | 0 / 0 / 0 |
+
+Quality difference is zero; paired randomization p=1 and the degenerate paired
+bootstrap interval is [0,0]. The ceiling effect prevents an equivalence or
+superiority claim. This task distribution did not create a sustained verification
+backlog: maximum observed verification candidates per allocation was one in both
+arms. Adaptive used 15 more generated tokens. Its shorter observed wall is a
+secondary descriptive result on one shared CPU, without physical isolation or
+an independent cache reset. Signed per-stage costs remain available by unit and
+status; their nested durations are not added to total elapsed time.
+
+## Historical allocation-only pilot observations
 
 This first pilot turned off adaptive allocation but exposed all three goals to
 both arms' observation API. It is retained as an allocation-only exploratory
-comparison. A corrected-treatment pilot will use a fixed one-goal-at-a-time static
-plan before the primary comparison is preregistered; the old results will not be
+comparison. The corrected-treatment pilot uses a fixed one-goal-at-a-time static
+plan; the old results are not
 merged into that cohort.
 
 | Measure | Static | Adaptive |
@@ -79,7 +109,9 @@ be reset without affecting the model server, so arm order is balanced and cache
 limits remain explicit. Raw API nanoseconds are converted to seconds; overlapping
 nested receipt times are not added to wall. Missing/partial response usage is
 charged by its upper reservation rather than zero. Energy and CPU/RAM usage
-are unavailable for this Windows run. API fee is zero; local compute is not free.
+are not comprehensively measured for this Windows run. Peer lifetime CPU snapshots
+are retained; peer/descendant RSS, complete model CPU time and energy are unavailable.
+API fee is zero; local compute is not free.
 
 ## Reproduce and inspect
 
@@ -120,7 +152,11 @@ not import the then source-only observer. Both are retained as invalid
 zero-inference attempts, and offline verification reports UNKNOWN for pilot-v3.
 The observer is now a packaged public transport module, allowing the installed
 producer to record inference without implicit development PYTHONPATH settings.
-Further validation uses a new run ID and source hash.
+Pilot-v4 is the separate successful corrected-treatment cohort. The first hosted
+representative checkpoint (`36962813882`) retained 488 passing source cases and one
+failure: an old exception-message expectation. The targeted actual PostgreSQL/A2A
+case passes with the exact new `PROVIDER_REPORTED_UNKNOWN` reason, retaining the
+actuator-count denial assertion. It is not reported as a passing checkpoint.
 
 Code is Apache-2.0; Ollama and the optional MAF provider/Python client are MIT.
 The installed model's `/api/show` supplies Apache-2.0 text, also shown for the

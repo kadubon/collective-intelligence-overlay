@@ -10,6 +10,7 @@ import csv
 import hashlib
 import json
 from collections import Counter
+from decimal import Decimal
 from pathlib import Path
 
 from ollama_observer import write_new
@@ -268,6 +269,20 @@ def verify_episode(directory, protocol, block, arm, evaluator):
     ):
         raise ValueError("aggregate model budget mismatch")
     missing = sum(m["missing"] for m in model)
+    allocations, verification_candidates = Counter(), Counter()
+    cost_totals, unavailable_costs = {}, Counter()
+    for event in events.values():
+        if event.work is not None and event.work.stage == "allocation":
+            allocations[event.correlation_id] += 1
+            verification_candidates[event.correlation_id] += event.work.work_kind == "verification"
+        for cost in event.costs:
+            key = ":".join((cost.category, cost.unit, cost.status))
+            if cost.quantity is None:
+                unavailable_costs[key] += 1
+            else:
+                cost_totals[key] = cost_totals.get(key, Decimal(0)) + cost.quantity
+    if false_accepts != summary["false_accepts"] or unknown != summary["unknown_tasks"]:
+        raise ValueError("failure/UNKNOWN counts disagree with original outcomes")
     return {
         "block": block,
         "arm": arm,
@@ -281,6 +296,7 @@ def verify_episode(directory, protocol, block, arm, evaluator):
         "input_tokens": None if missing else sum(m["prompt"] for m in model),
         "generated_tokens": None if missing else sum(m["generated"] for m in model),
         "wall_seconds": summary["inclusive_active_wall_seconds"],
+        "inclusive_with_cleanup_seconds": summary["inclusive_with_cleanup_seconds"],
         "first_valid_heldout_seconds": summary.get("first_valid_heldout_seconds"),
         "false_accepts": false_accepts,
         "unknown_tasks": unknown,
@@ -296,6 +312,24 @@ def verify_episode(directory, protocol, block, arm, evaluator):
             s["state"] == "unknown" and s["binding_id"] == "checker" for s in states.values()
         ),
         "formation_receipts": sum(e.formation is not None for e in events.values()),
+        "invalid_model_drafts": sum(m["dispatched"] and m["plan"] is None for m in model),
+        "max_offered_opportunities_per_allocation": max(allocations.values(), default=0),
+        "max_observed_verification_candidates_per_allocation": max(
+            verification_candidates.values(), default=0
+        ),
+        "allocation_deferrals": sum(
+            e.work is not None and e.work.stage == "allocation" and e.work.result == "deferred"
+            for e in events.values()
+        ),
+        "uncertain_a2a_execution_receipts": sum(
+            e.execution is not None
+            and e.execution.transport == "a2a"
+            and e.execution.state != "completed"
+            for e in events.values()
+        ),
+        "receipt_cost_totals": {k: str(v) for k, v in sorted(cost_totals.items())},
+        "unavailable_receipt_cost_observations": dict(sorted(unavailable_costs.items())),
+        "receipt_duration_scope": "nested signed duration observations; never total wall time",
     }
 
 
@@ -416,9 +450,23 @@ def analyze(report):
             if all(e["generated_tokens"] is not None for e in values)
             else None,
             "mean_inclusive_wall_seconds": float(np.mean([e["wall_seconds"] for e in values])),
+            "mean_inclusive_with_cleanup_seconds": float(
+                np.mean([e["inclusive_with_cleanup_seconds"] for e in values])
+            ),
             "false_accepts": sum(e["false_accepts"] for e in values),
             "unknown_tasks": sum(e["unknown_tasks"] for e in values),
             "stops": dict(Counter(e["stop"] for e in values)),
+            "qualified_ordinary_execution_receipts": sum(
+                e["qualified_ordinary_execution_receipts"] for e in values
+            ),
+            "formation_receipts": sum(e["formation_receipts"] for e in values),
+            "invalid_model_drafts": sum(e["invalid_model_drafts"] for e in values),
+            "uncertain_a2a_execution_receipts": sum(
+                e["uncertain_a2a_execution_receipts"] for e in values
+            ),
+            "max_observed_verification_candidates_per_allocation": max(
+                e["max_observed_verification_candidates_per_allocation"] for e in values
+            ),
         }
     sd = float(np.std(contrast, ddof=1)) if len(contrast) >= 2 else None
     z = stats.norm.ppf(0.975) + stats.norm.ppf(0.8)
@@ -445,6 +493,7 @@ def analyze(report):
         "equivalence_tested": False,
         "inference_performed": False,
         "analysis_versions": {n: importlib.metadata.version(n) for n in ("numpy", "scipy")},
+        "analysis_source_sha256": hashlib.sha256(Path(__file__).read_bytes()).hexdigest(),
         "episodes": episodes,
         "limits": [
             "synthetic finite task families and one shared model/CPU backend",

@@ -434,7 +434,7 @@ async def test_local_proxy_verification_keeps_provider_reuse_admission(serving):
         peers.provider.store.put(verifier.sign(revocation))
     finally:
         verifier_overlay.store.close()
-    with pytest.raises(ValueError, match="incomplete or unknown"):
+    with pytest.raises(ValueError, match="^PROVIDER_REPORTED_UNKNOWN$"):
         await peers.registry.execute(
             proxy.id,
             proxy.digest,

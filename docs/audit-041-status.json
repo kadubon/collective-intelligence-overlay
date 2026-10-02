@@ -52,7 +52,7 @@
     {
       "id": "B-CI-milestones",
       "status": "pending",
-      "evidence": "Lightweight push/PR, representative checkpoint, full native candidate and trusted tag evidence reuse implemented; hosted runs pending."
+      "evidence": "Quick push CI passes. Representative run36962813882 retained488/489 source passes; exact reason-message test repaired and actual local case passes. Final full native gate pending."
     },
     {
       "id": "C-Ollama-observer",
@@ -62,12 +62,12 @@
     {
       "id": "D-smoke-pilot-freeze-preregister-comparison",
       "status": "pending",
-      "evidence": "Five independent paired pilot episodes completed: both arms 30/30 heldout tasks; raw verification passed. Preregistration and 30-pair exploratory confirmation pending."
+      "evidence": "Corrected-treatment five-pair pilot-v4 completed from clean installed frozen environment: both arms30/30,30 actual requests, raw and public-copy verification pass. Historical invalid/setup/source-failed runs retained separately. Preregistration and30-pair exploratory assessment pending."
     },
     {
       "id": "E-originals-analysis-docs-publication",
       "status": "pending",
-      "evidence": "Original local raw attempts retained. Audit/API/skill docs updated. Offline paired analysis completed: mean quality difference0 at ceiling, p1, degenerate bootstrap interval[0,0] is not equivalence. Public raw transformation and release pending."
+      "evidence": "Corrected primary pilot analysis stored; quality difference0 at ceiling, p1, degenerateCI[0,0] is not equivalence. Separate public copy410files/two metadata transformations verifies; original model bytes, CAS and signed envelopes unchanged. Publication pending."
     },
     {
       "id": "F-final-requirement-audit",
@@ -127,7 +127,7 @@
     "published_this_task": false
   },
   "limits": [
-    "Pilot is complete; preregistered comparison, new GitHub CI candidate and 0.4.1 publication remain pending.",
+    "Corrected-treatment pilot is complete; preregistration, new full native candidate gate and0.4.1 publication remain pending.",
     "Original 0.4.0 formal failure, release assets and signed records remain unchanged.",
     "Matching responses are not truth; provider fingerprint format is not equality to unexposed request fields.",
     "Owner resolution is historical disposition, not quality admission/refund/reexecution; whole-query physical/effect inventory is application-trusted.",
@@ -692,6 +692,19 @@
       "passed_test_cases": 25,
       "classification": "retained_nonpassing_attempt",
       "note": "Not a frozen candidate or an independent sample; related runs share test cases and may include explicitly corrected environment/fixture errors."
+    },
+    {
+      "file": "audit-041-ci-reason-regression-v1.xml",
+      "original_sha256": "8ebe434ac6c1b4a92d68919e28c5fc993a86e7e98c1a5b06c449fd9e586378c4",
+      "counts": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "passed_test_cases": 1,
+      "classification": "all_test_cases_passed",
+      "note": "Targeted actual PostgreSQL/A2A regression after retained hosted exception-message mismatch; no model inference."
     }
   ],
   "finite_duplicate_diagnostics": [
@@ -831,7 +844,7 @@
     }
   ],
   "corrected_treatment_pilot": {
-    "status": "pending_after_retained_setup_failures",
+    "status": "complete_raw_and_shareable_verification_passed",
     "static": "fixed goal order; current-goal-only observation and static allocation",
     "adaptive": "bounded full-goal shortage observation and adaptive allocation",
     "seeds": "pilot hidden86000+17block, practice5101+block, followup5201+block, model51000+11block, order51021",
@@ -850,6 +863,19 @@
         "passed_tasks": 0,
         "inference_requests": 0,
         "offline_status": "UNKNOWN"
+      },
+      {
+        "id": "pilot-v4",
+        "status": "complete_clean_installed_frozen_environment",
+        "source_commit": "47c8fc3d303e75416285d58e06eb4de241d2fc20",
+        "wheel_sha256": "2455fcab88a1dc732372b9a5c7c0eb7d16d3661b6bbf76e853ab8d03d52a0fb9",
+        "paired_episodes": 5,
+        "offered_arm_episodes": 10,
+        "offered_tasks": 60,
+        "passed_tasks": 60,
+        "inference_requests": 30,
+        "offline_status": "verified",
+        "analysis": "docs/experiments/gemma-041/pilot-v4/analysis.json"
       }
     ]
   },
@@ -864,5 +890,34 @@
     "targeted_all_variants": "audit-041-reference-run-deadline-v3.xml",
     "targeted_status": "all8passed",
     "targeted_seconds": 633.78
-  }
+  },
+  "hosted_checkpoints": [
+    {
+      "id": "36962813882",
+      "source_commit": "884362589310b88d166cb3955674a64c457243fc",
+      "purpose": "representative Linux audit/adapter checkpoint",
+      "status": "failure",
+      "source_tests": {
+        "tests": 489,
+        "passed": 488,
+        "failed": 1,
+        "skipped": 0
+      },
+      "failure": "Existing test expected old incomplete-or-unknown message; new shared validator returned PROVIDER_REPORTED_UNKNOWN. Denial remained effective. Local targeted regression passed after exact reason expectation update.",
+      "candidate_artifacts": {
+        "collective_intelligence_overlay-0.4.1-py3-none-any.whl": "9c92e082ea339cebbd4ed31d6b498c58a004b0b45212e576376bbe08b8837772",
+        "collective_intelligence_overlay-0.4.1.tar.gz": "a7698467420bc1b9f927304259cbe3ea588083f86c6e3fdc32529b8f2503a8bf"
+      }
+    },
+    {
+      "id": "36962814542",
+      "purpose": "quick push",
+      "status": "success"
+    },
+    {
+      "id": "36963417802",
+      "purpose": "quick push",
+      "status": "success"
+    }
+  ]
 }
