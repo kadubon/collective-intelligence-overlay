@@ -22,8 +22,27 @@ native jobs and four cross readers completed. It restores the unchanged bytes
 and original evidence, compares all report hashes and rechecks the matrix. An
 altered pin, workflow/gate file, packaged source/README, missing report or failed
 original run refuses publication. It does not rerun identical native workloads
-at the tag. PyPI publishing remains tag-only through the existing `pypi` OIDC
-environment; no repository protection/environment setting is removed.
+at the tag. The first immutable-tag run
+[36984866375](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36984866375)
+stopped in ready: its depth-one checkout lacked the candidate ancestor required
+by `git merge-base`. Candidate validation passed, but the publisher never ran.
+The tag object and its sources remain unchanged.
+
+The narrowly declared recovery input `publish_existing_tag=true` on trusted main
+uses the existing workflow and `pypi` OIDC environment. Require
+`validation_scope=full`, `production_protocols=false`, `verify_pypi=false` and
+either the declared candidate run ID or an empty candidate input. It fetches the
+complete pinned tag history, executes the original package/native gate code on
+that unchanged tag, and restores all original report bytes. A separate checkout
+records the actual dispatch workflow commit/tree and workflow/selector/declaration
+hashes in `publication-resume-provenance.json`; it does not relabel the changed
+publication engine as original native validation. The selector verifies live
+GitHub run/tag identity, refuses an already published version, and binds the same
+candidate and gate. No tag movement, rebuild, model inference, repeated native
+workload or protection/environment setting change is involved. Other manual
+validation runs still do not publish. This explicit exception applies only to
+the pinned 0.4.1 declaration in `.github/publication-resume-041.json`; historical
+tag-only publication behavior below describes those historical releases.
 
 Proxy Go module/build caches use explicit OS/architecture/toolchain/source-pin
 keys. Every restored graph still receives `go mod verify`, native build and fresh

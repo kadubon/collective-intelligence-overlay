@@ -1,0 +1,12 @@
+{
+  "id": "cio-041-immutable-publication-resume-v1",
+  "repository": "kadubon/collective-intelligence-overlay",
+  "tag": "v0.4.1",
+  "tag_object": "5e8fd5525db52acaa0d93cea9845e3a232672ca9",
+  "tag_commit": "bda9e16faeb536b705fd0659e8ca3469941d9f1e",
+  "candidate_run_id": "36973489591",
+  "candidate_source_commit": "1fd790d6c777841c37a142f1f5a16a4d3ce6e6a5",
+  "gate_sha256": "1c0ed1dae45efaea7db9b0eb9639bedf90c5396659481e7d4b931fb66e113072",
+  "failed_tag_run_id": "36984866375",
+  "reason": "Tagged ready checkout was shallow and lacked the original candidate ancestor; publishing never ran. Preserve the annotated tag, package and native validation sources. An explicitly dispatched main workflow fetches full tag history and revalidates every original gate against the unchanged tagged sources. The actual recovery workflow/selector source is separately hash-bound."
+}

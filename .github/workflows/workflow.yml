@@ -26,6 +26,11 @@ on:
         required: false
         type: boolean
         default: true
+      publish_existing_tag:
+        description: 'Explicitly resume the pinned v0.4.1 tag without moving or rebuilding it'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -50,7 +55,7 @@ jobs:
       - run: uv run python scripts/check_docs.py
       - run: uv run python scripts/runtime_matrix.py --check-docs
       - run: uv run python scripts/check_gemma_report.py
-      - run: uv run pytest tests/unit/test_artifacts.py tests/unit/test_artifact_crash.py tests/unit/test_backup_minimum.py tests/unit/test_release_candidate.py tests/unit/test_release_gate.py tests/unit/test_native_fault_profile.py -q --junitxml=.local/quick-tests.xml
+      - run: uv run pytest tests/unit/test_artifacts.py tests/unit/test_artifact_crash.py tests/unit/test_backup_minimum.py tests/unit/test_release_candidate.py tests/unit/test_release_gate.py tests/unit/test_publication_resume.py tests/unit/test_native_fault_profile.py -q --junitxml=.local/quick-tests.xml
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: always()
         with:
@@ -77,9 +82,22 @@ jobs:
       pretested_full: ${{ steps.selection.outputs.pretested_full }}
     env:
       CIO_VALIDATION_SCOPE: ${{ inputs.validation_scope || 'full' }}
+      CIO_PUBLICATION_RESUME: ${{ inputs.publish_existing_tag && 'true' || 'false' }}
+      CIO_PRODUCTION_PROTOCOLS: ${{ inputs.production_protocols && 'true' || 'false' }}
+      CIO_VERIFY_PYPI: ${{ inputs.verify_pypi && 'true' || 'false' }}
+      CIO_CANDIDATE_RUN_ID: ${{ inputs.candidate_run_id }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
+          ref: ${{ inputs.publish_existing_tag && 'refs/tags/v0.4.1' || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Retain the actual recovery workflow source separately from the tag
+        if: inputs.publish_existing_tag
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          path: .local/publication-workflow
           fetch-depth: 0
           persist-credentials: false
       - id: matrix
@@ -95,9 +113,12 @@ jobs:
         name: Select the immutable release candidate
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          CIO_CANDIDATE_RUN_ID: ${{ inputs.candidate_run_id }}
-          CIO_PRODUCTION_PROTOCOLS: ${{ inputs.production_protocols }}
-        run: uv run python scripts/release_candidate.py
+        run: |
+          if [[ "$CIO_PUBLICATION_RESUME" == true ]]; then
+            uv run python .local/publication-workflow/.github/scripts/publication_resume.py select --engine-root .local/publication-workflow --tag-root .
+          else
+            uv run python scripts/release_candidate.py
+          fi
       - name: Check actual build interpreter and release ancestry
         run: |
           uv run python -c "import platform,sys; assert platform.python_version()=='${{ steps.matrix.outputs.minimum }}'; print(sys.version,sys.executable)"
@@ -132,6 +153,11 @@ jobs:
           echo 'from_pypi=true' >> "$GITHUB_OUTPUT"
       - name: Reject changes to packaged sources and the pretested pair
         run: uv run python scripts/release_candidate.py --candidate .local/candidate
+      - name: Verify actual recovery engine and pinned candidate identity
+        if: inputs.publish_existing_tag
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run python .local/publication-workflow/.github/scripts/publication_resume.py verify --engine-root .local/publication-workflow --tag-root .
       - name: Restore the original complete gate
         if: steps.selection.outputs.pretested_full == 'true'
         uses: actions/download-artifact@634f93cb2916e3fdff6788551b99b062d0335ce0 # v5
@@ -500,9 +526,23 @@ jobs:
       actions: read
     env:
       CIO_VALIDATION_SCOPE: full
+      CIO_PUBLICATION_RESUME: ${{ inputs.publish_existing_tag && 'true' || 'false' }}
+      CIO_PRODUCTION_PROTOCOLS: ${{ inputs.production_protocols && 'true' || 'false' }}
+      CIO_VERIFY_PYPI: ${{ inputs.verify_pypi && 'true' || 'false' }}
+      CIO_CANDIDATE_RUN_ID: ${{ inputs.candidate_run_id }}
     steps:
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
         with:
+          ref: ${{ inputs.publish_existing_tag && 'refs/tags/v0.4.1' || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Retain the actual recovery workflow source separately from the tag
+        if: inputs.publish_existing_tag
+        uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          path: .local/publication-workflow
+          fetch-depth: 0
           persist-credentials: false
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6
         with:
@@ -560,6 +600,11 @@ jobs:
           uv run python scripts/check_proxy_sources.py --reports .local/reports --candidate .local/candidate --cache .local/proxy-build/go-modules --goroot "$(go env GOROOT)" --output .local/reports/proxy-source-review
           if [[ '${{ needs.production.result }}' == success ]]; then uv run python scripts/check_production_reports.py --candidate .local/candidate --reports .local/reports; fi
       - run: uv run --frozen python scripts/check_matrix.py --candidate .local/candidate --reports .local/reports
+      - name: Verify the unchanged tag and actual recovery workflow again
+        if: inputs.publish_existing_tag
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: uv run python .local/publication-workflow/.github/scripts/publication_resume.py verify --engine-root .local/publication-workflow --tag-root .
       - name: Compare all restored reports with the original complete gate
         if: needs.candidate.outputs.pretested_full == 'true'
         env:
@@ -584,7 +629,12 @@ jobs:
           if-no-files-found: error
 
   publish:
-    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v') && github.repository == 'kadubon/collective-intelligence-overlay'
+    if: >-
+      github.repository == 'kadubon/collective-intelligence-overlay' &&
+      ((github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')) ||
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' &&
+      inputs.publish_existing_tag && inputs.validation_scope == 'full' &&
+      !inputs.production_protocols && !inputs.verify_pypi))
     needs: [candidate, ready]
     runs-on: ubuntu-latest
     environment:
