@@ -1,0 +1,39 @@
+{
+  "profile_id": "permissioned-native-fault-044-v1",
+  "target_version": "0.4.4",
+  "protocol": "production-short-044-v1",
+  "declared_at": "2026-10-03T22:55:22.040289+00:00",
+  "scope": "Fresh 0.4.4 source and immutable installed candidate validation; old native/scientific gates retain their historical scope.",
+  "change_policy": "All nineteen injections and numeric bounds retained; new semantic-slot research is separately preregistered and no benefit is a release condition.",
+  "inherited_numeric_profile": "permissioned-single-owner-040-v1",
+  "fault_protocol": {
+    "required_injections": [
+      "owner process kill",
+      "database physical disconnect",
+      "provider stop",
+      "delayed response and timeout",
+      "duplicate response/request",
+      "owner Python clock offset plus DB clock checks",
+      "bad signature",
+      "evidence withdrawal",
+      "execution and unresolved capacity exhaustion",
+      "budget exhaustion",
+      "checker failure and checker unavailability",
+      "backup interruption",
+      "restored intake closed until verification/sync/reconciliation",
+      "new effect request during drain",
+      "duplicate owner boot",
+      "HTTP 429 and 503 with Retry-After",
+      "routine key rotation",
+      "compromised historical key",
+      "protected trial regression"
+    ],
+    "short_ci": {
+      "duration_seconds_min": 120,
+      "owners": 3,
+      "maximum_total_seconds": 600,
+      "runs_per_native_profile": 1
+    }
+  },
+  "reason": "Bind unchanged native fault requirements to the exact new distribution before its single final native gate."
+}

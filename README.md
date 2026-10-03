@@ -1,10 +1,14 @@
 # Collective Intelligence Overlay
 
-The separate [v0.4.3 sensitivity pilot](docs/near-transfer-043.md) is complete:
-locked SQL/calibration/formation were 0/6, 1/6 and 0/6. The gate failed and confirmation
-was not performed. [All results](docs/studies/near-transfer-043/pilot-v1/report.en.md)
-retain failures, actual consumption and restricted endpoints; Full/Empty, C/M and
-formation benefits remain unestimated. Historical v0.4.2 observations are preserved.
+The [v0.4.4 bounded procedure pilot](docs/bounded-scratch-044.md) selects one to
+three semantic enums and builds executable SQL/MAF procedures. It measures this
+finite selection and reuse scope. Scratch SQL was 8/8 at both visited levels;
+formation was 6/8 and 7/8. Both reached the declared ceiling, so independent
+locked validation and confirmation were not started. All four M/C transfer and
+restart paths worked; that diagnostic establishes no accumulation benefit.
+[All results](docs/studies/bounded-scratch-044/results-v1/report.en.md) retain
+failed offers and costs. The [v0.4.3 pilot](docs/near-transfer-043.md) and older
+observations remain unchanged.
 
 Let agents share tools and procedures with evidence and conditions for reuse.
 For example, one agent offers a document workflow, a separate checker tests it,
@@ -19,7 +23,7 @@ required. The host and database operator remain trusted.
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [API/CLI](docs/api.md)
 
-These instructions target **0.4.3**. Check the [release records](docs/releasing.md)
+These instructions target **0.4.4**. Check the [release records](docs/releasing.md)
 for actual publication, candidate hashes and validation status. The
 [0.4.1 audit and local Gemma experiment](docs/gemma-041.md) records its measured scope;
 the [0.4.0 production profile](docs/production-040.md) remains historical evidence.

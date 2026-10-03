@@ -162,3 +162,51 @@ async def test_adapter_rejects_external_or_implicit_host(host):
     with pytest.raises(ValueError):
         async with local_ollama_client(host, model="gemma4:e4b"):
             raise AssertionError("invalid host entered")
+
+
+@pytest.mark.parametrize("family", ["sql", "composition"])
+@pytest.mark.parametrize("level", ["L0", "L1", "L2"])
+async def test_public_sdk_delivers_each_exact_native_format(family, level):
+    """Synthetic HTTP response; real public SDK serialization, not model inference."""
+    from agent_framework import Message
+    from bounded_scratch_application import model_prompt, slot_candidates, wire_schema
+    from bounded_scratch_tasks import World
+    from check_gemma_transport import validate_wire
+
+    from collective_intelligence_overlay.adapters.ollama import local_ollama_client
+
+    p = World(1, "wire-unit").problem(family, level, "public")
+    draft = wire_schema(p)
+    fields = slot_candidates(family, p.difficulty)[0]
+    seen = []
+
+    async def respond(request):
+        body = json.loads(request.content)
+        seen.append(body)
+        return httpx.Response(
+            200,
+            json={
+                "model": "gemma4:e4b",
+                "done": True,
+                "message": {"role": "assistant", "content": json.dumps(fields)},
+                "prompt_eval_count": 20,
+                "eval_count": 10,
+            },
+        )
+
+    async with local_ollama_client(
+        "http://127.0.0.1:11444",
+        model="gemma4:e4b",
+        seconds=5,
+        transport=httpx.MockTransport(respond),
+    ) as client:
+        response = await client.get_response(
+            [Message(role="user", contents=[model_prompt(p, ())])],
+            options={
+                "response_format": draft,
+                "think": False,
+                "options": {"num_ctx": 4096, "num_predict": 256, "draft_num_predict": 0},
+            },
+        )
+    assert seen[0]["format"] == draft.model_json_schema()
+    assert validate_wire(response.text, seen[0]["format"], draft).model_dump() == fields

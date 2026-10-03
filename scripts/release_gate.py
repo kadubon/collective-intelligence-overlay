@@ -40,6 +40,7 @@ def provenance():
         "docs/profiles/native-fault-041.json",
         "docs/profiles/native-fault-042.json",
         "docs/profiles/native-fault-043.json",
+        "docs/profiles/native-fault-044.json",
     ]
     names.extend(
         p.relative_to(ROOT).as_posix()

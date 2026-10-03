@@ -1,0 +1,3455 @@
+[
+  {
+    "offer": "screen-calibration",
+    "world": "world-043-0d9934ac2dbc454032b0",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/offers/screen-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/model/screen-calibration-draft-0/response.raw",
+    "original_response_sha256": "a7268799670739101d6ca9feae892616769f05e7b9af47fb4b6f8de4adaff764",
+    "parsed_sha256": "996be6dcdcea5c58042f737bf9bdbbdb91891bd722cb06b58a7987de46b4600b",
+    "signed_parsed_subject_digest": "57309cf93e7bdae350fe1d8a39349f6c05c97cb21ccc628a2b51e3287f54d500",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.5,
+        1.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.5,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            2.0,
+            1.5,
+            -4.0,
+            0.25,
+            5.75,
+            -4.0,
+            4.5,
+            7.25,
+            2.5,
+            4.5,
+            -5.5,
+            -1.75
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            5.0,
+            2.25,
+            2.25,
+            -2.0,
+            -1.25,
+            7.25,
+            4.5,
+            -1.75,
+            -5.5,
+            7.0,
+            -4.75,
+            3.0
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-composition",
+    "world": "world-043-0d9934ac2dbc454032b0",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/offers/screen-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/model/screen-composition-draft-0/response.raw",
+    "original_response_sha256": "fc0b7d878ccd5db9fb80abfb1fc8c42a64b02e9cb076b05ade7a5cea0f26ee59",
+    "parsed_sha256": "b2dd94d4aae9bb31dbbeef76177f1f2b777f6c01bd97c335122924bd168ff74c",
+    "signed_parsed_subject_digest": "19e41b207224d0549a114366fe12950da2930e6925e889d78cbba3695e3688cd",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        2.0,
+        4.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "screen-sql",
+    "world": "world-043-0d9934ac2dbc454032b0",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/offers/screen-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/model/screen-sql-draft-0/response.raw",
+    "original_response_sha256": "ec2ca5c9ca2c13bf64b314cb5f188f1193933a6ef65d5d5b00a390c4af522616",
+    "parsed_sha256": "df5ba3924d1dac419fadb23a025ff5ddcedf38f0adbf329e8f2ce0bdc19f6545",
+    "signed_parsed_subject_digest": "5a4fe6a77952ef8da1496fd56019d0d2fd96d070eb87d2bb5411fd6c05fa99a9",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0.0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0.0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "screen-calibration",
+    "world": "world-043-1b3acd510f1d298e9824",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-1b3acd510f1d298e9824-M/offers/screen-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-1b3acd510f1d298e9824-M/model/screen-calibration-draft-0/response.raw",
+    "original_response_sha256": "75eb6ca0fb1b67d16e3d6f0db61941d4dc17fb808740b6b0fa3047fdf7f3b264",
+    "parsed_sha256": "959c67e2b03c552dbf63d062928ce1bbb3f86dc36981a15278e8af5d6f2b67e0",
+    "signed_parsed_subject_digest": "77902be5a1ff1c1504247d71856b139787794ed3318765070e878b6ae52e0dbf",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        1.0,
+        1.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        1.0,
+        1.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            27.3125,
+            67.8125,
+            17.8125,
+            0.0,
+            -0.1875,
+            2.0,
+            0.75,
+            56.0,
+            -0.1875,
+            56.0,
+            6.0,
+            45.3125
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            15.75,
+            30.0,
+            -0.1875,
+            17.8125,
+            15.75,
+            35.75,
+            24.75,
+            8.75,
+            56.0,
+            7.3125,
+            30.0,
+            -0.1875
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-composition",
+    "world": "world-043-1b3acd510f1d298e9824",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-1b3acd510f1d298e9824-M/offers/screen-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-1b3acd510f1d298e9824-M/model/screen-composition-draft-0/response.raw",
+    "original_response_sha256": "84362232cd070b8a9ae4044d7476f15d135354684918c0c48db714f3a2bc2c98",
+    "parsed_sha256": "f3be6dc7b35408fe3fad5ab8da00bdefc1171f9fe2310a01ce167938ea52b7dc",
+    "signed_parsed_subject_digest": "1d2461b84e116f551ffea9e1cf8cd9053c0d048cf0a04a70fa7de92f30e2355a",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", amount FROM readings WHERE utc >= :start AND utc < :stop",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "composition",
+      "sql": "SELECT \"group\", amount FROM readings WHERE utc >= :start AND utc < :stop",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "screen-sql",
+    "world": "world-043-1b3acd510f1d298e9824",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-1b3acd510f1d298e9824-M/offers/screen-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-1b3acd510f1d298e9824-M/model/screen-sql-draft-0/response.raw",
+    "original_response_sha256": "7ffdc2db1cdc2f23afb7a86eeff2826e356444d956e948c1ab932e4d4b9631fb",
+    "parsed_sha256": "ef3fb75b3ff44eae8fbec6f3ca498005e2a98aa593c1d15d20df13d86394d6aa",
+    "signed_parsed_subject_digest": "1a8d387e15c444429fb5f05a3b2d2fd5482b38db53a34d5286dbae122f22e917",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM (SELECT bucket AS \"group\", amount FROM readings WHERE version = (SELECT MAX(version) FROM readings WHERE event_id = readings.event_id) AND readings.utc >= :start AND readings.utc < :stop AND readings.amount >= 0) GROUP BY \"group\" ORDER BY 1;",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM (SELECT bucket AS \"group\", amount FROM readings WHERE version = (SELECT MAX(version) FROM readings WHERE event_id = readings.event_id) AND readings.utc >= :start AND readings.utc < :stop AND readings.amount >= 0) GROUP BY \"group\" ORDER BY 1;",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "locked-calibration",
+    "world": "world-043-5fd65b4003246b312526",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-5fd65b4003246b312526-M/offers/locked-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-5fd65b4003246b312526-M/model/locked-calibration-draft-0/response.raw",
+    "original_response_sha256": "e2fa79fdd2486d31d7c5c0176cb034add0682d3239bd1c542960f7fafe69725e",
+    "parsed_sha256": "746ea22e8cd922866c1512607e73123bf8622164fd478ea1bb0ba21cd43c69d9",
+    "signed_parsed_subject_digest": "1a32753f1643c65389820f6d8e8980d82602bef15650e3635ae3e737ce01bff1",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            5.25,
+            -2.5,
+            6.25,
+            1.0,
+            1.25,
+            -1.25,
+            5.0,
+            -0.75,
+            9.0,
+            -1.75,
+            -3.25,
+            -2.5
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            7.75,
+            8.25,
+            -2.25,
+            1.75,
+            5.25,
+            3.25,
+            7.0,
+            -1.75,
+            3.25,
+            7.0,
+            0.25,
+            -5.0
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "locked-composition",
+    "world": "world-043-5fd65b4003246b312526",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-5fd65b4003246b312526-M/offers/locked-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-5fd65b4003246b312526-M/model/locked-composition-draft-0/response.raw",
+    "original_response_sha256": "2947760b3799a172a1e889e458a1ab7167003fdf7ac322c93de76de7a3664a75",
+    "parsed_sha256": "22c3a1ad4f09b7c79fa8814da343794c2b6207982935e012877cd4bd4945c148",
+    "signed_parsed_subject_digest": "5bd06ec1262fe49b40775f8575e587a00d860b7871cf0f6d7df5de1b97cbcb23",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", SUM(calibrated_amount) FROM (SELECT bucket AS \"group\", amount * (5.0 + 4.0 * CAST(strftime('%s', datetime(utc/1000, 'unixepoch')) AS REAL)) AS calibrated_amount FROM readings WHERE utc >= :start AND utc < :stop) GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        5.0,
+        4.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "locked-sql",
+    "world": "world-043-5fd65b4003246b312526",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-5fd65b4003246b312526-M/offers/locked-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-5fd65b4003246b312526-M/model/locked-sql-draft-0/response.raw",
+    "original_response_sha256": "2f5ad2b8399511d76a2b5cb63eed2845fa40ec7f6e0587c730089948d2a3326e",
+    "parsed_sha256": "cee8ceb662c63d05f1c5e6dad287d86598a26e011ef799d818c766b654d3fd63",
+    "signed_parsed_subject_digest": "4664d221870278e0e8e3babc5c9b8f4b09b4cb373622f5fe7837e8af6fd01847",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "screen-calibration",
+    "world": "world-043-66929e4fd1bb6f8e687f",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-66929e4fd1bb6f8e687f-M/offers/screen-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-66929e4fd1bb6f8e687f-M/model/screen-calibration-draft-0/response.raw",
+    "original_response_sha256": "6b533623841cb01625d77e7423bfa4b774f785e685bd0cb13163d99f932f58ac",
+    "parsed_sha256": "49d323f21b6603fae416c13ea1a20920993362981eed6aba8e44235b4cbb31b2",
+    "signed_parsed_subject_digest": "21f9c68e6feab1f3f3757571241a77aa6fb0d3aeccc048e728f29d9321b42605",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        1.0,
+        1.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        1.0,
+        1.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.75,
+            6.0,
+            10.3125,
+            22.3125,
+            -0.1875,
+            24.75,
+            20.0,
+            4.8125,
+            8.75,
+            4.8125,
+            -0.25,
+            1.3125
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            30.0,
+            24.75,
+            63.75,
+            35.75,
+            27.3125,
+            0.75,
+            2.0,
+            48.75,
+            6.0,
+            17.8125,
+            7.3125,
+            20.0
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-composition",
+    "world": "world-043-66929e4fd1bb6f8e687f",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-66929e4fd1bb6f8e687f-M/offers/screen-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-66929e4fd1bb6f8e687f-M/model/screen-composition-draft-0/response.raw",
+    "original_response_sha256": "256398551f7b1db16915e6b35305b25448d223b24cbda83577c7dee97815f038",
+    "parsed_sha256": "dee37492d0f802e03246f2a2454d83f6e33e291d4801211a8df2ca8e5555ec65",
+    "signed_parsed_subject_digest": "fcbaab3b2eea9dbb50474011002e41e3ead586f82472183e7f83de54ce0a7a43",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", value FROM (SELECT bucket AS \"group\", (c0 + c1 * CAST(strftime('%s', datetime(utc/1000, 'unixepoch')) AS REAL) + c2 * POWER(CAST(strftime('%s', datetime(utc/1000, 'unixepoch')) AS REAL), 2)) AS value FROM readings WHERE utc >= :start AND utc < :stop) AS calibrated_readings ORDER BY \"group\", utc",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "no such column: c0"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "no such column: c0"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "screen-sql",
+    "world": "world-043-66929e4fd1bb6f8e687f",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-66929e4fd1bb6f8e687f-M/offers/screen-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-66929e4fd1bb6f8e687f-M/model/screen-sql-draft-0/response.raw",
+    "original_response_sha256": "b13d7700e9a3699996c34485eb668d1976f8d5c4580225a0462f3eb9231e07d3",
+    "parsed_sha256": "2a71d42377fcabc540defdc9019f01dd2688ccd2c210dcb5f94921a5dff898f7",
+    "signed_parsed_subject_digest": "bebec08ad469ae5d36b9ff5f19266ed73cc99ed66b3684b20044b6ab9802f989",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM (SELECT bucket AS \"group\", amount FROM readings WHERE version = (SELECT MAX(version) FROM readings WHERE event_id = readings.event_id) AND readings.utc >= :start AND readings.utc < :stop AND readings.amount >= 0) GROUP BY \"group\" ORDER BY 1;",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM (SELECT bucket AS \"group\", amount FROM readings WHERE version = (SELECT MAX(version) FROM readings WHERE event_id = readings.event_id) AND readings.utc >= :start AND readings.utc < :stop AND readings.amount >= 0) GROUP BY \"group\" ORDER BY 1;",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "screen-calibration",
+    "world": "world-043-70d63447c90f0f53db97",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-70d63447c90f0f53db97-M/offers/screen-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-70d63447c90f0f53db97-M/model/screen-calibration-draft-0/response.raw",
+    "original_response_sha256": "18eecbbb0b5dfa8a4f4e319041f3cc5977746e30d94c661b3c1236616ffa9e62",
+    "parsed_sha256": "58340153476f65a93d32e5a8e5c2a81d39cf55f89b0dab9025ad23030acc0b7d",
+    "signed_parsed_subject_digest": "63d9be3dfc990d3f55ceeb314ed9daeceb8f84ab35514eecd99d14d9dac89750",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        2.0,
+        1.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        2.0,
+        1.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            -0.9375,
+            15.0,
+            -1.0,
+            -0.9375,
+            71.25,
+            -0.9375,
+            2.0625,
+            11.25,
+            21.5625,
+            4.0625,
+            4.0625,
+            0.5625
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            51.5625,
+            -0.4375,
+            19.25,
+            0.5625,
+            9.5625,
+            4.0625,
+            24.0,
+            38.0625,
+            5.25,
+            75.5625,
+            17.0625,
+            17.0625
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-composition",
+    "world": "world-043-70d63447c90f0f53db97",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-70d63447c90f0f53db97-M/offers/screen-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-70d63447c90f0f53db97-M/model/screen-composition-draft-0/response.raw",
+    "original_response_sha256": "16dd60d2167bd0403b6632b40d72b9c46eb6cab6db6535e7bfcdac571a3da111",
+    "parsed_sha256": "8afef191e6b1d1e7ac442e885161ee2bc8dc714770339eade74eb947d66864bd",
+    "signed_parsed_subject_digest": "2a7822114890b9137460210129951f9a67f387953cf1ad91e20c9d2ad90e6f1d",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "screen-sql",
+    "world": "world-043-70d63447c90f0f53db97",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-70d63447c90f0f53db97-M/offers/screen-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-70d63447c90f0f53db97-M/model/screen-sql-draft-0/response.raw",
+    "original_response_sha256": "31672716f6da155fe152e90a912ff6e13be9c0c29c4f08332252a0d56ca960c4",
+    "parsed_sha256": "ff0c7235a7116b529f2e6965c60bfb9d78016baac8af5e8cf8e3bb7ea4477cea",
+    "signed_parsed_subject_digest": "1b2c64f27b23bcb1a9e691fc7bd4b2143fddf4d6e1e5d3657aa51427a1d4f748",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE version = (SELECT MAX(version) FROM readings WHERE event_id = readings.event_id) AND readings.utc >= :start AND readings.utc < :stop AND readings.amount >= 0 GROUP BY \"group\" HAVING COUNT(*) > 0;",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE version = (SELECT MAX(version) FROM readings WHERE event_id = readings.event_id) AND readings.utc >= :start AND readings.utc < :stop AND readings.amount >= 0 GROUP BY \"group\" HAVING COUNT(*) > 0;",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "screen-calibration",
+    "world": "world-043-7981c6cad76653bfbe11",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-7981c6cad76653bfbe11-M/offers/screen-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-7981c6cad76653bfbe11-M/model/screen-calibration-draft-0/response.raw",
+    "original_response_sha256": "95f4fe369c9b9d18b094ff0efad0e87cd028ff138e40e6573dbe2e9764c415e5",
+    "parsed_sha256": "7c5b0cd0c45aec22d06e84681e3bf5a94bd43d53170700a5b58c2acb67914bda",
+    "signed_parsed_subject_digest": "083e499176a5487d19a6310c5e11ef12329ad5d0f3c25d0d4efaf4a949218bee",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.1,
+        -0.5,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.1,
+        -0.5,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            2.725,
+            1.1,
+            -0.024999999999999994,
+            2.85,
+            2.225,
+            0.1,
+            -0.4,
+            0.225,
+            2.6,
+            -3.275,
+            -3.4,
+            2.725
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            -2.025,
+            -2.775,
+            -0.525,
+            2.1,
+            2.35,
+            -2.9,
+            2.85,
+            0.225,
+            -3.025,
+            -2.65,
+            2.475,
+            -1.4
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-composition",
+    "world": "world-043-7981c6cad76653bfbe11",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-7981c6cad76653bfbe11-M/offers/screen-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-7981c6cad76653bfbe11-M/model/screen-composition-draft-0/response.raw",
+    "original_response_sha256": "41d8cad1796319347267fce17153e6256c9e2e1c8ee40b54553688d0516ec28d",
+    "parsed_sha256": "638d3265f91189e10da5c2ea5363362171e0e06694f02281987a25e89c2ee41b",
+    "signed_parsed_subject_digest": "eb9a1a13417637472486039761d2c08ca7fda18209f70fba50694d8d68bd7f6f",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", (2.0 + 2.0 * x) FROM readings WHERE utc >= :start AND utc < :stop",
+      "coefficients": [
+        2.0,
+        2.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "no such column: x"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "no such column: x"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "screen-sql",
+    "world": "world-043-7981c6cad76653bfbe11",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-7981c6cad76653bfbe11-M/offers/screen-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-7981c6cad76653bfbe11-M/model/screen-sql-draft-0/response.raw",
+    "original_response_sha256": "84a9b0382c09615eefdc91fbc9807bb5f32b2d9664e870e6ae6a0623f02f037b",
+    "parsed_sha256": "858afb9fc9cf6340579f62a5bef55712c31097f983a1242799d6d449b720409a",
+    "signed_parsed_subject_digest": "bc23c481c6bbc2b0876352986389ecddf5bbee6c7da08a0764f988a28a5d3a5c",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0.0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0.0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "locked-calibration",
+    "world": "world-043-820fa29a254b4c204f0c",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-820fa29a254b4c204f0c-M/offers/locked-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-820fa29a254b4c204f0c-M/model/locked-calibration-draft-0/response.raw",
+    "original_response_sha256": "4fa37cb17e35ac1f3013ee7593b48bb2166b082153c61636c09bab0d430bc32c",
+    "parsed_sha256": "6368c685f927a4487254f5312abc0f49a4d90615b1967e2d3b864c2a8af93568",
+    "signed_parsed_subject_digest": "6546f03f416e7d02c40411b5723bdc2e5b6c50ba553cb13cea0b77f2ac839cd2",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.5,
+        1.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.5,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            7.75,
+            -5.25,
+            -5.5,
+            -2.0,
+            -3.0,
+            1.5,
+            -2.25,
+            0.5,
+            -2.75,
+            5.5,
+            1.5,
+            3.0
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            -1.25,
+            -3.75,
+            6.25,
+            1.5,
+            -1.0,
+            -1.25,
+            -3.75,
+            7.75,
+            -1.25,
+            -0.75,
+            6.5,
+            6.5
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "locked-composition",
+    "world": "world-043-820fa29a254b4c204f0c",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-820fa29a254b4c204f0c-M/offers/locked-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-820fa29a254b4c204f0c-M/model/locked-composition-draft-0/response.raw",
+    "original_response_sha256": "f3e208e15d19bd2f8dc54582c81c4474b61eec4668a1b3783bde1fe4e2e107dc",
+    "parsed_sha256": "688fc84df21aa12a71232b21f005692ca5bf575c87359eb1f5316eeca050b106",
+    "signed_parsed_subject_digest": "82449dc4dbb1d80c8b02fa2e4cd293d8988c77f0333a66d9886aeabb3447b043",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", value FROM (SELECT bucket AS \"group\", (c0 + c1 * CAST(strftime('%s', datetime(utc/1000, 'unixepoch')) AS REAL) + c2 * POWER(CAST(strftime('%s', datetime(utc/1000, 'unixepoch')) AS REAL), 2)) AS value FROM readings WHERE utc >= :start AND utc < :stop) AS calibrated_readings ORDER BY \"group\" ASC;",
+      "coefficients": [
+        -7.0,
+        5.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "no such column: c0"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "no such column: c0"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "locked-sql",
+    "world": "world-043-820fa29a254b4c204f0c",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-820fa29a254b4c204f0c-M/offers/locked-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-820fa29a254b4c204f0c-M/model/locked-sql-draft-0/response.raw",
+    "original_response_sha256": "0c22d4c1bcec065cd66203548860e75cdd68c3f67f04ba845a557145a86d9057",
+    "parsed_sha256": "13ed17c67d2e37c52dfbf69e14e2fdb5a6a37509cb877d763f49c85ab1e63f55",
+    "signed_parsed_subject_digest": "b6b160660cc7a401a2a60a8d818007f5b002d28d5ce655c4cf57908097ae55ff",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0.0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\";",
+      "uses": [
+        "readings"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "invisible_ids": [
+      "readings"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "locked-calibration",
+    "world": "world-043-9d9e35b646cee1b62908",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-9d9e35b646cee1b62908-M/offers/locked-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-9d9e35b646cee1b62908-M/model/locked-calibration-draft-0/response.raw",
+    "original_response_sha256": "df60a12a9496daaa49aa9c3fcd5741ebd7bddef573da63867db06f26ded2ad27",
+    "parsed_sha256": "89c5b8d3b3f60e3cc262e13aa46fcb5970c36fff58060442bc161e605179b5a7",
+    "signed_parsed_subject_digest": "c5f5096c990bfde05cb46bc344122d634d62d27d01121c7f8f9b7ea776e520ab",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.5,
+        1.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.5,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            4.0,
+            6.0,
+            -1.0,
+            5.5,
+            3.5,
+            -3.75,
+            0.25,
+            3.0,
+            4.0,
+            8.0,
+            2.0,
+            -1.75
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            2.75,
+            5.75,
+            -4.75,
+            -4.0,
+            8.0,
+            8.5,
+            -2.25,
+            -2.25,
+            3.75,
+            0.0,
+            5.75,
+            -0.75
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "locked-composition",
+    "world": "world-043-9d9e35b646cee1b62908",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-9d9e35b646cee1b62908-M/offers/locked-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-9d9e35b646cee1b62908-M/model/locked-composition-draft-0/response.raw",
+    "original_response_sha256": "a4b0ce35db1eb4714690c37340124688ad7b9160841294926205168ef2cdf9a7",
+    "parsed_sha256": "8adde1cc3f5f49fc6e4cf0869d4bc1f48f822ec3d0d5a3e3ceca6262fb7da5a2",
+    "signed_parsed_subject_digest": "4b8e8cf8d4996cdca1481c4b542e6985465a79c38229bf0ad2645d71bf2f612a",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", amount FROM readings WHERE utc >= :start AND utc < :stop",
+      "coefficients": [
+        -3.0,
+        2.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "composition",
+      "sql": "SELECT \"group\", amount FROM readings WHERE utc >= :start AND utc < :stop",
+      "coefficients": [
+        -3.0,
+        2.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "locked-sql",
+    "world": "world-043-9d9e35b646cee1b62908",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-9d9e35b646cee1b62908-M/offers/locked-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-9d9e35b646cee1b62908-M/model/locked-sql-draft-0/response.raw",
+    "original_response_sha256": "93f86540bb7ce8f3d69bdf3500609593fd2481222874442745d829a54b7cd84b",
+    "parsed_sha256": "1f6dc7e1cbf8b1334a2cd1817898dc415666421f27c482952b4d8e9c4238f38e",
+    "signed_parsed_subject_digest": "c0916108cc3cbcf79ff2f98f64912b39d0bb588b75ffe1b6c9ae3c0eed79df51",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "screen-calibration",
+    "world": "world-043-b883e868e7ea57ab9c0e",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-b883e868e7ea57ab9c0e-M/offers/screen-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-b883e868e7ea57ab9c0e-M/model/screen-calibration-draft-0/response.raw",
+    "original_response_sha256": "8f7c808367a9ffae0c4624ab9659d3cbbe0fd670bd08018ffd4f6a5bbb9fbce3",
+    "parsed_sha256": "efd630c13e1384d06380e3999b0d11a6710247121dcd43bc7b7d6b4089b3fafa",
+    "signed_parsed_subject_digest": "20f4cec67d0daea31acf8ea697ef9f5fba3ec4e3044e3359251a90caab1e919c",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        2.0,
+        1.0,
+        2.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        2.0,
+        1.0,
+        2.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            30.0,
+            9.875,
+            2.0,
+            5.0,
+            38.0,
+            57.0,
+            38.0,
+            8.0,
+            23.0,
+            38.0,
+            47.0,
+            1.875
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            33.875,
+            5.0,
+            3.0,
+            12.0,
+            3.0,
+            9.875,
+            14.375,
+            80.0,
+            42.375,
+            12.0,
+            3.0,
+            3.875
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-composition",
+    "world": "world-043-b883e868e7ea57ab9c0e",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-b883e868e7ea57ab9c0e-M/offers/screen-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-b883e868e7ea57ab9c0e-M/model/screen-composition-draft-0/response.raw",
+    "original_response_sha256": "24cbb4525a880dbb8cf993794374efdd3c900485a3215acee680db346727985d",
+    "parsed_sha256": "e5e6752a123a3b7d62898308d54f95a04733dcaeff50012d29e5823559658deb",
+    "signed_parsed_subject_digest": "25e03246444eb2856700f7d9989cb8f3b3449727bce7fcd5f469dd53ee2e5801",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", value FROM (SELECT bucket AS \"group\", amount AS value FROM readings WHERE utc >= :start AND utc < :stop) AS readings_filtered ORDER BY \"group\" LIMIT 1",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "composition",
+      "sql": "SELECT \"group\", value FROM (SELECT bucket AS \"group\", amount AS value FROM readings WHERE utc >= :start AND utc < :stop) AS readings_filtered ORDER BY \"group\" LIMIT 1",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "rows": [
+            {
+              "group": "a",
+              "value": 0.0
+            }
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "rows": [
+            {
+              "group": "a",
+              "value": 0.0
+            }
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-sql",
+    "world": "world-043-b883e868e7ea57ab9c0e",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-b883e868e7ea57ab9c0e-M/offers/screen-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-b883e868e7ea57ab9c0e-M/model/screen-sql-draft-0/response.raw",
+    "original_response_sha256": "9a5f8b0c5bd6d566fe1eb76fe107a39d64821a3a93599616144aab4c4ecb92f0",
+    "parsed_sha256": "882deb54c588909a6cef25eebe3ddb01fd91d6131fea29af5c5a05ba92caf5da",
+    "signed_parsed_subject_digest": "e8651549f644afcbfb2fccae1f572774872c9f4a080ec9cb280a46d6164754b9",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE version = (SELECT MAX(version) FROM readings WHERE event_id = readings.event_id) AND readings.utc >= :start AND readings.utc < :stop AND readings.amount >= 0 GROUP BY \"group\" ORDER BY 1;",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE version = (SELECT MAX(version) FROM readings WHERE event_id = readings.event_id) AND readings.utc >= :start AND readings.utc < :stop AND readings.amount >= 0 GROUP BY \"group\" ORDER BY 1;",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "screen-calibration",
+    "world": "world-043-d0950c390408bdbe9520",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d0950c390408bdbe9520-M/offers/screen-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-d0950c390408bdbe9520-M/model/screen-calibration-draft-0/response.raw",
+    "original_response_sha256": "9318ab65411c8099a5972ca5e7ea3f34b13758e9a1c0c7983043d28064696fcf",
+    "parsed_sha256": "d840cb1ecfd8040180b14636dc71f4924fe49d8e57f2641a9c1efc207163d4a2",
+    "signed_parsed_subject_digest": "a5fed33ed8ff0cec09cce36457e397f3762eea6c805a824c509501343ec5fba6",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            7.0,
+            6.0,
+            0.0,
+            1.75,
+            -2.25,
+            -2.5,
+            4.25,
+            4.0,
+            3.5,
+            -5.75,
+            -5.5,
+            -3.25
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            7.25,
+            3.75,
+            -3.75,
+            5.75,
+            5.75,
+            -1.25,
+            2.25,
+            7.75,
+            -0.75,
+            3.25,
+            5.75,
+            -5.25
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-composition",
+    "world": "world-043-d0950c390408bdbe9520",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-d0950c390408bdbe9520-M/offers/screen-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-d0950c390408bdbe9520-M/model/screen-composition-draft-0/response.raw",
+    "original_response_sha256": "704765830d4dc5ea88b4ee5202515eea75b21caaa7f9b4ca2348470ee623f328",
+    "parsed_sha256": "c5f762760e85f132a7e311066e116ef35003f61459ee7f085363f5f6b9ba38cf",
+    "signed_parsed_subject_digest": "b27b821b764509029374b0237476ee44687776072db3734b88654d2997f912e3",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop GROUP BY \"group\" ORDER BY \"group\"",
+      "coefficients": [
+        5.0,
+        4.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "screen-sql",
+    "world": "world-043-d0950c390408bdbe9520",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d0950c390408bdbe9520-M/offers/screen-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-d0950c390408bdbe9520-M/model/screen-sql-draft-0/response.raw",
+    "original_response_sha256": "2642ab356361e676fbe4655b0161420a0f73ae4081a32b5cf64c498e745768bb",
+    "parsed_sha256": "b27464f2153367f25acbf40add97ba7a182361ae46b738449ec56e661de8702c",
+    "signed_parsed_subject_digest": "1ffc44ab57a430c10e6184082ceefccdc34830301b8b51c7cf673067ac51ce06",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "learn-1",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "C",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/offers/learn-1/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/model/learn-1-draft-0/response.raw",
+    "original_response_sha256": "97f4db1b6d5f9d9141a6cb10d31ea46ae05fb3e12c4dc6073020ca742d646486",
+    "parsed_sha256": "ab0db3e3bd2bd8e3b81a085550109480328d4913d71c144e118fad3ce917eb74",
+    "signed_parsed_subject_digest": "d359f429679d3365a1b93877b759cc0e828f6c0b941442676ed58d6a0dc4b11c",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "learn-2",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "C",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/offers/learn-2/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/model/learn-2-draft-0/response.raw",
+    "original_response_sha256": "e883261ccf6b6733bf841bfdd837efd4d5d889c56b976d3d83af55f4e1aa2eac",
+    "parsed_sha256": "f2238d157445ca23fd854b5a18c39a84b90cf34d768c166453c78b32ba9313e3",
+    "signed_parsed_subject_digest": "00937d474262fca5c15354ae1e3298b711dcbf515092ffec1b2cfb3bc431e61e",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "learn-3",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "C",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/offers/learn-3/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/model/learn-3-draft-0/response.raw",
+    "original_response_sha256": "9ea8142a17e4c5a6f38e810c7e7343b4d0aae18f124a1bd2fcb1373b9b9cde61",
+    "parsed_sha256": "b0d2f2858d5582a8639c33de748f62fcf0b6aba2f6bc57fa973ca7017bab9da1",
+    "signed_parsed_subject_digest": "3bcc5c534ec30105b7973a9b5cc7945ec5802c208de3f2e204c42b3b7c0ddf5c",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "learn-4",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "C",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/offers/learn-4/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/model/learn-4-draft-0/response.raw",
+    "original_response_sha256": "bbeb1c95b39c8e8de86a61999794eeca6823a9cbf89b2e4d88d53ef7325847af",
+    "parsed_sha256": "46d46d7661b47a6d732e845497e48069d4efb52e87c2648a90f03062f6c92463",
+    "signed_parsed_subject_digest": "dfa726248deba0428c0fb9ef766ace76604100836af286c5ede851c2670de350",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        0.5,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        0.5,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            -2.0,
+            -0.5,
+            0.875,
+            -0.375,
+            1.25,
+            2.125,
+            2.625,
+            2.875,
+            3.625,
+            -2.0,
+            2.75,
+            3.375
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            -2.875,
+            2.5,
+            2.25,
+            2.875,
+            3.875,
+            2.25,
+            0.875,
+            2.0,
+            -2.625,
+            -0.25,
+            -1.125,
+            -0.5
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "transfer-calibration",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "C",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/offers/transfer-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/model/transfer-calibration-draft-0/response.raw",
+    "original_response_sha256": "6e68a74a1ed090e3b08ed78913c0de44cd7ed74ea8a5a6cac6260a3c42ad061c",
+    "parsed_sha256": "9b3954206f5b4f16b3919c906e3ccd86080914779a714d585f97788047d42088",
+    "signed_parsed_subject_digest": "995348dbb59432fc58da932120494e650f2faaeb0f1adddd7b2f4edb12967e05",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "transfer-sql",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "C",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/offers/transfer-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-C/model/transfer-sql-draft-0/response.raw",
+    "original_response_sha256": "970191d97d8c7468c32b079c1c15e1cea3976d2ff68ae55df3e407f6fa730fab",
+    "parsed_sha256": "a0a0fc7b29779942bae3a1511abc5d0a7c283469c72d974e139e7e35bf255185",
+    "signed_parsed_subject_digest": "27665cd17f76b0d06f20d020145f30cb125cdf8e1a738e04b7d9bd9ac8f90268",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "learn-1",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/offers/learn-1/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/model/learn-1-draft-0/response.raw",
+    "original_response_sha256": "c58461d3445d56da4b1d6f6df9ea8fcec083b2dfa380a8a3ca3a74d5e788945a",
+    "parsed_sha256": "0d9f1ade28c0863c603edb8e13ec4f8eacf04af7e1f4683c00ceaaf2f307e936",
+    "signed_parsed_subject_digest": "7e8ac701809dc77d5abe334766ca2a85f0b9ff0ff060b494836a293ddd485eaa",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "learn-2",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/offers/learn-2/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/model/learn-2-draft-0/response.raw",
+    "original_response_sha256": "2d419d1bc0b8bed6ec5d6b1db925efee017a3b1d87671fcc64c623eff623e3f2",
+    "parsed_sha256": "2a2014d6b76742e9fc21e991e9434de08a64845c3366a44b3ee93b0c4f1d5349",
+    "signed_parsed_subject_digest": "bf5f2465f713b86e1c92a72ca117a615dae1903c4df164f6091b87cca379e30a",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "learn-3",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/offers/learn-3/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/model/learn-3-draft-0/response.raw",
+    "original_response_sha256": "15d9fcd39ab871373d94fd9206404f9c5b90d695e67429142bc7470e0ea36c91",
+    "parsed_sha256": "fd311a72abb2d96cbc485f5f40ee8976dad9e7cc5a8ec83462b22af20987b901",
+    "signed_parsed_subject_digest": "d3ef434c4871418fa3989173a7f30990592395506deee94b802bb1815d33a685",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "learn-4",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/offers/learn-4/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/model/learn-4-draft-0/response.raw",
+    "original_response_sha256": "450c0c46cd4eebccb0162b6825bc79b56fc2428bb2b9224de80c922054f6bb44",
+    "parsed_sha256": "1a1d88fb1adf253120066c4cc5d2f796b0d124f04e5dc2615fb40374494b4617",
+    "signed_parsed_subject_digest": "cd171cd283d6ea169b6faf596b884105e9d614c9495fe728f67034bb9992e772",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        0.5,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        0.5,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            -2.0,
+            -0.5,
+            0.875,
+            -0.375,
+            1.25,
+            2.125,
+            2.625,
+            2.875,
+            3.625,
+            -2.0,
+            2.75,
+            3.375
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            -2.875,
+            2.5,
+            2.25,
+            2.875,
+            3.875,
+            2.25,
+            0.875,
+            2.0,
+            -2.625,
+            -0.25,
+            -1.125,
+            -0.5
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "transfer-calibration",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/offers/transfer-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/model/transfer-calibration-draft-0/response.raw",
+    "original_response_sha256": "d9ee5f18819bde4fe1b233cbc0c76e3773c09431010f95e502f4747e7930f90a",
+    "parsed_sha256": "e91971abe505974ce8bc5f71ef466030d7a379371f09c2a23d32d28e6fa090ef",
+    "signed_parsed_subject_digest": "053361909dbb518a0e8a1c4834fa13d5ccf12ad267fc2a1cbb14b3bde14af68d",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "transfer-sql",
+    "world": "world-043-d4cf57371d2dcec0d4d1",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/offers/transfer-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-d4cf57371d2dcec0d4d1-M/model/transfer-sql-draft-0/response.raw",
+    "original_response_sha256": "56a2f72252c9bbe0dc481b58187c3e474b0fe8a94677b78611cb0bb9faceca61",
+    "parsed_sha256": "52e499888d055339e372be18bd713098c73e84592c28e4fd24fbf78bfce6d8ec",
+    "signed_parsed_subject_digest": "ff3c4abc93ab90a45d77b76041c8df2ac852b027e0b6d6cb93524a406910ad18",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "locked-calibration",
+    "world": "world-043-d9e6629e95fac19ed2d3",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d9e6629e95fac19ed2d3-M/offers/locked-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-d9e6629e95fac19ed2d3-M/model/locked-calibration-draft-0/response.raw",
+    "original_response_sha256": "bc36cfc73bc126b7d951a03d6d1aa179168a6a67465c0e5295b018aa47cc4380",
+    "parsed_sha256": "cb7dec98a5f0faa1d64a44bef6f42271521c423a6dca557da5ba7eed89cdbaca",
+    "signed_parsed_subject_digest": "c1e5f7428f6527c8aac3f3b250242392dc3c363f042e467ad19d9087fd27bbec",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.25,
+        -1.75,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.25,
+        -1.75,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            3.75,
+            -5.4375,
+            -3.25,
+            -6.3125,
+            -5.875,
+            -12.4375,
+            7.25,
+            -1.9375,
+            -4.125,
+            0.6875,
+            -8.0625,
+            5.0625
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            10.3125,
+            -9.375,
+            5.9375,
+            0.6875,
+            1.125,
+            -11.125,
+            -5.4375,
+            -0.625,
+            -4.5625,
+            8.125,
+            10.75,
+            -2.375
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "locked-composition",
+    "world": "world-043-d9e6629e95fac19ed2d3",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-d9e6629e95fac19ed2d3-M/offers/locked-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-d9e6629e95fac19ed2d3-M/model/locked-composition-draft-0/response.raw",
+    "original_response_sha256": "6a0c1b686da3f2f005711111e5b7070406d1c17e46952953da2cface587e2ba6",
+    "parsed_sha256": "4d46c7e2fa3c5424cc74594c1de546d538d8fb5164e15b05a734b80b37d96070",
+    "signed_parsed_subject_digest": "954fa040b53c3b8f6fc3ac4e341e249ae0228134d324e4beac6cc4ae511e7685",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop GROUP BY \"group\"",
+      "coefficients": [
+        -3.0,
+        2.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "locked-sql",
+    "world": "world-043-d9e6629e95fac19ed2d3",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-d9e6629e95fac19ed2d3-M/offers/locked-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-d9e6629e95fac19ed2d3-M/model/locked-sql-draft-0/response.raw",
+    "original_response_sha256": "95ad91d798834d9f4e85a3c6caa8831e185912e2cf47cd74d872837f8771a624",
+    "parsed_sha256": "c48b762f05836421c853cc5549454d1fdafd302078c8d51370204ed55e93ac88",
+    "signed_parsed_subject_digest": "8dd66d6241b74e6705a59e7030a9f047636d3f995437544dc33cbb27a4eb4153",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\".",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\".",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "incomplete input"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "incomplete input"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 4,
+    "primary_cause": "sql_syntax_authorizer_or_execution"
+  },
+  {
+    "offer": "screen-calibration",
+    "world": "world-043-f7d774ef45429e794642",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-f7d774ef45429e794642-M/offers/screen-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-f7d774ef45429e794642-M/model/screen-calibration-draft-0/response.raw",
+    "original_response_sha256": "7f96743952f306da1ccf0b3843a20a52a71e2c09c9f49cb3aff37b1de665e4da",
+    "parsed_sha256": "b94368f2ea83424fe39bcbf608997ecdb6a1a6dcc7b018010da1f60353572681",
+    "signed_parsed_subject_digest": "d8a70b87cd61aaedd2aa11602f3ac22d48da6316e90d39c37ba786442cac9573",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        0.125,
+        0.25,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        0.125,
+        0.25,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            0.875,
+            1.3125,
+            1.9375,
+            1.4375,
+            -0.25,
+            0.6875,
+            1.4375,
+            0.8125,
+            0.0,
+            -0.625,
+            -0.6875,
+            1.0
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            -0.5,
+            2.125,
+            0.4375,
+            -0.3125,
+            -1.3125,
+            -1.125,
+            -0.5625,
+            -1.125,
+            -0.5625,
+            -0.3125,
+            1.75,
+            -1.1875
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "screen-composition",
+    "world": "world-043-f7d774ef45429e794642",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-f7d774ef45429e794642-M/offers/screen-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-f7d774ef45429e794642-M/model/screen-composition-draft-0/response.raw",
+    "original_response_sha256": "2aff15c6036001a8562994865e8fb206b030a8950ddd869f33bd43d669e31b2d",
+    "parsed_sha256": "5052efe7a58937d30543864177459aa2776789579b4acf0d3a4bbe012daf283c",
+    "signed_parsed_subject_digest": "1fd9974f0b5a7d35e69e061df5d23e3191218650a4485236fd25d14c83fa515c",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop GROUP BY \"group\" ORDER BY \"group\"",
+      "coefficients": [
+        5.0,
+        5.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "reduce-then-calibrate",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "screen-sql",
+    "world": "world-043-f7d774ef45429e794642",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-f7d774ef45429e794642-M/offers/screen-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-f7d774ef45429e794642-M/model/screen-sql-draft-0/response.raw",
+    "original_response_sha256": "d4fc79cf895656818db0f1e1d7394cf2f88e2d64715e3c14e303348d1585b9e3",
+    "parsed_sha256": "fefce7f97b405dcaece81d6cd2e4d6ef4ad861afd78d8d4f5165a151a8c74222",
+    "signed_parsed_subject_digest": "51296add8c88a4ded12e63fe47bab88cfa226cffa1265cce6b4b4a54ccd3bd41",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" OR SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount IS NULL GROUP BY \"group\" OR SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop GROUP BY \"group\" LIMIT 1;",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" OR SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount IS NULL GROUP BY \"group\" OR SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop GROUP BY \"group\" LIMIT 1;",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "near \"SELECT\": syntax error"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "near \"SELECT\": syntax error"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 4,
+    "primary_cause": "sql_syntax_authorizer_or_execution"
+  },
+  {
+    "offer": "locked-calibration",
+    "world": "world-043-f9d4f5290adcee1638e8",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-f9d4f5290adcee1638e8-M/offers/locked-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-f9d4f5290adcee1638e8-M/model/locked-calibration-draft-0/response.raw",
+    "original_response_sha256": "32de4c07b8da0914052779cdb284548ac848e9b9e5f1bdea8290cb9b86ae4598",
+    "parsed_sha256": "9f4929117c9fcf02377b1373965767a34ee2d7a7d97cd64a6739a42c2ae261d0",
+    "signed_parsed_subject_digest": "7dff790ae2766353551c22a51889bf11f896b6c97b1c85d6a0cc2618e6883608",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        1.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            8.25,
+            5.25,
+            0.75,
+            -3.75,
+            3.5,
+            1.25,
+            0.25,
+            7.25,
+            3.75,
+            -2.5,
+            -4.75,
+            -3.25
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": false,
+        "actual": {
+          "values": [
+            6.25,
+            8.25,
+            2.75,
+            -3.75,
+            7.25,
+            1.75,
+            -4.75,
+            3.75,
+            0.5,
+            -4.5,
+            -1.25,
+            2.75
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": false
+      }
+    ],
+    "primary_stage": 5,
+    "primary_cause": "semantic_or_numeric_mismatch"
+  },
+  {
+    "offer": "locked-composition",
+    "world": "world-043-f9d4f5290adcee1638e8",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-f9d4f5290adcee1638e8-M/offers/locked-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-f9d4f5290adcee1638e8-M/model/locked-composition-draft-0/response.raw",
+    "original_response_sha256": "e7f63ccae9753d18809d1fb098a1d1aa482cfb6997b62e724686d78090b6b6ce",
+    "parsed_sha256": "ffb75aa2f0d16bda5bf6815c31941ef15048c19d75d627797c80bdf78dd85cc1",
+    "signed_parsed_subject_digest": "df3f69fad1e099e4ee21922a3a81f97e0dca5b976a42dad06b7b1efed0be7a57",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", amount FROM readings WHERE utc >= :start AND utc < :stop",
+      "coefficients": [
+        -3.0,
+        4.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "reduce-then-calibrate",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "locked-sql",
+    "world": "world-043-f9d4f5290adcee1638e8",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-f9d4f5290adcee1638e8-M/offers/locked-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-f9d4f5290adcee1638e8-M/model/locked-sql-draft-0/response.raw",
+    "original_response_sha256": "4b1eb7490e2f0f7dcf93e4ba2061670b84c1b31791bc471bb9f01bd9d3d46375",
+    "parsed_sha256": "8562df679742b4e899c9e1b285ef4a8340a5b62cbb81827850f1eefacd6fc046",
+    "signed_parsed_subject_digest": "a3a22744ad0f643cac4c3c9d9953cdf6620e1513f457794a65d4980d2e7fc20e",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount > 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  },
+  {
+    "offer": "locked-calibration",
+    "world": "world-043-fbabee68d28246de64b8",
+    "arm": "M",
+    "family": "calibration",
+    "old_pass": true,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-fbabee68d28246de64b8-M/offers/locked-calibration/result.json",
+    "original_response_file": "pilot-v1/world-043-fbabee68d28246de64b8-M/model/locked-calibration-draft-0/response.raw",
+    "original_response_sha256": "5bfc60f58af16b400caedcce4b777a648b42667ad7ffa689909adde0452a5927",
+    "parsed_sha256": "50935102635a81a92f527bdc90f73c6aefd26b501fa62f01b13c066468199d23",
+    "signed_parsed_subject_digest": "73a5fc12870a55641eacfb3d8c52e8666219746c62be8fdeb479a460ce2c1d79",
+    "model_values": {
+      "family": "calibration",
+      "coefficients": [
+        1.0,
+        2.0,
+        0.0
+      ],
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "calibration",
+      "sql": "",
+      "coefficients": [
+        1.0,
+        2.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": true,
+        "matches_independent_expected": true,
+        "actual": {
+          "values": [
+            6.5,
+            9.5,
+            -10.5,
+            -6.0,
+            17.0,
+            -6.0,
+            5.0,
+            13.0,
+            14.0,
+            -2.0,
+            7.5,
+            7.0
+          ]
+        }
+      },
+      {
+        "case": "hidden",
+        "completed": true,
+        "matches_independent_expected": true,
+        "actual": {
+          "values": [
+            1.5,
+            -11.0,
+            7.0,
+            -4.5,
+            7.0,
+            11.0,
+            -9.0,
+            16.0,
+            2.5,
+            12.5,
+            11.0,
+            5.5
+          ]
+        }
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "primary_stage": 0,
+    "primary_cause": "passed"
+  },
+  {
+    "offer": "locked-composition",
+    "world": "world-043-fbabee68d28246de64b8",
+    "arm": "M",
+    "family": "composition",
+    "old_pass": false,
+    "old_error": "InvisibleSkillReference",
+    "old_offer_file": "pilot-v1/world-043-fbabee68d28246de64b8-M/offers/locked-composition/result.json",
+    "original_response_file": "pilot-v1/world-043-fbabee68d28246de64b8-M/model/locked-composition-draft-0/response.raw",
+    "original_response_sha256": "e8aa7bbe05f793280c18fb5cd43286aa3c1a939ebd5ae64cf3a25ac9801a904f",
+    "parsed_sha256": "57432c3ae927a3d86e9b0edc5ce1f0f8de289f93e6c2395002ad000021e35689",
+    "signed_parsed_subject_digest": "2d88c423c13f235d32e606dac5826f1865669b798a467ce8a9f2151fa2495caa",
+    "model_values": {
+      "family": "composition",
+      "sql": "SELECT \"group\", value FROM readings WHERE utc >= :start AND utc < :stop",
+      "coefficients": [
+        5.0,
+        3.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "calibration_order": "calibrate-then-reduce",
+      "uses": [
+        "readonly-sql",
+        "polynomial"
+      ]
+    },
+    "executed_plan": null,
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "no such column: value"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "OperationalError",
+        "diagnostic_message": "no such column: value"
+      }
+    ],
+    "secondary_findings": [
+      {
+        "kind": "coefficients_fit_public_observations",
+        "matches": true
+      }
+    ],
+    "invisible_ids": [
+      "readonly-sql",
+      "polynomial"
+    ],
+    "primary_stage": 2,
+    "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids"
+  },
+  {
+    "offer": "locked-sql",
+    "world": "world-043-fbabee68d28246de64b8",
+    "arm": "M",
+    "family": "sql",
+    "old_pass": false,
+    "old_error": null,
+    "old_offer_file": "pilot-v1/world-043-fbabee68d28246de64b8-M/offers/locked-sql/result.json",
+    "original_response_file": "pilot-v1/world-043-fbabee68d28246de64b8-M/model/locked-sql-draft-0/response.raw",
+    "original_response_sha256": "ad49838d044ffca10e87e19f802f6ea0281f7276dc04fd22f83b5d0a1e8fe5cf",
+    "parsed_sha256": "a914ce6755410c4edd54442f0d845e27b7784e43cefa5e7609602adbf6e950d7",
+    "signed_parsed_subject_digest": "e1f266855bb6577ae0ffc269e16ddca2cc60367bfcfacaa4e723a8ef29e6568c",
+    "model_values": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "uses": []
+    },
+    "executed_plan": {
+      "family": "sql",
+      "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\" ORDER BY \"group\";",
+      "coefficients": [
+        0.0,
+        1.0,
+        0.0
+      ],
+      "reduction": "sum",
+      "uses": [],
+      "explanation": ""
+    },
+    "diagnostic_replay": [
+      {
+        "case": "public",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      },
+      {
+        "case": "hidden",
+        "completed": false,
+        "exception_type": "ValueError",
+        "diagnostic_message": "query must return exactly group,value in that order"
+      }
+    ],
+    "secondary_findings": [],
+    "primary_stage": 3,
+    "primary_cause": "query_output_or_declared_input_contract"
+  }
+]
