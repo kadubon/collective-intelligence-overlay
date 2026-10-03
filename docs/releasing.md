@@ -1,6 +1,6 @@
 # Release procedure and current state
 
-## 0.4.3 candidate: pilot only, publication pending
+## 0.4.3: native gate complete, pilot only, publication pending
 
 The [new study](near-transfer-043.md) used the exact published 0.4.2 runtime and
 separately preregistered scientific sources. Its two-wave sensitivity gate failed:
@@ -8,10 +8,28 @@ SQL 0/6, calibration 1/6, formation 0/6. No confirmation was performed. This
 scientific outcome is distinct from software validation and publication.
 
 The 0.4.3 runtime sources remain unchanged; the new scripts, reader and version
-selector receive their own checks. The final 0.4.3 candidate will run one new full
-native gate, then the standard tag selector will reuse those exact distribution
-bytes through the existing OIDC `pypi` environment. The old 0.4.2 gate does not
-attest the new scientific code. See the [audit](audit-043.md) and
+selector received their own checks. The corrected final full native
+[run 37144034341](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37144034341)
+passed twelve native profiles, mixed Python, four cross readers and ready. Its
+source commit is `a2b4a87ce2d119a565f1bc929030802198f20ede`. All 3,819 original
+report files, the complete gate and the unchanged distribution pair were retrieved
+and authenticated locally. [The release manifest](release-043.json) binds the
+original run, source tree, wheel/sdist and gate hashes. A local artifact-directory
+lookup stopped first; a separate copy corrected the layout and matched every
+original gate hash while retaining the downloads.
+
+The initial [run 37141746108](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37141746108)
+failed because a new source-inspection unit test assumed the checkout was its
+working directory. Its original failures remain preserved. The test now locates
+the checkout relative to its own file and explicitly changes cwd; fourteen cases
+passed locally and from a noneditable installed environment outside checkout.
+That test-source correction required a new full gate. The two candidate origins
+produced one distinct content pair: both wheel and sdist bytes are identical.
+
+The standard tag selector will reuse the final run's exact distributions and
+reports through the existing OIDC `pypi` environment. Tag publication and actual
+PyPI installation have not yet completed. The old 0.4.2 gate does not attest the
+new scientific code. See the [audit](audit-043.md) and
 [scientific manifest](studies/near-transfer-043/scientific-manifest-v2.json).
 
 ## 0.4.2 published and verified on 2026-10-04 JST
