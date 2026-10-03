@@ -3,9 +3,11 @@
 import csv
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+HISTORICAL_SOURCE = "5f4165adeb6019a7a7bdc7509b8cc9efb349bfdb"
 
 
 def check(root=ROOT):
@@ -17,7 +19,14 @@ def check(root=ROOT):
             assert path.is_relative_to(root.resolve()) and path.is_file()
             # Git stores LF text; Windows checkout may materialize CRLF. This
             # applies only to repository sources/derivatives, never signed/raw data.
-            data = path.read_bytes().replace(b"\r\n", b"\n")
+            # The old gate attests its immutable release source, not whichever
+            # research application is currently being developed. Derivatives
+            # remain checked in this checkout; no old score is regenerated.
+            data = (
+                subprocess.check_output(["git", "show", HISTORICAL_SOURCE + ":" + name], cwd=root)
+                if section == "final_source_hashes"
+                else path.read_bytes()
+            ).replace(b"\r\n", b"\n")
             assert hashlib.sha256(data).hexdigest() == expected, name
     for path in directory.iterdir():
         if path.is_symlink() or path.stat().st_size > 4 * 1024 * 1024:
@@ -45,7 +54,13 @@ def check(root=ROOT):
         assert sum(int(r["Q"]) for r in group) == verified["gate"]["families"][family]["passed"]
     assert all(result[name] == "not_estimated" for name in ("H_ACC", "H_CIO", "H_FORM"))
     assert result["break_even"] is None and result["future_maintenance"] is None
-    return {"offered_rows": len(rows), "status": result["status"], "model_generation": False}
+    return {
+        "offered_rows": len(rows),
+        "status": result["status"],
+        "model_generation": False,
+        "historical_source_commit": HISTORICAL_SOURCE,
+        "current_source_attested": False,
+    }
 
 
 if __name__ == "__main__":
