@@ -1,0 +1,10 @@
+{
+  "status": "owned_cluster_physically_stopped",
+  "owner": "kadubon",
+  "data_directory": "/tmp/cio-audit-042-20261002/postgres",
+  "port": 55442,
+  "stop_exit_code": 0,
+  "pg_ctl_status_exit_code": 3,
+  "observed_status": "pg_ctl: no server running",
+  "user_services_modified": false
+}

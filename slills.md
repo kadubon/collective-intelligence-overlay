@@ -4,8 +4,9 @@ The filename is intentionally `slills.md`. The canonical instructions are in
 [the standard SKILL.md](.agents/skills/collective-intelligence-overlay/SKILL.md).
 Development rules live separately in [AGENTS.md](AGENTS.md).
 
-The unreleased 0.4.2 receiptless recovery contract and study progress are in
-[the audit](docs/audit-042.md) and [API](docs/api.md). Recovery closes owner capacity
+The published 0.4.2 receiptless recovery contract and study results are in
+[the audit](docs/audit-042.md), [actual release results](docs/release-042-results.json)
+and [API](docs/api.md). Recovery closes owner capacity
 only after authoritative complete inspection; it does not grant PASS or refund.
 
 The skill covers configured peer synchronization, binding-based execution,

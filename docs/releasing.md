@@ -1,6 +1,39 @@
 # Release procedure and current state
 
-## 0.4.2 verified candidate, publication pending
+## 0.4.2 published and verified on 2026-10-04 JST
+
+[PyPI 0.4.2](https://pypi.org/project/collective-intelligence-overlay/0.4.2/),
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.2),
+[actual machine-readable results](release-042-results.json) and the
+[Japanese eleven-part report](release-042-report.ja.md) are complete.
+The annotated tag is commit `abbc7bbf000dc6fe2eb43477f212156aa388f133`, object
+`7dcd9d923fb86986caf0b41de0fa7331f46112a5`. Standard immutable-tag
+[OIDC run 37133055121](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37133055121)
+passed candidate, ready and publish by restoring the same original pair. No
+publication rebuild, moved tag, skip-existing or 0.4.1 recovery exception was used.
+
+Actual PyPI files match the study/native candidate hashes. Fresh Windows
+CPython 3.12.14/3.13.15/3.14.7 core/agents/model/Ollama installations pass all
+twelve root-inclusive advisory/license/SBOM checks. Per interpreter, installed
+agents unit 352, model SDK 1, Ollama SDK 5 and rebuilt-sdist 353 cases pass with
+zero failures/errors/skips. A separate normal no-cache/no-config installation
+matches all 86 package files and passes the real PostgreSQL/OPA/MCP/A2A
+three-process demo: ACCEPT, 117.00, REQUALIFY after environment change and REJECT
+after dependency withdrawal. These checks do not repeat actual model inference.
+
+All ten public Release assets were downloaded and their bytes/sizes checked.
+The frozen 298,576,015-byte research archive has SHA256
+`c3698feb03ef32bc06fc5ad6ba25b3c1c9e7383880c8ab53aadcc07f5cd96a24`.
+The separate `cio-042-postpublication-v4.zip` has SHA256
+`5402b18d40640929d08969f9d82b4b9eada8fb75d45f91c79e2983a554d5f21c`.
+Its three unuploaded metadata-export stops and corrected diagnostic are retained;
+the final copy passed the targeted privacy/hash/JSON checks. This is not a complete
+external privacy audit. The downloaded research archive was independently
+extracted and verify/analyze recomputed with sockets blocked: all nine arms/669
+model observations and the published analysis agree, with no new inference.
+The prepublication snapshot remains in the immutable tag and
+[its original record](release-042-prepublication.json); subsequent results live
+on main without changing the tag, archive or distribution bytes.
 
 The standard `v0.4.2` selector requires `docs/release-042.json` with the exact
 candidate run, source commit/tree, wheel/sdist hashes and original complete gate
@@ -24,10 +57,10 @@ remains separately preserved and is not relabelled as this later gate.
 confirmation is complete: all nine E/M/C arms and 669 dispatched model
 observations have verified offline, with zero observed C-minus-M final quality
 difference and insufficient sensitivity/precision. See [the audit](audit-042.md)
-and [bilingual study results](accumulation-042.md). Tag, Release and actual PyPI
-publication/install verification are still pending at this prepublication
-snapshot. Negative or limited-power results are publishable; missing required
-implementation, provenance or native checks are not a completed release.
+and [bilingual study results](accumulation-042.md). The completed publication and
+actual-index checks above are separate from the frozen prepublication evidence.
+Negative or limited-power results are publishable; missing required implementation,
+provenance or native checks are not a completed release.
 
 ## 0.4.1 published and verified on 2026-10-02
 

@@ -2,6 +2,14 @@
 
 ## 0.4.2 (2026-10-04)
 
+- Publish the unchanged native/study candidate through the standard tag/OIDC
+  selector after all twelve native profiles, cross readers and mixed Python pass.
+  Actual PyPI bytes, twelve fresh Windows installation/audit profiles, real
+  PostgreSQL/OPA/MCP/A2A demo and all ten Release asset downloads verify. Retain
+  every study/review/native failure and three unuploaded metadata-export stops;
+  downloaded public confirmation verify/analyze reproduces the saved result
+  without new inference. See `docs/release-042-results.json` and the Japanese report.
+
 - Record owner-signed acceptance and dispatch anchors atomically in the existing
   ledger. Wire version 6 preserves all earlier signed payloads and distinguishes
   receiptless owner recovery from an original worker terminal receipt.

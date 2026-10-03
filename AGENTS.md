@@ -11,6 +11,11 @@ read-only checkpoint state interventions and a pushed preregistration before
 confirmation inference. Pilot sensitivity selection must not use the C-minus-M
 sign. Preserve every failure/censoring and charge missing usage conservatively.
 See `docs/audit-042.md` for actual progress; never call stock counts intelligence.
+0.4.2 is published and its declared verification is complete in
+`docs/release-042-results.json` and `docs/release-042-report.ja.md`. Preserve the
+immutable tag/distribution/research archive and the zero, limited-power outcome.
+Postpublication actual-index and downloaded-raw checks are separate evidence;
+do not relabel them as new native soak or model observations.
 Receiptless recovery retains UNKNOWN/held and every original byte. New atomic
 anchors differ from current legacy owner observations. Complete authoritative
 request/descendant/result/effect and physical-quiescence inspection is mandatory.

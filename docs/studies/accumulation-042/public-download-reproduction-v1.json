@@ -1,0 +1,14 @@
+{
+  "source": "actually downloaded GitHub Release evidence asset",
+  "archive_sha256": "c3698feb03ef32bc06fc5ad6ba25b3c1c9e7383880c8ab53aadcc07f5cd96a24",
+  "extracted_manifested_files_verified": 6040,
+  "original_extracted_files_unchanged": true,
+  "verification_equals_published_verification": true,
+  "analysis_equals_published_analysis": true,
+  "independent_worlds": 3,
+  "arms": 9,
+  "model_observations": 669,
+  "network_connections": 0,
+  "generation_requests": 0,
+  "corrected_verifier_commit": "9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2"
+}

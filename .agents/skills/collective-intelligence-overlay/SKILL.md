@@ -231,7 +231,9 @@ do not treat connection or HTTP success as completed comparative evidence.
 
 For 0.4.2 accumulation work, follow the source-only
 [study protocol](../../../docs/accumulation-042.md) and
-[current audit](../../../docs/audit-042.md). Preserve immutable full/empty/real
+[current audit](../../../docs/audit-042.md). The published candidate, actual PyPI
+checks and downloaded-raw reproduction are in
+[actual release results](../../../docs/release-042-results.json). Preserve immutable full/empty/real
 foreign-stock views while keeping safety history, rights and keys intact. Use
 whole worlds as repeated-measurement units. Require a pushed fixed protocol and
 the exact installed candidate before confirmation. Keep ordinary executable

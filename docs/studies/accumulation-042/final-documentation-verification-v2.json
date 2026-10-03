@@ -1,0 +1,21 @@
+{
+  "tested_gate_and_packaged_sources_unchanged": true,
+  "original_report_hashes_verified": 3819,
+  "confirmation_execution_source_files": 100,
+  "only_declared_postcompletion_verifier_differs": true,
+  "current_review_sources_equal_successful_frozen_review": true,
+  "derivative_files_hash_verified": 62,
+  "targeted_new_documentation_privacy_scan_passed": true,
+  "network_connections": 0,
+  "generation_requests": 0,
+  "prior_readonly_helper_failure": {
+    "status": "failed_readonly_helper",
+    "exit_code": 1,
+    "error": "KeyError: repository_path",
+    "reason": "The helper assumed identical metadata keys for the preserved calibration v1 and confirmation v2 derivative manifests.",
+    "original_helper_sha256": "77f75625c1eb84163f06f8f5b82f3ef96ecdd93bced009bba9fdcf77dc1edae6",
+    "source_or_manifest_or_data_changed": false,
+    "network_connections": 0,
+    "generation_requests": 0
+  }
+}

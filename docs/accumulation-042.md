@@ -200,7 +200,12 @@ from observed model results. Independent confirmation has now completed; its
 [execution summary](studies/accumulation-042/confirmation-v2/execution-summary.json)
 are checked offline derivatives. [Confirmation provenance](studies/accumulation-042/derivative-provenance-v2.json)
 preserves exact copies and the separately frozen postcompletion verifier.
-Public raw archive publication remains pending.
+The [public Release raw archives](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.2)
+and [actual publication/install results](release-042-results.json) are complete.
+All ten assets were downloaded and hash/size-verified. The actual downloaded
+confirmation was extracted and verify/analyze recomputed with sockets blocked,
+matching the published derivatives without new inference; see
+[the public-download reproduction record](studies/accumulation-042/public-download-reproduction-v1.json).
 
 ## Observed confirmation result
 

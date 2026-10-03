@@ -1,14 +1,16 @@
 # 0.4.2 audit and accumulation study
 
-Status: 0.4.2 is not yet published. Both calibration cohorts, the invalid
+Status: 0.4.2 is published and required declared verification is complete. Both calibration cohorts, the invalid
 confirmation startup and the completed three-world confirmation are retained.
 All nine confirmation arms and 669 model observations have verified offline;
 one dispatched response lacks final usage and retains its upper reservation.
 The study has insufficient family sensitivity and precision to establish CIO
 benefit or equivalence. The corrected publication gate has passed all twelve
 native profiles, four cross readers, mixed Python and ready; its 3,819 original
-report files and unchanged candidate bytes have verified. Raw archive
-publication and actual-index verification remain outstanding. A positive model
+report files and unchanged candidate bytes have verified. All ten Release assets
+and actual PyPI bytes/installations have verified; downloaded public raw reproduces
+the saved offline analysis. See [actual results](release-042-results.json) and
+[the eleven-part Japanese report](release-042-report.ja.md). A positive model
 result is not a release condition. Later sections retain the earlier chronology.
 
 ## Final publication candidate and frozen public evidence
@@ -37,8 +39,24 @@ public metadata has distinct hashes where redacted; it does not replace the
 original trusted-run authority. This targeted scan is not a complete external
 privacy audit. See [the frozen publication snapshot](release-042-prepublication.json)
 and [actual native counts](studies/accumulation-042/native-publication-gate-v3-summary.json).
-Subsequent Release/PyPI download and installation checks will be recorded
-separately; neither this archive nor the release tag will be rewritten.
+Subsequent Release/PyPI download and installation checks are recorded separately
+in `release-042-results.json`; neither this archive nor the release tag was rewritten.
+
+Standard tag run 37133055121 passed candidate/ready/publish and uploaded the
+unchanged pair through OIDC. Twelve fresh ordinary PyPI profiles on Windows
+3.12.14/3.13.15/3.14.7 passed root-inclusive advisory, license/SBOM and actual
+unit/provider/sdist checks, without skips. A separate actual PG/OPA/MCP/A2A
+installation matched 86 package files and passed its three-process demo. The
+postpublication metadata exporter stopped three times before ZIP/upload: its own
+operator scanner literal, then pytest temporary-user names in JSON argv twice.
+The initially hypothesized nested-home explanation is explicitly corrected by
+the saved diagnostic. V4 retained these attempts and distinct redaction mappings,
+then passed JSON/hash/targeted privacy checks without changing original bytes.
+All ten Release assets were actually downloaded and compared with local hashes.
+From that downloaded archive, 6,040 confirmation files were extracted and checked;
+socket-blocked verify/analyze exactly reproduces the nine-arm/669-observation
+published results. Owned study Ollama and owned audit PostgreSQL are physically
+stopped; user services remain unchanged.
 
 ## Original 0.4.1 records
 

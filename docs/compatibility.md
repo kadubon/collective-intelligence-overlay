@@ -1,5 +1,16 @@
 # Compatibility and licensing
 
+0.4.2 is published; [actual results](release-042-results.json) bind the unchanged
+study/native candidate, standard tag/OIDC publication and all public asset
+downloads. All twelve native candidate profiles, four cross readers and mixed
+Python pass. Actual postpublication Windows 3.12.14/3.13.15/3.14.7 installations
+pass twelve root-inclusive advisory/license/SBOM profiles and the real service
+demo. [The eleven-part report](release-042-report.ja.md) separates these software
+checks from limited-power model conclusions. Wire v6 and offline migration 0022
+retain old signed bytes and UNKNOWN/held; stop old readers/writers for upgrade.
+The pyproject dependency declarations are unchanged from 0.4.1 apart from the
+version. No new runtime framework, model weights or license substitution is added.
+
 0.4.1 is published; [actual results](release-041-results.json) bind its immutable
 tag, same measured wheel/sdist, OIDC workflow and public records. Audit changes add Event v5
 owner resolution and migration 0021 without rewriting v1–v4 DSSE or historical

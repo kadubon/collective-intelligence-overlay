@@ -6,7 +6,8 @@
 全armの同期維持を実サービスで検査し、第2校正は新しいworldで完了しました。
 校正中のsource・prompt・設定は固定し、全205推論・usage・DSSE/CAS・stock遷移を
 socket遮断下で再検算しました。独立した3 worldの確認実験も完了し、全9 arm・669推論の
-原記録をofflineで検証しました。0.4.2公開はまだ完了していません。
+原記録をofflineで検証しました。0.4.2の[公開・実PyPI検証](release-042-results.json)と
+[11項目最終報告](release-042-report.ja.md)も完了しています。
 
 ## 検証する問い
 
@@ -108,7 +109,8 @@ operator configを公開しません。公開・確認の結果は実施後に�
 205回・243,354 tokensの実推論を保持し、Mの学習stockは両worldで空でした。
 当初のpooled校正規則の合格と、familyごとの事後レビューによる感度不足を分けて記録します。
 精度計画・metadataのみのruntime観測は確認結果ではありません。
-確認推論は完了しました。raw archive公開は未完了です。
+確認推論とraw archive公開は完了しました。実際のRelease downloadからもsocket遮断下で
+verify/analyzeを再計算し、[公開済み結果との一致](studies/accumulation-042/public-download-reproduction-v1.json)を確認しました。
 
 ## 独立確認の実測結果
 

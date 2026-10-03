@@ -1,0 +1,499 @@
+{
+  "schema_version": "1",
+  "version": "0.4.2",
+  "status": "published_and_required_declared_verification_complete",
+  "repository": "https://github.com/kadubon/collective-intelligence-overlay",
+  "tag": "v0.4.2",
+  "tag_commit": "abbc7bbf000dc6fe2eb43477f212156aa388f133",
+  "tag_object": "7dcd9d923fb86986caf0b41de0fa7331f46112a5",
+  "native_candidate": {
+    "candidate_run_id": "37126141569",
+    "source_commit": "9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2",
+    "source_tree": "3e826af5bd5ac321ac21e9284ab518a52543c459",
+    "artifacts": {
+      "collective_intelligence_overlay-0.4.2.tar.gz": "24e4b522974f194f67ebfd931178232e6fac4a2ffe2d7702945b0314db77c8c5",
+      "collective_intelligence_overlay-0.4.2-py3-none-any.whl": "5d1ce6292a6519db8fc157cf9e34d277465c3380f76ed2a92a3b768bd9fac804"
+    },
+    "gate_sha256": "3b230863b0d59a61a8b6459a248cb228061d5810eb96fe51c204071b849c1a79"
+  },
+  "native_profiles_passed": 12,
+  "cross_readers_passed": 4,
+  "mixed_python_passed": true,
+  "native_numerical_results": "studies/accumulation-042/native-publication-gate-v3-summary.json",
+  "original_native_report_files_verified": 3819,
+  "publication_run_id": "37133055121",
+  "publication_run_url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37133055121",
+  "standard_release_selector_used": true,
+  "existing_tag_resume_exception_used": false,
+  "pypi_url": "https://pypi.org/project/collective-intelligence-overlay/0.4.2/",
+  "pypi_files": [
+    {
+      "filename": "collective_intelligence_overlay-0.4.2-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/e3/eb/b351bb853ecf787d2c24a8e26bc8e8498d80567e4c76905418bdd6b65adc/collective_intelligence_overlay-0.4.2-py3-none-any.whl",
+      "size": 258403,
+      "upload_time_iso_8601": "2026-10-03T15:24:12.647590Z",
+      "sha256": "5d1ce6292a6519db8fc157cf9e34d277465c3380f76ed2a92a3b768bd9fac804"
+    },
+    {
+      "filename": "collective_intelligence_overlay-0.4.2.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/01/8f/45be7e5ac14fc993383ccc4f0d878ed211f9b86b8a43c6f10c0d375cd611/collective_intelligence_overlay-0.4.2.tar.gz",
+      "size": 206128,
+      "upload_time_iso_8601": "2026-10-03T15:24:13.962523Z",
+      "sha256": "24e4b522974f194f67ebfd931178232e6fac4a2ffe2d7702945b0314db77c8c5"
+    }
+  ],
+  "pypi_index_original_sha256": "9a1ab9414aac636a5075b2ea35d7d0f0ef8aee47030c6d4f42984610109c224c",
+  "same_study_candidate_artifacts": true,
+  "rebuild_for_publication": false,
+  "tag_moved": false,
+  "postpublication_profiles": [
+    {
+      "python": "3.12.14",
+      "profile": "core",
+      "resolved_distributions": 31,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "3e77c1f61ff296f7e64503f53e1a83cfb32af776557e4dbdd8de59f642ef0eec",
+      "original_audit_sha256": "d212d4d2a42358ff769102ab118598dcb3cbecd560154c2068cfe3d68a426a9a"
+    },
+    {
+      "python": "3.12.14",
+      "profile": "agents",
+      "resolved_distributions": 64,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "3e77c1f61ff296f7e64503f53e1a83cfb32af776557e4dbdd8de59f642ef0eec",
+      "original_audit_sha256": "199034f0e8cb4e5d9c6bdb7ada913585d3b541f3337ddc419eae2deb100efb41",
+      "tests": {
+        "tests": 352,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.12.14",
+      "profile": "agents-model",
+      "resolved_distributions": 67,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "3e77c1f61ff296f7e64503f53e1a83cfb32af776557e4dbdd8de59f642ef0eec",
+      "original_audit_sha256": "4fae0eedfa0536b69635a14c21343d76f62ed645cf58ef324629133646ae9276",
+      "tests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "sdist_tests": {
+        "tests": 353,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.12.14",
+      "profile": "agents-ollama",
+      "resolved_distributions": 66,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "3e77c1f61ff296f7e64503f53e1a83cfb32af776557e4dbdd8de59f642ef0eec",
+      "original_audit_sha256": "e9fb321b93a1d4df5bb9c52b6118197a8c87d7412d146c32f5c27c79b5033136",
+      "tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.13.15",
+      "profile": "core",
+      "resolved_distributions": 31,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "205f5863335ea2161a843d5525cc62de864849a29fb8f7d09d92076a3c2e7850",
+      "original_audit_sha256": "d212d4d2a42358ff769102ab118598dcb3cbecd560154c2068cfe3d68a426a9a"
+    },
+    {
+      "python": "3.13.15",
+      "profile": "agents",
+      "resolved_distributions": 60,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "205f5863335ea2161a843d5525cc62de864849a29fb8f7d09d92076a3c2e7850",
+      "original_audit_sha256": "afecbea76b47be2dbfd4f1e19be75e966b3f7176dfe88fa588d873e4927cfb25",
+      "tests": {
+        "tests": 352,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.13.15",
+      "profile": "agents-model",
+      "resolved_distributions": 64,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "205f5863335ea2161a843d5525cc62de864849a29fb8f7d09d92076a3c2e7850",
+      "original_audit_sha256": "6361fd31ba53ebc97641783c6b7ba5f0834d04d9866eeae17da54c9a828c206c",
+      "tests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "sdist_tests": {
+        "tests": 353,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.13.15",
+      "profile": "agents-ollama",
+      "resolved_distributions": 62,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "205f5863335ea2161a843d5525cc62de864849a29fb8f7d09d92076a3c2e7850",
+      "original_audit_sha256": "a2c44f31f0346649812406cb1946ce85db4afba133a3f1845a925c3ff5acfa11",
+      "tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.14.7",
+      "profile": "core",
+      "resolved_distributions": 31,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "9d19a0cec47c90aa4e9b035616d17d803e3976ebda25f1b23cacae3d05505e98",
+      "original_audit_sha256": "d212d4d2a42358ff769102ab118598dcb3cbecd560154c2068cfe3d68a426a9a"
+    },
+    {
+      "python": "3.14.7",
+      "profile": "agents",
+      "resolved_distributions": 60,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "9d19a0cec47c90aa4e9b035616d17d803e3976ebda25f1b23cacae3d05505e98",
+      "original_audit_sha256": "afecbea76b47be2dbfd4f1e19be75e966b3f7176dfe88fa588d873e4927cfb25",
+      "tests": {
+        "tests": 352,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.14.7",
+      "profile": "agents-model",
+      "resolved_distributions": 64,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "9d19a0cec47c90aa4e9b035616d17d803e3976ebda25f1b23cacae3d05505e98",
+      "original_audit_sha256": "6361fd31ba53ebc97641783c6b7ba5f0834d04d9866eeae17da54c9a828c206c",
+      "tests": {
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "sdist_tests": {
+        "tests": 353,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    {
+      "python": "3.14.7",
+      "profile": "agents-ollama",
+      "resolved_distributions": 62,
+      "root_audited": true,
+      "vulnerability_findings": 0,
+      "original_package_report_sha256": "9d19a0cec47c90aa4e9b035616d17d803e3976ebda25f1b23cacae3d05505e98",
+      "original_audit_sha256": "a2c44f31f0346649812406cb1946ce85db4afba133a3f1845a925c3ff5acfa11",
+      "tests": {
+        "tests": 5,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  ],
+  "postpublication_scope": "Fresh no-cache/no-config normal PyPI resolution on native Windows AMD64 CPython 3.12.14/3.13.15/3.14.7; four installed profiles each. Full native matrix is reused from the original trusted gate, not repeated after publication.",
+  "sdk_http_tests_are_not_real_inference": true,
+  "postpublication_network_smoke": {
+    "status": "passed",
+    "installation": "normal-PyPI-no-cache-no-config",
+    "installed_package_files_identical": 86,
+    "processes": 3,
+    "admission": "ACCEPT",
+    "changed_environment": "REQUALIFY",
+    "after_dependency_revocation": "REJECT",
+    "held_out_result": "<p>Rows: 3; total: 117.00</p>",
+    "inference_requests": 0
+  },
+  "release_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.2",
+  "release_published_at": "2026-10-03T15:46:42Z",
+  "release_assets": [
+    {
+      "name": "archive-verification.json",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/archive-verification.json",
+      "bytes": 1211,
+      "sha256": "58077493f1c75e0ac170cdcfc0b8315c9ea90b66ee673e644a73bac53620cb48"
+    },
+    {
+      "name": "candidate-artifacts.json",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/candidate-artifacts.json",
+      "bytes": 249,
+      "sha256": "a40f94edf556449be6099a9bacd87fb09b71a4c39c88ba1e43d620e3cf9e4f64"
+    },
+    {
+      "name": "candidate-provenance.json",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/candidate-provenance.json",
+      "bytes": 21347,
+      "sha256": "037c5e5b0bd7b2da867c425aedda9336a7dc525076b5a78396fb309f8943d7f1"
+    },
+    {
+      "name": "cio-042-evidence-v1.zip",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/cio-042-evidence-v1.zip",
+      "bytes": 298576015,
+      "sha256": "c3698feb03ef32bc06fc5ad6ba25b3c1c9e7383880c8ab53aadcc07f5cd96a24"
+    },
+    {
+      "name": "cio-042-postpublication-v4.zip",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/cio-042-postpublication-v4.zip",
+      "bytes": 667996,
+      "sha256": "5402b18d40640929d08969f9d82b4b9eada8fb75d45f91c79e2983a554d5f21c"
+    },
+    {
+      "name": "collective_intelligence_overlay-0.4.2-py3-none-any.whl",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/collective_intelligence_overlay-0.4.2-py3-none-any.whl",
+      "bytes": 258403,
+      "sha256": "5d1ce6292a6519db8fc157cf9e34d277465c3380f76ed2a92a3b768bd9fac804"
+    },
+    {
+      "name": "collective_intelligence_overlay-0.4.2.tar.gz",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/collective_intelligence_overlay-0.4.2.tar.gz",
+      "bytes": 206128,
+      "sha256": "24e4b522974f194f67ebfd931178232e6fac4a2ffe2d7702945b0314db77c8c5"
+    },
+    {
+      "name": "postpublication-archive-verification.json",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/postpublication-archive-verification.json",
+      "bytes": 441,
+      "sha256": "634e6dd8e958f1dbffedcac340c9b8af7cbf1f7d07cd7385c73b476b514b628b"
+    },
+    {
+      "name": "publication.json",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/publication.json",
+      "bytes": 1952,
+      "sha256": "82b2d95744f3fcb31ca63eb90dc327292071f90ac79a16c49b3a5ff97d6c591f"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.2/SHA256SUMS.txt",
+      "bytes": 885,
+      "sha256": "c1c1f2d51a9d5816a8b1bb54df119f3f3192f8c985b4514501952dbece20c136"
+    }
+  ],
+  "all_public_assets_downloaded_and_hash_verified": true,
+  "frozen_evidence_archive": {
+    "asset": "cio-042-evidence-v1.zip",
+    "sha256": "c3698feb03ef32bc06fc5ad6ba25b3c1c9e7383880c8ab53aadcc07f5cd96a24",
+    "bytes": 298576015,
+    "manifested_members_verified": 38615,
+    "selected_directories": [
+      "calibration-offline-review-source-v6",
+      "calibration-v1-invalid",
+      "calibration-v2",
+      "confirmation-v1-startup-invalid-v2",
+      "development-validation-history-v2",
+      "native-cancelled-37057480373-v2",
+      "native-cancelled-37058391677-v2",
+      "native-passed-37060863123-public-metadata-v1",
+      "receiptless-ops-frozen-v7",
+      "runtime-observation-v1",
+      "smoke-v1",
+      "smoke-v2",
+      "smoke-v3",
+      "smoke-v4",
+      "native-passed-37080553755-public-metadata-v1",
+      "native-failed-37080553755-attempt1-public-metadata-v1",
+      "tutorial-installation-regression-v1",
+      "response-deadline-regression-v2",
+      "native-cancelled-37078119995-public-metadata-v1",
+      "native-failed-37071819377-public-metadata-v1",
+      "confirmation-v2",
+      "confirmation-offline-reviews-v1",
+      "native-passed-37126141569-public-metadata-v1"
+    ],
+    "archive_members_reopened_and_hash_verified": true,
+    "network_connections": 0,
+    "generation_requests": 0
+  },
+  "separate_postpublication_archive": {
+    "asset": "cio-042-postpublication-v4.zip",
+    "sha256": "5402b18d40640929d08969f9d82b4b9eada8fb75d45f91c79e2983a554d5f21c",
+    "bytes": 667996,
+    "manifested_members_verified": 79,
+    "public_files_verified": 77,
+    "transformed_metadata_files": 9,
+    "profiles_passed": 12,
+    "targeted_privacy_scan_passed": true,
+    "scan_is_not_a_complete_external_privacy_audit": true,
+    "network_connections": 0,
+    "generation_requests": 0
+  },
+  "actual_downloaded_public_raw_reproduction": {
+    "source": "actually downloaded GitHub Release evidence asset",
+    "archive_sha256": "c3698feb03ef32bc06fc5ad6ba25b3c1c9e7383880c8ab53aadcc07f5cd96a24",
+    "extracted_manifested_files_verified": 6040,
+    "original_extracted_files_unchanged": true,
+    "verification_equals_published_verification": true,
+    "analysis_equals_published_analysis": true,
+    "independent_worlds": 3,
+    "arms": 9,
+    "model_observations": 669,
+    "network_connections": 0,
+    "generation_requests": 0,
+    "corrected_verifier_commit": "9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2"
+  },
+  "confirmation_protocol_id": "cio-042-accumulation-confirmation-v2",
+  "execution_preregistration_commit": "ca4f7e412349f2068c32e26ac620883045a21742",
+  "corrected_postcompletion_verifier_commit": "9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2",
+  "confirmation_arm_counts": [
+    {
+      "arm": "E",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 132,
+      "passed_all_offerings": 18,
+      "model_observations": 181,
+      "dispatched": 181,
+      "complete_response": 181,
+      "measured_tokens": 214288,
+      "charged_tokens": 214288,
+      "missing_usage_after_dispatch": 0,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 2
+    },
+    {
+      "arm": "M",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 189,
+      "passed_all_offerings": 30,
+      "model_observations": 244,
+      "dispatched": 244,
+      "complete_response": 243,
+      "measured_tokens": 295615,
+      "charged_tokens": 305855,
+      "missing_usage_after_dispatch": 1,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 3
+    },
+    {
+      "arm": "C",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 189,
+      "passed_all_offerings": 31,
+      "model_observations": 244,
+      "dispatched": 244,
+      "complete_response": 244,
+      "measured_tokens": 295653,
+      "charged_tokens": 295653,
+      "missing_usage_after_dispatch": 0,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 3
+    }
+  ],
+  "confirmation_independent_worlds": 3,
+  "confirmation_model_dispatches": 669,
+  "confirmation_measured_tokens": 805556,
+  "confirmation_charged_tokens": 815796,
+  "missing_final_usage_after_dispatch": 1,
+  "hypothesis_judgments": {
+    "H_ACC": {
+      "performed_contrasts": {
+        "H_ACC_C_full_minus_empty": "unjudged_precision_insufficient",
+        "H_ACC_C_full_minus_irrelevant": "unjudged_unmatched_or_unobserved_retrieval_dose",
+        "H_ACC_M_full_minus_empty": "unjudged_precision_insufficient",
+        "H_ACC_M_full_minus_irrelevant": "unjudged_unmatched_or_unobserved_retrieval_dose"
+      },
+      "judgment": "condition_specific_judgments"
+    },
+    "H_CIO": {
+      "performed_contrasts": {
+        "H_CIO_primary_final_Q_C_minus_M": "unjudged_precision_insufficient"
+      },
+      "judgment": "unjudged_precision_insufficient",
+      "full_additional_value_requires_complete_cost_and_safety_constraints": true
+    },
+    "H_FORM": {
+      "performed_contrasts": {
+        "H_FORM_C_full_minus_empty_success": "unjudged_precision_insufficient",
+        "H_FORM_M_full_minus_empty_success": "unjudged_precision_insufficient",
+        "H_FORM_C_minus_M_success": "unjudged_precision_insufficient"
+      },
+      "judgment": "unjudged_precision_insufficient",
+      "scope": "finite-budget new composition, independently checked alternate form; new composition at a new receiver is not measured"
+    },
+    "H_SHARE": {
+      "judgment": "unjudged_I_not_performed"
+    },
+    "H_ADAPT": {
+      "judgment": "unjudged_A_not_performed"
+    }
+  },
+  "efficacy_success_not_a_publication_gate": true,
+  "no_new_model_inference_after_confirmation": true,
+  "new_long_production_soak": false,
+  "unperformed_or_unjudged": [
+    "I/A panels and sharing/adaptive-allocation effects",
+    "uniformly dose-matched irrelevant retrieval causal contrast",
+    "generalizable benefit/equivalence/meaningful-benefit exclusion",
+    "new-composition transfer at a new receiver",
+    "complete energy/GPU/shared-service compute and 20 percent complete cost savings/break-even",
+    "independent external physical/model attestation or complete privacy/security audit",
+    "rolling old/new wire interoperability"
+  ],
+  "scientific_limits_are_not_implementation_or_publication_success_claims": true,
+  "owned_postgresql_cleanup": {
+    "status": "owned_cluster_physically_stopped",
+    "owner": "kadubon",
+    "data_directory": "/tmp/cio-audit-042-20261002/postgres",
+    "port": 55442,
+    "stop_exit_code": 0,
+    "pg_ctl_status_exit_code": 3,
+    "observed_status": "pg_ctl: no server running",
+    "user_services_modified": false
+  },
+  "study_owned_model_cleanup": {
+    "cleanup_wall_seconds": 0.31200000003445894,
+    "cleanup_grace_seconds": 300,
+    "inclusive_cohort_wall_including_cleanup_seconds": 34897.687000000034,
+    "owned_server_physically_stopped": true,
+    "process_observer_physically_stopped": true,
+    "errors": {},
+    "no_past_OS_reobservation_claim": true
+  },
+  "postpublication_export_attempts": {
+    "failed_unuploaded_attempts_preserved": 3,
+    "final_public_attempt": "v4",
+    "first_failure": "own operator scanner literal in unsigned utility source",
+    "second_and_third_failures": "pytest temporary-user names in unsigned JSON argv metadata",
+    "initial_unconfirmed_nested_home_explanation_corrected": true,
+    "public_original_metadata_hashes_distinct": true,
+    "study_or_candidate_or_notice_bytes_changed": false
+  }
+}
