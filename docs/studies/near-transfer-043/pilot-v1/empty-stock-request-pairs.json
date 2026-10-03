@@ -1,0 +1,61 @@
+{
+  "scope": "empty learned stock, natural path-validation M/C pairs; not confirmation effects",
+  "pairs": [
+    {
+      "offer": "learn-1",
+      "actual_request_bytes_equal": true,
+      "initial_model_seed_equal": true,
+      "sha256": [
+        "0651d597a7d85631fb646ac52245142a2f1f0b711fd6f77dbccc8d54d1b77c15",
+        "0651d597a7d85631fb646ac52245142a2f1f0b711fd6f77dbccc8d54d1b77c15"
+      ]
+    },
+    {
+      "offer": "learn-2",
+      "actual_request_bytes_equal": true,
+      "initial_model_seed_equal": true,
+      "sha256": [
+        "88eba66814fbad65b5ac233331e4ee53e6e7e57be9ae5ad943d3f2ef2fd4a08f",
+        "88eba66814fbad65b5ac233331e4ee53e6e7e57be9ae5ad943d3f2ef2fd4a08f"
+      ]
+    },
+    {
+      "offer": "learn-3",
+      "actual_request_bytes_equal": true,
+      "initial_model_seed_equal": true,
+      "sha256": [
+        "52f430713cfc599cca7dc9dafc7272b04eeac0c7ff2cc6d9ac8ec3efad3a487f",
+        "52f430713cfc599cca7dc9dafc7272b04eeac0c7ff2cc6d9ac8ec3efad3a487f"
+      ]
+    },
+    {
+      "offer": "learn-4",
+      "actual_request_bytes_equal": true,
+      "initial_model_seed_equal": true,
+      "sha256": [
+        "0e413820f636f745e0b982dbdc4ac86625dc77cd0316b0b1427e6b276705a206",
+        "0e413820f636f745e0b982dbdc4ac86625dc77cd0316b0b1427e6b276705a206"
+      ]
+    },
+    {
+      "offer": "transfer-sql",
+      "actual_request_bytes_equal": true,
+      "initial_model_seed_equal": true,
+      "sha256": [
+        "fea1a0d6578209e7986632bbf1df8ccdd8a5ee7ced21ac84c34332c13b52173c",
+        "fea1a0d6578209e7986632bbf1df8ccdd8a5ee7ced21ac84c34332c13b52173c"
+      ]
+    },
+    {
+      "offer": "transfer-calibration",
+      "actual_request_bytes_equal": true,
+      "initial_model_seed_equal": true,
+      "sha256": [
+        "f3cb38c5484e49a6dabec40fa0a1f9918f66b1875ebd86072079d10978c891b6",
+        "f3cb38c5484e49a6dabec40fa0a1f9918f66b1875ebd86072079d10978c891b6"
+      ]
+    }
+  ],
+  "network_connections": 0,
+  "generation_requests": 0
+}

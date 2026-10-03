@@ -19,7 +19,7 @@ from production_session import ProductionSession
 from sqlalchemy import select
 
 from collective_intelligence_overlay.adapters.inference_observer import write_new
-from collective_intelligence_overlay.bindings import ArtifactSpec, Binding
+from collective_intelligence_overlay.bindings import ArtifactSpec, Binding, fingerprint
 from collective_intelligence_overlay.models import Event, Evidence, Subject, now
 from collective_intelligence_overlay.queries import RecordQuery
 from collective_intelligence_overlay.starter.adaptive_documents import write_json
@@ -65,7 +65,7 @@ class SharedCap:
             raise ValueError("aggregate retrieval cap")
         self.retrievals += 1
 
-    def reserve_model(self):
+    def reserve_model(self, identifier=None):
         if (
             self.calls >= self.limits["model_calls"]
             or self.identity_observations_reserved
@@ -193,7 +193,7 @@ class StudySession:
         s.configs = {
             owner: original.model_copy(
                 update={
-                    "application": FACTORY,
+                    "application": self.protocol.get("application_factory", FACTORY),
                     "application_settings": original.private_key.parent / "application.json",
                     "execution_environment": ENVIRONMENT,
                     "max_seconds": 300,
@@ -218,15 +218,26 @@ class StudySession:
                 "arm": self.arm,
                 "retrieval_revision": self.protocol.get("retrieval_revision", "1"),
             }
-            if self.protocol.get("classification") == "confirmation":
+            if self.protocol.get("classification") == "confirmation" or self.protocol.get(
+                "require_installed_candidate"
+            ):
                 settings["installed_candidate"] = self.protocol["installed_wheel"]
             if owner == "verifier":
                 settings.update(
                     checks=self.checks,
                     receivers=owners,
-                    checker_digest=hashlib.sha256(
-                        (ROOT / "scripts/accumulation_tasks.py").read_bytes()
-                    ).hexdigest(),
+                    checker_digest=(
+                        fingerprint(
+                            {
+                                name: hashlib.sha256((ROOT / name).read_bytes()).hexdigest()
+                                for name in self.protocol["checker_sources"]
+                            }
+                        )
+                        if self.protocol.get("checker_sources")
+                        else hashlib.sha256(
+                            (ROOT / "scripts/accumulation_tasks.py").read_bytes()
+                        ).hexdigest()
+                    ),
                 )
             else:
                 settings["model"] = {
@@ -350,6 +361,14 @@ class StudySession:
             "construction": built,
             "check": checked,
         }
+        if (
+            self.protocol.get("restricted_endpoints")
+            and getattr(self.cap, "active", None)
+            and result["succeeded"]
+        ):
+            result["first_independent_pass_wall_seconds"] = (
+                time.monotonic() - self.cap.offer_started
+            )
         if result["succeeded"]:
             if self.arm in {"C", "I", "A"}:
                 await self.sync(peer, "verifier")
@@ -402,6 +421,8 @@ class StudySession:
         }
         write_new(directory / "intent.json", {k: v for k, v in record.items() if k != "attempts"})
         before = time.monotonic()
+        if self.protocol.get("restricted_endpoints"):
+            self.cap.begin_offer(self.world.id, self.arm, offer, phase)
         original_stock = self.stock.digest
         selected = None
         try:
@@ -444,13 +465,21 @@ class StudySession:
                         **result,
                     }
                 )
+                if self.protocol.get("restricted_endpoints"):
+                    record["attempts"][-1].update(
+                        endpoint_wall_seconds=result.get(
+                            "first_independent_pass_wall_seconds", time.monotonic() - before
+                        ),
+                        endpoint_measured_tokens=0,
+                        endpoint_charged_tokens=0,
+                    )
                 if result["succeeded"]:
                     selected = record["attempts"][-1]
             for index in range(attempts):
                 if selected is not None:
                     break
                 identifier = offer + "-draft-" + str(index)
-                if not self.cap.reserve_model():
+                if not self.cap.reserve_model(identifier):
                     record["attempts"].append(
                         {
                             "kind": "model",
@@ -483,7 +512,11 @@ class StudySession:
                     view=view,
                     snapshot=snapshot.model_dump(mode="json"),
                     snapshot_digest=snapshot.digest,
-                    feedback="Previous independent check did not pass" if index else None,
+                    feedback=(
+                        "Previous independent check did not pass"
+                        if index and self.protocol.get("feedback_policy") != "none"
+                        else None
+                    ),
                 )
                 if staged.get("staged") == identifier:
                     response = await self.call(
@@ -511,6 +544,16 @@ class StudySession:
                     attempt.update(solution=solution.model_dump(mode="json"), **result)
                 if attempt["succeeded"]:
                     selected = attempt
+                if self.protocol.get("restricted_endpoints"):
+                    attempt["endpoint_wall_seconds"] = attempt.get(
+                        "first_independent_pass_wall_seconds", time.monotonic() - before
+                    )
+                    attempt["endpoint_measured_tokens"] = (
+                        self.cap.measured_tokens - record["budget_before"]["measured_tokens"]
+                    )
+                    attempt["endpoint_charged_tokens"] = (
+                        self.cap.charged_tokens - record["budget_before"]["charged_tokens"]
+                    )
             record["succeeded"] = selected is not None
             if learn and selected is not None and self.arm != "E":
                 skill = self.skill(selected, peer, problem, episode)
@@ -540,6 +583,8 @@ class StudySession:
             record["budget_after"] = self.cap.report()
             record["stock_digest_after"] = self.stock.digest
             self.persist_offer(directory, record)
+            if self.protocol.get("restricted_endpoints"):
+                self.cap.end_offer()
         return record
 
     def persist_offer(self, directory, record):

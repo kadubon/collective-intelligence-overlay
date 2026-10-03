@@ -1,0 +1,176 @@
+{
+  "old_verifier_and_analyzer_executed_once": true,
+  "fresh_results_equal_published_records": true,
+  "arm_counts": [
+    {
+      "arm": "E",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 132,
+      "passed_all_offerings": 18,
+      "model_observations": 181,
+      "dispatched": 181,
+      "complete_response": 181,
+      "measured_tokens": 214288,
+      "charged_tokens": 214288,
+      "missing_usage_after_dispatch": 0,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 2
+    },
+    {
+      "arm": "M",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 189,
+      "passed_all_offerings": 30,
+      "model_observations": 244,
+      "dispatched": 244,
+      "complete_response": 243,
+      "measured_tokens": 295615,
+      "charged_tokens": 305855,
+      "missing_usage_after_dispatch": 1,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 3
+    },
+    {
+      "arm": "C",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 189,
+      "passed_all_offerings": 31,
+      "model_observations": 244,
+      "dispatched": 244,
+      "complete_response": 244,
+      "measured_tokens": 295653,
+      "charged_tokens": 295653,
+      "missing_usage_after_dispatch": 0,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 3
+    }
+  ],
+  "E_near_transfer_pairs": [
+    {
+      "world": "world-5538e66b7247034d2516",
+      "family": "sql",
+      "same_public_problem": true,
+      "same_initial_seed": true,
+      "same_prompt_digest": true,
+      "same_native_options": true,
+      "same_actual_request_payload": true,
+      "same_actual_request_bytes": true,
+      "same_parsed_solution": true,
+      "visible_skill_counts": [
+        0,
+        0
+      ],
+      "success_full_empty": [
+        false,
+        false
+      ],
+      "snapshot_digests_equal": true
+    },
+    {
+      "world": "world-5538e66b7247034d2516",
+      "family": "calibration",
+      "same_public_problem": true,
+      "same_initial_seed": true,
+      "same_prompt_digest": true,
+      "same_native_options": true,
+      "same_actual_request_payload": true,
+      "same_actual_request_bytes": true,
+      "same_parsed_solution": false,
+      "visible_skill_counts": [
+        0,
+        0
+      ],
+      "success_full_empty": [
+        false,
+        true
+      ],
+      "snapshot_digests_equal": true
+    },
+    {
+      "world": "world-86f4c748ef718dc18e6e",
+      "family": "sql",
+      "same_public_problem": true,
+      "same_initial_seed": true,
+      "same_prompt_digest": true,
+      "same_native_options": true,
+      "same_actual_request_payload": true,
+      "same_actual_request_bytes": true,
+      "same_parsed_solution": false,
+      "visible_skill_counts": [
+        0,
+        0
+      ],
+      "success_full_empty": [
+        false,
+        false
+      ],
+      "snapshot_digests_equal": true
+    },
+    {
+      "world": "world-86f4c748ef718dc18e6e",
+      "family": "calibration",
+      "same_public_problem": true,
+      "same_initial_seed": true,
+      "same_prompt_digest": true,
+      "same_native_options": true,
+      "same_actual_request_payload": true,
+      "same_actual_request_bytes": true,
+      "same_parsed_solution": false,
+      "visible_skill_counts": [
+        0,
+        0
+      ],
+      "success_full_empty": [
+        false,
+        true
+      ],
+      "snapshot_digests_equal": true
+    },
+    {
+      "world": "world-c82ce96fd0d2a2328994",
+      "family": "sql",
+      "same_public_problem": true,
+      "same_initial_seed": true,
+      "same_prompt_digest": true,
+      "same_native_options": true,
+      "same_actual_request_payload": true,
+      "same_actual_request_bytes": true,
+      "same_parsed_solution": true,
+      "visible_skill_counts": [
+        0,
+        0
+      ],
+      "success_full_empty": [
+        false,
+        false
+      ],
+      "snapshot_digests_equal": true
+    },
+    {
+      "world": "world-c82ce96fd0d2a2328994",
+      "family": "calibration",
+      "same_public_problem": true,
+      "same_initial_seed": true,
+      "same_prompt_digest": true,
+      "same_native_options": true,
+      "same_actual_request_payload": true,
+      "same_actual_request_bytes": true,
+      "same_parsed_solution": false,
+      "visible_skill_counts": [
+        0,
+        0
+      ],
+      "success_full_empty": [
+        false,
+        true
+      ],
+      "snapshot_digests_equal": true
+    }
+  ],
+  "interpretation": "Equal transport inputs do not guarantee bitwise sampled outputs. No historical observation is modified and no defect is inferred solely from differing success.",
+  "network_connections": 0,
+  "generation_requests": 0
+}

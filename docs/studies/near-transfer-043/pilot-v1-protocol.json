@@ -1,0 +1,749 @@
+{
+  "id": "cio-043-near-transfer-cost-pilot-v1",
+  "classification": "pilot",
+  "registered_at": "2026-10-03T16:52:56.923021+00:00",
+  "sources": {
+    "examples/evaluate_documents.py": "08681b6c467121fa007e4fffd11afbeef3f0ae6acb0a27e0246f706d9af6bdde",
+    "pyproject.toml": "259a16255012e55fd147d5db855dd30abf078562d0103dac498f44b06bdaae0b",
+    "scripts/accumulation_application.py": "54e0e0c253289f919e892b8d63cb6186b04d812062137a0ea42559a09ee17897",
+    "scripts/accumulation_host.py": "3f5843199840aa9c964b9d9730a75e462a8504bbd8e8ff5801781b0da323fbd1",
+    "scripts/accumulation_primitives.py": "fb17ccad436312d39b911ee9843dbe327795ee1d5dac6e32519ae38fef316898",
+    "scripts/accumulation_protocol.py": "7115591234d3e9897536267f5fbc5b71b066c1a8205b50eb3f73f753851ba4f9",
+    "scripts/accumulation_session.py": "000d51d5d0d5f83309e4e98b9e52b12fd21f5e6bcba850980b8d1ae438f26f57",
+    "scripts/accumulation_statistics.py": "52f513630595ba20c7f5789898a3012cae5ee48d9059410fee12ab77f2b1f326",
+    "scripts/accumulation_stock.py": "f890a245a1d822e6b47e4a69166d5ed379f07d44c2b8fff4229c8be1ca639077",
+    "scripts/accumulation_tasks.py": "3bd7f162e7f16a4bd98033cff8bc48247b139a980a7e6969eff17f90fa59fcbc",
+    "scripts/analyze_gemma_accumulation.py": "9c560ee9c75030e6e4d22e4eb8a6b48ac46099fe0104f276b4c5b13d1d3282d1",
+    "scripts/check_gemma_candidate.py": "d52cb2cacc0141dc513f7c5930cf990b7e886f8e7b3cd74b6554bd26ba3af781",
+    "scripts/check_gemma_state.py": "6e951294d92d0f66ee7102466a62d21bc9213deaf205961d91b43bfe266a3551",
+    "scripts/check_gemma_transport.py": "70a4403bfbe82c95cf2a8738beaf08ff73469fb74f49e9486efd717e960c16df",
+    "scripts/prepare_accumulation_protocol.py": "687417b4ee7af7b18aa40684af033d59adb1ff8f2420dc1e5f96cfc4eabf8379",
+    "scripts/prepare_gemma_public.py": "61f4f437cf3ed96bdeccbf616114351840135b8c5ac8fd459f41a4fab508eb45",
+    "scripts/production_session.py": "056695861ed210c27cbfbafcee5d04e5e9dd13248057412e57c2dcd763667c8c",
+    "scripts/release_candidate.py": "90f0d519155f535533e4f336e71f2ce3892c39276cd61823069387cfb01dd5ae",
+    "scripts/release_gate.py": "a3ba59aff4894a34e6291a11ad6669ab2beb5881e6fc5a3304dd539d8b7b3ec2",
+    "scripts/report_gemma_accumulation.py": "73339054626918f91cb8e429008ee334dba805a3d069696d9c5bc5d87c183112",
+    "scripts/run_gemma_accumulation.py": "6f7986595026a0cd0c133831513bb868b85f1e6a05774a4b97530f53735fc28d",
+    "scripts/run_production_experiment.py": "d7a81a61f6646a04d0ab8c0e336b0861517d42b07d2cb194c996cb0a68919096",
+    "scripts/verify_gemma_accumulation.py": "00baf2d1a32e5d4f2db5fb68c7bfa3d6e512e0d453537bb2c175da1663a457e8",
+    "src/collective_intelligence_overlay/__init__.py": "f869da256a6b478f14c629e973010a8f0dd6549b22ba8f1937777734769a5740",
+    "src/collective_intelligence_overlay/accounting.py": "9a4ec918337d57bb51785116f74778d532b7f0a8648a6a6421f983fbe58ea91e",
+    "src/collective_intelligence_overlay/adapters/a2a.py": "d44f9fda0868b8b749d00e63046f6538791ccf7e08908959806c8294295ead6e",
+    "src/collective_intelligence_overlay/adapters/a2a_service.py": "8036c46add6f2212ad18e2b71ea118caa90616faebdc64df886d90efff5ac902",
+    "src/collective_intelligence_overlay/adapters/http_limits.py": "80fda41b4e079fb7934f4d6573d8063a62e3c7b3082df3a1d2b5c5a98cdcbce7",
+    "src/collective_intelligence_overlay/adapters/inference_observer.py": "bb2724ea0ed53f5ad9b6f82bd21a0ed337e013864292273799d2e7976de766a1",
+    "src/collective_intelligence_overlay/adapters/maf.py": "ed184546c38a8d5866372d3b7a1d9a49bb2e8016a19c0eb803bb2a9596e25c25",
+    "src/collective_intelligence_overlay/adapters/mcp.py": "c891fad055b71a93faaafdec38beefbc87b2131c442c263483ad6c5ad3075406",
+    "src/collective_intelligence_overlay/adapters/ollama.py": "231a3f63a24658c6aa14d72ca1f166024f904effb1dbcbcb7485f8387ebd31fb",
+    "src/collective_intelligence_overlay/allocation.py": "ae799c516e4e57bec689d551da3694cd91ac1a442e83006481d3f01c3ac38f22",
+    "src/collective_intelligence_overlay/application.py": "79232171f9bb0fe79dd72b5fc9e017d4de40e9bd57dcc7e1581f299328272398",
+    "src/collective_intelligence_overlay/artifacts.py": "00913580bd539ae734553cbddaba0198a79bed0c02ec7c59fb77f3258fba43d7",
+    "src/collective_intelligence_overlay/bindings.py": "9ae23cde1741901a59e6f9eba33373e0a9813266c400c2f02d8aa6a54adb3c88",
+    "src/collective_intelligence_overlay/blocking.py": "16a735296d7baf1edc9bf2a5bf6c566324ea3a0707812b381907f13e1dbcd1a2",
+    "src/collective_intelligence_overlay/calls.py": "b69bd34ce8228bc047964301a25ddbf133781269b5b723e6ebd7bab501f3d410",
+    "src/collective_intelligence_overlay/cli.py": "808f1cf19e3a41d5fe0e1c23c5f2151f2c31bff325d886c15510bb4bfe53cb25",
+    "src/collective_intelligence_overlay/config.py": "458cc9a513bfad7ceff8151e5efe3f2feacdd6b0a886bb226560994c902783cb",
+    "src/collective_intelligence_overlay/demo.py": "2076e02ed10e8e6c66a5de579e2f260281493fade8f47d05bad35f28c78a4694",
+    "src/collective_intelligence_overlay/evaluation.py": "cf55b6b94106c8a96fc4d0a716e4d1b191cb795f4e0c81612ef5e3b6ecf9b95f",
+    "src/collective_intelligence_overlay/invocations.py": "173f312a78d555967be80a7708db39d5263fabcbc5ba1cb1dfec0990ebde0fed",
+    "src/collective_intelligence_overlay/lineage.py": "beb522a6dcb7df3f5419064c3d408deed772a6d063ef9e9df2365fa072613a0b",
+    "src/collective_intelligence_overlay/migrations/env.py": "7ee5833a70691307eee35b146367a5a0e61d6b5d88e3d52f0e08bb94a9ba2ee8",
+    "src/collective_intelligence_overlay/migrations/versions/0001_initial.py": "e179ba3cd28bee0687431642254e1f744e1e596a8ba9bc8342a3d2f69076c240",
+    "src/collective_intelligence_overlay/migrations/versions/0002_indexed_feed.py": "3bdf5337f4b001ab3272b7873f4e835dd1e7206076f9e711d15cbb4aa80ae355",
+    "src/collective_intelligence_overlay/migrations/versions/0003_sync_checkpoints.py": "dafdddd566c13d3bc39dabb60abe43119a36025555f26ddfc21a06bfc9f08e1b",
+    "src/collective_intelligence_overlay/migrations/versions/0004_sync_scope.py": "31537db00115b0f36e6ad8fe27d96969711a3ca8f1e346cdc901c547eac0fff3",
+    "src/collective_intelligence_overlay/migrations/versions/0005_invocations.py": "17e8d826a993a19918684dd672673fcc22fdbe80c54223ddf4eb5cc8f4f6fd58",
+    "src/collective_intelligence_overlay/migrations/versions/0006_receipts.py": "7e4df25418a6128268667318973956dc06bd86c74a570805a9c58e4a3c7356f3",
+    "src/collective_intelligence_overlay/migrations/versions/0007_inspection.py": "600a0f7f417535cf9aca1eb5ea09718b8bce223f7badaa599903454a0c365ff0",
+    "src/collective_intelligence_overlay/migrations/versions/0008_dependency_refs.py": "ec9717864594e60408a6cdc582eb5f680b62ad9ad7e035c9480077e9106f4a65",
+    "src/collective_intelligence_overlay/migrations/versions/0009_invocation_allowance.py": "97876cbf4e22b76747b5cd954d67bfae8c497ee454304e45d1e4ea0631e067cf",
+    "src/collective_intelligence_overlay/migrations/versions/0010_work_selections.py": "132baafc2919079cf414fad7f9fc82c95bbfbb08977e3b4c78a7b513ed8ef6af",
+    "src/collective_intelligence_overlay/migrations/versions/0011_invocation_capacity.py": "8fc46daa1a13993835784945b53902a913754c9ca118ca0fd6409d2f163591d0",
+    "src/collective_intelligence_overlay/migrations/versions/0012_selection_window.py": "6be9db461c486762a87c828f49de8848f73bb44349f1b7b6514828d393bd605c",
+    "src/collective_intelligence_overlay/migrations/versions/0013_reobservation.py": "e5d3973e23bc203bfa971894b59f189f8bd785ae986162f0b26d9b830a0b937f",
+    "src/collective_intelligence_overlay/migrations/versions/0014_remote_calls.py": "fe7129c0414c3c040545bca8fabc8c0c5dc504ecb94c86f15c71e8b435956361",
+    "src/collective_intelligence_overlay/migrations/versions/0015_invocation_cleanup.py": "91ad6fdf5b0e1f9562148a973201f48df76a0236d0a85833c49f283274e39617",
+    "src/collective_intelligence_overlay/migrations/versions/0016_reconciliation.py": "fd3a1b687ae76b88bec27356332ad33156e8afc9add3b25a0c0d41de143ee414",
+    "src/collective_intelligence_overlay/migrations/versions/0017_recovery_gate.py": "4266bfae3a460a4526c0d469a9f039e2c3d2580ab8aae5c592fd51ef88057d59",
+    "src/collective_intelligence_overlay/migrations/versions/0018_recovery_review.py": "1584eb5933194f018dd327040e6eff1172398e0b0928e5a2e34eca3bce61b72a",
+    "src/collective_intelligence_overlay/migrations/versions/0019_sync_completion.py": "ceab64986055b55d43e603f9cfc2a83fdcf4f117d4ba2a9bb46a75763cc1131c",
+    "src/collective_intelligence_overlay/migrations/versions/0020_restore_sequence.py": "821a6e763b775cd0cdd33653a288205219f7918d3da32ec93d037e7641fc91b9",
+    "src/collective_intelligence_overlay/migrations/versions/0021_invocation_resolution.py": "187e13a1145f8d380bd882546ad0c54a0a1be04f95bfe9fb783e83c65ed22997",
+    "src/collective_intelligence_overlay/migrations/versions/0022_invocation_parent_index.py": "e7a0cf08f8061cde767548aeb674635ba17c5f8e658aa63b64e7ad75161c544d",
+    "src/collective_intelligence_overlay/models.py": "8be751d1496bb02b2b7123003fe41d2eca9c7860b04fa772f0f2921624bca657",
+    "src/collective_intelligence_overlay/observability.py": "341df544c10c9f9603998925c57a92f4af140ddc054e7947b179ebda260f63d7",
+    "src/collective_intelligence_overlay/opa_install.py": "29806fdf2184f9666f4d9fcf316e87692c224599c6c5006e56c3d3f064b8972a",
+    "src/collective_intelligence_overlay/operations.py": "506fe51fd092f7d084b61920e05d851b50f3243ca00339852b29c64396e8f052",
+    "src/collective_intelligence_overlay/opportunities.py": "54d8388a0f8b5d3f51732a21dd3bac493584d36b16ccd44ae91251c3b6b1d322",
+    "src/collective_intelligence_overlay/overlay.py": "854688a00c498cc09cf341a763dbf8ccf92efd5e1759ec38952f9e48322b4e5a",
+    "src/collective_intelligence_overlay/peer.py": "a97532499ae51e12ec47df294e047d92426e61550ca5e7159bec8412d89a7d01",
+    "src/collective_intelligence_overlay/pg8000_compat.py": "f23d74d19ee5213fa690c306efa93551a7ee231b381418574ded780d6d837118",
+    "src/collective_intelligence_overlay/policy.py": "e66623236d84d66989f6c224366ce6d7d6f38b31894742d5f7c61e654ea9e3b5",
+    "src/collective_intelligence_overlay/policy.rego": "f633c1a0d4efb5479e6e828dd28f2226169f4428537babe8fec206955c834de7",
+    "src/collective_intelligence_overlay/proposal_exchange.py": "c89231f0a9ce8b42ff73d2e8d37cf24976ec94e407d00a850f7292cff0510551",
+    "src/collective_intelligence_overlay/queries.py": "52e58de3ecef981d8bf1ccf42b526a9e24a6c7cee7448c709c556da8ba933d29",
+    "src/collective_intelligence_overlay/reconciliation.py": "61ba57b99c96c5e201f28d2cc4728172b702e870ed20a8cbe28dda1152fb53c3",
+    "src/collective_intelligence_overlay/recovery.py": "4ab7d8a77aad666e85ae20f0f15435c9d14060628deec4756b84d78554923f9b",
+    "src/collective_intelligence_overlay/reference.py": "3c8846350b0aa652ea2b1cfd5464fd10db659fff415fa4d52b9d9e8e2e2287f0",
+    "src/collective_intelligence_overlay/reference_bindings.py": "a2b3ab9532978e64b79a72a6f4145231573b042a52f89e994e91762d76dffb6c",
+    "src/collective_intelligence_overlay/reference_mcp.py": "72208605552865086451541b55b0d410ee16e7dde333f71c750d6ee99d1468c3",
+    "src/collective_intelligence_overlay/reference_peer.py": "23234c947ea65f6eea5ad82a5025d52eb182e463371d696402ad24c831d33bfe",
+    "src/collective_intelligence_overlay/reobservation.py": "45ca864f0d6c0f92d00da08687fc371edbe3fbc3b41779d0c96a143d83025fe9",
+    "src/collective_intelligence_overlay/resolutions.py": "c13d37d43999bcce43e0346dac137bf2c27969208110edf6938e3c1f80667b20",
+    "src/collective_intelligence_overlay/security.py": "0f2baeb2cccb1d89d894a2ae94a784ca90268fdd5fbc7c1454b1302b47c8bd47",
+    "src/collective_intelligence_overlay/setup.py": "b06700db9f860c6150c7ecd74f5ed761eaa7540d7a55c54ecedc5993cd08b329",
+    "src/collective_intelligence_overlay/starter/__init__.py": "9a136f6d35a40c5b1992d294cbc8e336e5dfe42fbf243b4f9a3702b262eaab4b",
+    "src/collective_intelligence_overlay/starter/adaptive_documents.py": "58efb1c83394cbe071a5b610abc81d522e9f6bbd2c108e465015e2d32a9a5240",
+    "src/collective_intelligence_overlay/starter/application.py": "42541e733c9a8817a8db1854b3b9211c2c49dea8a544c1a176655f46873ac215",
+    "src/collective_intelligence_overlay/starter/document_recovery.py": "968e3f7bd24b4d7ad03bb50f465b8aa7711aac8d1a1ff6d3ea6ecdba27991fb6",
+    "src/collective_intelligence_overlay/starter/documents.py": "78afe7c9c7f1cb63302b2b30edd4b818d7f90fa95ee3f9df8b3f27c83e5cb000",
+    "src/collective_intelligence_overlay/starter/tabular.py": "2d1f363bd67a0b72a2d448333ed9fee181286c5d609ab5af92c0f1fa3f2c883f",
+    "src/collective_intelligence_overlay/steps.py": "2e8f2f1f8ad560bb79a7360525c4242c65751eddfeac3a81f3a89f4a3b9c0133",
+    "src/collective_intelligence_overlay/storage.py": "e4485de231e50b587770dfa3739a2009193011ad1e78b4f27b778220d791542a",
+    "src/collective_intelligence_overlay/synchronization.py": "ccf5c36336780dfb26dc9533617dbf04c447bc903ef5e568bf805a72a459d51c",
+    "tests/e2e/production_mesh.py": "e78c4d833804b9af02f8467bad2820a9ed4398db86273f543eb0903b2d925a97",
+    "uv.lock": "f48413c703fef7d2e08c3bb04162056b9d6defbe70d469ab7e6a1d18354c8866",
+    "scripts/near_transfer_application.py": "a4aaab2ef5ecf27583f00fb6163bd3383028e4c2f280bcb9882627b026500ecf",
+    "scripts/near_transfer_protocol.py": "82e94f52ba6946239eb095c64443847a2c152b51c1c3fa7747d47006928f8860",
+    "scripts/near_transfer_tasks.py": "391f77f5dba57a9b5837cc81c8eebc32a8eb28906d847e35cd3efd4a49acf6fa",
+    "scripts/run_near_transfer.py": "318e92ca9cf9c175b0aa09ba4f77df10aff4d6d81cd67141dad85bcf4bd54092",
+    "scripts/analyze_near_transfer.py": "ea5cd9cdc000dbf16b14141a944dd79cadd59370d9c0ac218f675ca305313eb4",
+    "tests/unit/test_near_transfer.py": "26e4d6f979133dfc0bc5910c3892a3f18fbb153a087911b984f5144279f44a2d"
+  },
+  "model": "gemma4:e4b",
+  "model_digest": "dc35e8d9c6061baa6f0fa870975ab6932e2542b579b13ea0f199fa4bb7300c9c",
+  "application_factory": "near_transfer_application:configure",
+  "model_options": {
+    "num_ctx": 4096,
+    "num_predict": 1024,
+    "temperature": 0.2,
+    "top_p": 0.95,
+    "top_k": 64,
+    "draft_num_predict": 0,
+    "num_gpu": 0
+  },
+  "request_seconds": 120,
+  "pilot_max_requests": 60,
+  "smoke_max_requests": 4,
+  "caps": {
+    "model_calls": 256,
+    "model_tokens": 400000,
+    "wall_seconds": 14400,
+    "application_actions": 12000,
+    "execution_invocations": 16000,
+    "checker_cases": 12000,
+    "retrieval_calls": 1024,
+    "model_identity_observations": 256,
+    "owner_CAS_bytes": 16777216
+  },
+  "cleanup_grace_seconds": 300,
+  "service_startup_reservation_seconds": 300,
+  "max_waves": 2,
+  "candidates": {
+    "sql": [
+      "S1",
+      "S2"
+    ],
+    "calibration": [
+      "K1",
+      "K2"
+    ],
+    "composition": [
+      "F0",
+      "F1"
+    ]
+  },
+  "screen_examples_per_level": 4,
+  "validation_examples_per_family": 6,
+  "stage_seeds": {
+    "screen": [
+      943100,
+      943101,
+      943102,
+      943103,
+      943104,
+      943105,
+      943106,
+      943107
+    ],
+    "locked-validation": [
+      943200,
+      943201,
+      943202,
+      943203,
+      943204,
+      943205
+    ],
+    "natural-stock": [
+      943300
+    ],
+    "confirmation": [
+      943400,
+      943401,
+      943402,
+      943403,
+      943404,
+      943405
+    ]
+  },
+  "selection": "scratch ordinary-M; closest proportion to .5; ascending candidate tie order",
+  "retrieval_revision": "2",
+  "observation_binding_schema": "2",
+  "new_receiver": true,
+  "require_installed_candidate": true,
+  "checker_sources": [
+    "scripts/near_transfer_tasks.py",
+    "scripts/accumulation_tasks.py",
+    "scripts/accumulation_primitives.py"
+  ],
+  "feedback_policy": "none",
+  "restricted_endpoints": true,
+  "endpoint_time_seconds": 600,
+  "endpoint_token_horizon": 10240,
+  "wire_schemas": {
+    "sql/low": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "sql",
+          "title": "Family",
+          "type": "string"
+        },
+        "sql": {
+          "maxLength": 12000,
+          "minLength": 1,
+          "title": "Sql",
+          "type": "string"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "sql",
+        "uses"
+      ],
+      "title": "SQLDraft",
+      "type": "object"
+    },
+    "sql/middle": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "sql",
+          "title": "Family",
+          "type": "string"
+        },
+        "sql": {
+          "maxLength": 12000,
+          "minLength": 1,
+          "title": "Sql",
+          "type": "string"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "sql",
+        "uses"
+      ],
+      "title": "SQLDraft",
+      "type": "object"
+    },
+    "sql/high": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "sql",
+          "title": "Family",
+          "type": "string"
+        },
+        "sql": {
+          "maxLength": 12000,
+          "minLength": 1,
+          "title": "Sql",
+          "type": "string"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "sql",
+        "uses"
+      ],
+      "title": "SQLDraft",
+      "type": "object"
+    },
+    "calibration/low": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "calibration",
+          "title": "Family",
+          "type": "string"
+        },
+        "coefficients": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Coefficients",
+          "type": "array"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "coefficients",
+        "uses"
+      ],
+      "title": "CalibrationDraft",
+      "type": "object"
+    },
+    "calibration/middle": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "calibration",
+          "title": "Family",
+          "type": "string"
+        },
+        "coefficients": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Coefficients",
+          "type": "array"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "coefficients",
+        "uses"
+      ],
+      "title": "CalibrationDraft",
+      "type": "object"
+    },
+    "calibration/high": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "calibration",
+          "title": "Family",
+          "type": "string"
+        },
+        "coefficients": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Coefficients",
+          "type": "array"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "coefficients",
+        "uses"
+      ],
+      "title": "CalibrationDraft",
+      "type": "object"
+    },
+    "composition/low": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "composition",
+          "title": "Family",
+          "type": "string"
+        },
+        "sql": {
+          "maxLength": 12000,
+          "minLength": 1,
+          "title": "Sql",
+          "type": "string"
+        },
+        "coefficients": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Coefficients",
+          "type": "array"
+        },
+        "reduction": {
+          "enum": [
+            "sum",
+            "mean",
+            "count"
+          ],
+          "title": "Reduction",
+          "type": "string"
+        },
+        "calibration_order": {
+          "enum": [
+            "calibrate-then-reduce",
+            "reduce-then-calibrate"
+          ],
+          "title": "Calibration Order",
+          "type": "string"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "sql",
+        "coefficients",
+        "reduction",
+        "calibration_order",
+        "uses"
+      ],
+      "title": "CompositionDraft",
+      "type": "object"
+    },
+    "composition/middle": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "composition",
+          "title": "Family",
+          "type": "string"
+        },
+        "sql": {
+          "maxLength": 12000,
+          "minLength": 1,
+          "title": "Sql",
+          "type": "string"
+        },
+        "coefficients": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Coefficients",
+          "type": "array"
+        },
+        "reduction": {
+          "enum": [
+            "sum",
+            "mean",
+            "count"
+          ],
+          "title": "Reduction",
+          "type": "string"
+        },
+        "calibration_order": {
+          "enum": [
+            "calibrate-then-reduce",
+            "reduce-then-calibrate"
+          ],
+          "title": "Calibration Order",
+          "type": "string"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "sql",
+        "coefficients",
+        "reduction",
+        "calibration_order",
+        "uses"
+      ],
+      "title": "CompositionDraft",
+      "type": "object"
+    },
+    "composition/high": {
+      "additionalProperties": false,
+      "properties": {
+        "family": {
+          "const": "composition",
+          "title": "Family",
+          "type": "string"
+        },
+        "sql": {
+          "maxLength": 12000,
+          "minLength": 1,
+          "title": "Sql",
+          "type": "string"
+        },
+        "coefficients": {
+          "maxItems": 3,
+          "minItems": 3,
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "title": "Coefficients",
+          "type": "array"
+        },
+        "reduction": {
+          "enum": [
+            "sum",
+            "mean",
+            "count"
+          ],
+          "title": "Reduction",
+          "type": "string"
+        },
+        "calibration_order": {
+          "enum": [
+            "calibrate-then-reduce",
+            "reduce-then-calibrate"
+          ],
+          "title": "Calibration Order",
+          "type": "string"
+        },
+        "uses": {
+          "items": {
+            "type": "string"
+          },
+          "maxItems": 3,
+          "title": "Uses",
+          "type": "array"
+        }
+      },
+      "required": [
+        "family",
+        "sql",
+        "coefficients",
+        "reduction",
+        "calibration_order",
+        "uses"
+      ],
+      "title": "CompositionDraft",
+      "type": "object"
+    }
+  },
+  "installed_wheel": {
+    "path": ".local/full-042-37126141569-original-v1/candidate/dist/collective_intelligence_overlay-0.4.2-py3-none-any.whl",
+    "sha256": "5d1ce6292a6519db8fc157cf9e34d277465c3380f76ed2a92a3b768bd9fac804",
+    "package_file_sha256": {
+      "collective_intelligence_overlay/__init__.py": "f869da256a6b478f14c629e973010a8f0dd6549b22ba8f1937777734769a5740",
+      "collective_intelligence_overlay/accounting.py": "9a4ec918337d57bb51785116f74778d532b7f0a8648a6a6421f983fbe58ea91e",
+      "collective_intelligence_overlay/adapters/a2a.py": "d44f9fda0868b8b749d00e63046f6538791ccf7e08908959806c8294295ead6e",
+      "collective_intelligence_overlay/adapters/a2a_service.py": "8036c46add6f2212ad18e2b71ea118caa90616faebdc64df886d90efff5ac902",
+      "collective_intelligence_overlay/adapters/http_limits.py": "80fda41b4e079fb7934f4d6573d8063a62e3c7b3082df3a1d2b5c5a98cdcbce7",
+      "collective_intelligence_overlay/adapters/inference_observer.py": "bb2724ea0ed53f5ad9b6f82bd21a0ed337e013864292273799d2e7976de766a1",
+      "collective_intelligence_overlay/adapters/maf.py": "ed184546c38a8d5866372d3b7a1d9a49bb2e8016a19c0eb803bb2a9596e25c25",
+      "collective_intelligence_overlay/adapters/mcp.py": "c891fad055b71a93faaafdec38beefbc87b2131c442c263483ad6c5ad3075406",
+      "collective_intelligence_overlay/adapters/ollama.py": "231a3f63a24658c6aa14d72ca1f166024f904effb1dbcbcb7485f8387ebd31fb",
+      "collective_intelligence_overlay/allocation.py": "ae799c516e4e57bec689d551da3694cd91ac1a442e83006481d3f01c3ac38f22",
+      "collective_intelligence_overlay/application.py": "79232171f9bb0fe79dd72b5fc9e017d4de40e9bd57dcc7e1581f299328272398",
+      "collective_intelligence_overlay/artifacts.py": "00913580bd539ae734553cbddaba0198a79bed0c02ec7c59fb77f3258fba43d7",
+      "collective_intelligence_overlay/bindings.py": "9ae23cde1741901a59e6f9eba33373e0a9813266c400c2f02d8aa6a54adb3c88",
+      "collective_intelligence_overlay/blocking.py": "16a735296d7baf1edc9bf2a5bf6c566324ea3a0707812b381907f13e1dbcd1a2",
+      "collective_intelligence_overlay/calls.py": "b69bd34ce8228bc047964301a25ddbf133781269b5b723e6ebd7bab501f3d410",
+      "collective_intelligence_overlay/cli.py": "808f1cf19e3a41d5fe0e1c23c5f2151f2c31bff325d886c15510bb4bfe53cb25",
+      "collective_intelligence_overlay/config.py": "458cc9a513bfad7ceff8151e5efe3f2feacdd6b0a886bb226560994c902783cb",
+      "collective_intelligence_overlay/demo.py": "2076e02ed10e8e6c66a5de579e2f260281493fade8f47d05bad35f28c78a4694",
+      "collective_intelligence_overlay/evaluation.py": "cf55b6b94106c8a96fc4d0a716e4d1b191cb795f4e0c81612ef5e3b6ecf9b95f",
+      "collective_intelligence_overlay/invocations.py": "173f312a78d555967be80a7708db39d5263fabcbc5ba1cb1dfec0990ebde0fed",
+      "collective_intelligence_overlay/lineage.py": "beb522a6dcb7df3f5419064c3d408deed772a6d063ef9e9df2365fa072613a0b",
+      "collective_intelligence_overlay/migrations/env.py": "7ee5833a70691307eee35b146367a5a0e61d6b5d88e3d52f0e08bb94a9ba2ee8",
+      "collective_intelligence_overlay/migrations/versions/0001_initial.py": "e179ba3cd28bee0687431642254e1f744e1e596a8ba9bc8342a3d2f69076c240",
+      "collective_intelligence_overlay/migrations/versions/0002_indexed_feed.py": "3bdf5337f4b001ab3272b7873f4e835dd1e7206076f9e711d15cbb4aa80ae355",
+      "collective_intelligence_overlay/migrations/versions/0003_sync_checkpoints.py": "dafdddd566c13d3bc39dabb60abe43119a36025555f26ddfc21a06bfc9f08e1b",
+      "collective_intelligence_overlay/migrations/versions/0004_sync_scope.py": "31537db00115b0f36e6ad8fe27d96969711a3ca8f1e346cdc901c547eac0fff3",
+      "collective_intelligence_overlay/migrations/versions/0005_invocations.py": "17e8d826a993a19918684dd672673fcc22fdbe80c54223ddf4eb5cc8f4f6fd58",
+      "collective_intelligence_overlay/migrations/versions/0006_receipts.py": "7e4df25418a6128268667318973956dc06bd86c74a570805a9c58e4a3c7356f3",
+      "collective_intelligence_overlay/migrations/versions/0007_inspection.py": "600a0f7f417535cf9aca1eb5ea09718b8bce223f7badaa599903454a0c365ff0",
+      "collective_intelligence_overlay/migrations/versions/0008_dependency_refs.py": "ec9717864594e60408a6cdc582eb5f680b62ad9ad7e035c9480077e9106f4a65",
+      "collective_intelligence_overlay/migrations/versions/0009_invocation_allowance.py": "97876cbf4e22b76747b5cd954d67bfae8c497ee454304e45d1e4ea0631e067cf",
+      "collective_intelligence_overlay/migrations/versions/0010_work_selections.py": "132baafc2919079cf414fad7f9fc82c95bbfbb08977e3b4c78a7b513ed8ef6af",
+      "collective_intelligence_overlay/migrations/versions/0011_invocation_capacity.py": "8fc46daa1a13993835784945b53902a913754c9ca118ca0fd6409d2f163591d0",
+      "collective_intelligence_overlay/migrations/versions/0012_selection_window.py": "6be9db461c486762a87c828f49de8848f73bb44349f1b7b6514828d393bd605c",
+      "collective_intelligence_overlay/migrations/versions/0013_reobservation.py": "e5d3973e23bc203bfa971894b59f189f8bd785ae986162f0b26d9b830a0b937f",
+      "collective_intelligence_overlay/migrations/versions/0014_remote_calls.py": "fe7129c0414c3c040545bca8fabc8c0c5dc504ecb94c86f15c71e8b435956361",
+      "collective_intelligence_overlay/migrations/versions/0015_invocation_cleanup.py": "91ad6fdf5b0e1f9562148a973201f48df76a0236d0a85833c49f283274e39617",
+      "collective_intelligence_overlay/migrations/versions/0016_reconciliation.py": "fd3a1b687ae76b88bec27356332ad33156e8afc9add3b25a0c0d41de143ee414",
+      "collective_intelligence_overlay/migrations/versions/0017_recovery_gate.py": "4266bfae3a460a4526c0d469a9f039e2c3d2580ab8aae5c592fd51ef88057d59",
+      "collective_intelligence_overlay/migrations/versions/0018_recovery_review.py": "1584eb5933194f018dd327040e6eff1172398e0b0928e5a2e34eca3bce61b72a",
+      "collective_intelligence_overlay/migrations/versions/0019_sync_completion.py": "ceab64986055b55d43e603f9cfc2a83fdcf4f117d4ba2a9bb46a75763cc1131c",
+      "collective_intelligence_overlay/migrations/versions/0020_restore_sequence.py": "821a6e763b775cd0cdd33653a288205219f7918d3da32ec93d037e7641fc91b9",
+      "collective_intelligence_overlay/migrations/versions/0021_invocation_resolution.py": "187e13a1145f8d380bd882546ad0c54a0a1be04f95bfe9fb783e83c65ed22997",
+      "collective_intelligence_overlay/migrations/versions/0022_invocation_parent_index.py": "e7a0cf08f8061cde767548aeb674635ba17c5f8e658aa63b64e7ad75161c544d",
+      "collective_intelligence_overlay/models.py": "8be751d1496bb02b2b7123003fe41d2eca9c7860b04fa772f0f2921624bca657",
+      "collective_intelligence_overlay/observability.py": "341df544c10c9f9603998925c57a92f4af140ddc054e7947b179ebda260f63d7",
+      "collective_intelligence_overlay/opa_install.py": "29806fdf2184f9666f4d9fcf316e87692c224599c6c5006e56c3d3f064b8972a",
+      "collective_intelligence_overlay/operations.py": "506fe51fd092f7d084b61920e05d851b50f3243ca00339852b29c64396e8f052",
+      "collective_intelligence_overlay/opportunities.py": "54d8388a0f8b5d3f51732a21dd3bac493584d36b16ccd44ae91251c3b6b1d322",
+      "collective_intelligence_overlay/overlay.py": "854688a00c498cc09cf341a763dbf8ccf92efd5e1759ec38952f9e48322b4e5a",
+      "collective_intelligence_overlay/peer.py": "a97532499ae51e12ec47df294e047d92426e61550ca5e7159bec8412d89a7d01",
+      "collective_intelligence_overlay/pg8000_compat.py": "f23d74d19ee5213fa690c306efa93551a7ee231b381418574ded780d6d837118",
+      "collective_intelligence_overlay/policy.py": "e66623236d84d66989f6c224366ce6d7d6f38b31894742d5f7c61e654ea9e3b5",
+      "collective_intelligence_overlay/policy.rego": "f633c1a0d4efb5479e6e828dd28f2226169f4428537babe8fec206955c834de7",
+      "collective_intelligence_overlay/proposal_exchange.py": "c89231f0a9ce8b42ff73d2e8d37cf24976ec94e407d00a850f7292cff0510551",
+      "collective_intelligence_overlay/py.typed": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "collective_intelligence_overlay/queries.py": "52e58de3ecef981d8bf1ccf42b526a9e24a6c7cee7448c709c556da8ba933d29",
+      "collective_intelligence_overlay/reconciliation.py": "61ba57b99c96c5e201f28d2cc4728172b702e870ed20a8cbe28dda1152fb53c3",
+      "collective_intelligence_overlay/recovery.py": "4ab7d8a77aad666e85ae20f0f15435c9d14060628deec4756b84d78554923f9b",
+      "collective_intelligence_overlay/reference.py": "3c8846350b0aa652ea2b1cfd5464fd10db659fff415fa4d52b9d9e8e2e2287f0",
+      "collective_intelligence_overlay/reference_bindings.py": "a2b3ab9532978e64b79a72a6f4145231573b042a52f89e994e91762d76dffb6c",
+      "collective_intelligence_overlay/reference_mcp.py": "72208605552865086451541b55b0d410ee16e7dde333f71c750d6ee99d1468c3",
+      "collective_intelligence_overlay/reference_peer.py": "23234c947ea65f6eea5ad82a5025d52eb182e463371d696402ad24c831d33bfe",
+      "collective_intelligence_overlay/reobservation.py": "45ca864f0d6c0f92d00da08687fc371edbe3fbc3b41779d0c96a143d83025fe9",
+      "collective_intelligence_overlay/resolutions.py": "c13d37d43999bcce43e0346dac137bf2c27969208110edf6938e3c1f80667b20",
+      "collective_intelligence_overlay/schemas/artifactspec.json": "4f3e748d6094f137ed9d4bc03182c4f66de0e653467ac3e9f4f1701d999f4c19",
+      "collective_intelligence_overlay/schemas/binding.json": "910f851520f62b768738281a1d3ea1252392f31e7600f3c73b48e5ac80dffcb8",
+      "collective_intelligence_overlay/schemas/capability.json": "10fe6a340eb4cfda7d2c96e9d1a15bacd317c25aadc69b0fad71a9f45bb7abb4",
+      "collective_intelligence_overlay/schemas/config.json": "c9fe7fb9e42212930a45d16e4714a47dac07e6e8deb33f049beecfd05c5775ef",
+      "collective_intelligence_overlay/schemas/event.json": "1eb51c99eafc3a092fe9e5ff246982c23ac2dc9fe5c3eb428e5925cde6f8ec66",
+      "collective_intelligence_overlay/schemas/evidence.json": "d53a427fb285cf00fdbdfd96ba34842d48ffc9cfdc01a1c979c6cac641fe8e61",
+      "collective_intelligence_overlay/schemas/opportunity.json": "fffb3a826bf095104deea149bde561b77dbe33c75c2b45a910cd7ab8bc37be3a",
+      "collective_intelligence_overlay/schemas/proposal.json": "d632338f29e07b7eaa1a0970797e5bb20a4a2caf5be6bee66f44b68898089be3",
+      "collective_intelligence_overlay/security.py": "0f2baeb2cccb1d89d894a2ae94a784ca90268fdd5fbc7c1454b1302b47c8bd47",
+      "collective_intelligence_overlay/setup.py": "b06700db9f860c6150c7ecd74f5ed761eaa7540d7a55c54ecedc5993cd08b329",
+      "collective_intelligence_overlay/starter/Caddyfile": "9f5369962f6ad8872ce6071c4b146314f1171d5ed606c1b562ae08b62ed3cc5b",
+      "collective_intelligence_overlay/starter/README.txt": "ade806204c8cce66393fa2c858f738131b38cfb18e9a45df60eb24a0319d35bb",
+      "collective_intelligence_overlay/starter/__init__.py": "9a136f6d35a40c5b1992d294cbc8e336e5dfe42fbf243b4f9a3702b262eaab4b",
+      "collective_intelligence_overlay/starter/adaptive_documents.py": "58efb1c83394cbe071a5b610abc81d522e9f6bbd2c108e465015e2d32a9a5240",
+      "collective_intelligence_overlay/starter/application.py": "42541e733c9a8817a8db1854b3b9211c2c49dea8a544c1a176655f46873ac215",
+      "collective_intelligence_overlay/starter/document_recovery.py": "968e3f7bd24b4d7ad03bb50f465b8aa7711aac8d1a1ff6d3ea6ecdba27991fb6",
+      "collective_intelligence_overlay/starter/documents.py": "78afe7c9c7f1cb63302b2b30edd4b818d7f90fa95ee3f9df8b3f27c83e5cb000",
+      "collective_intelligence_overlay/starter/tabular.py": "2d1f363bd67a0b72a2d448333ed9fee181286c5d609ab5af92c0f1fa3f2c883f",
+      "collective_intelligence_overlay/steps.py": "2e8f2f1f8ad560bb79a7360525c4242c65751eddfeac3a81f3a89f4a3b9c0133",
+      "collective_intelligence_overlay/storage.py": "e4485de231e50b587770dfa3739a2009193011ad1e78b4f27b778220d791542a",
+      "collective_intelligence_overlay/synchronization.py": "ccf5c36336780dfb26dc9533617dbf04c447bc903ef5e568bf805a72a459d51c"
+    }
+  },
+  "runtime_scope": "exact published 0.4.2 noneditable runtime; new scientific sources separately fixed; final 0.4.3 native gate is distinct",
+  "warmup": "no uncharged warmup generation; first screen inference bears cold load, fixed serial CPU backend",
+  "confirmation_plan": {
+    "worlds": 6,
+    "arms": [
+      "M",
+      "C"
+    ],
+    "training_episodes": 4,
+    "training_attempts": 1,
+    "probe_attempts": 2,
+    "maximum_requests": 192
+  },
+  "statistics": {
+    "unit": "world",
+    "contrasts": [
+      "M:Full-Empty",
+      "C:Full-Empty",
+      "C:Full-M:Full"
+    ],
+    "directions": "higher Q; lower restricted resources",
+    "quality_interest_difference": 0.15,
+    "quality_harm_margin": 0.1,
+    "resource_interest_fraction": 0.2,
+    "interval": "descriptive paired-world bootstrap 95%; small N unstable",
+    "multiplicity": "no confirmatory p-value claims; all declared contrasts and families shown",
+    "censoring": "all offered worlds retained; failure charged endpoint T/B separately from actual usage",
+    "break_even": "same observed quality and unit only; positive savings required; future maintenance unknown"
+  }
+}

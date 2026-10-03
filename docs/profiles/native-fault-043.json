@@ -1,0 +1,39 @@
+{
+  "profile_id": "permissioned-native-fault-043-v1",
+  "target_version": "0.4.3",
+  "protocol": "production-short-043-v1",
+  "declared_at": "2026-10-03T17:19:20.057189+00:00",
+  "scope": "Fresh 0.4.3 source and immutable installed artifact native validation; the old 0.4.2 gate has separate historical scope.",
+  "change_policy": "All nineteen injections and numerical bounds retained unchanged; scientific pilot is separate and has no confirmation performance.",
+  "inherited_numeric_profile": "permissioned-single-owner-040-v1",
+  "fault_protocol": {
+    "required_injections": [
+      "owner process kill",
+      "database physical disconnect",
+      "provider stop",
+      "delayed response and timeout",
+      "duplicate response/request",
+      "owner Python clock offset plus DB clock checks",
+      "bad signature",
+      "evidence withdrawal",
+      "execution and unresolved capacity exhaustion",
+      "budget exhaustion",
+      "checker failure and checker unavailability",
+      "backup interruption",
+      "restored intake closed until verification/sync/reconciliation",
+      "new effect request during drain",
+      "duplicate owner boot",
+      "HTTP 429 and 503 with Retry-After",
+      "routine key rotation",
+      "compromised historical key",
+      "protected trial regression"
+    ],
+    "short_ci": {
+      "duration_seconds_min": 120,
+      "owners": 3,
+      "maximum_total_seconds": 600,
+      "runs_per_native_profile": 1
+    }
+  },
+  "reason": "Bind unchanged native fault requirements to the exact new distribution before its single final native gate."
+}

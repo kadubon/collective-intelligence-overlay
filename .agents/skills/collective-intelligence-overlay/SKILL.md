@@ -239,3 +239,10 @@ whole worlds as repeated-measurement units. Require a pushed fixed protocol and
 the exact installed candidate before confirmation. Keep ordinary executable
 shared memory strong, retain every failed/censored request and do not infer
 H_SHARE/H_ADAPT from unperformed panels or equivalence from degenerate bootstrap.
+
+For v0.4.3 local-model research use the separate
+[near-transfer methods](../../../docs/near-transfer-043.md). A family-specific
+locked sensitivity gate must pass before any confirmation. Keep the all-stage
+token/request/wall caps, uncertain reservations, failed offered worlds and separate
+actual consumption/restricted endpoints. A pilot-only `assay_not_ready` result
+establishes no Full/Empty or M/C benefit; historical 0.4.2 records remain unchanged.

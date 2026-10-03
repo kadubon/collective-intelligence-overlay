@@ -1,0 +1,76 @@
+{
+  "selected": {
+    "sql": "S1",
+    "calibration": "K1",
+    "composition": "F0"
+  },
+  "screen": {
+    "sql": {
+      "S1": {
+        "passed": 0,
+        "offered": 4,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.6023646356164746
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+      },
+      "S2": {
+        "passed": 0,
+        "offered": 4,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.6023646356164746
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+      }
+    },
+    "calibration": {
+      "K1": {
+        "passed": 0,
+        "offered": 4,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.6023646356164746
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+      },
+      "K2": {
+        "passed": 0,
+        "offered": 4,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.6023646356164746
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+      }
+    },
+    "composition": {
+      "F0": {
+        "passed": 0,
+        "offered": 4,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.6023646356164746
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+      },
+      "F1": {
+        "passed": 0,
+        "offered": 4,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.6023646356164746
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+      }
+    }
+  },
+  "selection_inputs": "ordinary-M scratch quality only; closest to 0.5, declared ascending tie order"
+}

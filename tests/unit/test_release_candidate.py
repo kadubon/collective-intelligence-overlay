@@ -97,7 +97,7 @@ def test_pretested_pair_requires_original_packaged_content(candidate_repository,
             module.check(candidate, hashes)
 
 
-@pytest.mark.parametrize("version", ["0.4.1", "0.4.2"])
+@pytest.mark.parametrize("version", ["0.4.1", "0.4.2", "0.4.3"])
 def test_standard_tag_reuses_its_own_trusted_complete_candidate(
     candidate_repository, monkeypatch, version
 ):
@@ -125,12 +125,13 @@ def test_standard_tag_reuses_its_own_trusted_complete_candidate(
 
 
 @pytest.mark.parametrize("failure", ["manifest", "tag-version", "trusted-run"])
+@pytest.mark.parametrize("version", ["0.4.2", "0.4.3"])
 def test_042_tag_cannot_fall_back_to_a_rebuild_after_missing_or_rejected_proof(
-    candidate_repository, monkeypatch, failure
+    candidate_repository, monkeypatch, failure, version
 ):
     module, root, _, _, _ = candidate_repository
-    (root / "pyproject.toml").write_text("[project]\nversion = '0.4.2'\n")
-    manifest = root / "docs/release-042.json"
+    (root / "pyproject.toml").write_text("[project]\nversion = '" + version + "'\n")
+    manifest = root / ("docs/release-" + version.replace(".", "") + ".json")
     manifest.parent.mkdir()
     if failure != "manifest":
         manifest.write_text(json.dumps({"candidate_run_id": "123", "source_commit": "a" * 40}))
@@ -140,7 +141,7 @@ def test_042_tag_cannot_fall_back_to_a_rebuild_after_missing_or_rejected_proof(
 
     monkeypatch.setitem(sys.modules, "release_gate", SimpleNamespace(trusted_run=reject_proof))
     monkeypatch.setenv(
-        "GITHUB_REF", "refs/tags/v0.4.1" if failure == "tag-version" else "refs/tags/v0.4.2"
+        "GITHUB_REF", "refs/tags/v0.4.1" if failure == "tag-version" else "refs/tags/v" + version
     )
     with pytest.raises(FileNotFoundError if failure == "manifest" else AssertionError):
         module.select()

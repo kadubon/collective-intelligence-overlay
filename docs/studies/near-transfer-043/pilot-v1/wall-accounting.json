@@ -1,0 +1,6 @@
+{
+  "measured_driver_wall_seconds": 1009.4369999999763,
+  "preceding_service_startup_reserved_seconds": 300,
+  "cohort_wall_charge_is_conservative_not_fully_measured": true,
+  "energy_joules": null
+}
