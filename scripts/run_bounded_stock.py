@@ -17,7 +17,8 @@ from collective_intelligence_overlay.adapters.inference_observer import write_ne
 def prepare(args):
     protocol = json.loads((args.source_run / "protocol.json").read_bytes())
     summary = json.loads((args.source_run / "pilot-summary.json").read_bytes())
-    budget = json.loads((args.source_run / "resources.json").read_bytes())
+    previous_run = args.previous_run or args.source_run
+    budget = json.loads((previous_run / "resources.json").read_bytes())
     selected = {}
     for family in ("sql", "composition"):
         source = next(
@@ -27,18 +28,20 @@ def prepare(args):
         )
         selected[family] = {**source, "offer_sha256": sha(args.source_run / source["file"])}
     protocol.update(
-        id="cio-044-bounded-scratch-G3-v2",
+        id="cio-044-bounded-scratch-G3-v3",
         registered_at=datetime.now(UTC).isoformat(),
         sources=sources(),
         source_run=args.source_run.resolve().relative_to(ROOT).as_posix(),
         source_protocol_sha256=sha(args.source_run / "protocol.json"),
         source_resources_sha256=sha(args.source_run / "resources.json"),
+        previous_run=previous_run.resolve().relative_to(ROOT).as_posix(),
+        previous_resources_sha256=sha(previous_run / "resources.json"),
         source_offers=selected,
         previous_resources=budget,
         previous_finished_at=datetime.now(UTC).isoformat(),
         pilot_max_requests=budget["model_calls"] + 8,
         revision_scope=(
-            "G3 home namespace isolation and real receiver restart; "
+            "G3 home namespace isolation, real receiver restart and fresh execution IDs; "
             "task/compiler/options and original G1 scores unchanged"
         ),
         confirmation_authorized=False,
@@ -50,8 +53,13 @@ def prepare(args):
 async def run(args):
     protocol = json.loads(args.protocol.read_bytes())
     proof = registration(args.protocol, protocol, args.prereg_commit)
-    if sha(args.source_run / "protocol.json") != protocol["source_protocol_sha256"] or (
-        sha(args.source_run / "resources.json") != protocol["source_resources_sha256"]
+    if (
+        sha(args.source_run / "protocol.json") != protocol["source_protocol_sha256"]
+        or (sha(args.source_run / "resources.json") != protocol["source_resources_sha256"])
+        or (
+            sha(ROOT / protocol["previous_run"] / "resources.json")
+            != protocol["previous_resources_sha256"]
+        )
     ):
         raise ValueError("original calibration or global accounting changed")
     args.output.mkdir(parents=True, exist_ok=False)
@@ -156,6 +164,7 @@ def main():
     p.add_argument("operation", choices=("prepare", "run"))
     p.add_argument("--protocol", type=Path, required=True)
     p.add_argument("--source-run", type=Path, required=True)
+    p.add_argument("--previous-run", type=Path)
     p.add_argument("--output", type=Path)
     p.add_argument("--home", type=Path)
     p.add_argument("--prereg-commit")

@@ -390,7 +390,16 @@ class StudySession:
             await self.sync(owner, "verifier")
 
     async def check_constructed(
-        self, peer, offer, problem, solution, identifier, *, copied, source_skill=None
+        self,
+        peer,
+        offer,
+        problem,
+        solution,
+        identifier,
+        *,
+        copied,
+        source_skill=None,
+        execution_identifier=None,
     ):
         await self.maintain_sources(peer, ("verifier",))
         built = await self.call(
@@ -432,7 +441,7 @@ class StudySession:
             executed = await self.call(
                 peer,
                 operation="app.execute",
-                id=identifier,
+                id=execution_identifier or identifier,
                 name=binding.id,
                 purpose="reuse" if self.arm in {"C", "I", "A"} else "verification",
                 problem=problem.model_dump(mode="json"),

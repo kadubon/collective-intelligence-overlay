@@ -271,6 +271,69 @@ def test_G3_private_namespace_is_distinct_from_calibration_and_other_arm(tmp_pat
     assert plan[3].contract == w.problem("sql", "L1", "qualify/public").contract
 
 
+async def test_restart_reuses_binding_with_fresh_execution_id():
+    from collective_intelligence_overlay.bindings import Binding, Target
+    from collective_intelligence_overlay.models import Scope, Subject
+
+    world = World(944110, "screen-L1-sql")
+    problem = world.problem("sql", "L1", "restart-qualify/public")
+    binding = Binding(
+        binding_schema="2",
+        artifact_digest="a" * 64,
+        id="persisted-plan",
+        revision="a" * 24,
+        issuer="receiver",
+        registrar="receiver",
+        subject=Subject(id="plan", version="1", digest="a" * 64),
+        target=Target(
+            kind="local",
+            name="plan",
+            interface_digest="b" * 64,
+            implementation_identity="installed",
+        ),
+        scope=Scope(
+            task=problem.contract,
+            input_contract="problem.v1",
+            output_contract="output.v1",
+            environment={"runtime": "unit-test"},
+        ),
+        input_schema={"type": "object"},
+        output_schema={"type": "object"},
+        callers=("receiver",),
+        effects="read-only",
+    )
+    requests = []
+
+    async def call(destination, **request):
+        requests.append(request)
+        if request["operation"] == "app.construct":
+            assert request["id"] == "qualify"
+            return {"state": "constructed", "binding": binding.model_dump(mode="json")}
+        if request["operation"] == "app.check":
+            return {"verdict": "PASS"}
+        assert request["id"] == "restart-qualify"
+        assert request["name"] == binding.id
+        return {"state": "completed"}
+
+    async def maintain(*args):
+        pass
+
+    study = StudySession.__new__(StudySession)
+    study.call, study.maintain_sources = call, maintain
+    study.arm, study.protocol = "M", {}
+    result = await study.check_constructed(
+        "receiver",
+        "restart-qualify",
+        problem,
+        world.oracle(problem),
+        "qualify",
+        copied=True,
+        execution_identifier="restart-qualify",
+    )
+    assert result["succeeded"]
+    assert [r["operation"] for r in requests] == ["app.construct", "app.check", "app.execute"]
+
+
 @pytest.mark.parametrize("case", ["PASS", "FAIL", "invalid", "timeout", "usage_missing"])
 async def test_new_wire_original_bytes_and_adverse_observations_share_offline_reader(
     case, tmp_path

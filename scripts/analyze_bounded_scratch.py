@@ -30,8 +30,15 @@ from collective_intelligence_overlay.adapters.inference_observer import write_ne
 
 async def verify_run(directory):
     protocol = read(directory / "protocol.json")
-    stock_only = protocol["id"] == "cio-044-bounded-scratch-G3-v2"
-    if protocol["id"] not in {"cio-044-bounded-scratch-v1", "cio-044-bounded-scratch-G3-v2"}:
+    stock_only = protocol["id"] in {
+        "cio-044-bounded-scratch-G3-v2",
+        "cio-044-bounded-scratch-G3-v3",
+    }
+    if protocol["id"] not in {
+        "cio-044-bounded-scratch-v1",
+        "cio-044-bounded-scratch-G3-v2",
+        "cio-044-bounded-scratch-G3-v3",
+    }:
         raise ValueError("wrong study schema; old and new assays are not interchangeable")
     for name, digest in protocol["sources"].items():
         if sha(directory / "source-snapshot" / name) != digest:

@@ -407,6 +407,7 @@ async def stock_diagnosis(args, protocol, cap, server, source, *, source_root=No
                     "qualify",
                     copied=True,
                     source_skill=qualified_skill,
+                    execution_identifier="restart-qualify",
                 )
             result["restart"] = {
                 "old_pid": old_pid,
