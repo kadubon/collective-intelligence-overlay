@@ -6,7 +6,7 @@ import csv
 import json
 from pathlib import Path
 
-from accumulation_primitives import Problem, Solution, bounded_execute
+from accumulation_primitives import Problem, Solution, factory
 from accumulation_tasks import compare
 from check_gemma_transport import (
     check_model_attempt,
@@ -23,6 +23,37 @@ from verify_gemma_accumulation import read, records
 from collective_intelligence_overlay.adapters.inference_observer import write_new
 
 
+def check_transcript(value, world, artifacts, expected_problems=None):
+    checked = value["check"]
+    original = json.loads(artifacts["verifier", checked["artifact_digest"]])
+    transcripts = original["transcripts"]
+    if expected_problems is not None and [t["case"]["problem"] for t in transcripts] != [
+        p.model_dump(mode="json") for p in expected_problems
+    ]:
+        raise ValueError("independent checker inputs differ from planned forms")
+    failures = set()
+    for item in transcripts:
+        problem = Problem.model_validate(item["case"]["problem"])
+        if item["case"]["expected"] != world.expected(problem):
+            raise ValueError("checker expected output differs from independent generator")
+        observed = item["observed"]
+        passed = observed.get("state") == "completed" and compare(
+            observed.get("result"), world.expected(problem)
+        )
+        if item["passed"] != passed:
+            raise ValueError("checker transcript quality changed")
+        if not passed:
+            if observed.get("state") != "completed":
+                failures.add("execution_incomplete_or_unknown")
+            elif isinstance(observed.get("result"), dict) and observed["result"].get(
+                "program_error"
+            ):
+                failures.add("program_" + observed["result"]["program_error"])
+            else:
+                failures.add("semantic_mismatch")
+    return failures
+
+
 async def verify_run(directory):
     protocol = read(directory / "protocol.json")
     for name, digest in protocol["sources"].items():
@@ -31,7 +62,7 @@ async def verify_run(directory):
     offers, attempts, sent, normal, measured, charged, missing = [], 0, 0, 0, 0, 0, 0
     reference = []
     for session in sorted(directory.glob("world-043-*")):
-        signed, _, states, artifacts = records(session, new_receiver=True)
+        signed, states, artifacts = records(session, new_receiver=True)
         world_info = read(session / "initial-stock.json")
         # The stage/seed are recovered from the fixed protocol, not inferred from output.
         candidates = [
@@ -40,6 +71,9 @@ async def verify_run(directory):
         world = next(w for w in candidates if w.id == world_info["world"])
         for path in sorted(session.glob("offers/*/result.json")):
             offer = read(path)
+            event = signed["event", offer["peer"], "offer-observation-" + offer["id"]]
+            if artifacts[offer["peer"], event.subject.digest] != path.read_bytes():
+                raise ValueError("offer file differs from original signed/CAS observation")
             problem = Problem.model_validate(offer["problem"])
             if offer["world"] != world.id or world_info["arm"] != offer["arm"]:
                 raise ValueError("offer world/arm identity mismatch")
@@ -55,6 +89,7 @@ async def verify_run(directory):
                     else "transfer/hidden"
                 )
                 hidden = world.problem(problem.family, problem.contract.split("-")[2], split)
+            failure_classes = set()
             for attempt in offer["attempts"]:
                 if attempt["kind"] == "model" and "model_seed" in attempt:
                     attempts += 1
@@ -69,6 +104,16 @@ async def verify_run(directory):
                         read(rawdir / "model-identity.json"), protocol, dispatched=dispatched
                     )
                     parsed = read(rawdir / "parsed.json")
+                    event = signed["event", offer["peer"], "model-" + attempt["id"]]
+                    if json.loads(artifacts[offer["peer"], event.subject.digest]) != parsed:
+                        raise ValueError(
+                            "parsed file differs from original signed model observation"
+                        )
+                    candidate_error = (attempt.get("response", {}).get("result") or {}).get(
+                        "error_type"
+                    )
+                    if candidate_error:
+                        failure_classes.add(candidate_error)
                     check_originals(rawdir, observation, parsed, offer["peer"], artifacts)
                     if dispatched:
                         sent += 1
@@ -111,9 +156,17 @@ async def verify_run(directory):
                         missing += 1
                         charged += reservation
                 if attempt.get("solution"):
+                    failure_classes.update(
+                        check_transcript(attempt, world, artifacts, (problem, hidden))
+                    )
                     solution = Solution.model_validate(attempt["solution"])
                     outcomes = [
-                        compare(await bounded_execute(solution, p), world.expected(p))
+                        compare(
+                            await factory(solution.model_dump(mode="json"))(
+                                {"problem": p.model_dump(mode="json")}
+                            ),
+                            world.expected(p),
+                        )
                         for p in (problem, hidden)
                     ]
                     passed = all(outcomes)
@@ -132,11 +185,29 @@ async def verify_run(directory):
                 "level": problem.contract.split("-")[2],
                 "offer": offer["id"],
                 "succeeded": offer["succeeded"],
+                "failure_classes": "|".join(sorted(failure_classes)),
                 **restricted_endpoint(offer, protocol),
+                "prefix_Q_half_time": int(
+                    any(
+                        a.get("succeeded")
+                        and a["endpoint_wall_seconds"] <= protocol["endpoint_time_seconds"] / 2
+                        and a["endpoint_charged_tokens"] <= protocol["endpoint_token_horizon"]
+                        for a in offer["attempts"]
+                    )
+                ),
+                "prefix_Q_half_tokens": int(
+                    any(
+                        a.get("succeeded")
+                        and a["endpoint_charged_tokens"] <= protocol["endpoint_token_horizon"] / 2
+                        and a["endpoint_wall_seconds"] <= protocol["endpoint_time_seconds"]
+                        for a in offer["attempts"]
+                    )
+                ),
             }
             offers.append(row)
         for path in session.glob("*-reference.json"):
             value = read(path)
+            check_transcript(value, world, artifacts)
             reference.append({"succeeded": value["succeeded"]})
     resource = read(directory / "resources.json")
     if (attempts, measured, charged, missing) != (
@@ -150,7 +221,17 @@ async def verify_run(directory):
     if selection != read(directory / "selection.json"):
         raise ValueError("difficulty selection changed")
     raw_summary = read(directory / "pilot-summary.json")
-    stock_ready = raw_summary["gate"]["natural_stock_reaches_retrieval_and_execution"]
+    natural = [read(path) for path in directory.glob("*/natural-stock-validation.json")]
+    stock_ready = len(natural) == 2 and all(
+        len(n["transfer"]) == 2
+        and all(
+            t["succeeded"] and t["copied_executable"] and t["generation_calls"] == 0
+            for t in n["transfer"]
+        )
+        for n in natural
+    )
+    if any(any(p["returncode"] is None for p in n["providers_absent"].values()) for n in natural):
+        raise ValueError("providers absent claim lacks physical stop observation")
     gate = entrance_gate(
         [r for r in offers if r["stage"] == "locked-validation"],
         reference,
@@ -180,6 +261,7 @@ async def verify_run(directory):
             "family denominators",
         ],
         "scope": "byte/contract consistency, not proof against a malicious experiment operator",
+        "reader_sha256": sha(Path(__file__)),
     }
 
 

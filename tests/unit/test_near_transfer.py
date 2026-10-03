@@ -181,3 +181,41 @@ def test_source_change_prevents_another_generation(tmp_path):
     assert cap.calls == 0
     cap.end_offer()
     cap.close()
+
+
+def test_offline_invalid_program_stays_a_failed_offer_and_hidden_forms_cannot_change():
+    from analyze_near_transfer import check_transcript
+
+    world = World(943203, "locked-validation")
+    public = world.problem("sql", "S1", "public")
+    hidden = world.problem("sql", "S1", "independent")
+    transcript = {
+        "transcripts": [
+            {
+                "case": {"problem": p.model_dump(mode="json"), "expected": world.expected(p)},
+                "observed": {"state": "completed", "result": {"program_error": "ValueError"}},
+                "passed": False,
+            }
+            for p in (public, hidden)
+        ]
+    }
+    artifacts = {("verifier", "a" * 64): json.dumps(transcript).encode()}
+    value = {"check": {"artifact_digest": "a" * 64}}
+    assert check_transcript(value, world, artifacts, (public, hidden)) == {"program_ValueError"}
+    with pytest.raises(ValueError, match="planned forms"):
+        check_transcript(value, world, artifacts, (public, public))
+
+
+def test_empty_views_preserve_model_input_for_each_new_family():
+    from accumulation_stock import Snapshot, retrieve
+
+    world = World(943400, "confirmation")
+    for family, level in (("sql", "S1"), ("calibration", "K1"), ("composition", "F0")):
+        problem = world.problem(family, level, "near/public")
+        prompts = []
+        for arm in ("M", "C"):
+            snapshot = Snapshot(world=world.id, arm=arm, checkpoint=4, skills=())
+            for view in ("full", "empty"):
+                visible = retrieve(snapshot, problem, "newreceiver", view=view, revision="2")
+                prompts.append(model_prompt(problem, visible))
+        assert len(set(prompts)) == 1

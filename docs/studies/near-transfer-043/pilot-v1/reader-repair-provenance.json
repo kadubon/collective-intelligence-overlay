@@ -1,0 +1,23 @@
+{
+  "preserved_original_reader_sha256": "ea5cd9cdc000dbf16b14141a944dd79cadd59370d9c0ac218f675ca305313eb4",
+  "reader_failures": [
+    {
+      "stage": "offline-v1",
+      "error": "ValueError: records() returns three values, not four",
+      "inference_repeated": false
+    },
+    {
+      "stage": "offline-v2",
+      "error": "ValueError: invalid generated SQL must be classified by the installed factory, not escape the offline reader",
+      "inference_repeated": false
+    }
+  ],
+  "passed_offline_versions": [
+    "v3",
+    "v4",
+    "v5"
+  ],
+  "endpoint_or_denominator_changes": false,
+  "raw_regenerated": false,
+  "captured_at": "2026-10-03T17:22:19.679216+00:00"
+}

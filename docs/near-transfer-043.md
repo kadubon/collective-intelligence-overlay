@@ -33,14 +33,20 @@ For a prepared local checkout, install its frozen dependencies and the declared
 wheel into a noneditable environment; provide an owned PostgreSQL connection,
 OPA and Caddy through `CIO_TEST_DATABASE_URL`, `CIO_OPA`, `CIO_CADDY`. The ordinary
 production setup and service requirements are in [deployment](deployment.md).
+Obtain the declared 0.4.2 wheel from its
+[immutable Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.2)
+and retain it at the path passed to `--wheel`. Its SHA256 must be
+`5d1ce6292a6519db8fc157cf9e34d277465c3380f76ed2a92a3b768bd9fac804`;
+install that exact file with the frozen dependencies, rather than the editable
+0.4.3 checkout. Preparation records and later validates the file and installed bytes.
 These are the actual study commands, using that environment's Python:
 
 ```powershell
-python scripts/run_near_transfer.py prepare --protocol docs/studies/near-transfer-043/pilot-v1-protocol.json
+python scripts/run_near_transfer.py prepare --protocol docs/studies/near-transfer-043/new-protocol.json --wheel .local/runtime/collective_intelligence_overlay-0.4.2-py3-none-any.whl
 # Commit and push the protocol and its sources before generation.
-python scripts/run_near_transfer.py pilot --protocol docs/studies/near-transfer-043/pilot-v1-protocol.json --prereg-commit COMMIT --output .local/near-transfer-043-pilot-v1 --home .local/private-near-transfer-043-pilot-v1
-python scripts/analyze_near_transfer.py --run .local/near-transfer-043-pilot-v1 --output .local/near-transfer-043-offline-v1
-python scripts/prepare_gemma_public.py --source .local/near-transfer-043-pilot-v1 --output .local/near-transfer-043-public-v1
+python scripts/run_near_transfer.py pilot --protocol docs/studies/near-transfer-043/new-protocol.json --prereg-commit COMMIT --output .local/near-transfer-043-pilot-new --home .local/private-near-transfer-043-pilot-new
+python scripts/analyze_near_transfer.py --run .local/near-transfer-043-pilot-new --output .local/near-transfer-043-offline-new
+python scripts/prepare_gemma_public.py --source .local/near-transfer-043-pilot-new --output .local/near-transfer-043-public-new
 ```
 
 Outputs are exclusive: a changed source, existing output or uncertain prior request

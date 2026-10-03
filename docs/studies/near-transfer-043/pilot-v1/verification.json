@@ -1,0 +1,88 @@
+{
+  "classification": "offline_raw_verification",
+  "source_files": 106,
+  "generation_attempts": 54,
+  "sent": 54,
+  "normal": 54,
+  "measured_tokens": 26256,
+  "charged_tokens": 26256,
+  "missing_usage_requests": 0,
+  "gate": {
+    "status": "assay_not_ready",
+    "families": {
+      "sql": {
+        "passed": 0,
+        "offered": 6,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.4592581264399005
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.3,
+          0.7
+        ],
+        "ready": false
+      },
+      "calibration": {
+        "passed": 1,
+        "offered": 6,
+        "rate": 0.16666666666666666,
+        "exact_binomial_95_interval": [
+          0.0042107445144894725,
+          0.6412345789976748
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.3,
+          0.7
+        ],
+        "ready": false
+      },
+      "composition": {
+        "passed": 0,
+        "offered": 6,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.4592581264399005
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.2,
+          0.8
+        ],
+        "ready": false
+      }
+    },
+    "reference": {
+      "passed": 42,
+      "offered": 42,
+      "rate": 1.0,
+      "exact_binomial_95_interval": [
+        0.9159161450596449,
+        1.0
+      ],
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "completion": {
+      "normal": 54,
+      "sent": 54,
+      "rate": 1.0
+    },
+    "natural_stock_reaches_retrieval_and_execution": false,
+    "confirmation_authorized": false,
+    "confirmation_started": false
+  },
+  "checks": [
+    "source identity",
+    "DSSE signatures/CAS hashes",
+    "exact requests/native responses",
+    "independent sandbox/Decimal task quality",
+    "all-offered endpoints",
+    "family denominators"
+  ],
+  "scope": "byte/contract consistency, not proof against a malicious experiment operator",
+  "reader_sha256": "7d39e18c7b036f39a8cd37a4095beba50a9fdd1d3ea3a360a84af44af82fdd8c"
+}

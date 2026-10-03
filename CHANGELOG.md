@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.3 (2026-10-04)
+
+- Add a bounded, preregistered sensitivity pilot with separate SQL, numerical
+  calibration and formation levels, short executable schemas, independent controls,
+  a serial all-stage request/token/wall ledger and offline restricted endpoints.
+- Preserve all 54 actual Gemma4:e4b CPU requests and 26,256 measured/charged tokens.
+  Locked SQL/calibration/formation were 0/6, 1/6 and 0/6; natural M/C stock stayed
+  empty. The assay is not ready, and no confirmation or benefit estimate is claimed.
+  Retain reader failures and repairs separately without regenerating raw or inference.
+- Keep the package runtime byte-for-byte unchanged from 0.4.2. Extend the existing
+  version-aware native profile and hash-bound publication selector to 0.4.3, and
+  check the new scientific derivatives in hosted CI without model inference.
+  Publication status is recorded separately in `docs/releasing.md`.
+
 ## 0.4.2 (2026-10-04)
 
 - Publish the unchanged native/study candidate through the standard tag/OIDC

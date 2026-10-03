@@ -24,5 +24,19 @@ passed all 86 package-file checks and actual M/C reference controls, 6/6 with ze
 generation requests, over owned PostgreSQL, OPA, TLS/A2A and the registered builder.
 The failed preflight and original bytes remain locally retained.
 
-The [new methods](near-transfer-043.md) and pushed pilot protocol govern new
-inference. Pilot and confirmation results are pending; v0.4.3 is not yet published.
+The [new methods](near-transfer-043.md) governed 54 real requests. The
+[English](studies/near-transfer-043/pilot-v1/report.en.md) and
+[Japanese](studies/near-transfer-043/pilot-v1/report.ja.md) reports retain all results.
+Locked S1/K1/F0 were 0/6, 1/6, 0/6: `assay_not_ready`, confirmation not performed.
+Usage was 26256 measured/charged tokens, zero missing; driver wall 1009.437 seconds
+plus a separate conservative startup reservation. Reader failures and repairs are
+separate; no inference was repeated. Final native validation/publication are pending.
+
+Targeted real-service regressions passed 20 cases with one skipped because Windows
+had no pg_dump/pg_restore prefix. That exact missing case subsequently passed using
+the WSL PostgreSQL tools: 21 distinct cases covered, without relabelling the skip.
+Final affected unit tests passed 59 cases; lint/format, mypy, documentation and
+scientific derivative checks passed. The public raw copy's verification equals the
+private original's final offline result, with 953 mapped files and two explicitly
+redacted unsigned metadata files. Signed records, model responses and CAS bytes
+were not changed. Owned model, observer and PostgreSQL processes physically stopped.

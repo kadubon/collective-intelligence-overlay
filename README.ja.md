@@ -1,5 +1,11 @@
 # Collective Intelligence Overlay
 
+別protocolの[v0.4.3感度pilot](docs/near-transfer-043.md)は完了しました。
+locked SQL/calibration/formationは0/6・1/6・0/6でゲートを満たさず、confirmationは
+未実施です。[全結果](docs/studies/near-transfer-043/pilot-v1/report.ja.md)に失敗、実消費、
+restricted endpointを保持しています。Full/Empty差、C/M追加価値、形成改善は
+未推定です。旧v0.4.2結果は保持しています。
+
 agent同士で、証拠と利用条件を付けてtoolや手順を共有するPython packageです。
 例えば、あるagentが文書workflowを提供し、別のcheckerが検査します。受け手は、
 その版が自分のデータと権限に合うか判断します。各参加者は自分の鍵・DB・policy・
@@ -12,7 +18,7 @@ hostとDBの管理者を信頼する構成です。
 
 [English](README.md) · [Tutorial](docs/quickstart.md) · [API・CLI](docs/api.md)
 
-この手順は**0.4.2**を対象にしています。実際の公開状態、candidateのhash、検証状況は
+この手順は**0.4.3**を対象にしています。実際の公開状態、candidateのhash、検証状況は
 [公開記録](docs/releasing.md)、測定範囲は[0.4.1監査・Gemma実験](docs/gemma-041.md)
 で確認してください。[0.4.0本番profile](docs/production-040.md)は過去の証拠として保持します。
 0.4.1は[PyPI](https://pypi.org/project/collective-intelligence-overlay/0.4.1/)公開済みです。
@@ -50,7 +56,7 @@ CPython 3.12.14・3.13.15・3.14.7と、Linux x86_64、Windows x86_64、native m
 ```sh
 uv venv --python 3.12.14 .venv
 . .venv/bin/activate
-uv pip install 'collective-intelligence-overlay[agents]==0.4.2'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.3'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa
 ```
@@ -60,7 +66,7 @@ Windows PowerShellでは次を実行します。
 ```powershell
 uv venv --python 3.12.14 .venv
 . .venv/Scripts/Activate.ps1
-uv pip install 'collective-intelligence-overlay[agents]==0.4.2'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.3'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```

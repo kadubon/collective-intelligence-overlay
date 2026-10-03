@@ -29,3 +29,8 @@ Keep the skill alongside this repository when
 using its relative references. Its `name`/`description` frontmatter and repository
 location follow the [official skill documentation](https://learn.chatgpt.com/docs/build-skills),
 checked on 2026-09-28. No plugin or paid model is required to read these instructions.
+
+The separate [v0.4.3 pilot](docs/near-transfer-043.md) requires family-specific
+locked sensitivity gates. Its [pilot-only result](docs/studies/near-transfer-043/pilot-v1/report.en.md)
+does not establish Full/Empty or C/M benefit. Preserve original requests, failed
+offers, restricted endpoints and actual consumption separately.

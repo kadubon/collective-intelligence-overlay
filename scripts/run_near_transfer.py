@@ -42,14 +42,17 @@ def sources():
     }
 
 
-def prepare(path):
-    wheel = (
+def prepare(path, wheel=None):
+    wheel = wheel or (
         ROOT
         / ".local/full-042-37126141569-original-v1/candidate/dist"
         / "collective_intelligence_overlay-0.4.2-py3-none-any.whl"
     )
     if not wheel.exists():
         wheel = wheel.parent.parent / wheel.name
+    wheel = wheel.resolve()
+    if not wheel.is_relative_to(ROOT) or not wheel.is_file():
+        raise ValueError("provide the exact published 0.4.2 wheel within this checkout")
     import zipfile
 
     with zipfile.ZipFile(wheel) as z:
@@ -591,9 +594,12 @@ def main():
     p.add_argument("--output", type=Path)
     p.add_argument("--home", type=Path)
     p.add_argument("--prereg-commit")
+    p.add_argument(
+        "--wheel", type=Path, help="exact 0.4.2 noneditable runtime wheel for preparation"
+    )
     args = p.parse_args()
     if args.operation == "prepare":
-        prepare(args.protocol)
+        prepare(args.protocol, args.wheel)
         return 0
     if not all((args.output, args.home, args.prereg_commit)):
         p.error("pilot needs --output --home --prereg-commit")

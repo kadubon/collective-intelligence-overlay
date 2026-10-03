@@ -67,7 +67,7 @@ def select():
         "pretested_full": "false",
         "release_manifest": "docs/release-" + version.replace(".", "") + ".json",
     }
-    if ref in {"refs/tags/v0.4.1", "refs/tags/v0.4.2"}:
+    if ref in {"refs/tags/v0.4.1", "refs/tags/v0.4.2", "refs/tags/v0.4.3"}:
         from release_gate import trusted_run
 
         assert ref == "refs/tags/v" + version
@@ -120,7 +120,7 @@ if __name__ == "__main__":
             else None
         )
         ref = os.environ.get("GITHUB_REF")
-        if ref in {"refs/tags/v0.4.1", "refs/tags/v0.4.2"}:
+        if ref in {"refs/tags/v0.4.1", "refs/tags/v0.4.2", "refs/tags/v0.4.3"}:
             version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
             assert ref == "refs/tags/v" + version
             manifest = ROOT / ("docs/release-" + version.replace(".", "") + ".json")

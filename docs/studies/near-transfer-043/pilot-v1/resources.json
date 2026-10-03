@@ -1,0 +1,25 @@
+{
+  "limits": {
+    "model_calls": 256,
+    "model_tokens": 400000,
+    "wall_seconds": 14400,
+    "application_actions": 12000,
+    "execution_invocations": 16000,
+    "checker_cases": 12000,
+    "retrieval_calls": 1024,
+    "model_identity_observations": 256,
+    "owner_CAS_bytes": 16777216
+  },
+  "model_calls": 54,
+  "model_identity_observations_reserved": 54,
+  "model_retrieval_calls_reserved": 54,
+  "charged_tokens": 26256,
+  "measured_tokens": 26256,
+  "missing_usage_requests": 0,
+  "application_actions": 1677,
+  "execution_invocations_reserved": 417,
+  "checker_cases_reserved": 168,
+  "retrieval_calls": 54,
+  "proven_not_sent_requests": 0,
+  "inclusive_wall_seconds": 1309.4219999999623
+}

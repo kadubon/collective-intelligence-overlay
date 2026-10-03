@@ -1,5 +1,19 @@
 # Release procedure and current state
 
+## 0.4.3 candidate: pilot only, publication pending
+
+The [new study](near-transfer-043.md) used the exact published 0.4.2 runtime and
+separately preregistered scientific sources. Its two-wave sensitivity gate failed:
+SQL 0/6, calibration 1/6, formation 0/6. No confirmation was performed. This
+scientific outcome is distinct from software validation and publication.
+
+The 0.4.3 runtime sources remain unchanged; the new scripts, reader and version
+selector receive their own checks. The final 0.4.3 candidate will run one new full
+native gate, then the standard tag selector will reuse those exact distribution
+bytes through the existing OIDC `pypi` environment. The old 0.4.2 gate does not
+attest the new scientific code. See the [audit](audit-043.md) and
+[scientific manifest](studies/near-transfer-043/scientific-manifest-v1.json).
+
 ## 0.4.2 published and verified on 2026-10-04 JST
 
 [PyPI 0.4.2](https://pypi.org/project/collective-intelligence-overlay/0.4.2/),

@@ -1,0 +1,77 @@
+{
+  "gate": {
+    "status": "assay_not_ready",
+    "families": {
+      "sql": {
+        "passed": 0,
+        "offered": 6,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.4592581264399005
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.3,
+          0.7
+        ],
+        "ready": false
+      },
+      "calibration": {
+        "passed": 1,
+        "offered": 6,
+        "rate": 0.16666666666666666,
+        "exact_binomial_95_interval": [
+          0.0042107445144894725,
+          0.6412345789976748
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.3,
+          0.7
+        ],
+        "ready": false
+      },
+      "composition": {
+        "passed": 0,
+        "offered": 6,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.4592581264399005
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.2,
+          0.8
+        ],
+        "ready": false
+      }
+    },
+    "reference": {
+      "passed": 42,
+      "offered": 42,
+      "rate": 1.0,
+      "exact_binomial_95_interval": [
+        0.9159161450596449,
+        1.0
+      ],
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "completion": {
+      "normal": 54,
+      "sent": 54,
+      "rate": 1.0
+    },
+    "natural_stock_reaches_retrieval_and_execution": false,
+    "confirmation_authorized": false,
+    "confirmation_started": false
+  },
+  "confirmation": "not_performed",
+  "H_ACC": "not_estimated",
+  "H_CIO": "not_estimated",
+  "H_FORM": "not_estimated",
+  "reason": "confirmation requires a locked family-specific sensitivity gate and a separate preregistration",
+  "maintenance_future": null,
+  "break_even": null
+}

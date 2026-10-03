@@ -1,5 +1,11 @@
 # Collective Intelligence Overlay
 
+The separate [v0.4.3 sensitivity pilot](docs/near-transfer-043.md) is complete:
+locked SQL/calibration/formation were 0/6, 1/6 and 0/6. The gate failed and confirmation
+was not performed. [All results](docs/studies/near-transfer-043/pilot-v1/report.en.md)
+retain failures, actual consumption and restricted endpoints; Full/Empty, C/M and
+formation benefits remain unestimated. Historical v0.4.2 observations are preserved.
+
 Let agents share tools and procedures with evidence and conditions for reuse.
 For example, one agent offers a document workflow, a separate checker tests it,
 and a receiver decides whether that exact version fits its data and permissions.
@@ -13,7 +19,7 @@ required. The host and database operator remain trusted.
 
 [日本語](README.ja.md) · [Tutorial](docs/quickstart.md) · [API/CLI](docs/api.md)
 
-These instructions target **0.4.2**. Check the [release records](docs/releasing.md)
+These instructions target **0.4.3**. Check the [release records](docs/releasing.md)
 for actual publication, candidate hashes and validation status. The
 [0.4.1 audit and local Gemma experiment](docs/gemma-041.md) records its measured scope;
 the [0.4.0 production profile](docs/production-040.md) remains historical evidence.
@@ -55,7 +61,7 @@ Future interpreters are not covered by those results. In a fresh directory, on L
 ```sh
 uv venv --python 3.12.14 .venv
 . .venv/bin/activate
-uv pip install 'collective-intelligence-overlay[agents]==0.4.2'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.3'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa
 ```
@@ -65,7 +71,7 @@ On Windows PowerShell:
 ```powershell
 uv venv --python 3.12.14 .venv
 . .venv/Scripts/Activate.ps1
-uv pip install 'collective-intelligence-overlay[agents]==0.4.2'
+uv pip install 'collective-intelligence-overlay[agents]==0.4.3'
 collective-intelligence-overlay --version
 collective-intelligence-overlay opa-install --target ./bin/opa.exe
 ```
