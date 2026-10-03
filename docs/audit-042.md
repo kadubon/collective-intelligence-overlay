@@ -436,3 +436,30 @@ zero performance tasks; the same seeds have no inspected confirmation outcomes.
 The earlier release manifest is preserved as
 [native gate v1](studies/accumulation-042/native-gate-v1-release-manifest.json).
 This registration must be pushed before any confirmation-v2 inference.
+
+Confirmation v2 subsequently completed all three preregistered worlds and nine
+E/M/C arms on the pushed registration commit
+`ca4f7e412349f2068c32e26ac620883045a21742`. The dedicated server and process
+observer physically stopped; cleanup-inclusive cohort wall was 34,897.687
+seconds. No confirmation outcomes were used to change the runtime, task
+generator, prompts, checker, schedule or statistical plan.
+
+The first postcompletion offline review failed because the 34,603,296-byte
+cohort aggregate exceeded the reader's 32 MiB individual-file limit. A separate
+finite 128 MiB aggregate limit preserves the 32 MiB limit on individual raw and
+signed files. The next review exposed a distinct reservation-reconciliation
+lookup omission: new-receiver qualification checks belong to the complete
+schedule but are excluded from performance offerings. Reconciliation now counts
+their actual calls against the full preregistered schedule, while retaining
+the original offered performance denominator and resource caps.
+
+Both failed review sources and errors remain preserved. The successful third
+offline review checked the original execution's 100 frozen source files and
+all original file hashes, then used separately frozen postcompletion review
+source. Only the verifier differs from the execution preregistration. All nine
+arms and 669 model observations verified with sockets blocked and zero new
+generation requests. Twenty-six focused verifier/analyzer tests passed, including
+the aggregate size boundary and new-receiver reservation regression. This is a
+postcompletion parser/accounting correction; it does not replace or rerun the
+experiment. The changed verifier and regression tests require a newly bound
+publication gate. The original preregistration gate remains separate evidence.

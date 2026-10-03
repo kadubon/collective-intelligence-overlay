@@ -43,9 +43,30 @@ from collective_intelligence_overlay.storage import projection_digest
 
 
 def read(path):
-    if path.is_symlink() or path.stat().st_size > 32 * 1024 * 1024:
+    # The cohort aggregates all arms and their resource observations. Keep a
+    # separate finite bound; individual raw and signed records retain 32 MiB.
+    limit = (128 if path.name == "cohort.json" else 32) * 1024 * 1024
+    if path.is_symlink() or path.stat().st_size > limit:
         raise ValueError("unsafe or oversized raw file")
     return json.loads(path.read_bytes())
+
+
+def reserved_executions(calls, offers):
+    # Qualification checks are real calls even though they are not performance
+    # offerings. Count their cases from the complete preregistered schedule.
+    planned = {offer.id: offer for offer in offers}
+    try:
+        cases = sum(
+            len(planned[call["request"]["offer"]].cases)
+            for call in calls
+            if call["operation"] == "app.check"
+        )
+    except KeyError as error:
+        raise ValueError("checker call lacks a preregistered offering") from error
+    executions = cases + sum(
+        call["operation"] in {"invoke", "run", "app.construct", "app.execute"} for call in calls
+    )
+    return cases, executions
 
 
 def records(directory, *, new_receiver=False):
@@ -711,13 +732,8 @@ def arm(directory, protocol, world_seed, expected_arm):
         if resources["charged_tokens"] != sum(o["charge"] for o in observed_models.values()):
             raise ValueError("whole-world model usage differs from original actual responses")
         if protocol.get("observation_binding_schema") == "2":
-            checker_cases = sum(
-                len(planned[c["request"]["offer"]].cases)
-                for c in calls
-                if c["operation"] == "app.check"
-            )
-            execution_reservations = checker_cases + sum(
-                c["operation"] in {"invoke", "run", "app.construct", "app.execute"} for c in calls
+            checker_cases, execution_reservations = reserved_executions(
+                calls, schedule(world, expected_arm, protocol)
             )
             if (
                 resources["model_calls"] != len(observed_models)

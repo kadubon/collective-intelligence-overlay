@@ -12,7 +12,41 @@ import pytest
 
 ROOT = Path(__file__).parents[2]
 sys.path.insert(0, str(ROOT / "scripts"))
-from verify_gemma_accumulation import verify_run  # noqa: E402
+from accumulation_protocol import schedule  # noqa: E402
+from accumulation_tasks import World  # noqa: E402
+from prepare_accumulation_protocol import calibration  # noqa: E402
+from verify_gemma_accumulation import read, reserved_executions, verify_run  # noqa: E402
+
+
+def test_new_receiver_qualification_is_charged_outside_performance_denominator():
+    offers = schedule(World(307191), "M", calibration("unit-reservations-no-inference"))
+    calls = [
+        {"operation": "app.check", "request": {"offer": "train-1"}},
+        {"operation": "app.check", "request": {"offer": "qualify-1"}},
+        {"operation": "app.construct"},
+        {"operation": "app.execute"},
+        {"operation": "invoke"},
+    ]
+    assert next(o for o in offers if o.id == "qualify-1").phase == "qualification"
+    assert reserved_executions(calls, offers) == (4, 7)
+    calls[1]["request"]["offer"] = "unregistered-qualification"
+    with pytest.raises(ValueError, match="checker call lacks a preregistered offering"):
+        reserved_executions(calls, offers)
+
+
+def test_large_cohort_has_separate_finite_bound_while_raw_limit_is_unchanged(tmp_path):
+    raw = b'{"arms": []}' + b" " * (33 * 1024 * 1024)
+    cohort = tmp_path / "cohort.json"
+    cohort.write_bytes(raw)
+    assert read(cohort) == {"arms": []}
+    individual = tmp_path / "arm-result.json"
+    individual.write_bytes(raw)
+    with pytest.raises(ValueError, match="unsafe or oversized raw file"):
+        read(individual)
+    with cohort.open("wb") as output:
+        output.truncate(129 * 1024 * 1024)
+    with pytest.raises(ValueError, match="unsafe or oversized raw file"):
+        read(cohort)
 
 
 @pytest.fixture
