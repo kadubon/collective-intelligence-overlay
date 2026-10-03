@@ -1,0 +1,55 @@
+{
+  "version": "0.4.2",
+  "status": "verified_candidate_and_frozen_evidence_before_publication",
+  "native_manifest": {
+    "candidate_run_id": "37126141569",
+    "source_commit": "9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2",
+    "source_tree": "3e826af5bd5ac321ac21e9284ab518a52543c459",
+    "artifacts": {
+      "collective_intelligence_overlay-0.4.2.tar.gz": "24e4b522974f194f67ebfd931178232e6fac4a2ffe2d7702945b0314db77c8c5",
+      "collective_intelligence_overlay-0.4.2-py3-none-any.whl": "5d1ce6292a6519db8fc157cf9e34d277465c3380f76ed2a92a3b768bd9fac804"
+    },
+    "gate_sha256": "3b230863b0d59a61a8b6459a248cb228061d5810eb96fe51c204071b849c1a79"
+  },
+  "native_profiles_passed": 12,
+  "cross_readers_passed": 4,
+  "mixed_python_passed": true,
+  "original_report_files_verified": 3819,
+  "archive": {
+    "asset": "cio-042-evidence-v1.zip",
+    "sha256": "c3698feb03ef32bc06fc5ad6ba25b3c1c9e7383880c8ab53aadcc07f5cd96a24",
+    "bytes": 298576015,
+    "manifested_members_verified": 38615,
+    "selected_directories": [
+      "calibration-offline-review-source-v6",
+      "calibration-v1-invalid",
+      "calibration-v2",
+      "confirmation-v1-startup-invalid-v2",
+      "development-validation-history-v2",
+      "native-cancelled-37057480373-v2",
+      "native-cancelled-37058391677-v2",
+      "native-passed-37060863123-public-metadata-v1",
+      "receiptless-ops-frozen-v7",
+      "runtime-observation-v1",
+      "smoke-v1",
+      "smoke-v2",
+      "smoke-v3",
+      "smoke-v4",
+      "native-passed-37080553755-public-metadata-v1",
+      "native-failed-37080553755-attempt1-public-metadata-v1",
+      "tutorial-installation-regression-v1",
+      "response-deadline-regression-v2",
+      "native-cancelled-37078119995-public-metadata-v1",
+      "native-failed-37071819377-public-metadata-v1",
+      "confirmation-v2",
+      "confirmation-offline-reviews-v1",
+      "native-passed-37126141569-public-metadata-v1"
+    ],
+    "archive_members_reopened_and_hash_verified": true,
+    "network_connections": 0,
+    "generation_requests": 0
+  },
+  "publication_and_actual_index_verification": "pending_at_this_immutable_snapshot",
+  "scientific_conclusion": "zero observed C-minus-M quality difference; sensitivity and precision insufficient for benefit or equivalence",
+  "new_model_inference_after_confirmation": 0
+}

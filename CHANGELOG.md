@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.4.2 (unreleased)
+## 0.4.2 (2026-10-04)
 
 - Record owner-signed acceptance and dispatch anchors atomically in the existing
   ledger. Wire version 6 preserves all earlier signed payloads and distinguishes

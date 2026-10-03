@@ -5,9 +5,40 @@ confirmation startup and the completed three-world confirmation are retained.
 All nine confirmation arms and 669 model observations have verified offline;
 one dispatched response lacks final usage and retains its upper reservation.
 The study has insufficient family sensitivity and precision to establish CIO
-benefit or equivalence. The corrected publication gate is running; raw archive
+benefit or equivalence. The corrected publication gate has passed all twelve
+native profiles, four cross readers, mixed Python and ready; its 3,819 original
+report files and unchanged candidate bytes have verified. Raw archive
 publication and actual-index verification remain outstanding. A positive model
 result is not a release condition. Later sections retain the earlier chronology.
+
+## Final publication candidate and frozen public evidence
+
+The original full run
+[37126141569](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37126141569)
+on `9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2` completed successfully. All twelve
+native profiles passed 778 source cases and 772 installed agents cases without
+failure/error/mandatory skip, together with optional-provider/rebuilt-sdist,
+physical fault, legacy upgrade, mixed-Python and four cross-native checks. The
+original gate SHA256 is
+`3b230863b0d59a61a8b6459a248cb228061d5810eb96fe51c204071b849c1a79`.
+All 3,819 original report hashes and the exact wheel/sdist match; current
+validation and packaged sources match that candidate. This postcompletion gate
+includes the corrected aggregate/qualification verifier. It is distinct from the
+preinference gate preserved in `native-gate-v2-release-manifest.json`, and did
+not produce new model observations or a new long production soak.
+
+The explicit 23 public selections passed 38,473 mapping/hash checks and the
+targeted operator-home/token/private-key marker scan. The frozen
+`cio-042-evidence-v1.zip` is 298,576,015 bytes with SHA256
+`c3698feb03ef32bc06fc5ad6ba25b3c1c9e7383880c8ab53aadcc07f5cd96a24`.
+All 38,615 manifested members were reopened and hash-verified offline. Invalid,
+failed, cancelled and successful histories remain classified separately. Native
+public metadata has distinct hashes where redacted; it does not replace the
+original trusted-run authority. This targeted scan is not a complete external
+privacy audit. See [the frozen publication snapshot](release-042-prepublication.json)
+and [actual native counts](studies/accumulation-042/native-publication-gate-v3-summary.json).
+Subsequent Release/PyPI download and installation checks will be recorded
+separately; neither this archive nor the release tag will be rewritten.
 
 ## Original 0.4.1 records
 

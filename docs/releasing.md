@@ -1,6 +1,6 @@
 # Release procedure and current state
 
-## 0.4.2 remains unpublished
+## 0.4.2 verified candidate, publication pending
 
 The standard `v0.4.2` selector requires `docs/release-042.json` with the exact
 candidate run, source commit/tree, wheel/sdist hashes and original complete gate
@@ -11,14 +11,22 @@ version-specific manifest is passed to both candidate and ready; the separate
 `publish_existing_tag` exception remains confined to the pinned 0.4.1 declaration.
 The 0.4.2 native fault profile is included in validation provenance, and installed
 wheel inspection requires migration 0022. The affected selector/proof-byte
-checks passed 37 cases locally; the final immutable candidate gate remains
-outstanding.
+checks passed 37 cases locally. The final original full gate
+[37126141569](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37126141569)
+passed all twelve native profiles, mixed Python, four cross readers and ready.
+The original 3,819 report files and unchanged wheel/sdist pair were retrieved and
+verified against the gate. Its exact source is
+`9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2`; documentation-only descendants retain
+the same packaged and validation sources. The earlier preregistration gate
+remains separately preserved and is not relabelled as this later gate.
 
-No final 0.4.2 manifest, tag, Release or PyPI publication is claimed. Current
-calibration, operational regression and representative CI status are recorded in
-[the audit](audit-042.md). After the source/protocol and exact installed wheel are
-fixed and pushed, independent confirmation remains required before the results
-are published. Negative or limited-power results are publishable; missing required
+`docs/release-042.json` now selects that authenticated final candidate. Independent
+confirmation is complete: all nine E/M/C arms and 669 dispatched model
+observations have verified offline, with zero observed C-minus-M final quality
+difference and insufficient sensitivity/precision. See [the audit](audit-042.md)
+and [bilingual study results](accumulation-042.md). Tag, Release and actual PyPI
+publication/install verification are still pending at this prepublication
+snapshot. Negative or limited-power results are publishable; missing required
 implementation, provenance or native checks are not a completed release.
 
 ## 0.4.1 published and verified on 2026-10-02

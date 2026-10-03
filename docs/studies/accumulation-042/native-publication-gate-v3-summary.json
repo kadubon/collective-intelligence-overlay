@@ -1,0 +1,577 @@
+{
+  "candidate_run_id": "37126141569",
+  "source_commit": "9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2",
+  "original_gate_sha256": "3b230863b0d59a61a8b6459a248cb228061d5810eb96fe51c204071b849c1a79",
+  "original_report_files_verified": 3819,
+  "native_profiles": [
+    {
+      "os": "Darwin",
+      "architecture": "amd64",
+      "patch": "3.12.14",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "ddfcb5d36ef2f527236d9561dadfc9f2a6f39f86939986d0e2e08e8688e1bbf7",
+      "source_runtime_original_sha256": "c434406402189c94092ae3778aa8fd91189c6e5a2ecbf51e925b00c9931dfe6c"
+    },
+    {
+      "os": "Darwin",
+      "architecture": "amd64",
+      "patch": "3.13.15",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "ae259d19115b61ad76af91c72da6412220c402c12c38773637ff64d4d4dc19fd",
+      "source_runtime_original_sha256": "b4aa1b838d19ad4b57f7077f323faa0282ee9c2868066de70c3d09f6a9050ed8"
+    },
+    {
+      "os": "Darwin",
+      "architecture": "amd64",
+      "patch": "3.14.7",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "eecae523b132940424fb804e9781747d0a76be8f981a63ee4198f4fd331c0a2d",
+      "source_runtime_original_sha256": "253d67215fde45b813cfdf328bb4611f1a5e60c3d9219fca854b8409578ed0ef"
+    },
+    {
+      "os": "Darwin",
+      "architecture": "arm64",
+      "patch": "3.12.14",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "4073c2e608ea67dafc421c4917bc185d94aa6534c854149c42f5de8e359b5d5d",
+      "source_runtime_original_sha256": "ccd112b5232d0fc9125d3c486a85e5aed7f6e7552cf062e1431203e642fdb412"
+    },
+    {
+      "os": "Darwin",
+      "architecture": "arm64",
+      "patch": "3.13.15",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "7c22628c6db1d6ef357ab9805dada0e0a3c71d4b96e2c7f7e8ea1154c44d25b6",
+      "source_runtime_original_sha256": "44651d884c81a166acd970997f402ea9d1e2f295c7bf11857dab52cdd6957b57"
+    },
+    {
+      "os": "Darwin",
+      "architecture": "arm64",
+      "patch": "3.14.7",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "f8389a57ed057519b5fa5b959bbfc101ff50ddcfa04fc141415911da4f37faa9",
+      "source_runtime_original_sha256": "518007c97e8706b23030ee7826b438119ff5699dc91044f979d54fbedf1ebf67"
+    },
+    {
+      "os": "Linux",
+      "architecture": "amd64",
+      "patch": "3.12.14",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "69157cec189c03b2752e0bb2beeb5b6c17bed9edf70f63bf907ba5bc8805b463",
+      "source_runtime_original_sha256": "3e53dc85b0e904b229f01051649a2c26fa2a136b2d34698aa7c583c000a1bf77"
+    },
+    {
+      "os": "Linux",
+      "architecture": "amd64",
+      "patch": "3.13.15",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "c57801b6d1174acb3c67a11fed666478d924ff27caa2fce4a56e4cff138c405f",
+      "source_runtime_original_sha256": "ec1395edbba6094f23ee159de5926846ea601496cfd98783f0dd77efbdfd4709"
+    },
+    {
+      "os": "Linux",
+      "architecture": "amd64",
+      "patch": "3.14.7",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "34e45a53fca5e63ade2f0fd40fff04620e1ef70d3017da359af0cf93b2023dfd",
+      "source_runtime_original_sha256": "ed9ca31f9e00d8f137577df5df6f9efedb77c99181becdb29f6c57b7b41638a7"
+    },
+    {
+      "os": "Windows",
+      "architecture": "amd64",
+      "patch": "3.12.14",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "481ecdafd25c2806a186296da9cfc12f3ae53e38999bee6bb222af3e19091bf0",
+      "source_runtime_original_sha256": "f9298941800d15474e7680ddf1b39372edfd86df0c9d7452079538c805f8b8bd"
+    },
+    {
+      "os": "Windows",
+      "architecture": "amd64",
+      "patch": "3.13.15",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "7f5214e812d0029602bb86c0c3c2601b24211c4ed0eab93cb06cdf93f76602b8",
+      "source_runtime_original_sha256": "9360324e186b6e6ddc08cb9236b716f03a2edba349a4c690717881905b9643e5"
+    },
+    {
+      "os": "Windows",
+      "architecture": "amd64",
+      "patch": "3.14.7",
+      "scope": "full",
+      "source_tests": {
+        "tests": 778,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "installed_tests": {
+        "core": {},
+        "agents": {
+          "tests": {
+            "tests": 772,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-model": {
+          "tests": {
+            "tests": 1,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          },
+          "sdist_tests": {
+            "tests": 353,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        },
+        "agents-ollama": {
+          "tests": {
+            "tests": 5,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 0
+          }
+        }
+      },
+      "package_report_original_sha256": "1d2bb813473fac2e88d02f9a764f4aafbb3bb1c1e0b866ea2f8bf360762e29af",
+      "source_runtime_original_sha256": "c79cd4b711b61393701056ca8ab2ad09f8e57978904b34d522a7886bc82e8dd8"
+    }
+  ],
+  "cross_readers_passed": 4,
+  "mixed_python_passed": true,
+  "ready_passed": true,
+  "new_model_inference": 0,
+  "new_long_production_soak": false
+}
