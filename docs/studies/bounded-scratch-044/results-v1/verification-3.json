@@ -1,0 +1,540 @@
+{
+  "verification": "passed",
+  "protocol_sha256": "4aa6ef7903499323f69e3d0ad3acc9c2002047992f2eeded4b9bcc28518c4422",
+  "reader_sha256": "581b3723d00b43f8de6f768fe1de0ecb991f4be08860e8d1012dfda11d41c5c4",
+  "offered": 8,
+  "pending": [],
+  "planned_unoffered": [
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "offer": "diagnostic-bind"
+    },
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "offer": "qualify"
+    },
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "offer": "restart-qualify"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "diagnostic-bind"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "qualify"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "restart-qualify"
+    },
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "offer": "diagnostic-bind"
+    },
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "offer": "qualify"
+    },
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "offer": "restart-qualify"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "diagnostic-bind"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "qualify"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "restart-qualify"
+    }
+  ],
+  "stock_diagnostics": [
+    {
+      "arm": "C",
+      "family": "composition",
+      "complete": true,
+      "ready": true,
+      "qualification": true,
+      "restart": true,
+      "same_artifact": true,
+      "same_binding": true,
+      "full": {
+        "succeeded": true,
+        "calls": 0,
+        "copied_executable": true
+      },
+      "empty": {
+        "succeeded": true,
+        "calls": 1,
+        "retrieval_count": 0
+      },
+      "failure_execution": null
+    },
+    {
+      "arm": "C",
+      "family": "sql",
+      "complete": true,
+      "ready": true,
+      "qualification": true,
+      "restart": true,
+      "same_artifact": true,
+      "same_binding": true,
+      "full": {
+        "succeeded": true,
+        "calls": 0,
+        "copied_executable": true
+      },
+      "empty": {
+        "succeeded": true,
+        "calls": 1,
+        "retrieval_count": 0
+      },
+      "failure_execution": null
+    },
+    {
+      "arm": "M",
+      "family": "composition",
+      "complete": true,
+      "ready": true,
+      "qualification": true,
+      "restart": true,
+      "same_artifact": true,
+      "same_binding": true,
+      "full": {
+        "succeeded": true,
+        "calls": 0,
+        "copied_executable": true
+      },
+      "empty": {
+        "succeeded": true,
+        "calls": 1,
+        "retrieval_count": 0
+      },
+      "failure_execution": null
+    },
+    {
+      "arm": "M",
+      "family": "sql",
+      "complete": true,
+      "ready": true,
+      "qualification": true,
+      "restart": true,
+      "same_artifact": true,
+      "same_binding": true,
+      "full": {
+        "succeeded": true,
+        "calls": 0,
+        "copied_executable": true
+      },
+      "empty": {
+        "succeeded": true,
+        "calls": 1,
+        "retrieval_count": 0
+      },
+      "failure_execution": null
+    }
+  ],
+  "all_offered_rows": [
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "family": "composition",
+      "level": "L1",
+      "block": null,
+      "offer": "empty",
+      "succeeded": true,
+      "file": "G3-C-composition/world-044-2831505cba5cdc09cae4-C/offers/empty/result.json",
+      "normal": true,
+      "schema": true,
+      "executable": true,
+      "stage": 0,
+      "Q": 1,
+      "restricted_time_seconds": 3.577999999979511,
+      "restricted_charged_tokens": 715,
+      "actual_wall_seconds": 4.202999999979511,
+      "actual_measured_tokens": 715,
+      "actual_charged_tokens": 715,
+      "missing_usage_requests": 0,
+      "measured_token_interval": [
+        715,
+        715
+      ],
+      "failure_horizons_are_endpoints_not_consumption": true,
+      "direct_reuse": false,
+      "stop_reason": "first_pass",
+      "arm": "C",
+      "view": "empty",
+      "study_stage": "screen-L1-composition"
+    },
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "family": "composition",
+      "level": "L1",
+      "block": null,
+      "offer": "transfer",
+      "succeeded": true,
+      "file": "G3-C-composition/world-044-2831505cba5cdc09cae4-C/offers/transfer/result.json",
+      "normal": null,
+      "schema": null,
+      "executable": true,
+      "stage": 0,
+      "Q": 1,
+      "restricted_time_seconds": 1.4689999999827705,
+      "restricted_charged_tokens": 0,
+      "actual_wall_seconds": 1.937999999965541,
+      "actual_measured_tokens": 0,
+      "actual_charged_tokens": 0,
+      "missing_usage_requests": 0,
+      "measured_token_interval": [
+        0,
+        0
+      ],
+      "failure_horizons_are_endpoints_not_consumption": true,
+      "direct_reuse": true,
+      "stop_reason": "first_pass",
+      "arm": "C",
+      "view": "full",
+      "study_stage": "screen-L1-composition"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "family": "sql",
+      "level": "L1",
+      "block": null,
+      "offer": "empty",
+      "succeeded": true,
+      "file": "G3-C-sql/world-044-cb89dba52a93b6a93027-C/offers/empty/result.json",
+      "normal": true,
+      "schema": true,
+      "executable": true,
+      "stage": 0,
+      "Q": 1,
+      "restricted_time_seconds": 3.547000000020489,
+      "restricted_charged_tokens": 562,
+      "actual_wall_seconds": 4.172000000020489,
+      "actual_measured_tokens": 562,
+      "actual_charged_tokens": 562,
+      "missing_usage_requests": 0,
+      "measured_token_interval": [
+        562,
+        562
+      ],
+      "failure_horizons_are_endpoints_not_consumption": true,
+      "direct_reuse": false,
+      "stop_reason": "first_pass",
+      "arm": "C",
+      "view": "empty",
+      "study_stage": "screen-L1-sql"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "family": "sql",
+      "level": "L1",
+      "block": null,
+      "offer": "transfer",
+      "succeeded": true,
+      "file": "G3-C-sql/world-044-cb89dba52a93b6a93027-C/offers/transfer/result.json",
+      "normal": null,
+      "schema": null,
+      "executable": true,
+      "stage": 0,
+      "Q": 1,
+      "restricted_time_seconds": 1.3589999999967404,
+      "restricted_charged_tokens": 0,
+      "actual_wall_seconds": 1.8589999999967404,
+      "actual_measured_tokens": 0,
+      "actual_charged_tokens": 0,
+      "missing_usage_requests": 0,
+      "measured_token_interval": [
+        0,
+        0
+      ],
+      "failure_horizons_are_endpoints_not_consumption": true,
+      "direct_reuse": true,
+      "stop_reason": "first_pass",
+      "arm": "C",
+      "view": "full",
+      "study_stage": "screen-L1-sql"
+    },
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "family": "composition",
+      "level": "L1",
+      "block": null,
+      "offer": "empty",
+      "succeeded": true,
+      "file": "G3-M-composition/world-044-2831505cba5cdc09cae4-M/offers/empty/result.json",
+      "normal": true,
+      "schema": true,
+      "executable": true,
+      "stage": 0,
+      "Q": 1,
+      "restricted_time_seconds": 12.063000000023749,
+      "restricted_charged_tokens": 715,
+      "actual_wall_seconds": 12.51600000000326,
+      "actual_measured_tokens": 715,
+      "actual_charged_tokens": 715,
+      "missing_usage_requests": 0,
+      "measured_token_interval": [
+        715,
+        715
+      ],
+      "failure_horizons_are_endpoints_not_consumption": true,
+      "direct_reuse": false,
+      "stop_reason": "first_pass",
+      "arm": "M",
+      "view": "empty",
+      "study_stage": "screen-L1-composition"
+    },
+    {
+      "world": "world-044-2831505cba5cdc09cae4",
+      "family": "composition",
+      "level": "L1",
+      "block": null,
+      "offer": "transfer",
+      "succeeded": true,
+      "file": "G3-M-composition/world-044-2831505cba5cdc09cae4-M/offers/transfer/result.json",
+      "normal": null,
+      "schema": null,
+      "executable": true,
+      "stage": 0,
+      "Q": 1,
+      "restricted_time_seconds": 1.3130000000237487,
+      "restricted_charged_tokens": 0,
+      "actual_wall_seconds": 1.7040000000270084,
+      "actual_measured_tokens": 0,
+      "actual_charged_tokens": 0,
+      "missing_usage_requests": 0,
+      "measured_token_interval": [
+        0,
+        0
+      ],
+      "failure_horizons_are_endpoints_not_consumption": true,
+      "direct_reuse": true,
+      "stop_reason": "first_pass",
+      "arm": "M",
+      "view": "full",
+      "study_stage": "screen-L1-composition"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "family": "sql",
+      "level": "L1",
+      "block": null,
+      "offer": "empty",
+      "succeeded": true,
+      "file": "G3-M-sql/world-044-cb89dba52a93b6a93027-M/offers/empty/result.json",
+      "normal": true,
+      "schema": true,
+      "executable": true,
+      "stage": 0,
+      "Q": 1,
+      "restricted_time_seconds": 14.702999999979511,
+      "restricted_charged_tokens": 562,
+      "actual_wall_seconds": 15.047000000020489,
+      "actual_measured_tokens": 562,
+      "actual_charged_tokens": 562,
+      "missing_usage_requests": 0,
+      "measured_token_interval": [
+        562,
+        562
+      ],
+      "failure_horizons_are_endpoints_not_consumption": true,
+      "direct_reuse": false,
+      "stop_reason": "first_pass",
+      "arm": "M",
+      "view": "empty",
+      "study_stage": "screen-L1-sql"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "family": "sql",
+      "level": "L1",
+      "block": null,
+      "offer": "transfer",
+      "succeeded": true,
+      "file": "G3-M-sql/world-044-cb89dba52a93b6a93027-M/offers/transfer/result.json",
+      "normal": null,
+      "schema": null,
+      "executable": true,
+      "stage": 0,
+      "Q": 1,
+      "restricted_time_seconds": 1.7649999999557622,
+      "restricted_charged_tokens": 0,
+      "actual_wall_seconds": 2.1719999999622814,
+      "actual_measured_tokens": 0,
+      "actual_charged_tokens": 0,
+      "missing_usage_requests": 0,
+      "measured_token_interval": [
+        0,
+        0
+      ],
+      "failure_horizons_are_endpoints_not_consumption": true,
+      "direct_reuse": true,
+      "stop_reason": "first_pass",
+      "arm": "M",
+      "view": "full",
+      "study_stage": "screen-L1-sql"
+    }
+  ],
+  "generation_calls": 4,
+  "global_generation_calls": 40,
+  "sent": 4,
+  "normal": 4,
+  "measured_tokens": 2554,
+  "charged_tokens": 2554,
+  "usage_missing": 0,
+  "RPC_phases": {
+    "setup/fixed": {
+      "calls": 544,
+      "nested_wall_seconds": 18.81200000003446
+    },
+    "qualification/fixed": {
+      "calls": 42,
+      "nested_wall_seconds": 23.547000000078697
+    },
+    "import/fixed": {
+      "calls": 14,
+      "nested_wall_seconds": 1.3910000000614673
+    },
+    "probe/online": {
+      "calls": 36,
+      "nested_wall_seconds": 43.50299999996787
+    }
+  },
+  "RPC_offer_counts": {
+    "diagnostic-bind": 14,
+    "qualify": 14,
+    "restart-qualify": 14,
+    "transfer": 14,
+    "empty": 22
+  },
+  "RPC_wall_is_nested_and_not_added_to_inclusive_wall": true,
+  "screen": {
+    "sql/L0": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "sql/L1": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "sql/L2": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "composition/L0": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "composition/L1": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "composition/L2": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    }
+  },
+  "controls": {},
+  "screen_controls": {},
+  "G0_observed_interface": false,
+  "gate": {
+    "status": "assay_not_ready",
+    "families": {
+      "sql": {
+        "passed": 0,
+        "offered": 0,
+        "rate": null,
+        "exact_binomial_95_interval": null,
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "level": null,
+        "blocks": [
+          {
+            "passed": 0,
+            "offered": 0,
+            "rate": null,
+            "exact_binomial_95_interval": null,
+            "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+          },
+          {
+            "passed": 0,
+            "offered": 0,
+            "rate": null,
+            "exact_binomial_95_interval": null,
+            "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+          }
+        ],
+        "interface_ready": false,
+        "observed_band_ready": false,
+        "above_independent_controls": false,
+        "uniform_chance_p_descriptive": null,
+        "ready": false
+      },
+      "composition": {
+        "passed": 0,
+        "offered": 0,
+        "rate": null,
+        "exact_binomial_95_interval": null,
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "level": null,
+        "blocks": [
+          {
+            "passed": 0,
+            "offered": 0,
+            "rate": null,
+            "exact_binomial_95_interval": null,
+            "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+          },
+          {
+            "passed": 0,
+            "offered": 0,
+            "rate": null,
+            "exact_binomial_95_interval": null,
+            "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+          }
+        ],
+        "interface_ready": false,
+        "observed_band_ready": false,
+        "above_independent_controls": false,
+        "uniform_chance_p_descriptive": null,
+        "ready": false
+      }
+    },
+    "G0": false,
+    "G3": true,
+    "confirmation_authorized": false,
+    "confirmation_started": false,
+    "true_probability_20_70_proved": false,
+    "inference_scope": "descriptive pilot; broad intervals, no significant intelligence claim"
+  },
+  "confirmation_started": false,
+  "contrasts": null,
+  "break_even": null,
+  "energy_joules": null,
+  "full_compute": null,
+  "future_maintenance": null
+}

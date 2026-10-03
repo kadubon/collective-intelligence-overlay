@@ -30,6 +30,13 @@ using its relative references. Its `name`/`description` frontmatter and reposito
 location follow the [official skill documentation](https://learn.chatgpt.com/docs/build-skills),
 checked on 2026-09-28. No plugin or paid model is required to read these instructions.
 
+The [v0.4.4 bounded procedure assay](docs/bounded-scratch-044.md) separates model
+semantic choices, public host constants and private checking. Its
+[observed ceiling result](docs/studies/bounded-scratch-044/results-v1/report.en.md)
+does not authorize confirmation or establish accumulation/CIO benefit. M/C stock
+transfer and restart are path diagnostics. Preserve original IDs for identical
+retries, and use distinct logical IDs for different inputs.
+
 The separate [v0.4.3 pilot](docs/near-transfer-043.md) requires family-specific
 locked sensitivity gates. Its [pilot-only result](docs/studies/near-transfer-043/pilot-v1/report.en.md)
 does not establish Full/Empty or C/M benefit. Preserve original requests, failed

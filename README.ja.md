@@ -1,10 +1,11 @@
 # Collective Intelligence Overlay
 
-別protocolの[v0.4.3感度pilot](docs/near-transfer-043.md)は完了しました。
-locked SQL/calibration/formationは0/6・1/6・0/6でゲートを満たさず、confirmationは
-未実施です。[全結果](docs/studies/near-transfer-043/pilot-v1/report.ja.md)に失敗、実消費、
-restricted endpointを保持しています。Full/Empty差、C/M追加価値、形成改善は
-未推定です。旧v0.4.2結果は保持しています。
+[v0.4.4 の有限手順 pilot](docs/bounded-scratch-044.md)では、1–3 個の意味 enum
+から SQL/MAF の実行手順を構築します。この選択・再利用の限定範囲を測定しました。
+scratch SQL は両設定 8/8、formation は 6/8・7/8 で、事前規則上の天井に達しました。
+設定を選定できず、独立 locked 検証と確認比較は未実施です。M/C の移転・再起動経路は
+4/4 で成立しましたが、蓄積効果の証拠には含めません。[全結果](docs/studies/bounded-scratch-044/results-v1/report.ja.md)
+に失敗と全費用を保持しています。[v0.4.3](docs/near-transfer-043.md)と旧結果は不変です。
 
 agent同士で、証拠と利用条件を付けてtoolや手順を共有するPython packageです。
 例えば、あるagentが文書workflowを提供し、別のcheckerが検査します。受け手は、
@@ -18,7 +19,7 @@ hostとDBの管理者を信頼する構成です。
 
 [English](README.md) · [Tutorial](docs/quickstart.md) · [API・CLI](docs/api.md)
 
-この手順は**0.4.3**を対象にしています。実際の公開状態、candidateのhash、検証状況は
+この手順は**0.4.4**を対象にしています。実際の公開状態、candidateのhash、検証状況は
 [公開記録](docs/releasing.md)、測定範囲は[0.4.1監査・Gemma実験](docs/gemma-041.md)
 で確認してください。[0.4.0本番profile](docs/production-040.md)は過去の証拠として保持します。
 0.4.1は[PyPI](https://pypi.org/project/collective-intelligence-overlay/0.4.1/)公開済みです。

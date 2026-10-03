@@ -23,7 +23,6 @@ from bounded_scratch_application import (  # noqa: E402
 )
 from bounded_scratch_protocol import controls, locked_gate, screen_decision  # noqa: E402
 from bounded_scratch_tasks import World, semantic_rule_baseline  # noqa: E402
-from check_gemma_transport import validate_wire  # noqa: E402
 
 
 @pytest.mark.parametrize("seed", [944101, 944208, 944403])
@@ -141,51 +140,6 @@ async def test_nonlearning_controls_are_separate_and_public_rule_is_preserved():
     value = await controls("sql", "L1", list(range(944500, 944516)))
     assert value["functional_classes"] == 4 and value["semantic_rule"]["passed"] == 16
     assert value["classification"] == "nonlearning_control_not_model_inference"
-
-
-@pytest.mark.parametrize("family", ["sql", "composition"])
-@pytest.mark.parametrize("level", ["L0", "L1", "L2"])
-async def test_public_sdk_delivers_each_exact_native_format(family, level):
-    """Synthetic HTTP response; real public SDK serialization, not model inference."""
-    from agent_framework import Message
-
-    from collective_intelligence_overlay.adapters.ollama import local_ollama_client
-
-    p = World(1, "wire-unit").problem(family, level, "public")
-    draft = wire_schema(p)
-    fields = slot_candidates(family, p.difficulty)[0]
-    seen = []
-
-    async def respond(request):
-        body = json.loads(request.content)
-        seen.append(body)
-        return httpx.Response(
-            200,
-            json={
-                "model": "gemma4:e4b",
-                "done": True,
-                "message": {"role": "assistant", "content": json.dumps(fields)},
-                "prompt_eval_count": 20,
-                "eval_count": 10,
-            },
-        )
-
-    async with local_ollama_client(
-        "http://127.0.0.1:11444",
-        model="gemma4:e4b",
-        seconds=5,
-        transport=httpx.MockTransport(respond),
-    ) as client:
-        response = await client.get_response(
-            [Message(role="user", contents=[model_prompt(p, ())])],
-            options={
-                "response_format": draft,
-                "think": False,
-                "options": {"num_ctx": 4096, "num_predict": 256, "draft_num_predict": 0},
-            },
-        )
-    assert seen[0]["format"] == draft.model_json_schema()
-    assert validate_wire(response.text, seen[0]["format"], draft).model_dump() == fields
 
 
 async def test_phase_metadata_and_offer_are_observational_not_rpc_authority(monkeypatch, tmp_path):

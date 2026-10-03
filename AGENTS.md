@@ -4,6 +4,17 @@ Build a thin overlay for evidence sharing and receiver-local capability admissio
 Do not build an agent runtime, workflow engine, protocol implementation or global manager.
 Use neutral reasoning and distinguish observations from claims.
 
+For v0.4.4 use the source-only finite semantic-slot assay in
+`docs/bounded-scratch-044.md`. Preserve all old raw and scores. Keep compiler
+choices separate from public host constants and private independent expectations.
+Never select settings from Full/Empty or C/M results. A ceiling/floor endpoint
+does not authorize G2 or confirmation. Same-output M/C stock is a mechanism
+diagnostic only. Preserve failed revisions, native bytes and all-stage charges;
+new execution inputs require a distinct logical ID even when binding is reused.
+The actual pilot is `assay_not_ready`; see its generated reports and audit.
+Run one final hash-bound native gate on the fixed candidate and reuse that exact
+pair at tag publication. Scientific/document-only updates do not repeat inference.
+
 For v0.4.3 use the separate finite near-transfer protocol in
 `docs/near-transfer-043.md`. Preserve 0.4.2 raw/history. Select difficulty from
 ordinary-M scratch quality only; family-specific locked sensitivity gates are

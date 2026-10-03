@@ -8,6 +8,7 @@ PROFILES = {
     "0.4.1": ("native-fault-041.json", "production-short-041-v1"),
     "0.4.2": ("native-fault-042.json", "production-short-042-v1"),
     "0.4.3": ("native-fault-043.json", "production-short-043-v1"),
+    "0.4.4": ("native-fault-044.json", "production-short-044-v1"),
 }
 
 

@@ -59,7 +59,7 @@ async def verify_run(directory):
         }
     else:
         summary = read(directory / "pilot-summary.json")
-    offered, pending, planned_unoffered, report_rows = [], [], [], []
+    offered, pending, planned_unoffered, report_rows, diagnostics = [], [], [], [], []
     model_calls = sent = normal = measured = charged = missing = 0
     rpc_phases, rpc_offer_counts = (
         defaultdict(lambda: {"calls": 0, "nested_wall_seconds": 0}),
@@ -275,14 +275,31 @@ async def verify_run(directory):
                 check_transcript(value, world, artifacts)
         if stock_only:
             diagnostic = read(session / "stock-diagnosis.json")
+            source_root = directory.parent / Path(protocol["source_run"]).name
+            source_file = source_root / diagnostic["source_offer_file"]
+            source = protocol["source_offers"][diagnostic["family"]]
+            if (
+                sha(source_root / "protocol.json") != protocol["source_protocol_sha256"]
+                or sha(source_file) != source["offer_sha256"]
+                or diagnostic["source_offer_file"] != source["file"]
+            ):
+                raise ValueError("natural stock source is not the registered original offer")
+            native_solution = next(
+                a["solution"] for a in read(source_file)["attempts"] if a["succeeded"]
+            )
             for checked in (diagnostic["qualification"], diagnostic["restart"]["check"]):
                 check_transcript(checked, world, artifacts)
+                artifact = checked["construction"]["binding"]["artifact_digest"]
+                spec = json.loads(artifacts["newreceiver", artifact])
+                if spec["parameters"] != native_solution:
+                    raise ValueError("diagnostic stock differs from the actual native candidate")
             restart = diagnostic["restart"]
             if not all(restart[k] for k in ("same_artifact", "same_binding")) or (
                 restart["old_pid"] == restart["new_pid"]
             ):
                 raise ValueError("composition was not reconstructed after receiver restart")
-            if (
+            complete = "full" in diagnostic and "empty" in diagnostic
+            if complete and (
                 not diagnostic["full"]["succeeded"]
                 or diagnostic["full"]["calls"] != 0
                 or (
@@ -290,6 +307,28 @@ async def verify_run(directory):
                 )
             ):
                 raise ValueError("Full/Empty diagnostic did not reach the declared mechanism")
+            if not complete and (
+                summary["driver_error"] is None
+                or diagnostic["restart"]["check"]["succeeded"]
+                or model_calls
+                or offered
+            ):
+                raise ValueError("incomplete diagnostic is not a retained pre-offer failure")
+            diagnostics.append(
+                {
+                    "arm": diagnostic["arm"],
+                    "family": diagnostic["family"],
+                    "complete": complete,
+                    "ready": diagnostic.get("ready", False),
+                    "qualification": diagnostic["qualification"]["succeeded"],
+                    "restart": restart["check"]["succeeded"],
+                    "same_artifact": restart["same_artifact"],
+                    "same_binding": restart["same_binding"],
+                    "full": diagnostic.get("full"),
+                    "empty": diagnostic.get("empty"),
+                    "failure_execution": None if complete else restart["check"].get("execution"),
+                }
+            )
     keyed = {r["file"]: r for r in offered}
     for section in ("smoke", "screen", "locked"):
         for original in summary[section]:
@@ -339,6 +378,7 @@ async def verify_run(directory):
         "offered": len(offered),
         "pending": pending,
         "planned_unoffered": planned_unoffered,
+        "stock_diagnostics": diagnostics,
         "all_offered_rows": report_rows,
         "generation_calls": model_calls,
         "global_generation_calls": resources["model_calls"],
@@ -382,7 +422,7 @@ async def analyze(directory, output):
     write_new(output / "analysis.json", result)
     with (output / "paired.csv").open("x", encoding="utf-8", newline="") as stream:
         rows = result["all_offered_rows"]
-        writer = csv.DictWriter(stream, fieldnames=list(rows[0]))
+        writer = csv.DictWriter(stream, fieldnames=list(rows[0]) if rows else ["world", "offer"])
         writer.writeheader()
         writer.writerows(rows)
     print(

@@ -1,0 +1,196 @@
+{
+  "verification": "passed",
+  "protocol_sha256": "054dcf7f3a3a485e4e5083bdffdc105e355e719523a59990130875db7ca6ee04",
+  "reader_sha256": "581b3723d00b43f8de6f768fe1de0ecb991f4be08860e8d1012dfda11d41c5c4",
+  "offered": 0,
+  "pending": [],
+  "planned_unoffered": [
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "diagnostic-bind"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "qualify"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "restart-qualify"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "transfer"
+    },
+    {
+      "world": "world-044-cb89dba52a93b6a93027",
+      "offer": "empty"
+    }
+  ],
+  "stock_diagnostics": [
+    {
+      "arm": "M",
+      "family": "sql",
+      "complete": false,
+      "ready": false,
+      "qualification": true,
+      "restart": false,
+      "same_artifact": true,
+      "same_binding": true,
+      "full": null,
+      "empty": null,
+      "failure_execution": {
+        "error_type": "InternalError"
+      }
+    }
+  ],
+  "all_offered_rows": [],
+  "generation_calls": 0,
+  "global_generation_calls": 36,
+  "sent": 0,
+  "normal": 0,
+  "measured_tokens": 0,
+  "charged_tokens": 0,
+  "usage_missing": 0,
+  "RPC_phases": {
+    "setup/fixed": {
+      "calls": 133,
+      "nested_wall_seconds": 4.202999999921303
+    },
+    "qualification/fixed": {
+      "calls": 9,
+      "nested_wall_seconds": 4.532000000006519
+    },
+    "import/fixed": {
+      "calls": 3,
+      "nested_wall_seconds": 0.15600000001722947
+    }
+  },
+  "RPC_offer_counts": {
+    "diagnostic-bind": 3,
+    "qualify": 3,
+    "restart-qualify": 3
+  },
+  "RPC_wall_is_nested_and_not_added_to_inclusive_wall": true,
+  "screen": {
+    "sql/L0": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "sql/L1": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "sql/L2": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "composition/L0": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "composition/L1": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "composition/L2": {
+      "passed": 0,
+      "offered": 0,
+      "rate": null,
+      "exact_binomial_95_interval": null,
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    }
+  },
+  "controls": {},
+  "screen_controls": {},
+  "G0_observed_interface": false,
+  "gate": {
+    "status": "assay_not_ready",
+    "families": {
+      "sql": {
+        "passed": 0,
+        "offered": 0,
+        "rate": null,
+        "exact_binomial_95_interval": null,
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "level": null,
+        "blocks": [
+          {
+            "passed": 0,
+            "offered": 0,
+            "rate": null,
+            "exact_binomial_95_interval": null,
+            "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+          },
+          {
+            "passed": 0,
+            "offered": 0,
+            "rate": null,
+            "exact_binomial_95_interval": null,
+            "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+          }
+        ],
+        "interface_ready": false,
+        "observed_band_ready": false,
+        "above_independent_controls": false,
+        "uniform_chance_p_descriptive": null,
+        "ready": false
+      },
+      "composition": {
+        "passed": 0,
+        "offered": 0,
+        "rate": null,
+        "exact_binomial_95_interval": null,
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "level": null,
+        "blocks": [
+          {
+            "passed": 0,
+            "offered": 0,
+            "rate": null,
+            "exact_binomial_95_interval": null,
+            "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+          },
+          {
+            "passed": 0,
+            "offered": 0,
+            "rate": null,
+            "exact_binomial_95_interval": null,
+            "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+          }
+        ],
+        "interface_ready": false,
+        "observed_band_ready": false,
+        "above_independent_controls": false,
+        "uniform_chance_p_descriptive": null,
+        "ready": false
+      }
+    },
+    "G0": false,
+    "G3": false,
+    "confirmation_authorized": false,
+    "confirmation_started": false,
+    "true_probability_20_70_proved": false,
+    "inference_scope": "descriptive pilot; broad intervals, no significant intelligence claim"
+  },
+  "confirmation_started": false,
+  "contrasts": null,
+  "break_even": null,
+  "energy_joules": null,
+  "full_compute": null,
+  "future_maintenance": null
+}

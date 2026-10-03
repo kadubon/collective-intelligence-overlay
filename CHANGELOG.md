@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.4.4 (2026-10-04)
+
+- Add source-only strict one-to-three-enum SQL/MAF builders, independent Decimal
+  witnesses, directional selection, explicit phase/offer accounting and an offline
+  signed/CAS/native-byte reader. Product runtime sources remain unchanged.
+- Preserve the old 53-failure diagnosis and all 40 new Gemma4:e4b requests,
+  28,178 measured/charged tokens and failed G3 revisions. SQL L1/L2 were 8/8;
+  formation L1/L2 were 6/8 and 7/8. Both hit the declared ceiling: no setting was
+  selected, G2/confirmation were not started, and no benefit is estimated.
+- Four M/C transfer/restart paths passed using two actual native candidates;
+  Full used zero new inference and Empty used four total scratch requests.
+  Extend the version-specific native profile and exact-pair tag selector to 0.4.4.
+  Actual publication and installation evidence are recorded in `docs/releasing.md`.
+
 ## 0.4.3 (2026-10-04)
 
 - Add a bounded, preregistered sensitivity pilot with separate SQL, numerical

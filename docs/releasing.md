@@ -1,5 +1,15 @@
 # Release procedure and current state
 
+## 0.4.4 candidate: pilot complete, publication pending
+
+The source-only [bounded semantic procedure pilot](bounded-scratch-044.md) is
+`assay_not_ready`: both families reached the prescribed ceiling, so G2 and
+confirmation were not started. All four M/C transfer/restart paths passed as
+mechanism diagnostics. [Generated results](studies/bounded-scratch-044/results-v1/report.en.md)
+and [audit](audit-044.md) retain all 40 actual requests, 28178 tokens and failed
+revisions. Published 0.4.3 evidence remains unchanged. Final 0.4.4 full native
+validation and exact-pair tag/OIDC publication have not yet completed.
+
 ## 0.4.3 published and verified on 2026-10-04 JST; pilot only
 
 [PyPI 0.4.3](https://pypi.org/project/collective-intelligence-overlay/0.4.3/),

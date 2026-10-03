@@ -5,6 +5,10 @@ SQL/MAF procedures. It does not measure unrestricted SQL programming, arbitrary
 program synthesis or general intelligence. The product core keeps its existing
 extension and local-admission contracts. No runtime dependency was added.
 
+[日本語](bounded-scratch-044.ja.md) ·
+[Actual results](studies/bounded-scratch-044/results-v1/report.en.md) ·
+[Audit](audit-044.md)
+
 ## Preserved baseline and Stage 0
 
 The checked baseline is main `1892fa59646b2c76cda05b4d9f9b854544d51f2e`.
@@ -134,6 +138,9 @@ uv run --frozen python scripts/run_bounded_scratch.py prepare --protocol docs/st
 # Commit and push the exact protocol/source before using its commit below.
 python scripts/run_bounded_scratch.py pilot --protocol docs/studies/bounded-scratch-044/pilot-v1/protocol.json --prereg-commit <pushed-sha> --output <new-run-directory> --home <new-private-home>
 python scripts/analyze_bounded_scratch.py --run <original-run-directory> --output <new-offline-analysis-directory>
+# A separate preregistered G3 repair preserves calibration and all prior resources:
+python scripts/run_bounded_stock.py prepare --protocol <new-G3-protocol> --source-run <original-pilot> --previous-run <prior-G3-run>
+# Commit/push the new source/protocol before the G3 run operation.
 ```
 
 The driver needs `CIO_TEST_DATABASE_URL`, `CIO_OPA` and `CIO_CADDY`. Model/runtime
@@ -141,3 +148,10 @@ identity is inspected locally; an existing unrelated server is not reconfigured.
 The protocol's wheel guard requires the ordinary installed runtime in a fresh
 environment. Package-only import, CLI and general overlay use remain described
 in [quickstart](quickstart.md).
+
+Actual G1 visits ended at ceiling, with no selected setting and no G2 or
+confirmation. Original G3 pre-offer home/ID conflicts and the separately pushed
+G3-v2/v3 repairs are retained. The final reader and generated reports are separately
+hash-bound; frozen original gate fields retain their original meaning. No old
+inference was regenerated and diagnostic M/C stock was not used as comparison
+stock. Native validation/publication have their own version-specific gate.

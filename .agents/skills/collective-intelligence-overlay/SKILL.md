@@ -246,3 +246,14 @@ locked sensitivity gate must pass before any confirmation. Keep the all-stage
 token/request/wall caps, uncertain reservations, failed offered worlds and separate
 actual consumption/restricted endpoints. A pilot-only `assay_not_ready` result
 establishes no Full/Empty or M/C benefit; historical 0.4.2 records remain unchanged.
+
+For v0.4.4 follow the source-only [bounded procedure methods](../../../docs/bounded-scratch-044.md)
+and [actual pilot report](../../../docs/studies/bounded-scratch-044/results-v1/report.en.md).
+The model supplies required semantic enums; the host supplies declared public
+constants, never hidden answers. Keep one serial aggregate cap and all failed
+revisions. G1 endpoint ceilings do not select a setting or authorize G2/comparison.
+Same-native-candidate M/C transfer is a mechanism diagnostic, not an effect panel.
+Persisted bindings can be reconstructed after restart; different execution inputs
+still require distinct host logical IDs. Preserve exact original bytes and
+independent receiver checks. A limited successful transfer establishes no general
+intelligence, CIO advantage or equivalence.
