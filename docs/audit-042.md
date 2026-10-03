@@ -1,9 +1,13 @@
 # 0.4.2 audit and accumulation study
 
-Status: implementation in progress; 0.4.2 is not yet published. A positive model
-result is not a release condition. Two calibration cohorts are retained: the first
-is invalid and the second is complete and verified offline. The independent
-confirmation, exact final candidate/native gate and publication remain outstanding.
+Status: 0.4.2 is not yet published. Both calibration cohorts, the invalid
+confirmation startup and the completed three-world confirmation are retained.
+All nine confirmation arms and 669 model observations have verified offline;
+one dispatched response lacks final usage and retains its upper reservation.
+The study has insufficient family sensitivity and precision to establish CIO
+benefit or equivalence. The corrected publication gate is running; raw archive
+publication and actual-index verification remain outstanding. A positive model
+result is not a release condition. Later sections retain the earlier chronology.
 
 ## Original 0.4.1 records
 

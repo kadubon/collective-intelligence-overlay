@@ -20,6 +20,11 @@
   executable memory, cold receiver reconstruction and original raw verification.
   Smoke and deterministic controls do not establish efficacy; calibration and
   independent confirmation status is in `docs/audit-042.md`.
+- Retain the completed three-world E/M/C confirmation: 669 model calls, one
+  missing final usage charged at its upper reservation, and zero observed final
+  C-minus-M quality difference. Limited precision and insensitive family strata
+  establish neither benefit nor equivalence. Preserve two failed offline reviews
+  and the bounded aggregate reader/new-receiver accounting corrections separately.
 
 ## 0.4.1 (2026-10-02)
 

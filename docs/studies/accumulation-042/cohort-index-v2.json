@@ -1,0 +1,229 @@
+{
+  "classification": "observed_cohort_inventory_after_confirmation_before_publication",
+  "calibration_cohort_limit": 2,
+  "third_calibration_performed": false,
+  "confirmation": "completed_verified_offline_assay_insensitive_limited_power",
+  "cohorts": [
+    {
+      "archive_directory": "smoke-v1",
+      "protocol_id": "cio-042-accumulation-smoke-v1",
+      "original_classification": "smoke",
+      "status": "infrastructure_invalid_before_inference",
+      "protocol_sha256": "10e7221dbec15180d33ff844f29430120b603e57ca7b30226ac7574d47ad7b46",
+      "world_seeds": [
+        982317
+      ],
+      "arms": [
+        "E"
+      ],
+      "original_model_observations": 0,
+      "observed_transport_dispatch_started": 0,
+      "recorded_measured_tokens": 0,
+      "recorded_charged_tokens": 0,
+      "complete_response_observations": 0,
+      "completed_arm_exports": 1,
+      "counts_of_invalid_or_smoke_records_are_inventory_not_performance": true,
+      "public_raw_copy": "prepared_offline_not_yet_Release_asset",
+      "observations_without_token_measurement": 0,
+      "missing_usage_after_dispatch": 0,
+      "recorded_transport_not_started_observations": 0
+    },
+    {
+      "archive_directory": "smoke-v2",
+      "protocol_id": "cio-042-accumulation-smoke-v2",
+      "original_classification": "smoke",
+      "status": "connection_only_timeout_and_missing_usage",
+      "protocol_sha256": "69895a40c6ff7e18f7d056c58d38a683dfeb52a49c5c1185e53653ae25bc4789",
+      "world_seeds": [
+        982317
+      ],
+      "arms": [
+        "E"
+      ],
+      "original_model_observations": 2,
+      "observed_transport_dispatch_started": 2,
+      "recorded_measured_tokens": 489,
+      "recorded_charged_tokens": 10217,
+      "complete_response_observations": 1,
+      "completed_arm_exports": 1,
+      "counts_of_invalid_or_smoke_records_are_inventory_not_performance": true,
+      "public_raw_copy": "prepared_offline_not_yet_Release_asset",
+      "observations_without_token_measurement": 1,
+      "missing_usage_after_dispatch": 1,
+      "recorded_transport_not_started_observations": 0
+    },
+    {
+      "archive_directory": "smoke-v3",
+      "protocol_id": "cio-042-accumulation-smoke-v3",
+      "original_classification": "smoke",
+      "status": "measurement_invalid_column_order",
+      "protocol_sha256": "53030f71bfad4412ac7be792f17a550dbd1971f301ed697750f9bb5ee01e42ec",
+      "world_seeds": [
+        982317
+      ],
+      "arms": [
+        "E"
+      ],
+      "original_model_observations": 2,
+      "observed_transport_dispatch_started": 2,
+      "recorded_measured_tokens": 2969,
+      "recorded_charged_tokens": 2969,
+      "complete_response_observations": 2,
+      "completed_arm_exports": 1,
+      "counts_of_invalid_or_smoke_records_are_inventory_not_performance": true,
+      "public_raw_copy": "prepared_offline_not_yet_Release_asset",
+      "observations_without_token_measurement": 0,
+      "missing_usage_after_dispatch": 0,
+      "recorded_transport_not_started_observations": 0
+    },
+    {
+      "archive_directory": "smoke-v4",
+      "protocol_id": "cio-042-accumulation-smoke-v4",
+      "original_classification": "smoke",
+      "status": "verified_connection_and_usage_only_negative_outcomes",
+      "protocol_sha256": "d3a8855e7b6612e25fd745ad462ff7219b236e6c644dcc53655b4f8b7791dfb5",
+      "world_seeds": [
+        982317
+      ],
+      "arms": [
+        "E"
+      ],
+      "original_model_observations": 2,
+      "observed_transport_dispatch_started": 2,
+      "recorded_measured_tokens": 2320,
+      "recorded_charged_tokens": 2320,
+      "complete_response_observations": 2,
+      "completed_arm_exports": 1,
+      "counts_of_invalid_or_smoke_records_are_inventory_not_performance": true,
+      "public_raw_copy": "prepared_offline_not_yet_Release_asset",
+      "observations_without_token_measurement": 0,
+      "missing_usage_after_dispatch": 0,
+      "recorded_transport_not_started_observations": 0
+    },
+    {
+      "archive_directory": "calibration-v1-invalid",
+      "protocol_id": "cio-042-accumulation-calibration-v1",
+      "original_classification": "calibration",
+      "status": "invalid_constructor_source_freshness",
+      "protocol_sha256": "6338d20d0e2cbd09ab706790ff343e3ed7c167a5d26120a6c732e662b5e829dd",
+      "world_seeds": [
+        741913,
+        598412
+      ],
+      "arms": [
+        "E",
+        "M"
+      ],
+      "original_model_observations": 208,
+      "observed_transport_dispatch_started": 17,
+      "recorded_measured_tokens": 17885,
+      "recorded_charged_tokens": 28125,
+      "complete_response_observations": 16,
+      "completed_arm_exports": 4,
+      "counts_of_invalid_or_smoke_records_are_inventory_not_performance": true,
+      "public_raw_copy": "prepared_offline_not_yet_Release_asset",
+      "observations_without_token_measurement": 192,
+      "missing_usage_after_dispatch": 1,
+      "recorded_transport_not_started_observations": 191
+    },
+    {
+      "archive_directory": "calibration-v2",
+      "protocol_id": "cio-042-accumulation-calibration-v2",
+      "original_classification": "calibration",
+      "status": "complete_verified_assay_insensitive",
+      "protocol_sha256": "890ee35832989e4fa36e590f4784b414912433612ff6c87590ce9221cfb85bcd",
+      "world_seeds": [
+        307191,
+        872131
+      ],
+      "arms": [
+        "E",
+        "M"
+      ],
+      "original_model_observations": 205,
+      "observed_transport_dispatch_started": 205,
+      "recorded_measured_tokens": 243354,
+      "recorded_charged_tokens": 243354,
+      "complete_response_observations": 205,
+      "completed_arm_exports": 4,
+      "counts_of_invalid_or_smoke_records_are_inventory_not_performance": true,
+      "public_raw_copy": "prepared_offline_not_yet_Release_asset",
+      "observations_without_token_measurement": 0,
+      "missing_usage_after_dispatch": 0,
+      "recorded_transport_not_started_observations": 0
+    },
+    {
+      "archive_directory": "confirmation-v1-startup-invalid-v2",
+      "protocol_id": "cio-042-accumulation-confirmation-v1",
+      "original_classification": "confirmation",
+      "status": "startup_invalid_before_inference_parameter_order_guard",
+      "original_model_observations": 0,
+      "observed_transport_dispatch_started": 0,
+      "offered_performance_tasks": 0,
+      "recorded_measured_tokens": 0,
+      "recorded_charged_tokens": 0,
+      "detail": "confirmation-v1-startup-invalidation.json",
+      "public_raw_copy": "prepared_offline_not_yet_Release_asset"
+    },
+    {
+      "archive_directory": "confirmation-v2",
+      "protocol_id": "cio-042-accumulation-confirmation-v2",
+      "original_classification": "confirmation",
+      "status": "complete_verified_assay_insensitive_limited_power",
+      "protocol_sha256": "16319b4376542abe159080bca1993b6153cd018a6355a920c4a0ca93d33f788c",
+      "world_seeds": [
+        427319,
+        619843,
+        953117
+      ],
+      "arms": [
+        "E",
+        "M",
+        "C"
+      ],
+      "independent_worlds": 3,
+      "completed_arm_exports": 9,
+      "offered_performance_tasks": 510,
+      "original_model_observations": 669,
+      "observed_transport_dispatch_started": 669,
+      "complete_response_observations": 668,
+      "recorded_measured_tokens": 805556,
+      "recorded_charged_tokens": 815796,
+      "missing_usage_after_dispatch": 1,
+      "recorded_transport_not_started_observations": 0,
+      "public_raw_copy": "prepared_verified_offline_not_yet_Release_asset",
+      "detailed_verified_summary": "confirmation-v2/execution-summary.json",
+      "failed_offline_reviews": 2,
+      "successful_offline_review": "postcompletion_verifier_v3",
+      "new_generations_for_offline_review": 0
+    }
+  ],
+  "independent_confirmation_worlds_planned": 3,
+  "I_A_performance_panels": "not_performed_unjudged",
+  "model_weights_republished": false,
+  "metadata_runtime_probe": {
+    "generation_requests": 0,
+    "metadata_calls": 7,
+    "classification": "metadata_only_not_calibration"
+  },
+  "installed_child_contract_probe": {
+    "generation_requests": 0,
+    "classification": "deterministic_contract_test_not_calibration"
+  },
+  "old_041_raw": {
+    "asset": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.4.1/cio-041-gemma-raw-v1.zip",
+    "sha256": "f7c6ead41ce3bab963ec159a2e5fc1462b18823d36daed601df0a8dfcf6ac921",
+    "status": "published_unchanged_reverified_offline"
+  },
+  "inventory_source": "original observation fields; invalid and smoke counts are not verified efficacy endpoints",
+  "prior_inventory_sha256": "51ece145036cf428d0e8edf162acbd37b2b8d95c0580a15d4facd68ab00e288e",
+  "all_cohorts_inventory_totals_not_pooled_efficacy": {
+    "original_model_observations": 1088,
+    "observed_transport_dispatch_started": 897,
+    "complete_response_observations": 894,
+    "recorded_measured_tokens": 1072573,
+    "recorded_charged_tokens": 1102781,
+    "missing_usage_after_dispatch": 3,
+    "recorded_transport_not_started_observations": 191
+  }
+}

@@ -1,0 +1,10 @@
+world,arm,independent_unit,Q_final_full,model_calls,model_tokens_measured,model_tokens_charged,missing_usage,inclusive_arm_wall_seconds,placebo_matched,trained_state_nonempty,original_providers_absent,process_CPU_complete,energy_joules
+world-5538e66b7247034d2516,C,world,0.16666666666666666,82,100032,100032,0,4859.0320000000065,True,True,True,,
+world-5538e66b7247034d2516,E,world,0.16666666666666666,60,72826,72826,0,3293.0779999999795,True,False,True,,
+world-5538e66b7247034d2516,M,world,0.16666666666666666,81,99661,99661,0,4287.7029999999795,True,True,True,,
+world-86f4c748ef718dc18e6e,C,world,0.16666666666666666,81,98964,98964,0,4117.438000000024,True,True,True,,
+world-86f4c748ef718dc18e6e,E,world,0.16666666666666666,60,70460,70460,0,2984.780999999959,True,False,True,,
+world-86f4c748ef718dc18e6e,M,world,0.16666666666666666,81,99168,99168,0,4098.2970000000205,True,True,True,,
+world-c82ce96fd0d2a2328994,C,world,0.16666666666666666,81,96657,96657,0,3903.734999999986,True,True,True,,
+world-c82ce96fd0d2a2328994,E,world,0.0,61,71002,71002,0,2906.5310000000172,True,False,True,,
+world-c82ce96fd0d2a2328994,M,world,0.16666666666666666,82,96786,107026,1,4433.483999999997,True,True,True,,

@@ -1,0 +1,30 @@
+{
+  "execution_protocol_id": "cio-042-accumulation-confirmation-v2",
+  "execution_preregistration_commit": "ca4f7e412349f2068c32e26ac620883045a21742",
+  "corrected_verifier_commit": "9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2",
+  "reviews": [
+    {
+      "directory": "review-v1",
+      "status": "failed",
+      "reason": "cohort exceeded original 32 MiB bound"
+    },
+    {
+      "directory": "review-v2",
+      "status": "failed",
+      "reason": "qualification reservation lookup omitted from performance schedule"
+    },
+    {
+      "directory": "review-v3",
+      "status": "passed",
+      "reason": "separately frozen postcompletion verifier; originals unchanged"
+    }
+  ],
+  "network_connections": 0,
+  "generation_requests": 0,
+  "runtime_generator_prompt_checker_schedule_statistics_changed": false,
+  "public_raw_verification_equals_original_verification": true,
+  "public_raw_analysis_equals_original_analysis": true,
+  "public_analysis_sha256": "95568abf7ca428a3b645546ad9e77dc7b56caf85a79e155b04e45330a450f0e7",
+  "public_verification_sha256": "e60601d07ad64d7e72c28d6817f13e2f4362ffce3fe528e93924e9f5780640e2",
+  "aggregate_unsigned_metadata_redactions_have_distinct_original_public_hashes": true
+}

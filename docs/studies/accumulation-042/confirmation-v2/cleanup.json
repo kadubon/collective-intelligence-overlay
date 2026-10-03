@@ -1,0 +1,9 @@
+{
+  "cleanup_wall_seconds": 0.31200000003445894,
+  "cleanup_grace_seconds": 300,
+  "inclusive_cohort_wall_including_cleanup_seconds": 34897.687000000034,
+  "owned_server_physically_stopped": true,
+  "process_observer_physically_stopped": true,
+  "errors": {},
+  "no_past_OS_reobservation_claim": true
+}

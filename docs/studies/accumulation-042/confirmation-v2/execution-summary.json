@@ -1,0 +1,309 @@
+{
+  "classification": "verified_confirmation_descriptive_summary",
+  "protocol_id": "cio-042-accumulation-confirmation-v2",
+  "world_seeds": [
+    427319,
+    619843,
+    953117
+  ],
+  "execution_preregistration_commit": "ca4f7e412349f2068c32e26ac620883045a21742",
+  "postcompletion_verifier_commit": "9cdcb6b4fef53aa0bfcdecc2d2fa5c272de37ad2",
+  "input_sha256": {
+    "analysis-v3.json": "95568abf7ca428a3b645546ad9e77dc7b56caf85a79e155b04e45330a450f0e7",
+    "verification-v3.json": "e60601d07ad64d7e72c28d6817f13e2f4362ffce3fe528e93924e9f5780640e2",
+    "protocol.json": "16319b4376542abe159080bca1993b6153cd018a6355a920c4a0ca93d33f788c",
+    "cleanup.json": "ff36ce57c475e39619f47e86be2f1f5d9e2915c9515039e69e4de235b72751ec"
+  },
+  "arms": [
+    {
+      "arm": "E",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 132,
+      "passed_all_offerings": 18,
+      "model_observations": 181,
+      "dispatched": 181,
+      "complete_response": 181,
+      "measured_tokens": 214288,
+      "charged_tokens": 214288,
+      "missing_usage_after_dispatch": 0,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 2
+    },
+    {
+      "arm": "M",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 189,
+      "passed_all_offerings": 30,
+      "model_observations": 244,
+      "dispatched": 244,
+      "complete_response": 243,
+      "measured_tokens": 295615,
+      "charged_tokens": 305855,
+      "missing_usage_after_dispatch": 1,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 3
+    },
+    {
+      "arm": "C",
+      "independent_worlds": 3,
+      "completed_arms": 3,
+      "offered": 189,
+      "passed_all_offerings": 31,
+      "model_observations": 244,
+      "dispatched": 244,
+      "complete_response": 244,
+      "measured_tokens": 295653,
+      "charged_tokens": 295653,
+      "missing_usage_after_dispatch": 0,
+      "final_full_anchor_offered": 18,
+      "final_full_anchor_passed": 3
+    }
+  ],
+  "phase_view_counts": [
+    {
+      "arm": "E",
+      "phase": "anchor",
+      "view": "full",
+      "offered": 54,
+      "passed": 6
+    },
+    {
+      "arm": "E",
+      "phase": "challenge",
+      "view": "full",
+      "offered": 9,
+      "passed": 0
+    },
+    {
+      "arm": "E",
+      "phase": "formation",
+      "view": "full",
+      "offered": 3,
+      "passed": 0
+    },
+    {
+      "arm": "E",
+      "phase": "frontier",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "E",
+      "phase": "placebo",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "E",
+      "phase": "training",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "E",
+      "phase": "transfer",
+      "view": "empty",
+      "offered": 6,
+      "passed": 3
+    },
+    {
+      "arm": "E",
+      "phase": "transfer",
+      "view": "full",
+      "offered": 6,
+      "passed": 0
+    },
+    {
+      "arm": "M",
+      "phase": "anchor",
+      "view": "empty",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "M",
+      "phase": "anchor",
+      "view": "full",
+      "offered": 54,
+      "passed": 8
+    },
+    {
+      "arm": "M",
+      "phase": "anchor",
+      "view": "irrelevant",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "M",
+      "phase": "challenge",
+      "view": "full",
+      "offered": 9,
+      "passed": 0
+    },
+    {
+      "arm": "M",
+      "phase": "formation",
+      "view": "empty",
+      "offered": 3,
+      "passed": 0
+    },
+    {
+      "arm": "M",
+      "phase": "formation",
+      "view": "full",
+      "offered": 3,
+      "passed": 0
+    },
+    {
+      "arm": "M",
+      "phase": "frontier",
+      "view": "empty",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "M",
+      "phase": "frontier",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "M",
+      "phase": "placebo",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "M",
+      "phase": "training",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "M",
+      "phase": "transfer",
+      "view": "empty",
+      "offered": 6,
+      "passed": 1
+    },
+    {
+      "arm": "M",
+      "phase": "transfer",
+      "view": "full",
+      "offered": 6,
+      "passed": 3
+    },
+    {
+      "arm": "C",
+      "phase": "anchor",
+      "view": "empty",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "C",
+      "phase": "anchor",
+      "view": "full",
+      "offered": 54,
+      "passed": 8
+    },
+    {
+      "arm": "C",
+      "phase": "anchor",
+      "view": "irrelevant",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "C",
+      "phase": "challenge",
+      "view": "full",
+      "offered": 9,
+      "passed": 0
+    },
+    {
+      "arm": "C",
+      "phase": "formation",
+      "view": "empty",
+      "offered": 3,
+      "passed": 0
+    },
+    {
+      "arm": "C",
+      "phase": "formation",
+      "view": "full",
+      "offered": 3,
+      "passed": 0
+    },
+    {
+      "arm": "C",
+      "phase": "frontier",
+      "view": "empty",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "C",
+      "phase": "frontier",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "C",
+      "phase": "placebo",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "C",
+      "phase": "training",
+      "view": "full",
+      "offered": 18,
+      "passed": 3
+    },
+    {
+      "arm": "C",
+      "phase": "transfer",
+      "view": "empty",
+      "offered": 6,
+      "passed": 2
+    },
+    {
+      "arm": "C",
+      "phase": "transfer",
+      "view": "full",
+      "offered": 6,
+      "passed": 3
+    }
+  ],
+  "incomplete_model_responses": [
+    {
+      "path": "world-c82ce96fd0d2a2328994-M/model/challenge-drift-draft-0/observation.json",
+      "error_type": "ReadTimeout",
+      "transport_dispatch_started": true,
+      "stream_complete": false,
+      "tokens_measured": null,
+      "budget_charge": 10240
+    }
+  ],
+  "not_performed_arms": [
+    "I",
+    "A"
+  ],
+  "all_offerings_denominator_is_not_primary_endpoint_or_independent_N": true,
+  "extra_state_frontier_formation_evaluations_differ_by_arm": true,
+  "whole_arm_caps_equal_actual_consumption_not_forced_equal": true,
+  "cohort_wall_including_cleanup_seconds": 34897.687000000034,
+  "no_new_inference": true
+}

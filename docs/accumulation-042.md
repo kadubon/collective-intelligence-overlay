@@ -192,8 +192,58 @@ The completed calibration's [English report](studies/accumulation-042/calibratio
 [verification](studies/accumulation-042/calibration-v2/verification.json) are
 actual offline derivatives. [Provenance](studies/accumulation-042/derivative-provenance-v1.json)
 binds their exact bytes and distinguishes prospective precision/runtime inputs
-from observed model results. Public raw archive publication and independent
-confirmation remain pending.
+from observed model results. Independent confirmation has now completed; its
+[English report](studies/accumulation-042/confirmation-v2/report.en.md),
+[Japanese report](studies/accumulation-042/confirmation-v2/report.ja.md),
+[analysis](studies/accumulation-042/confirmation-v2/analysis.json),
+[verification](studies/accumulation-042/confirmation-v2/verification.json) and
+[execution summary](studies/accumulation-042/confirmation-v2/execution-summary.json)
+are checked offline derivatives. [Confirmation provenance](studies/accumulation-042/derivative-provenance-v2.json)
+preserves exact copies and the separately frozen postcompletion verifier.
+Public raw archive publication remains pending.
+
+## Observed confirmation result
+
+Protocol `cio-042-accumulation-confirmation-v2` was pushed at
+`ca4f7e412349f2068c32e26ac620883045a21742` before inference. Three new worlds
+completed all nine E/M/C arms and 510 performance offerings. E used 181 model
+calls, M 244 and C 244. Of 669 dispatched observations, 668 have complete measured
+responses. The M drift response in world 619843 timed out; its 10,240-token upper
+reservation is retained. Measured tokens total 805,556; charged tokens total
+815,796. Total cohort elapsed time including physical cleanup is 34,897.687 seconds.
+
+Final six-form quality is C 3/18, M 3/18 and E 2/18. C minus M is zero in every
+world; its bootstrap interval is unavailable and the 99.5% independent-world
+Hoeffding interval is [-1, 1]. That interval neither establishes equivalence
+within the five-point margin nor excludes a meaningful benefit or harm.
+Final full-minus-empty quality differences are also zero for both C and M.
+Unlike the pilot, both retain nonempty learned state in all three worlds.
+However, actual retrieved placebo doses are not matched on every offering;
+the full-minus-irrelevant causal contrasts remain unjudged.
+
+Every SQL stratum and middle/high calibration stratum is at floor; low
+calibration is at ceiling for C/M. No family-by-difficulty band meets the
+declared sensitivity rule. The oracle positive control remains calibration-only
+(10/10); its absence from confirmation is not a new failed oracle observation.
+The one/two-draft frontier preserves the same forms: C/M stay at Q=1/6;
+E's descriptive mean changes from 1/9 to 1/6 at greater token consumption.
+These repetitions do not increase independent N.
+
+All 15 new-composition formation offerings fail, retaining their fixed restricted
+time/resource endpoints and actual consumption separately. This does not measure
+transfer of a newly formed composition. In the learned-procedure transfer panel,
+original providers are physically absent and each receiver has fresh DB/CAS and
+no training conversation. C/M full each pass 3/6, empty pass 2/6 and 1/6;
+E full passes 0/6 and empty 3/6. The small descriptive counts do not establish a
+population transfer effect, and the SQL forms remain at floor.
+
+H_ACC, H_CIO and H_FORM are unjudged due to precision and/or intervention
+limitations; H_SHARE and H_ADAPT are unjudged because I/A were not performed.
+The observed lower token use of some full-stock evaluations does not establish
+a complete 20% cost reduction or break-even: training, checking, transfer and
+maintenance are retained, and energy/GPU/shared-service compute remain missing.
+Whole-arm caps are equal, but E has fewer intervention offerings than C/M, so
+aggregate E costs are not a matched primary efficiency endpoint.
 
 ```text
 python scripts/prepare_accumulation_protocol.py --id NEW_CALIBRATION_ID --output NEW_PROTOCOL.json

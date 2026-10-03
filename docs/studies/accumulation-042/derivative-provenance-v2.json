@@ -1,0 +1,172 @@
+{
+  "classification": "exact_verified_confirmation_derivatives",
+  "protocol_id": "cio-042-accumulation-confirmation-v2",
+  "earlier_calibration_provenance": "derivative-provenance-v1.json",
+  "files": [
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/analysis.json",
+      "source_path": ".local/audit-042/confirmation-report-v1/analysis.json",
+      "sha256": "95568abf7ca428a3b645546ad9e77dc7b56caf85a79e155b04e45330a450f0e7"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/arm-world-rows.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/arm-world-rows.csv",
+      "sha256": "3eb5ad207c5807574c5c601f13a16f381e3ba7cbad28b834df0ad821d85c80c5"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/budget-frontier.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/budget-frontier.csv",
+      "sha256": "5d8e6fcbfa4ffa8622bf02fdde1f18f166c90e18d81cf54808a469efbc5a1a59"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/budget-frontier.png",
+      "source_path": ".local/audit-042/confirmation-report-v1/budget-frontier.png",
+      "sha256": "78d4fe0b7adca0cc51b4ba39f426f7d20839ca715f2f2e02cb6b10dd9a6441f5"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/budget-frontier.svg",
+      "source_path": ".local/audit-042/confirmation-report-v1/budget-frontier.svg",
+      "sha256": "1d538bd25233ddd03eac2de832b1de231930f0ebb8b6f9e09d6a3edaeaf7d421"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/cleanup.json",
+      "source_path": ".local/public-042-records-v1/confirmation-v2/cleanup.json",
+      "sha256": "ff36ce57c475e39619f47e86be2f1f5d9e2915c9515039e69e4de235b72751ec"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/condition-outcomes.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/condition-outcomes.csv",
+      "sha256": "e23a693bbfdda5711e80e69b9d618156878796992d6ed3448d7eb40ba21d03e9"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/contrasts.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/contrasts.csv",
+      "sha256": "24eac051ce1e35b89b1e1b1125d8a0750c666a99ff3e6bdda33382b680b10145"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/cost-accounting.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/cost-accounting.csv",
+      "sha256": "1580a42b487daefe516ffd9e86c84dbb2ee5347df0730d99614a764437511aa4"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/execution-summary.json",
+      "source_path": ".local/audit-042/confirmation-execution-summary-v1.json",
+      "sha256": "27645436d24f91021407088205c702302df6f2e0a0994b6888933d250e891977"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/family-difficulty.png",
+      "source_path": ".local/audit-042/confirmation-report-v1/family-difficulty.png",
+      "sha256": "03e5b1ee2b90c77876ddf463df6e3e5ad01d249dca7eb0edfbe4cd63844a20c0"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/family-difficulty.svg",
+      "source_path": ".local/audit-042/confirmation-report-v1/family-difficulty.svg",
+      "sha256": "65ae68d1713125236c92051a0c1007cd0b1a9d29a8ea9a5f53007c9fffe81c20"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/family-strata.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/family-strata.csv",
+      "sha256": "9f79aee7974072d1cd97aa92862feaf632131669a92ee22eae7411507ca81d2e"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/formation-means.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/formation-means.csv",
+      "sha256": "73db99021caaffaec47798bfb5f5cb2aa2ef950e8ea338b4abcfcd3cc000787e"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/formation-restricted-time.png",
+      "source_path": ".local/audit-042/confirmation-report-v1/formation-restricted-time.png",
+      "sha256": "4da994442d334c2c13738920f84587125e41fdbfbc4e96598e1930c538ab1b29"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/formation-restricted-time.svg",
+      "source_path": ".local/audit-042/confirmation-report-v1/formation-restricted-time.svg",
+      "sha256": "f23c0e2c6795b512007932688ec3b662eb91f5866ffd4726180e5bc3e60973a2"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/formation.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/formation.csv",
+      "sha256": "f5b2a4fb2d648090fa507476752cee92064cde1dc727a6f3097200f8fa60dcc2"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/learning-curves.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/learning-curves.csv",
+      "sha256": "3861cd1e9ba811f2cd0a42f3d51351824cfad5649fa920f91b6bb40abd925b89"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/learning-curves.png",
+      "source_path": ".local/audit-042/confirmation-report-v1/learning-curves.png",
+      "sha256": "2a48c586d5663ea41e6b38936cc77b64e9aa8b2d83da29b84f4532bf993977ec"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/learning-curves.svg",
+      "source_path": ".local/audit-042/confirmation-report-v1/learning-curves.svg",
+      "sha256": "99177a9cabbe9743388649eb84a7030f3d2a6c7729ba11b185a713e7247d248a"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/offline-review-index.json",
+      "source_path": ".local/public-042-records-v1/confirmation-offline-reviews-v1/review-index.json",
+      "sha256": "44b043b31351ac54e239c9f15d33313270e730696f3edcbd0891e2b0c26ea4c6"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/original-source-manifest.json",
+      "source_path": ".local/public-042-records-v1/confirmation-v2/source-manifest.json",
+      "sha256": "fae88408632d85b5cca7f185dc2cf4d4ba7d9f82b689ea74a1eb82c3a85ff823"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/placebo-retrieval-doses.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/placebo-retrieval-doses.csv",
+      "sha256": "876915d21abd2b861af149ac34ce44a1c83581cc54378babf2eca61ce73858bf"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/protocol.json",
+      "source_path": ".local/public-042-records-v1/confirmation-v2/protocol.json",
+      "sha256": "16319b4376542abe159080bca1993b6153cd018a6355a920c4a0ca93d33f788c"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/render-manifest.json",
+      "source_path": ".local/audit-042/confirmation-report-v1/render-manifest.json",
+      "sha256": "d863f64aedd539f84f7339f2f4fd92704271ca97609bfb733ba21dd681c5265c"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/report.en.md",
+      "source_path": ".local/audit-042/confirmation-report-v1/report.en.md",
+      "sha256": "53d5079372c5fe73fd3dbbacedc5312b590247f4d644b9a5a6d6d5091b7ecef7"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/report.ja.md",
+      "source_path": ".local/audit-042/confirmation-report-v1/report.ja.md",
+      "sha256": "80aada6214476795c32a27aa700c28660518f99c5baf2892413fe6b14dc4c220"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/review-provenance.json",
+      "source_path": ".local/public-042-records-v1/confirmation-offline-reviews-v1/review-v3/review-provenance.json",
+      "sha256": "91dbe6ddcf26fc71a0544b7f4113fb414519337e9cd6f2b595c2d2169f694ea6"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/review-source-manifest.json",
+      "source_path": ".local/public-042-records-v1/confirmation-offline-reviews-v1/review-v3/source-manifest.json",
+      "sha256": "9e95cb3b7f5b492ccd52038fc0f976328db030cf4d0bf89f3054fc900cc9a579"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/state-interventions.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/state-interventions.csv",
+      "sha256": "d77bc6a879508e961b1d9658439161518b3504878c87f2e2fbbd94e414875004"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/strata.csv",
+      "source_path": ".local/audit-042/confirmation-report-v1/strata.csv",
+      "sha256": "3308d2afd0298a2fb71ca1b2e51639980309b46422b4e0b0be5d2eddd8a547dc"
+    },
+    {
+      "repository_path": "docs/studies/accumulation-042/confirmation-v2/verification.json",
+      "source_path": ".local/public-042-records-v1/confirmation-v2/verification-v3.json",
+      "sha256": "e60601d07ad64d7e72c28d6817f13e2f4362ffce3fe528e93924e9f5780640e2"
+    }
+  ],
+  "four_scientific_pngs_visually_inspected": true,
+  "renderer_network_connections_blocked": true,
+  "public_raw_verification_analysis_equal_original": true,
+  "failed_offline_reviews_retained_separately": true,
+  "generation_requests": 0
+}

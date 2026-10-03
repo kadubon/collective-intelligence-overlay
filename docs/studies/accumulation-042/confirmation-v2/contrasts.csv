@@ -1,0 +1,9 @@
+contrast,independent_worlds,mean_difference,world_differences,bootstrap_percentile_interval,independent_world_hoeffding_interval,alpha,degenerate_bootstrap,interpretation,MCID,judgment,one_sided_margin_p_bound,holm_adjusted_p_bound,worlds_with_nonempty_retained_state
+H_CIO_primary_final_Q_C_minus_M,3,0.0,"[0.0, 0.0, 0.0]",,"[-1.0, 1.0]",0.005,True,finite-task-law contrast; no equivalence or extrapolated acceleration,0.05,unjudged_precision_insufficient,1.0,1.0,
+H_ACC_C_full_minus_empty,3,0.0,"[0.0, 0.0, 0.0]",,"[-1.0, 1.0]",0.005,True,finite-task-law contrast; no equivalence or extrapolated acceleration,0.05,unjudged_precision_insufficient,1.0,1.0,3
+H_ACC_C_full_minus_irrelevant,3,0.0,"[0.0, 0.0, 0.0]",,"[-1.0, 1.0]",0.005,True,finite-task-law contrast; no equivalence or extrapolated acceleration,0.05,unjudged_unmatched_or_unobserved_retrieval_dose,1.0,1.0,3
+H_FORM_C_full_minus_empty_success,3,0.0,"[0.0, 0.0, 0.0]",,"[-1.0, 1.0]",0.005,True,finite-task-law contrast; no equivalence or extrapolated acceleration,0.05,unjudged_precision_insufficient,1.0,1.0,3
+H_ACC_M_full_minus_empty,3,0.0,"[0.0, 0.0, 0.0]",,"[-1.0, 1.0]",0.005,True,finite-task-law contrast; no equivalence or extrapolated acceleration,0.05,unjudged_precision_insufficient,1.0,1.0,3
+H_ACC_M_full_minus_irrelevant,3,0.0,"[0.0, 0.0, 0.0]",,"[-1.0, 1.0]",0.005,True,finite-task-law contrast; no equivalence or extrapolated acceleration,0.05,unjudged_unmatched_or_unobserved_retrieval_dose,1.0,1.0,3
+H_FORM_M_full_minus_empty_success,3,0.0,"[0.0, 0.0, 0.0]",,"[-1.0, 1.0]",0.005,True,finite-task-law contrast; no equivalence or extrapolated acceleration,0.05,unjudged_precision_insufficient,1.0,1.0,3
+H_FORM_C_minus_M_success,3,0.0,"[0.0, 0.0, 0.0]",,"[-1.0, 1.0]",0.005,True,finite-task-law contrast; no equivalence or extrapolated acceleration,0.05,unjudged_precision_insufficient,1.0,1.0,
