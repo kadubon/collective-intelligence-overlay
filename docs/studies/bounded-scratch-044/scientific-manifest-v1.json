@@ -12,9 +12,9 @@
     "docs/studies/bounded-scratch-044/results-v1/verification-1.json": "818f8a11c4b5afdeb91b04c35a5f718b52c1293296a2896929af662e7a8029f8",
     "docs/studies/bounded-scratch-044/results-v1/verification-2.json": "5c6e061f7462a5092e5afe893b4565d449b8f21454a623ad2425fbe0cfa911f8",
     "docs/studies/bounded-scratch-044/results-v1/verification-3.json": "78b214ef3693fe31ae73774af43c52d3f7b0cf9a832d9a20099fecef6e973e1d",
-    "docs/studies/bounded-scratch-044/stage0-v1/failure-ledger.json": "2b3458fcb28280da04dd2d548ee3acdf7d7f16c1974fcebd5d0c174d98de99b1",
+    "docs/studies/bounded-scratch-044/stage0-v1/failure-ledger.json": "ec285f11cf1ada4064f3dd1e63ab0eb98394e5ba62b6ca226a19f51780ed326c",
     "docs/studies/bounded-scratch-044/stage0-v1/representative-examples.json": "518eca1996d8d1a33744003527715ee07f251c311592427342b3e6d75d1fb034",
-    "docs/studies/bounded-scratch-044/stage0-v1/summary.json": "a9dca07618ab2c5fff537762d39f5a28be41eaa10fc61b7fde4fdaa9ba8c465c"
+    "docs/studies/bounded-scratch-044/stage0-v1/summary.json": "3ede04329983e4df9d459e105376cafcca42ac40b227adb29a435c15073b6c1e"
   },
   "final_source_hashes": {
     ".github/workflows/workflow.yml": "40fe808988fc5b24a76531c4424ea634bdd3022b75e55267956088bbe1673b04",

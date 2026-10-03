@@ -89,3 +89,11 @@ candidate is separate from the eventual immutable native/publication pair.
 Shareable copies of all three study revisions reproduce the private original
 analysis exactly. Their 1643 mapped files have six unsigned metadata path/model
 redactions; original native/model/signed/CAS/source bytes are preserved.
+
+Quick 37162912998 stopped on the new Stage 0 derivative checksum: the manifest
+had been computed from a Windows CRLF work file, while its earlier immutable Git
+blob was LF. The failure log remains preserved. The three unsigned Stage 0
+work files were restored to their existing Git blobs and the new unpublished
+manifest corrected; JSON values are identical. Every final source/derivative
+checksum now also verifies directly against Git bytes. No raw, model request,
+score or historical protocol changed, and no full native run had begun.
