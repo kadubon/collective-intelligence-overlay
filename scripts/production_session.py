@@ -45,7 +45,9 @@ class ProductionSession:
     def seconds(self):
         return time.monotonic() - self.started
 
-    async def call(self, owner, *, category="control", destination=None, **data):
+    async def call(
+        self, owner, *, category="control", destination=None, observation_context=None, **data
+    ):
         if len(self.calls) >= 8192:
             raise ValueError("finite observation call bound exceeded")
         item = {
@@ -59,6 +61,8 @@ class ProductionSession:
             "offered_seconds": self.seconds(),
             "status": "censored",
         }
+        if observation_context is not None:
+            item.update(observation_context)
         self.calls.append(item)
         before = time.monotonic()
         try:

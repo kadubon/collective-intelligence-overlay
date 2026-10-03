@@ -1,0 +1,19 @@
+{
+  "classification": "diagnostic_replay_not_new_model_observations",
+  "old_offered": 54,
+  "old_failures": 53,
+  "old_scores_unchanged": true,
+  "old_verifier_rerun": false,
+  "existing_verification_proof_sha256": "992c27137123a20ed0169a2253a3139727178145f770a1c4fb73d8f52c64db33",
+  "diagnostic_primitives_match_frozen_source": true,
+  "counts": {
+    "0:passed": 1,
+    "2:scratch_schema_allowed_nonvisible_skill_ids": 12,
+    "3:query_output_or_declared_input_contract": 19,
+    "4:sql_syntax_authorizer_or_execution": 2,
+    "5:semantic_or_numeric_mismatch": 20
+  },
+  "new_inference": false,
+  "assay_ambiguity_or_checker_defect_confirmed": false,
+  "scope": "Reuse exact verified delivered inputs; signed CAS links rechecked. Exception messages accompany actual replay and original plans, not stand-alone causal evidence."
+}

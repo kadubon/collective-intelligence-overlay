@@ -374,6 +374,8 @@ class AccumulationApplication:
             retrieval_candidates=[ViewSkill.from_skill(s).model_dump(mode="json") for s in visible],
             admission_records=admission_records,
         )
+        if data.get("study_context") is not None:
+            arguments["study_context"] = data["study_context"]
         return await self.executor.invoke(
             "propose-" + data["id"], self.proposer.id, self.proposer.digest, arguments, self.context
         )
@@ -383,6 +385,24 @@ class AccumulationApplication:
 
     def model_prompt(self, problem, skills):
         return prompt(problem, skills, revision=self.settings["model"].get("prompt_revision", "1"))
+
+    def draft_schema_for_view(self, problem, skills):
+        return self.draft_schema(problem)
+
+    def check_declared_schema(self, problem, skills, schema):
+        model = self.settings["model"]
+        if model.get("observation_binding_schema") == "2":
+            if model["wire_schemas"][problem.family + "/" + problem.difficulty] != schema:
+                raise ValueError("declared family wire changed before inference")
+
+    def decode_model_response(self, text, schema, problem, skills):
+        return validate_wire(text, schema, Solution)
+
+    def response_metadata(self, text, schema, problem, skills, solution):
+        return {}
+
+    def minimum_model_output(self):
+        return 1024
 
     async def infer(self, arguments):
         from collective_intelligence_overlay.adapters.ollama import local_ollama_client
@@ -394,13 +414,14 @@ class AccumulationApplication:
             # Only the previous public verdict/error type, never hidden cases/answers.
             text += "\nPrevious attempt public feedback: " + str(arguments["feedback"])[:600]
         model = self.settings["model"]
-        draft = self.draft_schema(problem)
+        draft = self.draft_schema_for_view(problem, view.skills)
         schema = draft.model_json_schema()
-        if model.get("observation_binding_schema") == "2":
-            if model["wire_schemas"][problem.family + "/" + problem.difficulty] != schema:
-                raise ValueError("declared family wire changed before inference")
+        self.check_declared_schema(problem, view.skills, schema)
         options = {**model["options"], "seed": arguments["model_seed"]}
-        if options.get("draft_num_predict") != 0 or options.get("num_predict", 0) < 1024:
+        if (
+            options.get("draft_num_predict") != 0
+            or options.get("num_predict", 0) < self.minimum_model_output()
+        ):
             raise ValueError("explicit no-draft and adequate output limit required")
         path = Path(model["output"]) / arguments["id"]
         observer = RawInferenceTransport(
@@ -412,6 +433,11 @@ class AccumulationApplication:
                 "task": problem.id,
                 "view": arguments["view"],
                 "snapshot_digest": arguments["snapshot_digest"],
+                **(
+                    {"study_context": arguments["study_context"]}
+                    if arguments.get("study_context")
+                    else {}
+                ),
             },
             requested={"native_options": options, "think": False, "keep_alive": "5m"},
             provenance={
@@ -424,7 +450,7 @@ class AccumulationApplication:
             token_reservation=options["num_ctx"] + options["num_predict"],
             real_model=True,
         )
-        solution, error = None, None
+        solution, error, response_text = None, None, None
         identity = {
             "identity_schema": "1",
             "endpoint": "/api/tags",
@@ -469,7 +495,8 @@ class AccumulationApplication:
                         "response_format": draft,
                     },
                 )
-                solution = validate_wire(response.text, schema, Solution)
+                response_text = response.text
+                solution = self.decode_model_response(response_text, schema, problem, view.skills)
         except Exception as exc:
             error = type(exc).__name__
         finally:
@@ -488,6 +515,12 @@ class AccumulationApplication:
                 "visible_snapshot": view.model_dump(mode="json"),
                 "full_snapshot_digest": arguments["snapshot_digest"],
                 "full_snapshot_artifact": arguments["snapshot_artifact"],
+                **(
+                    {"study_context": arguments["study_context"]}
+                    if arguments.get("study_context")
+                    else {}
+                ),
+                **self.response_metadata(response_text, schema, problem, view.skills, solution),
             }
             if model.get("observation_binding_schema") == "2":
                 transcript.update(

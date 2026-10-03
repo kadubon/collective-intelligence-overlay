@@ -9,8 +9,11 @@ import hashlib
 import json
 import os
 import time
+from contextlib import contextmanager
+from contextvars import ContextVar
 from datetime import timedelta
 from pathlib import Path
+from types import MappingProxyType
 
 from accumulation_application import DIGEST, FACTORY, MODEL
 from accumulation_primitives import ENVIRONMENT, Solution
@@ -125,7 +128,12 @@ class CappedSession(ProductionSession):
         cases = len(self.study.checks[data["offer"]]) if operation == "app.check" else 0
         executions = cases + int(operation in {"invoke", "run", "app.construct", "app.execute"})
         self.study.cap.observation(executions, cases)
-        return await super().call(owner, **data)
+        context = (
+            self.study.observation_context.get()
+            if self.study.protocol.get("phase_recording") == "explicit-v1"
+            else None
+        )
+        return await super().call(owner, observation_context=context, **data)
 
 
 class StudySession:
@@ -152,6 +160,55 @@ class StudySession:
         self.stock = Snapshot(world=world.id, arm=arm, checkpoint=0, skills=())
         self.transfers = []
         self.source_sync_seconds = {}
+        self.observation_context = ContextVar(
+            "study_observation_context",
+            default=MappingProxyType(
+                {
+                    "phase": "setup",
+                    "offer_id": None,
+                    "cost_scope": "fixed",
+                    "stage": world.stage if hasattr(world, "stage") else "legacy",
+                }
+            ),
+        )
+        self.phase_intervals = []
+
+    @contextmanager
+    def observe_phase(self, phase, *, offer=None, cost_scope="fixed"):
+        if self.protocol.get("phase_recording") != "explicit-v1":
+            yield
+            return
+        if phase not in {
+            "setup",
+            "training",
+            "import",
+            "probe",
+            "formation",
+            "cleanup",
+            "qualification",
+        }:
+            raise ValueError("unknown declared observational phase")
+        parent = self.observation_context.get()
+        value = {
+            "phase": phase,
+            "offer_id": offer or parent.get("offer_id"),
+            "cost_scope": cost_scope,
+            "stage": self.world.stage,
+        }
+        token = self.observation_context.set(value)
+        before = time.monotonic()
+        try:
+            yield
+        finally:
+            self.phase_intervals.append(
+                {
+                    **value,
+                    "inclusive_wall_seconds": time.monotonic() - before,
+                    "nested_within_phase": parent["phase"],
+                    "not_added_to_parent_wall": True,
+                }
+            )
+            self.observation_context.reset(token)
 
     async def call(self, owner, **data):
         return await self.session.call(owner, **data)
@@ -423,6 +480,16 @@ class StudySession:
         before = time.monotonic()
         if self.protocol.get("restricted_endpoints"):
             self.cap.begin_offer(self.world.id, self.arm, offer, phase)
+        phase_token = None
+        if self.protocol.get("phase_recording") == "explicit-v1":
+            phase_token = self.observation_context.set(
+                {
+                    "phase": phase,
+                    "offer_id": offer,
+                    "stage": self.world.stage,
+                    "cost_scope": "training_fixed" if learn else "online",
+                }
+            )
         original_stock = self.stock.digest
         selected = None
         try:
@@ -517,6 +584,11 @@ class StudySession:
                         if index and self.protocol.get("feedback_policy") != "none"
                         else None
                     ),
+                    **(
+                        {"study_context": self.observation_context.get()}
+                        if phase_token is not None
+                        else {}
+                    ),
                 )
                 if staged.get("staged") == identifier:
                     response = await self.call(
@@ -585,6 +657,8 @@ class StudySession:
             self.persist_offer(directory, record)
             if self.protocol.get("restricted_endpoints"):
                 self.cap.end_offer()
+            if phase_token is not None:
+                self.observation_context.reset(phase_token)
         return record
 
     def persist_offer(self, directory, record):
@@ -655,6 +729,10 @@ class StudySession:
         }
 
     async def import_to(self, skill, other):
+        with self.observe_phase("import", cost_scope="fixed"):
+            return await self._import_to(skill, other)
+
+    async def _import_to(self, skill, other):
         exported = await self.call(
             skill.producer, operation="app.export", name=skill.source_binding.id
         )
@@ -686,6 +764,13 @@ class StudySession:
         await self.import_to(skill, other)
 
     async def finish(self):
+        with self.observe_phase("cleanup", cost_scope="fixed"):
+            exported = await self._finish()
+        if self.protocol.get("phase_recording") == "explicit-v1":
+            write_new(self.output / "phase-intervals.json", self.phase_intervals)
+        return exported
+
+    async def _finish(self):
         write_new(self.output / "final-stock.json", self.stock.model_dump(mode="json"))
         write_new(self.output / "transfers.json", self.transfers)
         for owner in self.session.processes:
