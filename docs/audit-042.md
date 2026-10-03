@@ -405,3 +405,34 @@ status; unfinished native observations remain incomplete. Its cancellation is
 not a passing gate or a removal of the original failed job. The corrected fixture
 changes validation provenance, so confirmation still requires a successful gate
 for the corrected validation source. No confirmation worlds have been offered.
+
+Run [37080553755](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37080553755)
+retained an actual Mac Intel/Python 3.13.15 infrastructure failure: the installed
+agents-model `pip-audit` request to PyPI exceeded its 15-second HTTPS read timeout.
+This was not a vulnerability finding. The native source tests (776) and installed
+agents tests (770) had passed; the incomplete installed agents-model audit and
+later checks are not credited as passed. A local diagnostic audit of the exact
+retained resolved dependency list subsequently returned no known vulnerabilities.
+That diagnostic does not replace the required native job. The original log,
+partial report and first-attempt status must remain separate from any failed-job
+rerun. Source and the candidate wheel/sdist bytes are unchanged by this retry.
+
+The failed-job-only retry completed successfully on the same source
+`f0966fa212549aee362fa7d05efe7075f59f765d`. Run 37080553755 attempt 2 passed
+all twelve native configurations, four cross-platform readers, mixed Python and
+the aggregate gate. All 3,819 original report files matched gate SHA256
+`9b63ef1b29b8ffb6ac9900571e7902058ba004f47107d039120fb5c68c491f57`.
+The original failed attempt remains a separate 3,816-file public-metadata copy;
+the local exact-dependency audit remains diagnostic only. No source change or
+model generation was performed for the retry.
+
+[Confirmation protocol v2](studies/accumulation-042/confirmation-v2-protocol.json)
+binds this successful gate, the unchanged candidate pair, runtime contract v3,
+precision planning v2 and all 100 study source files. Its protocol SHA256 is
+`16319b4376542abe159080bca1993b6153cd018a6355a920c4a0ca93d33f788c`.
+It retains the unused world seeds 427319, 619843 and 953117, E/M/C and the fixed
+nine-arm plan. The invalid predecessor made zero generation requests and offered
+zero performance tasks; the same seeds have no inspected confirmation outcomes.
+The earlier release manifest is preserved as
+[native gate v1](studies/accumulation-042/native-gate-v1-release-manifest.json).
+This registration must be pushed before any confirmation-v2 inference.
