@@ -34,6 +34,7 @@ def sources():
             for pattern in (
                 "scripts/bounded_scratch_*.py",
                 "scripts/run_bounded_scratch.py",
+                "scripts/run_bounded_stock.py",
                 "scripts/analyze_bounded_scratch.py",
                 "scripts/diagnose_near_transfer.py",
                 "tests/unit/test_bounded_scratch*.py",
@@ -305,13 +306,14 @@ async def calibration(
     return rows
 
 
-async def stock_diagnosis(args, protocol, cap, server, source):
+async def stock_diagnosis(args, protocol, cap, server, source, *, source_root=None):
     """Same natural pilot output, separately constructed in M/C; zero oracle stock."""
-    source_offer = json.loads((args.output / source["file"]).read_bytes())
+    source_root = source_root or args.output
+    source_offer = json.loads((source_root / source["file"]).read_bytes())
     solution = Solution.model_validate(
         next(a for a in source_offer["attempts"] if a["succeeded"])["solution"]
     )
-    original_session = args.output / source["file"].split("/")[0]
+    original_session = source_root / source["file"].split("/")[0]
     original_plan = json.loads((original_session / "planned-tasks.json").read_bytes())
     world = World(original_plan["seed"], original_plan["stage"])
     family, level = source["family"], source["level"]
@@ -320,12 +322,17 @@ async def stock_diagnosis(args, protocol, cap, server, source):
         # Same world law, distinct owner histories and output directory.
         plan = [
             make_plan(world, family, level, name)
-            for name in ("diagnostic-bind", "qualify", "transfer", "empty")
+            for name in ("diagnostic-bind", "qualify", "restart-qualify", "transfer", "empty")
         ]
         local_args = argparse.Namespace(
-            **{**vars(args), "output": args.output / ("G3-" + arm + "-" + family)}
+            **{
+                **vars(args),
+                "output": args.output / ("G3-" + arm + "-" + family),
+                "home": args.home / ("G3-" + arm + "-" + family),
+            }
         )
         local_args.output.mkdir()
+        local_args.home.mkdir()
         s = create_session(local_args, protocol, cap, server, world, arm, plan)
         result = {
             "source_offer_file": source["file"],
@@ -370,6 +377,8 @@ async def stock_diagnosis(args, protocol, cap, server, source):
                     source_skill=skill,
                 )
             result["qualification"] = checked
+            if not checked["succeeded"]:
+                raise ValueError("fresh receiver qualification failed")
             qualified_skill = s.skill(
                 {**checked, "solution": solution.model_dump(mode="json")}, "newreceiver", problem, 0
             )
@@ -383,9 +392,41 @@ async def stock_diagnosis(args, protocol, cap, server, source):
             }
             if any(r["returncode"] is None for r in result["providers_absent"].values()):
                 raise ValueError("original provider still running")
+            old_pid = s.session.processes["newreceiver"].pid
+            await s.session.stop("newreceiver")
+            await s.session.start("newreceiver")
+            new_pid = s.session.processes["newreceiver"].pid
+            # Reinstall the saved parameters through the public constructor in
+            # a fresh registry; then check distinct input/receipt IDs. No model.
+            with s.observe_phase("qualification", offer="restart-qualify"):
+                restarted = await s.check_constructed(
+                    "newreceiver",
+                    "restart-qualify",
+                    plan[2][3],
+                    solution,
+                    "qualify",
+                    copied=True,
+                    source_skill=qualified_skill,
+                )
+            result["restart"] = {
+                "old_pid": old_pid,
+                "new_pid": new_pid,
+                "check": restarted,
+                "same_artifact": restarted["construction"]["binding"]["artifact_digest"]
+                == qualified_skill.artifact_digest,
+                "same_binding": restarted["construction"]["binding"]
+                == qualified_skill.source_binding.model_dump(mode="json"),
+            }
+            if (
+                old_pid == new_pid
+                or not restarted["succeeded"]
+                or not result["restart"]["same_artifact"]
+                or not result["restart"]["same_binding"]
+            ):
+                raise ValueError("saved composition failed real receiver restart")
             before = cap.calls
             full = await s.offer(
-                "newreceiver", "transfer", plan[2][3], qualified, attempts=1, phase="probe"
+                "newreceiver", "transfer", plan[3][3], qualified, attempts=1, phase="probe"
             )
             if cap.calls != before:
                 raise ValueError(
@@ -402,7 +443,7 @@ async def stock_diagnosis(args, protocol, cap, server, source):
             empty = await s.offer(
                 "newreceiver",
                 "empty",
-                plan[3][3],
+                plan[4][3],
                 qualified,
                 view="empty",
                 attempts=1,

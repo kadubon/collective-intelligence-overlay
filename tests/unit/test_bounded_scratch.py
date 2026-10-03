@@ -226,6 +226,51 @@ async def test_phase_metadata_and_offer_are_observational_not_rpc_authority(monk
     session.journal.close()
 
 
+def test_restart_inspection_retains_original_event_and_rejects_changed_bytes(identities):
+    from accumulation_application import retain_runtime_inspection
+
+    from collective_intelligence_overlay.models import Event, Subject
+
+    saved = Event(
+        id="candidate-installed-runtime",
+        issuer="producer",
+        subject=Subject(id="study-installed-candidate", version="1", digest="a" * 64),
+        action="verification",
+        task_id="startup",
+        attempt_id="startup",
+        correlation_id="startup",
+    )
+    calls = []
+    store = SimpleNamespace(
+        record_page=lambda query, limit: SimpleNamespace(items=(saved,)),
+        put=lambda envelope: calls.append(envelope),
+    )
+    app = SimpleNamespace(
+        store=store, config=SimpleNamespace(owner="producer"), identity=identities["producer"]
+    )
+    retain_runtime_inspection(app, "a" * 64)
+    assert calls == []
+    with pytest.raises(ValueError, match="changed across process restart"):
+        retain_runtime_inspection(app, "b" * 64)
+    store.record_page = lambda query, limit: SimpleNamespace(items=())
+    retain_runtime_inspection(app, "a" * 64)
+    assert len(calls) == 1
+
+
+def test_G3_private_namespace_is_distinct_from_calibration_and_other_arm(tmp_path):
+    from run_bounded_scratch import make_plan
+
+    w = World(944110, "screen-L1-sql")
+    original_home = tmp_path / (w.id + "-M")
+    original_home.mkdir()
+    for arm in ("M", "C"):
+        home = tmp_path / ("G3-" + arm + "-sql") / (w.id + "-" + arm)
+        assert home != original_home and not home.exists()
+    plan = make_plan(w, "sql", "L1", "restart-qualify")
+    assert plan[3].id != w.problem("sql", "L1", "qualify/public").id
+    assert plan[3].contract == w.problem("sql", "L1", "qualify/public").contract
+
+
 @pytest.mark.parametrize("case", ["PASS", "FAIL", "invalid", "timeout", "usage_missing"])
 async def test_new_wire_original_bytes_and_adverse_observations_share_offline_reader(
     case, tmp_path

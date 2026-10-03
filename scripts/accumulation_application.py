@@ -50,6 +50,7 @@ from collective_intelligence_overlay.models import (
     now,
 )
 from collective_intelligence_overlay.opportunities import Goal
+from collective_intelligence_overlay.queries import RecordQuery
 from collective_intelligence_overlay.storage import projection_digest
 
 MODEL = "gemma4:e4b"
@@ -786,6 +787,35 @@ class AccumulationApplication:
         raise ValueError("unsupported study operation")
 
 
+def retain_runtime_inspection(app, artifact):
+    """Reinspect actual bytes each boot; retain the original signed observation."""
+    subject = Subject(id="study-installed-candidate", version="1", digest=artifact)
+    page = app.store.record_page(
+        RecordQuery(
+            kinds=("event",), issuer=app.config.owner, record_id="candidate-installed-runtime"
+        ),
+        limit=1,
+    )
+    if page.items:
+        original = page.items[0]
+        if not isinstance(original, Event) or original.subject != subject:
+            raise ValueError("installed runtime changed across process restart")
+        return
+    app.store.put(
+        app.identity.sign(
+            Event(
+                id="candidate-installed-runtime",
+                issuer=app.config.owner,
+                subject=subject,
+                action="verification",
+                task_id="startup",
+                attempt_id="startup",
+                correlation_id="startup",
+            )
+        )
+    )
+
+
 def configure(host: ApplicationHost, *, application_class=AccumulationApplication):
     app = application_class(host)
     if app.settings.get("installed_candidate"):
@@ -808,19 +838,7 @@ def configure(host: ApplicationHost, *, application_class=AccumulationApplicatio
                 sort_keys=True,
             ).encode()
         )
-        app.store.put(
-            app.identity.sign(
-                Event(
-                    id="candidate-installed-runtime",
-                    issuer=app.config.owner,
-                    subject=Subject(id="study-installed-candidate", version="1", digest=artifact),
-                    action="verification",
-                    task_id="startup",
-                    attempt_id="startup",
-                    correlation_id="startup",
-                )
-            )
-        )
+        retain_runtime_inspection(app, artifact)
     for name in ("app.stage", "app.construct", "app.export", "app.import", "app.execute"):
         if host.config.owner != "verifier":
             host.register_operation(name, app.handle, callers=(host.config.owner,))

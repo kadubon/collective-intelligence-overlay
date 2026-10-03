@@ -3,3 +3,4 @@
 *.patch whitespace=-space-before-tab
 # Generated scientific evidence must retain the bytes bound by its manifests.
 docs/studies/accumulation-042/** -text whitespace=-blank-at-eol
+docs/studies/bounded-scratch-044/** -text whitespace=-blank-at-eol

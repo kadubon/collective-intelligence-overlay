@@ -45,13 +45,15 @@ def boundary(record, observation=None, transcripts=()):
     if error:
         executable = False
     stage = (
-        0
-        if record["succeeded"]
-        else 1
+        1
         if not normal
         else 2
         if not schema
-        else (4 if not executable else 5)
+        else 4
+        if not executable
+        else 0
+        if record["succeeded"]
+        else 5
     )
     return {"normal": normal, "schema": schema, "executable": executable, "stage": stage}
 

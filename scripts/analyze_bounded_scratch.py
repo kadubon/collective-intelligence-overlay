@@ -8,7 +8,7 @@ from collections import Counter, defaultdict
 from pathlib import Path
 
 from accumulation_primitives import Problem, Solution, bounded_execute
-from accumulation_stock import ViewSkill
+from accumulation_stock import Skill, ViewSkill
 from accumulation_tasks import compare
 from analyze_near_transfer import check_transcript
 from bounded_scratch_application import compile_slots, model_prompt, wire_schema
@@ -23,14 +23,15 @@ from check_gemma_transport import (
     validate_wire,
 )
 from near_transfer_protocol import proportion, restricted_endpoint, sha
-from verify_gemma_accumulation import read, records
+from verify_gemma_accumulation import check_copied_admission, read, records
 
 from collective_intelligence_overlay.adapters.inference_observer import write_new
 
 
 async def verify_run(directory):
     protocol = read(directory / "protocol.json")
-    if protocol["id"] != "cio-044-bounded-scratch-v1":
+    stock_only = protocol["id"] == "cio-044-bounded-scratch-G3-v2"
+    if protocol["id"] not in {"cio-044-bounded-scratch-v1", "cio-044-bounded-scratch-G3-v2"}:
         raise ValueError("wrong study schema; old and new assays are not interchangeable")
     for name, digest in protocol["sources"].items():
         if sha(directory / "source-snapshot" / name) != digest:
@@ -38,7 +39,19 @@ async def verify_run(directory):
     for name in ("bounded_scratch_tasks.py", "bounded_scratch_application.py"):
         if sha(Path(__file__).parent / name) != protocol["sources"]["scripts/" + name]:
             raise ValueError("current generator/compiler differs from frozen assay")
-    summary = read(directory / "pilot-summary.json")
+    if stock_only:
+        stock_summary = read(directory / "G3-summary.json")
+        summary = {
+            "smoke": [],
+            "screen": [],
+            "locked": [],
+            "decisions": [],
+            "selected": {},
+            "natural_stock": stock_summary["results"],
+            "driver_error": stock_summary["driver_error"],
+        }
+    else:
+        summary = read(directory / "pilot-summary.json")
     offered, pending, planned_unoffered, report_rows = [], [], [], []
     model_calls = sent = normal = measured = charged = missing = 0
     rpc_phases, rpc_offer_counts = (
@@ -51,6 +64,17 @@ async def verify_run(directory):
         world = World(planned["seed"], planned["stage"])
         if world.id != planned["world"]:
             raise ValueError("planned world identity changed")
+        export = read(session / "export.json")
+        if not export["owners"]:
+            if list(session.glob("offers/*/intent.json")) or list(
+                session.glob("model/*/intent.json")
+            ):
+                raise ValueError("empty owner export hides offered/model work")
+            planned_unoffered.extend(
+                {"world": world.id, "offer": p["offer"], "reason": "bootstrap_failed_before_offer"}
+                for p in planned["plan"]
+            )
+            continue
         signed, _, artifacts = records(session, new_receiver=True)
         initial = read(session / "initial-stock.json")
         if initial["skills"]:
@@ -153,6 +177,16 @@ async def verify_run(directory):
                     transcripts = json.loads(
                         artifacts["verifier", attempt["check"]["artifact_digest"]]
                     )["transcripts"]
+                if attempt["kind"] == "copied-executable":
+                    check_copied_admission(
+                        attempt["construction"],
+                        Skill.model_validate(attempt["source_skill"]),
+                        offer["peer"],
+                        offer["arm"],
+                        session,
+                        signed,
+                        artifacts,
+                    )
                 if attempt.get("solution"):
                     solution = Solution.model_validate(attempt["solution"])
                     quality = all(
@@ -169,7 +203,17 @@ async def verify_run(directory):
                         raise ValueError("quality/receipt result differs from original score")
             if bool(offer["succeeded"]) != any(a["succeeded"] for a in offer["attempts"]):
                 raise ValueError("offer success changed")
-            classification = boundary(offer, observation, transcripts)
+            classification = (
+                boundary(offer, observation, transcripts)
+                if observation
+                else {
+                    "normal": None,
+                    "schema": None,
+                    "executable": bool(transcripts)
+                    and all(t["observed"].get("state") == "completed" for t in transcripts),
+                    "stage": 0 if offer["succeeded"] else 4,
+                }
+            )
             row = {
                 "world": world.id,
                 "family": p["family"],
@@ -222,6 +266,23 @@ async def verify_run(directory):
             value = read(control_path)
             if value.get("check"):
                 check_transcript(value, world, artifacts)
+        if stock_only:
+            diagnostic = read(session / "stock-diagnosis.json")
+            for checked in (diagnostic["qualification"], diagnostic["restart"]["check"]):
+                check_transcript(checked, world, artifacts)
+            restart = diagnostic["restart"]
+            if not all(restart[k] for k in ("same_artifact", "same_binding")) or (
+                restart["old_pid"] == restart["new_pid"]
+            ):
+                raise ValueError("composition was not reconstructed after receiver restart")
+            if (
+                not diagnostic["full"]["succeeded"]
+                or diagnostic["full"]["calls"] != 0
+                or (
+                    diagnostic["empty"]["retrieval_count"] != 0 or diagnostic["empty"]["calls"] != 1
+                )
+            ):
+                raise ValueError("Full/Empty diagnostic did not reach the declared mechanism")
     keyed = {r["file"]: r for r in offered}
     for section in ("smoke", "screen", "locked"):
         for original in summary[section]:
@@ -238,7 +299,7 @@ async def verify_run(directory):
         f: await controls(f, level, protocol["controls"]["seeds"])
         for f, level in summary["selected"].items()
     }
-    if read(directory / "controls.json") != recomputed_controls:
+    if not stock_only and read(directory / "controls.json") != recomputed_controls:
         raise ValueError("nonlearning controls changed")
     natural = summary["natural_stock"]
     for n in natural:
@@ -251,11 +312,11 @@ async def verify_run(directory):
         g0=len(summary["smoke"]) == 4 and summary["driver_error"] is None,
         stock_ready=len(natural) == 4 and all(n.get("ready") for n in natural),
     )
-    if gate != summary["gate"]:
+    if not stock_only and gate != summary["gate"]:
         raise ValueError("stage gate changed")
     resources = read(directory / "resources.json")
     if any(
-        resources[k] != v
+        resources[k] != v + (protocol["previous_resources"][k] if stock_only else 0)
         for k, v in (
             ("model_calls", model_calls),
             ("charged_tokens", charged),
@@ -273,6 +334,7 @@ async def verify_run(directory):
         "planned_unoffered": planned_unoffered,
         "all_offered_rows": report_rows,
         "generation_calls": model_calls,
+        "global_generation_calls": resources["model_calls"],
         "sent": sent,
         "normal": normal,
         "measured_tokens": measured,
@@ -289,6 +351,14 @@ async def verify_run(directory):
             for level in ("L0", "L1", "L2")
         },
         "controls": recomputed_controls,
+        "screen_controls": {
+            f + "/" + level: await controls(f, level, protocol["controls"]["seeds"])
+            for f, level in sorted({(r["family"], r["level"]) for r in summary["screen"]})
+        },
+        "G0_observed_interface": all(
+            all(r[k] for k in ("normal", "schema", "executable")) for r in summary["smoke"]
+        )
+        and len(summary["smoke"]) == 4,
         "gate": gate,
         "confirmation_started": False,
         "contrasts": None,
@@ -328,9 +398,15 @@ def main():
     def blocked(*a, **kw):
         raise RuntimeError("offline analyzer prohibits network and inference")
 
-    socket.socket.connect = blocked
-    socket.create_connection = blocked
-    asyncio.run(analyze(args.run, args.output))
+    # Windows creates its internal socketpair while constructing the event loop.
+    # Initialize it first, then prohibit all subsequent external connections.
+    loop = asyncio.new_event_loop()
+    try:
+        socket.socket.connect = blocked
+        socket.create_connection = blocked
+        loop.run_until_complete(analyze(args.run, args.output))
+    finally:
+        loop.close()
 
 
 if __name__ == "__main__":

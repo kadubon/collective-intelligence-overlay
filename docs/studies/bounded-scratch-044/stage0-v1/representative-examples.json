@@ -1,0 +1,221 @@
+{
+  "selection": "first ledger entry in each failed primary stage, not best-looking examples",
+  "old_scores_unchanged": true,
+  "examples": [
+    {
+      "primary_stage": 2,
+      "primary_cause": "scratch_schema_allowed_nonvisible_skill_ids",
+      "offer": "screen-composition",
+      "family": "composition",
+      "old_pass": false,
+      "old_error": "InvisibleSkillReference",
+      "original_response_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/model/screen-composition-draft-0/response.raw",
+      "original_response_sha256": "fc0b7d878ccd5db9fb80abfb1fc8c42a64b02e9cb076b05ade7a5cea0f26ee59",
+      "parsed_sha256": "b2dd94d4aae9bb31dbbeef76177f1f2b777f6c01bd97c335122924bd168ff74c",
+      "executed_plan": null,
+      "model_values": {
+        "family": "composition",
+        "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop GROUP BY \"group\" ORDER BY \"group\";",
+        "coefficients": [
+          2.0,
+          4.0,
+          0.0
+        ],
+        "reduction": "sum",
+        "calibration_order": "calibrate-then-reduce",
+        "uses": [
+          "readonly-sql",
+          "polynomial"
+        ]
+      },
+      "diagnostic_replay": [
+        {
+          "case": "public",
+          "completed": false,
+          "exception_type": "ValueError",
+          "diagnostic_message": "query must return exactly group,value in that order"
+        },
+        {
+          "case": "hidden",
+          "completed": false,
+          "exception_type": "ValueError",
+          "diagnostic_message": "query must return exactly group,value in that order"
+        }
+      ],
+      "secondary_findings": [
+        {
+          "kind": "coefficients_fit_public_observations",
+          "matches": true
+        }
+      ]
+    },
+    {
+      "primary_stage": 3,
+      "primary_cause": "query_output_or_declared_input_contract",
+      "offer": "screen-sql",
+      "family": "sql",
+      "old_pass": false,
+      "old_error": null,
+      "original_response_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/model/screen-sql-draft-0/response.raw",
+      "original_response_sha256": "ec2ca5c9ca2c13bf64b314cb5f188f1193933a6ef65d5d5b00a390c4af522616",
+      "parsed_sha256": "df5ba3924d1dac419fadb23a025ff5ddcedf38f0adbf329e8f2ce0bdc19f6545",
+      "executed_plan": {
+        "family": "sql",
+        "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0.0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\";",
+        "coefficients": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "reduction": "sum",
+        "uses": [],
+        "explanation": ""
+      },
+      "model_values": {
+        "family": "sql",
+        "sql": "SELECT \"group\", SUM(CASE WHEN amount IS NULL THEN 0.0 ELSE amount END) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\";",
+        "uses": []
+      },
+      "diagnostic_replay": [
+        {
+          "case": "public",
+          "completed": false,
+          "exception_type": "ValueError",
+          "diagnostic_message": "query must return exactly group,value in that order"
+        },
+        {
+          "case": "hidden",
+          "completed": false,
+          "exception_type": "ValueError",
+          "diagnostic_message": "query must return exactly group,value in that order"
+        }
+      ],
+      "secondary_findings": []
+    },
+    {
+      "primary_stage": 4,
+      "primary_cause": "sql_syntax_authorizer_or_execution",
+      "offer": "locked-sql",
+      "family": "sql",
+      "old_pass": false,
+      "old_error": null,
+      "original_response_file": "pilot-v1/world-043-d9e6629e95fac19ed2d3-M/model/locked-sql-draft-0/response.raw",
+      "original_response_sha256": "95ad91d798834d9f4e85a3c6caa8831e185912e2cf47cd74d872837f8771a624",
+      "parsed_sha256": "c48b762f05836421c853cc5549454d1fdafd302078c8d51370204ed55e93ac88",
+      "executed_plan": {
+        "family": "sql",
+        "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\".",
+        "coefficients": [
+          0.0,
+          1.0,
+          0.0
+        ],
+        "reduction": "sum",
+        "uses": [],
+        "explanation": ""
+      },
+      "model_values": {
+        "family": "sql",
+        "sql": "SELECT \"group\", SUM(amount) FROM readings WHERE utc >= :start AND utc < :stop AND amount >= 0 GROUP BY \"group\".",
+        "uses": []
+      },
+      "diagnostic_replay": [
+        {
+          "case": "public",
+          "completed": false,
+          "exception_type": "OperationalError",
+          "diagnostic_message": "incomplete input"
+        },
+        {
+          "case": "hidden",
+          "completed": false,
+          "exception_type": "OperationalError",
+          "diagnostic_message": "incomplete input"
+        }
+      ],
+      "secondary_findings": []
+    },
+    {
+      "primary_stage": 5,
+      "primary_cause": "semantic_or_numeric_mismatch",
+      "offer": "screen-calibration",
+      "family": "calibration",
+      "old_pass": false,
+      "old_error": null,
+      "original_response_file": "pilot-v1/world-043-0d9934ac2dbc454032b0-M/model/screen-calibration-draft-0/response.raw",
+      "original_response_sha256": "a7268799670739101d6ca9feae892616769f05e7b9af47fb4b6f8de4adaff764",
+      "parsed_sha256": "996be6dcdcea5c58042f737bf9bdbbdb91891bd722cb06b58a7987de46b4600b",
+      "executed_plan": {
+        "family": "calibration",
+        "sql": "",
+        "coefficients": [
+          0.5,
+          1.0,
+          0.0
+        ],
+        "reduction": "sum",
+        "uses": [],
+        "explanation": ""
+      },
+      "model_values": {
+        "family": "calibration",
+        "coefficients": [
+          0.5,
+          1.0,
+          0.0
+        ],
+        "uses": []
+      },
+      "diagnostic_replay": [
+        {
+          "case": "public",
+          "completed": true,
+          "matches_independent_expected": false,
+          "actual": {
+            "values": [
+              2.0,
+              1.5,
+              -4.0,
+              0.25,
+              5.75,
+              -4.0,
+              4.5,
+              7.25,
+              2.5,
+              4.5,
+              -5.5,
+              -1.75
+            ]
+          }
+        },
+        {
+          "case": "hidden",
+          "completed": true,
+          "matches_independent_expected": false,
+          "actual": {
+            "values": [
+              5.0,
+              2.25,
+              2.25,
+              -2.0,
+              -1.25,
+              7.25,
+              4.5,
+              -1.75,
+              -5.5,
+              7.0,
+              -4.75,
+              3.0
+            ]
+          }
+        }
+      ],
+      "secondary_findings": [
+        {
+          "kind": "coefficients_fit_public_observations",
+          "matches": false
+        }
+      ]
+    }
+  ]
+}
