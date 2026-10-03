@@ -386,3 +386,22 @@ child-runtime records: three peers, ACCEPT, total 117.00, environment REQUALIFY,
 withdrawal REJECT, and live PostgreSQL/OPA doctor checks. It generated no model
 requests. These targeted checks establish the correction; they do not replace
 the full candidate matrix.
+
+The replacement [run 37078119995](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37078119995)
+then retained a distinct Windows/Python 3.12.14 source-test failure: 775 passed,
+one failed. Its SDK response-deadline test started a 50 ms timeout before client
+setup and durable request persistence. Cancellation before transport dispatch
+correctly recorded zero charge and `not_sent_proven`; the fixture incorrectly
+expected the dispatched-request upper reservation. The fixture now starts its
+response deadline only when the downstream handler receives the actual dispatch,
+and explicitly asserts dispatch and `reserved_upper_bound`. Package runtime and
+scientific source remain unchanged. All five SDK tests passed. A separate real
+SDK regression delayed request persistence by 200 ms and reproduced the original
+undispatched/zero charge and the corrected dispatched/4,128 reservation outcomes.
+These are labelled HTTP test doubles, with zero real model generations.
+
+The superseded run was cancelled after retaining its failure and pre-cancellation
+status; unfinished native observations remain incomplete. Its cancellation is
+not a passing gate or a removal of the original failed job. The corrected fixture
+changes validation provenance, so confirmation still requires a successful gate
+for the corrected validation source. No confirmation worlds have been offered.

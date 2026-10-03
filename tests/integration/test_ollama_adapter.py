@@ -130,14 +130,19 @@ async def test_interrupted_stream_retains_partial_thinking_and_missing_usage(tmp
 
 
 async def test_deadline_without_response_retains_upper_reservation(tmp_path):
+    deadline = asyncio.timeout(None)
+
     async def handle(_):
+        # Start the response deadline after durable intent and actual dispatch,
+        # rather than racing SDK/client setup and disk writes on loaded hosts.
+        deadline.reschedule(asyncio.get_running_loop().time() + 0.05)
         await asyncio.sleep(1)
         raise AssertionError("must be cancelled")
 
     observer = recorded(tmp_path, httpx.MockTransport(handle))
     with pytest.raises(TimeoutError):
         async with (
-            asyncio.timeout(0.05),
+            deadline,
             local_ollama_client(
                 "http://127.0.0.1:11435",
                 model="gemma4:e4b",
@@ -146,6 +151,8 @@ async def test_deadline_without_response_retains_upper_reservation(tmp_path):
         ):
             await client.get_response([Message(role="user", contents=["public test"])])
     observed = json.loads((tmp_path / "attempt/observation.json").read_bytes())
+    assert observed["transport_dispatch_started"] is True
+    assert observed["budget_charge_status"] == "reserved_upper_bound"
     assert observed["status"] is None and observed["token_status"] == "unavailable"
     assert observed["budget_charge"] == 4128 and observed["received_bytes"] == 0
 
