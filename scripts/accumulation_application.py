@@ -378,19 +378,24 @@ class AccumulationApplication:
             "propose-" + data["id"], self.proposer.id, self.proposer.digest, arguments, self.context
         )
 
+    def draft_schema(self, problem):
+        return wire_schema(problem.family, problem.difficulty)
+
+    def model_prompt(self, problem, skills):
+        return prompt(problem, skills, revision=self.settings["model"].get("prompt_revision", "1"))
+
     async def infer(self, arguments):
         from collective_intelligence_overlay.adapters.ollama import local_ollama_client
 
         problem = Problem.model_validate(arguments["problem"])
         view = CognitiveView.model_validate(arguments["visible_snapshot"])
-        text = prompt(
-            problem, view.skills, revision=self.settings["model"].get("prompt_revision", "1")
-        )
+        text = self.model_prompt(problem, view.skills)
         if arguments.get("feedback"):
             # Only the previous public verdict/error type, never hidden cases/answers.
             text += "\nPrevious attempt public feedback: " + str(arguments["feedback"])[:600]
         model = self.settings["model"]
-        schema = wire_schema(problem.family, problem.difficulty).model_json_schema()
+        draft = self.draft_schema(problem)
+        schema = draft.model_json_schema()
         if model.get("observation_binding_schema") == "2":
             if model["wire_schemas"][problem.family + "/" + problem.difficulty] != schema:
                 raise ValueError("declared family wire changed before inference")
@@ -414,9 +419,7 @@ class AccumulationApplication:
                 "model_name": MODEL,
                 "model_digest": DIGEST,
                 "prompt_digest": fingerprint(text),
-                "schema_digest": fingerprint(
-                    wire_schema(problem.family, problem.difficulty).model_json_schema()
-                ),
+                "schema_digest": fingerprint(schema),
             },
             token_reservation=options["num_ctx"] + options["num_predict"],
             real_model=True,
@@ -463,7 +466,7 @@ class AccumulationApplication:
                         "options": options,
                         "think": False,
                         "keep_alive": "5m",
-                        "response_format": wire_schema(problem.family, problem.difficulty),
+                        "response_format": draft,
                     },
                 )
                 solution = validate_wire(response.text, schema, Solution)
@@ -750,8 +753,8 @@ class AccumulationApplication:
         raise ValueError("unsupported study operation")
 
 
-def configure(host: ApplicationHost):
-    app = AccumulationApplication(host)
+def configure(host: ApplicationHost, *, application_class=AccumulationApplication):
+    app = application_class(host)
     if app.settings.get("installed_candidate"):
         from check_gemma_candidate import installed_candidate
 

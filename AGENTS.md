@@ -4,6 +4,14 @@ Build a thin overlay for evidence sharing and receiver-local capability admissio
 Do not build an agent runtime, workflow engine, protocol implementation or global manager.
 Use neutral reasoning and distinguish observations from claims.
 
+For v0.4.3 use the separate finite near-transfer protocol in
+`docs/near-transfer-043.md`. Preserve 0.4.2 raw/history. Select difficulty from
+ordinary-M scratch quality only; family-specific locked sensitivity gates are
+mandatory before confirmation. Keep one all-stage cap, missing-usage reservations,
+first independent PASS timing and every failed offer. Never feed final hidden
+checker results back to draft generation. Scientific source manifests do not
+extend the scope of an old package/native gate.
+
 For 0.4.2 preserve the published 0.4.1 originals and its ceiling/zero-difference
 result. New accumulation work belongs primarily outside the package and requires
 independent longitudinal worlds, a strong ordinary shared-skills baseline,
