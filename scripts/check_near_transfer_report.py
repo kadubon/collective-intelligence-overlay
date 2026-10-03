@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def check(root=ROOT):
     directory = root / "docs/studies/near-transfer-043/pilot-v1"
-    manifest = json.loads((directory.parent / "scientific-manifest-v1.json").read_bytes())
+    manifest = json.loads((directory.parent / "scientific-manifest-v2.json").read_bytes())
     for section in ("final_source_hashes", "derivatives"):
         for name, expected in manifest[section].items():
             path = (root / name).resolve()

@@ -12,7 +12,7 @@ selector receive their own checks. The final 0.4.3 candidate will run one new fu
 native gate, then the standard tag selector will reuse those exact distribution
 bytes through the existing OIDC `pypi` environment. The old 0.4.2 gate does not
 attest the new scientific code. See the [audit](audit-043.md) and
-[scientific manifest](studies/near-transfer-043/scientific-manifest-v1.json).
+[scientific manifest](studies/near-transfer-043/scientific-manifest-v2.json).
 
 ## 0.4.2 published and verified on 2026-10-04 JST
 

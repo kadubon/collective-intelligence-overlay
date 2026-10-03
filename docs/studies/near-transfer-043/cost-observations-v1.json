@@ -1,0 +1,146 @@
+{
+  "break_even": null,
+  "classification": "descriptive_pilot_cost_observations_not_confirmation_effects",
+  "fixed_cost_F": null,
+  "interpretation": [
+    "Stage/arm offer durations are observed online offer walls; they do not include every initial setup/import interval.",
+    "RPC latency sums are client observations, may overlap offer or asynchronous work, and are not added to inclusive driver wall.",
+    "The inherited raw phase label remains setup for every call; it cannot identify separate setup, formation or maintenance wall categories.",
+    "Construction/check/execution/staging/sync/retrieval originals and conservative aggregate caps remain in raw; fixed investment by cost category is incompletely attributed.",
+    "No confirmation contrast, quality-adjusted saving or fixed-cost break-even is estimated from the one natural-stock path world.",
+    "Future maintenance, energy and full compute cost remain unknown, not zero.",
+    "Native prompt-evaluation durations differ between the sequential natural-stock M/C path observations. Shared-server state/order can affect wall cost; these one-world observations are not a causal efficiency estimate. No saved answer cache substitutes for actual requests."
+  ],
+  "marginal_savings_s": null,
+  "native_model_duration_observations": [
+    {
+      "arm": "M",
+      "duration_seconds_sums": {
+        "eval_duration": 93.70112999999999,
+        "load_duration": 0.0491747,
+        "prompt_eval_duration": 94.116323,
+        "total_duration": 188.1457104
+      },
+      "load_duration_max_seconds": 0.0038108,
+      "requests": 18,
+      "stage": "locked-validation"
+    },
+    {
+      "arm": "C",
+      "duration_seconds_sums": {
+        "eval_duration": 20.252540999,
+        "load_duration": 0.0168104,
+        "prompt_eval_duration": 1.137239,
+        "total_duration": 21.5324838
+      },
+      "load_duration_max_seconds": 0.003794,
+      "requests": 6,
+      "stage": "natural-stock"
+    },
+    {
+      "arm": "M",
+      "duration_seconds_sums": {
+        "eval_duration": 21.204304999999998,
+        "load_duration": 0.0174276,
+        "prompt_eval_duration": 30.288548,
+        "total_duration": 51.6013744
+      },
+      "load_duration_max_seconds": 0.003296,
+      "requests": 6,
+      "stage": "natural-stock"
+    },
+    {
+      "arm": "M",
+      "duration_seconds_sums": {
+        "eval_duration": 135.144531998,
+        "load_duration": 14.909846700000001,
+        "prompt_eval_duration": 126.712075,
+        "total_duration": 277.1315004
+      },
+      "load_duration_max_seconds": 14.8451894,
+      "requests": 24,
+      "stage": "screen"
+    }
+  ],
+  "new_inference": false,
+  "operation_observations": {
+    "app.check": {
+      "client_rpc_count": 84,
+      "client_rpc_latency_seconds_sum": 73.40600000001723
+    },
+    "app.construct": {
+      "client_rpc_count": 84,
+      "client_rpc_latency_seconds_sum": 38.05999999970663
+    },
+    "app.describe": {
+      "client_rpc_count": 34,
+      "client_rpc_latency_seconds_sum": 0.6909999998752028
+    },
+    "app.execute": {
+      "client_rpc_count": 43,
+      "client_rpc_latency_seconds_sum": 16.830999999830965
+    },
+    "app.stage": {
+      "client_rpc_count": 54,
+      "client_rpc_latency_seconds_sum": 1.2129999997559935
+    },
+    "invoke": {
+      "client_rpc_count": 68,
+      "client_rpc_latency_seconds_sum": 27.5460000000312
+    },
+    "run": {
+      "client_rpc_count": 54,
+      "client_rpc_latency_seconds_sum": 575.1140000000596
+    },
+    "status": {
+      "client_rpc_count": 1222,
+      "client_rpc_latency_seconds_sum": 15.98900000040885
+    },
+    "sync": {
+      "client_rpc_count": 34,
+      "client_rpc_latency_seconds_sum": 5.307999999902677
+    }
+  },
+  "raw_phase_labels": {
+    "setup": 1677
+  },
+  "source_csv_sha256_git_lf": "8c6f3ae32b2abf4cc8d9c5e1df8bc7225b8daae7b271c749a84a0800912679ba",
+  "stage_arm_offers": [
+    {
+      "actual_offer_wall_seconds": 215.8269999998156,
+      "arm": "M",
+      "charged_tokens": 8850,
+      "measured_tokens": 8850,
+      "offered": 18,
+      "passed": 1,
+      "stage": "locked-validation"
+    },
+    {
+      "actual_offer_wall_seconds": 37.31300000002375,
+      "arm": "C",
+      "charged_tokens": 2674,
+      "measured_tokens": 2674,
+      "offered": 6,
+      "passed": 0,
+      "stage": "natural-stock"
+    },
+    {
+      "actual_offer_wall_seconds": 62.79699999996228,
+      "arm": "M",
+      "charged_tokens": 2686,
+      "measured_tokens": 2686,
+      "offered": 6,
+      "passed": 0,
+      "stage": "natural-stock"
+    },
+    {
+      "actual_offer_wall_seconds": 318.14200000005076,
+      "arm": "M",
+      "charged_tokens": 12046,
+      "measured_tokens": 12046,
+      "offered": 24,
+      "passed": 0,
+      "stage": "screen"
+    }
+  ]
+}

@@ -52,7 +52,8 @@ async def test_every_level_positive_and_negative_control(seed):
                 assert not compare(await bounded_execute(wrong, hidden), world.expected(hidden))
 
 
-def test_new_application_inputs_do_not_contain_checker_or_arm_labels():
+def test_new_application_inputs_do_not_contain_checker_or_arm_labels(monkeypatch, tmp_path):
+    monkeypatch.chdir(tmp_path)
     w = World(943100, "screen")
     for family, levels in LEVELS.items():
         p = w.problem(family, levels[0], "public")
@@ -64,7 +65,8 @@ def test_new_application_inputs_do_not_contain_checker_or_arm_labels():
         assert text == model_prompt(p, ())
         if family == "sql":
             assert w.oracle(p).sql not in text
-        assert "near_transfer_tasks" not in Path("scripts/near_transfer_application.py").read_text()
+        source = Path(__file__).resolve().parents[2] / "scripts/near_transfer_application.py"
+        assert "near_transfer_tasks" not in source.read_text()
 
 
 @pytest.mark.parametrize(
