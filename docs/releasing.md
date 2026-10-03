@@ -1,6 +1,43 @@
 # Release procedure and current state
 
-## 0.4.3: native gate complete, pilot only, publication pending
+## 0.4.3 published and verified on 2026-10-04 JST; pilot only
+
+[PyPI 0.4.3](https://pypi.org/project/collective-intelligence-overlay/0.4.3/),
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.3),
+[actual machine-readable results](release-043-results.json) and the
+[Japanese seven-part report](release-043-report.ja.md) are complete. The annotated
+tag remains commit `5f4165adeb6019a7a7bdc7509b8cc9efb349bfdb`, object
+`22ea46e2b803924cf3f245b1055f9a85635cec46`.
+
+Standard hash-bound [OIDC run 37155346028](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37155346028)
+passed candidate, ready and publish by restoring the original tested pair and
+gate. Tag publication did not rebuild distributions or repeat native workloads.
+The existing-tag recovery exception was not used. Actual PyPI wheel/sdist bytes
+match the candidate. A fresh Windows Python 3.12.14 no-cache/no-config installation
+from the actual index, with cwd outside checkout, matched all 86 package files and
+passed CLI and optional SDK imports. One real PostgreSQL/OPA/MCP/A2A/MAF
+three-process demonstration passed ACCEPT, 117.00, REQUALIFY after environment
+change and REJECT after dependency withdrawal. The owned cluster and demo
+processes were stopped; no model inference or full native workload was repeated.
+
+All eight GitHub assets were downloaded and matched byte-for-byte and by size.
+The single research ZIP is 36,418,260 bytes, SHA256
+`22f6d9265d8e625f66973992bd065baadfa8dcf2d7de70281160e5d80d57afc6`.
+Its 4,910 members matched the retained file manifest. The downloaded archive was
+extracted and its corrected reader rerun with network connections blocked: both
+verification and analysis equal the published pilot results, without inference.
+The old raw was not repacked, and weights were not published.
+
+Precompression layout/privacy/guard stops are retained. A separate native public
+copy has original/public mappings, including six unsigned key-rotation bundle
+config paths; original reports and raw scientific/signed/CAS bytes remain unchanged.
+The targeted PEM/home/operational-DSN scan passed, with a hash-verified scanner
+regex literal and frozen source example DSNs explicitly distinguished from private
+material. This is not a complete external privacy audit. A draft tag lookup returned
+HTTP 404; the same existing draft ID and its eight uploaded digests were verified
+before publication, without a duplicate release or changed asset. Postpublication
+documentation lives on main without moving the tag, modifying the ZIP or rebuilding
+its distributions.
 
 The [new study](near-transfer-043.md) used the exact published 0.4.2 runtime and
 separately preregistered scientific sources. Its two-wave sensitivity gate failed:
@@ -26,9 +63,8 @@ passed locally and from a noneditable installed environment outside checkout.
 That test-source correction required a new full gate. The two candidate origins
 produced one distinct content pair: both wheel and sdist bytes are identical.
 
-The standard tag selector will reuse the final run's exact distributions and
-reports through the existing OIDC `pypi` environment. Tag publication and actual
-PyPI installation have not yet completed. The old 0.4.2 gate does not attest the
+The standard tag selector reused the final run's exact distributions and reports
+through the existing OIDC `pypi` environment. The old 0.4.2 gate does not attest the
 new scientific code. See the [audit](audit-043.md) and
 [scientific manifest](studies/near-transfer-043/scientific-manifest-v2.json).
 

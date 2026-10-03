@@ -1,0 +1,627 @@
+{
+  "schema_version": "1",
+  "version": "0.4.3",
+  "status": "published_and_required_declared_verification_complete",
+  "scientific_status": "pilot_only_assay_not_ready",
+  "confirmation_performed": false,
+  "repository": "https://github.com/kadubon/collective-intelligence-overlay",
+  "tag": "v0.4.3",
+  "tag_commit": "5f4165adeb6019a7a7bdc7509b8cc9efb349bfdb",
+  "tag_object": "22ea46e2b803924cf3f245b1055f9a85635cec46",
+  "tag_moved": false,
+  "publication_rebuild": false,
+  "runtime_package_files_identical_to_published_042": 86,
+  "old_study": {
+    "verifier_and_analyzer_executed_once": true,
+    "equal_published_results": true,
+    "counts": [
+      {
+        "arm": "E",
+        "independent_worlds": 3,
+        "completed_arms": 3,
+        "offered": 132,
+        "passed_all_offerings": 18,
+        "model_observations": 181,
+        "dispatched": 181,
+        "complete_response": 181,
+        "measured_tokens": 214288,
+        "charged_tokens": 214288,
+        "missing_usage_after_dispatch": 0,
+        "final_full_anchor_offered": 18,
+        "final_full_anchor_passed": 2
+      },
+      {
+        "arm": "M",
+        "independent_worlds": 3,
+        "completed_arms": 3,
+        "offered": 189,
+        "passed_all_offerings": 30,
+        "model_observations": 244,
+        "dispatched": 244,
+        "complete_response": 243,
+        "measured_tokens": 295615,
+        "charged_tokens": 305855,
+        "missing_usage_after_dispatch": 1,
+        "final_full_anchor_offered": 18,
+        "final_full_anchor_passed": 3
+      },
+      {
+        "arm": "C",
+        "independent_worlds": 3,
+        "completed_arms": 3,
+        "offered": 189,
+        "passed_all_offerings": 31,
+        "model_observations": 244,
+        "dispatched": 244,
+        "complete_response": 244,
+        "measured_tokens": 295653,
+        "charged_tokens": 295653,
+        "missing_usage_after_dispatch": 0,
+        "final_full_anchor_offered": 18,
+        "final_full_anchor_passed": 3
+      }
+    ],
+    "model_digest_equals_new_study": true,
+    "limits": "No new inference or rescue sampling; raw hashes do not prove truth or physical inference."
+  },
+  "new_study": {
+    "status": "pilot_only_assay_not_ready",
+    "confirmation_worlds": 0,
+    "pilot_screen_worlds": 8,
+    "locked_validation_worlds": 6,
+    "natural_stock_worlds": 1,
+    "generation_requests": 54,
+    "measured_tokens": 26256,
+    "charged_tokens": 26256,
+    "missing_usage_requests": 0,
+    "prereg_commit": "4f1403dfe1b5da022a8378ceb032c25faa950cd5",
+    "registered_at": "2026-10-03T16:52:56.923021+00:00",
+    "locked_family_endpoints": [
+      {
+        "family": "sql",
+        "offered": 6,
+        "passed": 0,
+        "restricted_time_mean": 600.0,
+        "restricted_charged_token_mean": 10240.0,
+        "actual_wall_sum": 69.8739999999525,
+        "actual_measured_tokens_sum": 2875
+      },
+      {
+        "family": "calibration",
+        "offered": 6,
+        "passed": 1,
+        "restricted_time_mean": 501.4556666666661,
+        "restricted_charged_token_mean": 8601.333333333334,
+        "actual_wall_sum": 54.46799999999348,
+        "actual_measured_tokens_sum": 2497
+      },
+      {
+        "family": "composition",
+        "offered": 6,
+        "passed": 0,
+        "restricted_time_mean": 600.0,
+        "restricted_charged_token_mean": 10240.0,
+        "actual_wall_sum": 91.48499999986961,
+        "actual_measured_tokens_sum": 3478
+      }
+    ],
+    "failure_classes": {
+      "semantic_mismatch": 20,
+      "InvisibleSkillReference": 12,
+      "program_ValueError": 19,
+      "program_OperationalError": 2
+    },
+    "stock_path_validation": [
+      {
+        "arm": "C",
+        "world": "world-043-d4cf57371d2dcec0d4d1",
+        "qualification": [
+          {
+            "family": "sql",
+            "succeeded": false
+          },
+          {
+            "family": "calibration",
+            "succeeded": false
+          }
+        ],
+        "transfer": [
+          {
+            "family": "sql",
+            "succeeded": false,
+            "generation_calls": 1,
+            "retrieval_count": 0,
+            "copied_executable": false
+          },
+          {
+            "family": "calibration",
+            "succeeded": false,
+            "generation_calls": 1,
+            "retrieval_count": 0,
+            "copied_executable": false
+          }
+        ]
+      },
+      {
+        "arm": "M",
+        "world": "world-043-d4cf57371d2dcec0d4d1",
+        "qualification": [
+          {
+            "family": "sql",
+            "succeeded": false
+          },
+          {
+            "family": "calibration",
+            "succeeded": false
+          }
+        ],
+        "transfer": [
+          {
+            "family": "sql",
+            "succeeded": false,
+            "generation_calls": 1,
+            "retrieval_count": 0,
+            "copied_executable": false
+          },
+          {
+            "family": "calibration",
+            "succeeded": false,
+            "generation_calls": 1,
+            "retrieval_count": 0,
+            "copied_executable": false
+          }
+        ]
+      }
+    ],
+    "resident_backend_after": {
+      "name": "gemma4:e4b",
+      "model": "gemma4:e4b",
+      "size": 6299907520,
+      "digest": "dc35e8d9c6061baa6f0fa870975ab6932e2542b579b13ea0f199fa4bb7300c9c",
+      "details": {
+        "parent_model": "",
+        "format": "gguf",
+        "family": "gemma4",
+        "families": [
+          "gemma4"
+        ],
+        "parameter_size": "7.5B",
+        "quantization_level": "Q4_K_M"
+      },
+      "expires_at": "2026-10-04T02:17:57.0561029+09:00",
+      "size_vram": 0,
+      "context_length": 4096
+    },
+    "H_ACC": "not_estimated",
+    "H_CIO": "not_estimated",
+    "H_FORM": "not_estimated",
+    "break_even": null,
+    "future_maintenance": null,
+    "comparison_rule": "No confirmation contrast is estimated from pilot/path-validation observations; failures and empty stock are retained."
+  },
+  "sensitivity_gate": {
+    "status": "assay_not_ready",
+    "families": {
+      "sql": {
+        "passed": 0,
+        "offered": 6,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.4592581264399005
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.3,
+          0.7
+        ],
+        "ready": false
+      },
+      "calibration": {
+        "passed": 1,
+        "offered": 6,
+        "rate": 0.16666666666666666,
+        "exact_binomial_95_interval": [
+          0.0042107445144894725,
+          0.6412345789976748
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.3,
+          0.7
+        ],
+        "ready": false
+      },
+      "composition": {
+        "passed": 0,
+        "offered": 6,
+        "rate": 0.0,
+        "exact_binomial_95_interval": [
+          0.0,
+          0.4592581264399005
+        ],
+        "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation",
+        "target": [
+          0.2,
+          0.8
+        ],
+        "ready": false
+      }
+    },
+    "reference": {
+      "passed": 42,
+      "offered": 42,
+      "rate": 1.0,
+      "exact_binomial_95_interval": [
+        0.9159161450596449,
+        1.0
+      ],
+      "uncertainty_scope": "finite calibration observations; dependence may invalidate binomial interpretation"
+    },
+    "completion": {
+      "normal": 54,
+      "sent": 54,
+      "rate": 1.0
+    },
+    "natural_stock_reaches_retrieval_and_execution": false,
+    "confirmation_authorized": false,
+    "confirmation_started": false
+  },
+  "model_digest": "dc35e8d9c6061baa6f0fa870975ab6932e2542b579b13ea0f199fa4bb7300c9c",
+  "study_runtime_version": "0.4.2",
+  "independent_worlds_by_stage": {
+    "screen": 8,
+    "locked_validation": 6,
+    "natural_stock_path": 1,
+    "confirmation": 0
+  },
+  "confirmation_full_empty_and_cio_memory_effects": "not_estimated",
+  "cost_observations": {
+    "break_even": null,
+    "classification": "descriptive_pilot_cost_observations_not_confirmation_effects",
+    "fixed_cost_F": null,
+    "interpretation": [
+      "Stage/arm offer durations are observed online offer walls; they do not include every initial setup/import interval.",
+      "RPC latency sums are client observations, may overlap offer or asynchronous work, and are not added to inclusive driver wall.",
+      "The inherited raw phase label remains setup for every call; it cannot identify separate setup, formation or maintenance wall categories.",
+      "Construction/check/execution/staging/sync/retrieval originals and conservative aggregate caps remain in raw; fixed investment by cost category is incompletely attributed.",
+      "No confirmation contrast, quality-adjusted saving or fixed-cost break-even is estimated from the one natural-stock path world.",
+      "Future maintenance, energy and full compute cost remain unknown, not zero.",
+      "Native prompt-evaluation durations differ between the sequential natural-stock M/C path observations. Shared-server state/order can affect wall cost; these one-world observations are not a causal efficiency estimate. No saved answer cache substitutes for actual requests."
+    ],
+    "marginal_savings_s": null,
+    "native_model_duration_observations": [
+      {
+        "arm": "M",
+        "duration_seconds_sums": {
+          "eval_duration": 93.70112999999999,
+          "load_duration": 0.0491747,
+          "prompt_eval_duration": 94.116323,
+          "total_duration": 188.1457104
+        },
+        "load_duration_max_seconds": 0.0038108,
+        "requests": 18,
+        "stage": "locked-validation"
+      },
+      {
+        "arm": "C",
+        "duration_seconds_sums": {
+          "eval_duration": 20.252540999,
+          "load_duration": 0.0168104,
+          "prompt_eval_duration": 1.137239,
+          "total_duration": 21.5324838
+        },
+        "load_duration_max_seconds": 0.003794,
+        "requests": 6,
+        "stage": "natural-stock"
+      },
+      {
+        "arm": "M",
+        "duration_seconds_sums": {
+          "eval_duration": 21.204304999999998,
+          "load_duration": 0.0174276,
+          "prompt_eval_duration": 30.288548,
+          "total_duration": 51.6013744
+        },
+        "load_duration_max_seconds": 0.003296,
+        "requests": 6,
+        "stage": "natural-stock"
+      },
+      {
+        "arm": "M",
+        "duration_seconds_sums": {
+          "eval_duration": 135.144531998,
+          "load_duration": 14.909846700000001,
+          "prompt_eval_duration": 126.712075,
+          "total_duration": 277.1315004
+        },
+        "load_duration_max_seconds": 14.8451894,
+        "requests": 24,
+        "stage": "screen"
+      }
+    ],
+    "new_inference": false,
+    "operation_observations": {
+      "app.check": {
+        "client_rpc_count": 84,
+        "client_rpc_latency_seconds_sum": 73.40600000001723
+      },
+      "app.construct": {
+        "client_rpc_count": 84,
+        "client_rpc_latency_seconds_sum": 38.05999999970663
+      },
+      "app.describe": {
+        "client_rpc_count": 34,
+        "client_rpc_latency_seconds_sum": 0.6909999998752028
+      },
+      "app.execute": {
+        "client_rpc_count": 43,
+        "client_rpc_latency_seconds_sum": 16.830999999830965
+      },
+      "app.stage": {
+        "client_rpc_count": 54,
+        "client_rpc_latency_seconds_sum": 1.2129999997559935
+      },
+      "invoke": {
+        "client_rpc_count": 68,
+        "client_rpc_latency_seconds_sum": 27.5460000000312
+      },
+      "run": {
+        "client_rpc_count": 54,
+        "client_rpc_latency_seconds_sum": 575.1140000000596
+      },
+      "status": {
+        "client_rpc_count": 1222,
+        "client_rpc_latency_seconds_sum": 15.98900000040885
+      },
+      "sync": {
+        "client_rpc_count": 34,
+        "client_rpc_latency_seconds_sum": 5.307999999902677
+      }
+    },
+    "raw_phase_labels": {
+      "setup": 1677
+    },
+    "source_csv_sha256_git_lf": "8c6f3ae32b2abf4cc8d9c5e1df8bc7225b8daae7b271c749a84a0800912679ba",
+    "stage_arm_offers": [
+      {
+        "actual_offer_wall_seconds": 215.8269999998156,
+        "arm": "M",
+        "charged_tokens": 8850,
+        "measured_tokens": 8850,
+        "offered": 18,
+        "passed": 1,
+        "stage": "locked-validation"
+      },
+      {
+        "actual_offer_wall_seconds": 37.31300000002375,
+        "arm": "C",
+        "charged_tokens": 2674,
+        "measured_tokens": 2674,
+        "offered": 6,
+        "passed": 0,
+        "stage": "natural-stock"
+      },
+      {
+        "actual_offer_wall_seconds": 62.79699999996228,
+        "arm": "M",
+        "charged_tokens": 2686,
+        "measured_tokens": 2686,
+        "offered": 6,
+        "passed": 0,
+        "stage": "natural-stock"
+      },
+      {
+        "actual_offer_wall_seconds": 318.14200000005076,
+        "arm": "M",
+        "charged_tokens": 12046,
+        "measured_tokens": 12046,
+        "offered": 24,
+        "passed": 0,
+        "stage": "screen"
+      }
+    ]
+  },
+  "native_candidate": {
+    "candidate_run_id": "37144034341",
+    "source_commit": "a2b4a87ce2d119a565f1bc929030802198f20ede",
+    "source_tree": "26d282c830d89e319a6d15d3ab37725a37fc1100",
+    "artifacts": {
+      "collective_intelligence_overlay-0.4.3-py3-none-any.whl": "2414caec63a86f82dc9a127e5899caebae6a4601e3607f3337700c0262892de1",
+      "collective_intelligence_overlay-0.4.3.tar.gz": "036107c6b63d72d60ffee7ae277928396c6d0ecd2738058da415d90b62b5f8c5"
+    },
+    "gate_sha256": "1b2de1fcd02b8901a84e90b69f96ee9bc59a53bd16b2dde9c8cf918afbe6c3ff"
+  },
+  "native_profiles_passed": 12,
+  "cross_readers_passed": 4,
+  "mixed_python_passed": true,
+  "ready_passed": true,
+  "original_native_report_files_verified": 3819,
+  "initial_native_failure": {
+    "run_id": "37141746108",
+    "failed_profiles": 12,
+    "cause": "New source-inspection test used checkout-relative cwd.",
+    "cancelled": false,
+    "retried_as_flaky": false,
+    "original_failure_retained": true
+  },
+  "corrected_full_gate_run_id": "37144034341",
+  "candidate_origins": [
+    "37141746108",
+    "37144034341"
+  ],
+  "distinct_distribution_content_pairs": 1,
+  "publication_run_id": "37155346028",
+  "publication_run_url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37155346028",
+  "standard_hash_bound_selector_used": true,
+  "existing_tag_resume_exception_used": false,
+  "native_workload_repeated_at_tag": false,
+  "model_inference_performed_in_hosted_ci": false,
+  "pypi_url": "https://pypi.org/project/collective-intelligence-overlay/0.4.3/",
+  "pypi_files": [
+    {
+      "filename": "collective_intelligence_overlay-0.4.3-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/89/05/a5c66c0c0c0e5c89deba18e97a66bd973b7c63fb286582b9bcbf298bcb94/collective_intelligence_overlay-0.4.3-py3-none-any.whl",
+      "size": 258598,
+      "sha256": "2414caec63a86f82dc9a127e5899caebae6a4601e3607f3337700c0262892de1",
+      "upload_time_iso_8601": "2026-10-03T21:31:28.663025Z"
+    },
+    {
+      "filename": "collective_intelligence_overlay-0.4.3.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/4d/41/813fc69963227a517e28b63cb9ec06831d0f9510d84de85f1d51d42e0ec8/collective_intelligence_overlay-0.4.3.tar.gz",
+      "size": 206292,
+      "sha256": "036107c6b63d72d60ffee7ae277928396c6d0ecd2738058da415d90b62b5f8c5",
+      "upload_time_iso_8601": "2026-10-03T21:31:30.212705Z"
+    }
+  ],
+  "actual_pypi_files_equal_candidate": true,
+  "clean_actual_index_install": {
+    "status": "passed",
+    "index": "https://pypi.org/simple",
+    "cache_used": false,
+    "configuration_used": false,
+    "process_override_names_removed": [],
+    "inference_performed": false,
+    "python": "3.12.14",
+    "version": "0.4.3",
+    "package_file_count": 86,
+    "package_origin": "[LOCAL_HOME]\\collective-intelligence-overlay\\.local\\actual-pypi-043-env-v1\\Lib\\site-packages\\collective_intelligence_overlay\\__init__.py",
+    "working_directory": "[LOCAL_HOME]\\AppData\\Local\\Temp\\cio-043-actual-pypi-v1",
+    "checkout_external": true,
+    "resolved_distribution_count": 69,
+    "optional_imports": [
+      "mcp",
+      "a2a",
+      "agent_framework",
+      "agent_framework.openai",
+      "agent_framework.ollama",
+      "collective_intelligence_overlay.adapters.ollama"
+    ],
+    "cli_help_passed": true
+  },
+  "representative_smoke": {
+    "processes": 3,
+    "admission": "ACCEPT",
+    "held_out_result": "<p>Rows: 3; total: 117.00</p>",
+    "execution_path": "registered-A2A",
+    "changed_environment": "REQUALIFY",
+    "after_dependency_revocation": "REJECT",
+    "claims": "deterministic interoperability demonstration; no intelligence-growth claim"
+  },
+  "owned_service_cleanup": {
+    "status": "passed",
+    "experimental_model_port_11443_listeners": 0,
+    "actual_demo_python_processes": 0,
+    "postgres_stopped": true,
+    "postgres_owner_marker_verified": true,
+    "postgres_data_retained": true,
+    "model_inference_added": false
+  },
+  "github_release": {
+    "status": "passed",
+    "release_id": 402702401,
+    "published_at": "2026-10-03T21:41:31Z",
+    "assets": [
+      {
+        "file": "SHA256SUMS.txt",
+        "size": 688,
+        "sha256": "357756454cc638aa2746f580c3c3617fcabaf699cfc994d381c2a903239f9bf6"
+      },
+      {
+        "file": "cio-043-asset-manifest.json",
+        "size": 1119,
+        "sha256": "9624185379278bc43373a2d90b48b0075067cf8410e1014c4906b6bef5f37f03"
+      },
+      {
+        "file": "cio-043-native-gate.json",
+        "size": 676071,
+        "sha256": "1b2de1fcd02b8901a84e90b69f96ee9bc59a53bd16b2dde9c8cf918afbe6c3ff"
+      },
+      {
+        "file": "cio-043-report.en.md",
+        "size": 4611,
+        "sha256": "81579fea08fa2d9a37b5cde9e33368f6aac7c44763af90c35969d093f8ecdbe7"
+      },
+      {
+        "file": "cio-043-report.ja.md",
+        "size": 4708,
+        "sha256": "4616d4eff28e49e9224b066bf012d4153ca6db6fb6bdb5339365e3ca93144e17"
+      },
+      {
+        "file": "cio-043-research-v1.zip",
+        "size": 36418260,
+        "sha256": "22f6d9265d8e625f66973992bd065baadfa8dcf2d7de70281160e5d80d57afc6"
+      },
+      {
+        "file": "collective_intelligence_overlay-0.4.3-py3-none-any.whl",
+        "size": 258598,
+        "sha256": "2414caec63a86f82dc9a127e5899caebae6a4601e3607f3337700c0262892de1"
+      },
+      {
+        "file": "collective_intelligence_overlay-0.4.3.tar.gz",
+        "size": 206292,
+        "sha256": "036107c6b63d72d60ffee7ae277928396c6d0ecd2738058da415d90b62b5f8c5"
+      }
+    ],
+    "all_downloaded_bytes_match": true,
+    "release_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.3"
+  },
+  "delivered_archive_offline_verification": {
+    "status": "passed",
+    "delivered_assets": 8,
+    "archive_members_verified": 4910,
+    "verification_equals_published": true,
+    "analysis_equals_published": true,
+    "network_blocked_by_wrapper": true,
+    "inference_performed": false
+  },
+  "archive_compressed_once": true,
+  "old_raw_repacked": false,
+  "model_weights_published": false,
+  "publication_privacy_scope": "Targeted PEM/home/operational-DSN scan, not a complete external privacy audit. Six unsigned native key-rotation bundle config paths have separate original/public mappings; raw scientific and signed/CAS bytes are unchanged. The frozen scanner regex literal is hash-verified.",
+  "postpublication_metadata_stops": [
+    "Draft release lookup by tag returned HTTP 404; the same existing draft id was inspected and published. No second release, replaced asset, moved tag or rebuilt distribution."
+  ],
+  "unestimated": [
+    "H_ACC",
+    "H_CIO",
+    "H_FORM",
+    "Full/Empty effects",
+    "fixed investment F",
+    "marginal savings",
+    "break-even",
+    "future maintenance",
+    "energy",
+    "full compute cost"
+  ],
+  "natural_stock_descriptive_matched_costs": {
+    "classification": "one-world path validation, not confirmation effects",
+    "arms": {
+      "M": {
+        "offered": 6,
+        "passed": 0,
+        "restricted_time_mean": 600.0,
+        "restricted_charged_token_mean": 10240.0,
+        "actual_offer_wall_seconds": 62.797,
+        "actual_measured_tokens": 2686
+      },
+      "C": {
+        "offered": 6,
+        "passed": 0,
+        "restricted_time_mean": 600.0,
+        "restricted_charged_token_mean": 10240.0,
+        "actual_offer_wall_seconds": 37.313,
+        "actual_measured_tokens": 2674
+      }
+    },
+    "C_minus_M": {
+      "quality_count": 0,
+      "restricted_time_mean": 0,
+      "restricted_charged_token_mean": 0,
+      "actual_offer_wall_seconds": -25.484,
+      "actual_measured_tokens": -12
+    },
+    "causal_wall_saving_estimated": false,
+    "source": "studies/near-transfer-043/pilot-v1/paired.csv"
+  }
+}
