@@ -70,6 +70,15 @@ and explicit exports cover the original bytes, never these decoder defaults.
 An original without the required record ID cannot supply an exact source reference;
 inspection rejects it instead of referring to a newly generated decoder ID.
 
+Recognized duration labels (`ns`/nanoseconds, `us`/microseconds, `ms`/milliseconds,
+`s`/seconds, minutes, hours, days, including singular spellings, and `wall_seconds`,
+`wall_ms`, `cpu_seconds`, `cpu_ms`) retain their exact units and are listed separately
+with `inclusive_or_unspecified` basis. They are never added, even for different
+invocations, and no conversion is performed. Other units supply only recorded
+quantity subtotals; custom unit meaning and physical-cost correspondence remain
+unresolved. Unchanged legacy record validation still applies before inspection;
+structural errors remain errors, rather than fabricated historical fields.
+
 ## Owner reads, assessment and pagination
 
 Use `lifecycle inspect --config owner.toml --target target.json`. To continue, save
