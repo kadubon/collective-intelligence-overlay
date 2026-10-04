@@ -85,6 +85,16 @@ not research results. Corrected candidate/native validation is separate.
 The corrected focused unit/property and actual-service suite passed 53 / failed 0 /
 skipped 0; lint, format, typing and generated Docs checks passed.
 
+The superseded first native run's Mac Intel/Python 3.14.7 source suite returned
+867 tests / 1 failure / 0 skips: the existing receiptless recovery positive case
+returned UNKNOWN after review. Its XML and original job-log bytes are retained;
+the incomplete original does not become a release gate. The cause is not established
+from that log. A result-only assertion diagnostic was added without changing runtime,
+deadlines, authority, UNKNOWN or held allowance. The corresponding local Windows
+3.12.14 case first skipped for absent pg_dump/pg_restore, then passed with the real
+PostgreSQL 16.15 WSL tools (1 pass / 0 failures / 0 skips). This is narrow local
+evidence; all declared native environments still require the corrected final gate.
+
 | Requirement | Local evidence; final native gate still pending |
 | --- | --- |
 | 1 Candidate without evidence/decision/use | Missing observations remain missing |
