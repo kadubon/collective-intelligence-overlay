@@ -399,7 +399,7 @@ async def test_receiptless_worker_loss_requires_whole_owner_review(
         after = await executor.invoke(
             "after-review-" + stage, parent.id, parent.digest, {"value": 8}, p.context
         )
-        assert after["state"] == "completed" and remaining(p) == allowance - 1
+        assert after["state"] == "completed" and remaining(p) == allowance - 1, after
         # Withdrawing review authority reopens capacity while preserving closure
         # history and the old UNKNOWN/held row. It does not reopen execution.
         p.registry.overlay.store.put(

@@ -44,6 +44,34 @@ if TYPE_CHECKING:
 
 MAX_OBSERVATIONS = 256
 MAX_VIEW_BYTES = 1048576
+# Recognized duration labels only classify observations conservatively. No unit
+# conversion or inclusive/exclusive physical-time inference is performed.
+DURATION_UNITS = frozenset(
+    {
+        "ns",
+        "nanosecond",
+        "nanoseconds",
+        "us",
+        "microsecond",
+        "microseconds",
+        "ms",
+        "millisecond",
+        "milliseconds",
+        "s",
+        "second",
+        "seconds",
+        "minute",
+        "minutes",
+        "hour",
+        "hours",
+        "day",
+        "days",
+        "wall_seconds",
+        "wall_ms",
+        "cpu_seconds",
+        "cpu_ms",
+    }
+)
 RecordKind = Literal[
     "capability", "evidence", "revocation", "event", "decision", "opportunity", "proposal"
 ]
@@ -680,7 +708,7 @@ def _costs(
             continue
         for position, cost in enumerate(item.record.costs):
             ref = CostReference(source=item.source.reference, position=position)
-            wall = cost.unit in {"seconds", "wall_seconds"}
+            wall = cost.unit in DURATION_UNITS
             observation = CostObservation(
                 reference=ref,
                 owner=item.record.issuer,

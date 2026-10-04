@@ -48,7 +48,7 @@ runtime is added. Historical results, protocols and signed raw are unchanged.
 
 ## Required regression evidence (local scope)
 
-The 37 focused unit/property cases are in [test_lifecycle.py](../tests/unit/test_lifecycle.py).
+The 43 focused unit/property cases are in [test_lifecycle.py](../tests/unit/test_lifecycle.py).
 Ten actual PostgreSQL/OPA bridge cases are in
 [test_lifecycle_store.py](../tests/integration/test_lifecycle_store.py).
 The representative pre-freeze source run passed 512 / failed 0 / skipped 0,
@@ -70,6 +70,30 @@ The corrected focused suite passed 47 / failed 0 / skipped 0, including the ten
 actual PostgreSQL/OPA cases; lint, format, typing and generated Docs checks passed.
 The initial reproduction and subsequent fixture failures remain retained. The
 corrected candidate requires its own frozen pair and native gate.
+
+A subsequent completion audit reproduced duration alias aggregation: two unspecified
+inclusive `milliseconds` observations were added, although `seconds` was already
+excluded. Run 37184567824/source `3afc43b` is also superseded for publication. The
+correction conservatively lists recognized duration labels without summation or
+conversion; six unit variants preserve their original quantities/units. Other custom
+unit semantics remain unresolved recorded-quantity observations. The missing-clock
+fixture now supplies a future expiry independently of its fixed synthetic cutoff,
+so unchanged legacy validation does not make the test date dependent. The initial
+failing diagnostic and corrected values are separate retained snapshots; a private
+provenance note records the corrected-output split. These are ordinary unit checks,
+not research results. Corrected candidate/native validation is separate.
+The corrected focused unit/property and actual-service suite passed 53 / failed 0 /
+skipped 0; lint, format, typing and generated Docs checks passed.
+
+The superseded first native run's Mac Intel/Python 3.14.7 source suite returned
+867 tests / 1 failure / 0 skips: the existing receiptless recovery positive case
+returned UNKNOWN after review. Its XML and original job-log bytes are retained;
+the incomplete original does not become a release gate. The cause is not established
+from that log. A result-only assertion diagnostic was added without changing runtime,
+deadlines, authority, UNKNOWN or held allowance. The corresponding local Windows
+3.12.14 case first skipped for absent pg_dump/pg_restore, then passed with the real
+PostgreSQL 16.15 WSL tools (1 pass / 0 failures / 0 skips). This is narrow local
+evidence; all declared native environments still require the corrected final gate.
 
 | Requirement | Local evidence; final native gate still pending |
 | --- | --- |

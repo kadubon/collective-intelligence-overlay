@@ -38,6 +38,7 @@ from collective_intelligence_overlay.models import (
     Subject,
     UseRequest,
     Verdict,
+    now,
 )
 from collective_intelligence_overlay.security import Principal, digest
 from collective_intelligence_overlay.storage import Conflict, projection_digest
@@ -777,6 +778,7 @@ def test_missing_original_creation_clock_is_not_a_decoder_default_observation():
     cap = capability()
     body = cap.model_dump(mode="json")
     body.pop("created_at")
+    body["expires_at"] = (now() + timedelta(days=1)).isoformat()
     ctx = context()
     material = {
         "view_schema_version": "1",
@@ -895,3 +897,21 @@ def test_missing_original_id_cannot_become_a_generated_source_reference():
     }
     with pytest.raises(ValueError, match="original record identity missing"):
         snapshot_from_material(material, owner="receiver", caller="receiver")
+
+
+@pytest.mark.parametrize(
+    "unit", ["seconds", "wall_seconds", "milliseconds", "ms", "cpu_seconds", "wall_ms"]
+)
+def test_duration_aliases_do_not_add_parent_and_child_wall_observations(unit):
+    cap = capability()
+    parent = use(
+        cap, "parent", costs=(Cost(category="use", status="measured", quantity=1000, unit=unit),)
+    )
+    child = use(
+        cap, "child", costs=(Cost(category="use", status="measured", quantity=500, unit=unit),)
+    )
+    view = inspect_lifecycle(snapshot(parent, child), target(cap))
+    assert len(view.costs) == 2 and view.cost_subtotals == ()
+    assert all(item.duration_basis == "inclusive_or_unspecified" for item in view.costs)
+    assert all(item.cost.unit == unit for item in view.costs)
+    assert any(r.kind == ResidualKind.INCOMPATIBLE_UNIT for r in view.residuals)
