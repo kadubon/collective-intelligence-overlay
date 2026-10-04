@@ -3,7 +3,7 @@ name: collective-intelligence-overlay
 description: Use Collective Intelligence Overlay to inspect evidence-preserving capability lifecycle, contributions, residuals, fixed-coordinate stock and typed handoffs, and to operate configured-peer qualified reuse, bounded formation and recovery. Applies to this package's SDK and registered applications, not generic multi-agent orchestration.
 ---
 
-For 0.5.0 read [lifecycle reference](../../../docs/lifecycle-reference.md).
+For 0.5.x read [lifecycle reference](../../../docs/lifecycle-reference.md).
 Start with `lifecycle inspect --fixture` for explicitly synthetic offline material,
 or use bounded owner reads with an exact target and both saved context cursors.
 Keep references, coverage, clocks, units and Residuals. Only explicit `lifecycle assess`

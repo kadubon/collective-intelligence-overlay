@@ -25,6 +25,8 @@ Import from `collective_intelligence_overlay.lifecycle`:
 binding digest. Missing legacy binding stays null. Assessment requests must share
 local receiver and scope, identify an issuer and retain host semantic-fit intent.
 The assessment window contains actual per-target Decisions and is explicitly non-atomic.
+The entire 1–32 request set is validated before qualification: repeated exact
+issuer/Subject/binding targets are rejected even when their arguments differ.
 
 From `collective_intelligence_overlay.lifecycle_store`:
 `read_lifecycle_page(store, target=None, *, caller, receiver=None, record_cursor=None,
@@ -59,10 +61,11 @@ explicit synthetic provenance wrapper. `lifecycle schema --type TYPE` exposes th
 five public schemas plus StockObservation and their nested definitions.
 
 Source `occurred_at` is null when the original JSON has no creation/occurrence/
-evaluation clock. `decoder_default_fields` lists top-level fields absent from the
+evaluation clock. `decoder_default_fields` lists fields absent from the
 original but supplied by the unchanged legacy typed decoder; those values in a
 decoded record are projection defaults, not observed source facts. An empty list
-means all top-level fields were present; null means original presence was not
+means checked fields were present; nested `execution.purpose` and `request.purpose`
+markers distinguish legacy defaults from observed reuse/verification. Null means original presence was not
 attested by a directly constructed report. Evidence and cost clocks also remain
 null, and matching history with an absent clock cannot establish period counts or
 gross churn. Store reception clocks remain distinct. Original hashes, signatures
@@ -106,9 +109,12 @@ an explicit list of RecordRef. Reports hold references by default, not private b
 
 ## Bounds and failures
 
-Schema version 1; derivation version 0.5.0. Finite material ≤256 records / 1 MiB;
+Schema version 1; derivation version 0.5.0 remains the projection contract in package
+0.5.1. Finite material ≤256 records / 1 MiB;
 Store page 2–256 / 4096–1048576 bytes; contribution aggregate ≤512 / 1 MiB;
-each final CLI/report ≤1 MiB. Supplied cycles are rejected; missing links remain
+each final CLI/report ≤1 MiB. Explicit lifecycle JSON input/material nesting is bounded at 64 before decoding
+or material traversal/serialization. Duplicate keys and nonfinite JSON numbers
+are rejected; the exact signed payload is verified and never normalized. Supplied cycles are rejected; missing links remain
 missing. Store statements retain their existing five-second timeout, and the bridge
 checks a five-second aggregate deadline between operations. A statement already in
 progress can finish before that aggregate check. No retry or hidden fetch follows.
@@ -118,3 +124,25 @@ remains; 2: invalid options, unknown schema, denied read, tamper, conflict, time
 restore/cursor mismatch or service failure. Errors remain closed and redacted by the
 existing CLI. `--fixture`, `--input`, `--config` are exclusive; incompatible mode flags
 are rejected. SDK errors retain PermissionError, ValueError/Conflict and TimeoutError.
+
+Typed SDK models are trusted-host objects. Their frozen outer models do not make
+every nested mapping immutable, and `model_copy(update=...)` bypasses validation.
+Do not mutate signed-record projections or use unvalidated copies as originals;
+ingest explicit original material through the validating APIs instead. Host/DB/key
+compromise is outside the unauthenticated-input threat model.
+
+## Reading one partial page
+
+In an explicitly synthetic inspection, suppose `context.coverage` is `partial`,
+`decision_cursor` remains, `current_admission` is `unassessed`, a past checker
+reported `FAIL`, an execution receipt is `UNKNOWN`, an older source is stale, a
+withdrawal is retained, and one cost quantity is null. Save the entire `context`
+and continue with the same target and both cursors; the exhausted record stream
+does not restart. Continuation can reveal more history but never turns page coverage
+into global completeness. Null cost is unavailable, not zero. Stale evidence and
+withdrawn inputs remain historical references; `FAIL` is a negative checker result
+and `UNKNOWN` retains uncertain effects/allowance. Inspect exit 0 says a bounded
+report was produced, not that the receiver currently accepts it. Only a separate
+explicit assessment can ask the existing policy for a new Decision, and actual
+execution still uses the Executor gate. None of these display states authorizes
+retry, refund, allocation, automatic cleanup or physical termination.

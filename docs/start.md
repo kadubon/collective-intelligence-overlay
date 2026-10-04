@@ -1,6 +1,6 @@
 # Start here
 
-Use the installed 0.5.0 release's `lifecycle inspect --fixture` first. The
+Use installed 0.5.1's `lifecycle inspect --fixture` first after publication. The
 [bilingual README](../README.md#first-run-from-the-installed-package) gives clean
 installation commands and actual publication status. This input is synthetic,
 offline and contains no private research material.

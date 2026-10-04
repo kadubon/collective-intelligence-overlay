@@ -14,9 +14,13 @@ toolや手順の検証、受け手の判断、利用、費用、未解決事項�
 
 ## インストールと必要なサービス
 
-**0.5.0は[PyPIで公開済み](https://pypi.org/project/collective-intelligence-overlay/0.5.0/)です。**
-このREADMEの導入対象はその版です。正確なhashと検証は[release記録](docs/releasing.md)にあります。
-公開済0.4.4の記録は[archive](docs/research-archive.md)に保持します。
+**この手順の対象は最新の安定化candidate、0.5.1です。**
+観測identity、purpose・validity欠測、期間の座標、handoffの根拠、bounded JSON入力、
+標準A2A clientの終了処理を修正します。有限レビューと互換性の範囲は
+[監査台帳](docs/audit-051.md)に記録します。このsource時点ではnative gateと公開は未完了で、
+以下のindex導入コマンドは0.5.1公開後に利用できます。正確なhashと実検証は
+[release記録](docs/releasing.md)を確認してください。公開済0.5.0と旧版は
+[archive](docs/research-archive.md)に保持します。
 
 coreのrecord型・offline viewにはサービスやモデルの起動が不要です。
 ownerのDB inspectionにはPostgreSQL、明示的な受入評価には加えてOPAを使います。
@@ -30,7 +34,7 @@ repository外の新しいディレクトリから実行します。Linux／macOS
 ```sh
 uv venv .venv --python 3.12.14
 source .venv/bin/activate
-uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.0
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.1
 collective-intelligence-overlay lifecycle inspect --fixture
 ```
 
@@ -39,7 +43,7 @@ Windows PowerShell:
 ```powershell
 uv venv .venv --python 3.12.14
 . .venv/Scripts/Activate.ps1
-uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.0
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.1
 collective-intelligence-overlay lifecycle inspect --fixture
 ```
 
@@ -93,7 +97,7 @@ pagination・expiry・削除で不確かな副作用を解決したことには�
 ## 互換性と検証
 
 Python >=3.12。Linux／Windows／macOS Intel／Apple Siliconの宣言profileは
-[runtime matrix](docs/validation.md)にあります。実際の公開pairに対してnative 12件、mixed Python、
+[runtime matrix](docs/validation.md)にあります。公開済**0.5.0** pairに対してnative 12件、mixed Python、
 cross reader 4件が通っています。実PyPI bytesとclean installの検査は
 [実装register](docs/lifecycle-050-implementation.md)に記録します。
 lifecycle層によるDB migrationやwire record変更はありません。
@@ -105,5 +109,5 @@ service skipを構成の検証成功とは扱いません。licenseはApache-2.0
 依存条件は[compatibility](docs/compatibility.md)にあります。
 
 過去の負の結果と制約は[research archive](docs/research-archive.md)へ保持します。
-CIO固有の蓄積利益は未実証です。今回のfeature releaseでは新しいmodel generation、
+CIO固有の蓄積利益は未実証です。今回の安定化releaseでは新しいmodel generation、
 研究比較、benchmark、長時間soakを実施しません。
