@@ -146,6 +146,25 @@ def original_record_metadata(
     return occurred, tuple(sorted(defaults))
 
 
+def _decode_original(
+    document: dict[str, Any], principals: dict[str, Principal]
+) -> tuple[Record, dict[str, Any], str]:
+    """One exact-byte DSSE read shared by explicit material and Store projections."""
+    payload = base64.b64decode(document["payload"], validate=True)
+    check_json_bytes(payload)
+    record = verify(document, principals, require_authority=False)
+    return record, load_json(payload), digest(payload)
+
+
+def _historical_key_authority(
+    document: dict[str, Any], principal: Principal
+) -> Literal["unassessed", "compromised_key_observed"]:
+    compromised = any(
+        signature["keyid"] in principal.compromised_keyids for signature in document["signatures"]
+    )
+    return "compromised_key_observed" if compromised else "unassessed"
+
+
 class ObservationContext(ViewModel):
     owner: Identifier
     receiver: Identifier | None
@@ -626,17 +645,10 @@ def snapshot_from_material(
         authority: Literal["unassessed", "compromised_key_observed", "unsigned"]
         basis: Literal["original_dsse_payload", "unsigned_json_projection"]
         if entry["format"] == "dsse":
-            payload = base64.b64decode(document["payload"], validate=True)
-            check_json_bytes(payload)
-            record = verify(document, principals or {}, require_authority=False)
-            original_body = load_json(payload)
-            payload_hash = digest(payload)
+            record, original_body, payload_hash = _decode_original(document, principals or {})
             signature = "historical_verified"
             principal = (principals or {})[record.issuer]
-            compromised = any(
-                s["keyid"] in principal.compromised_keyids for s in document["signatures"]
-            )
-            authority = "compromised_key_observed" if compromised else "unassessed"
+            authority = _historical_key_authority(document, principal)
             basis = "original_dsse_payload"
         elif entry["format"] == "unsigned":
             original_body = document

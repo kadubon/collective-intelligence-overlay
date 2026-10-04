@@ -2,14 +2,12 @@
 
 from __future__ import annotations
 
-import base64
 import json
 from time import monotonic
 from typing import Any
 
 from sqlalchemy import and_, or_, select
 
-from ._lifecycle_json import check_json_bytes, load_json
 from .lifecycle import (
     CapabilityIdentity,
     Coverage,
@@ -17,12 +15,13 @@ from .lifecycle import (
     ObservationContext,
     ObservedRecord,
     SourceObservation,
+    _decode_original,
+    _historical_key_authority,
     original_record_metadata,
     record_identity,
 )
 from .models import Decision, now
 from .queries import RecordCursor, RecordQuery
-from .security import digest, verify
 from .storage import Store, decisions, projection_digest, records, subject_key
 
 
@@ -150,13 +149,10 @@ def read_lifecycle_page(
         else:
             row = by_key[ref.kind, ref.issuer, ref.id]
             envelope = row["envelope"]
-            payload = base64.b64decode(envelope["payload"], validate=True)
-            check_json_bytes(payload)
-            verified = verify(envelope, store.principals, require_authority=False)
-            original_body = load_json(payload)
+            verified, original_body, payload_hash = _decode_original(envelope, store.principals)
             if (
                 record_identity(verified, store.owner) != (ref.kind, ref.issuer, ref.id)
-                or digest(payload) != ref.payload_digest
+                or payload_hash != ref.payload_digest
                 or original_body != row["body"]
             ):
                 raise ValueError("original payload mismatch")
@@ -165,14 +161,11 @@ def read_lifecycle_page(
             item = verified
             occurred, defaults = original_record_metadata(item, original_body)
             principal = store.principals[item.issuer]
-            compromised = any(
-                s["keyid"] in principal.compromised_keyids for s in envelope["signatures"]
-            )
             source = SourceObservation(
                 reference=ref,
                 payload_basis="original_dsse_payload",
                 signature="historical_verified",
-                current_key_authority="compromised_key_observed" if compromised else "unassessed",
+                current_key_authority=_historical_key_authority(envelope, principal),
                 occurred_at=occurred,
                 received_at=row["received_at"],
                 sequence=row["sequence"],
