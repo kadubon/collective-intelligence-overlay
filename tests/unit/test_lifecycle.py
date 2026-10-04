@@ -1220,28 +1220,46 @@ def test_growth_formation_costs_require_matching_nested_coordinates(field):
     assert growth.costs == growth.cost_subtotals == ()
 
 
-def test_assessed_handoff_does_not_match_another_owners_colliding_decision_id():
+@pytest.mark.parametrize("valid_owner", [False, True])
+@pytest.mark.parametrize("reverse", [False, True])
+@pytest.mark.parametrize("alternate_original", [False, True])
+def test_assessed_handoff_does_not_match_another_owners_colliding_decision_id(
+    valid_owner, reverse, alternate_original
+):
     cap = capability()
     observed = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
     right = observed.entries[0].decision
     wrong = right.model_copy(
         update={"request": right.request.model_copy(update={"receiver": "another"})}
     )
-    docs = [(wrong, "receiver"), (right, "foreign-owner")]
+    docs = [
+        (right if valid_owner else wrong, "receiver"),
+        (wrong if valid_owner else right, "foreign-owner"),
+    ]
+    if reverse:
+        docs.reverse()
+
+    def original_body(decision):
+        body = decision.model_dump(mode="json")
+        if alternate_original:
+            body["evaluated_at"] = body["evaluated_at"].replace("Z", "+00:00")
+            body.pop("valid_until")
+        return body
+
     material = {
         "view_schema_version": "1",
         "context": observed.context.model_dump(mode="json"),
         "records": [
             {
                 "format": "unsigned",
-                "document": d.model_dump(mode="json"),
+                "document": original_body(d),
                 "received_at": None,
                 "sequence": None,
                 "reference": {
                     "kind": "decision",
                     "issuer": owner,
                     "id": d.id,
-                    "payload_digest": projection_digest(d.model_dump(mode="json")),
+                    "payload_digest": projection_digest(original_body(d)),
                 },
             }
             for d, owner in docs
@@ -1250,6 +1268,24 @@ def test_assessed_handoff_does_not_match_another_owners_colliding_decision_id():
     supplied = snapshot_from_material(material, owner="receiver", caller="receiver")
     view = inspect_lifecycle(supplied, target(cap))
     assert len(view.decisions) == 2
+    own_basis = next(
+        item.source.reference
+        for item in supplied.records
+        if item.source.reference.issuer == "receiver"
+    )
+    if valid_owner:
+        handoff = build_handoff(
+            view,
+            source_role=HandoffRole.GENERATE,
+            target_role=HandoffRole.VERIFY,
+            producer="producer",
+            receiver="receiver",
+            contract_identity="view.v1",
+            state="assessed",
+            state_basis=own_basis,
+        )
+        assert handoff.state == "assessed" and handoff.authority == "not_granted"
+        return
     with pytest.raises(ValueError, match="receiver's actual Decision"):
         build_handoff(
             view,
@@ -1259,7 +1295,7 @@ def test_assessed_handoff_does_not_match_another_owners_colliding_decision_id():
             receiver="receiver",
             contract_identity="view.v1",
             state="assessed",
-            state_basis=supplied.records[0].source.reference,
+            state_basis=own_basis,
         )
 
 

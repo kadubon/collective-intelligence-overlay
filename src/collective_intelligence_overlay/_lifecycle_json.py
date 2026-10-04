@@ -50,7 +50,7 @@ def check_json_bytes(data: bytes) -> None:
         raise ValueError("lifecycle JSON byte bound exceeded")
     depth = 0
     in_string = escaped = False
-    for char in data.decode("utf-8-sig"):
+    for char in data.decode(json.detect_encoding(data)):
         if in_string:
             if escaped:
                 escaped = False

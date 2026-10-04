@@ -1772,17 +1772,18 @@ def build_handoff(
         raise ValueError("received handoff requires an observed local reception clock")
     if state == "received" and receiver != view.context.owner:
         raise ValueError("local reception does not prove another receiver received it")
-    if state == "assessed" and not any(
-        source.reference == state_basis
-        and source.reference.kind == "decision"
-        and source.reference.issuer == receiver
-        and len([d for d in view.decisions if d.id == source.reference.id]) == 1
-        and any(
-            d.id == source.reference.id and d.request.receiver == receiver for d in view.decisions
-        )
-        for source in view.sources
-    ):
-        raise ValueError("assessed handoff requires that receiver's actual Decision")
+    if state == "assessed":
+        decision_sources = tuple(s for s in view.sources if s.reference.kind == "decision")
+        if len(decision_sources) != len(view.decisions) or not any(
+            source.reference == state_basis
+            and source.reference.issuer == receiver
+            and decision.id == source.reference.id
+            and decision.request.receiver == receiver
+            # inspect_lifecycle retains these streams in original source order.
+            # Pairing avoids global-ID collisions and re-encoding original clocks.
+            for source, decision in zip(decision_sources, view.decisions, strict=True)
+        ):
+            raise ValueError("assessed handoff requires that receiver's actual Decision")
     if (
         source_role == HandoffRole.REUSE
         and target_role == HandoffRole.ACCOUNT

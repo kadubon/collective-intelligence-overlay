@@ -55,6 +55,14 @@ def test_json_brackets_and_escaped_quotes_in_strings_are_not_nesting(tmp_path):
     assert _file(path) == value
 
 
+@pytest.mark.parametrize("encoding", ["utf-8-sig", "utf-16", "utf-32", "utf-16-be", "utf-32-le"])
+def test_valid_json_byte_encodings_keep_existing_decode_contract(tmp_path, encoding):
+    value = {"scope": {"tool": "1"}, "text": "日本語"}
+    path = tmp_path / "encoded.json"
+    path.write_bytes(json.dumps(value, ensure_ascii=False).encode(encoding))
+    assert _file(path) == value
+
+
 def test_signed_duplicate_fields_are_rejected_after_exact_signature_check(
     identities, principals, records
 ):
