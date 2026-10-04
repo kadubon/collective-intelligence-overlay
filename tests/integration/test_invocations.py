@@ -571,6 +571,53 @@ async def test_child_admission_denied_after_parent_effect_does_not_release(
         assert conn.execute(select(budgets.c.remaining)).scalar_one() == 9
 
 
+async def test_child_inner_gate_proof_cannot_refund_entered_parent(overlay, identities, records):
+    effects = []
+
+    async def child_operation(arguments):
+        effects.append("child")
+        return arguments["value"]
+
+    _, child, context = registered(
+        overlay, identities, records, child_operation, identifier="inner-refused-child"
+    )
+
+    async def child_boundary():
+        overlay.store.put(
+            identities["producer"].sign(
+                Revocation(
+                    issuer="producer", subject=child.subject, reason="child boundary withdrawal"
+                )
+            )
+        )
+
+    async def parent_operation(arguments):
+        effects.append("parent")
+        return await executor.registry.execute(
+            child.id, child.digest, arguments, context, before_call=child_boundary
+        )
+
+    executor, parent, context = registered(
+        overlay,
+        identities,
+        records,
+        parent_operation,
+        components=(child.digest,),
+        initialize_budget=False,
+    )
+    executor.registry.register_local(child, child_operation, lambda _: True)
+    result = await executor.invoke(
+        "parent-inner-child-denied", parent.id, parent.digest, {"value": 1}, context
+    )
+    assert effects == ["parent"]
+    assert result["state"] == "unknown" and result["reservation_state"] == "held"
+    assert result["phase"] == "dispatched" and result["reason"] == "admission_denied"
+    terminal = [event for event in overlay.store.events() if event.execution is not None]
+    assert len(terminal) == 1 and terminal[0].execution.state == "unknown"
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 9
+
+
 def test_concurrent_transitions_have_one_disposition_and_conserve_each_unit(
     store, identities, records
 ):
@@ -901,8 +948,180 @@ async def test_revocation_during_dispatch_commit_prevents_actuation(
 
     monkeypatch.setattr(executor.store, "dispatched", withdrawing)
     result = await executor.invoke("withdraw", binding.id, binding.digest, {"value": 1}, context)
-    assert result["state"] == "unknown" and result["reason"] == "admission_denied"
+    assert result["state"] == "cancelled" and result["reason"] == "pre_actuation_admission_denied"
+    assert result["reservation_state"] == "released"
     assert effects == []
+
+
+@pytest.mark.parametrize("refusal", ["withdrawal", "stale_source"])
+async def test_inner_admission_denial_before_actuator_releases_once(
+    overlay, identities, records, monkeypatch, refusal
+):
+    effects = []
+
+    async def operation(arguments):
+        effects.append(arguments)
+        return arguments["value"]
+
+    executor, binding, context = registered(overlay, identities, records, operation)
+    dispatch = executor.store.dispatched
+
+    def change_after_dispatch(claim):
+        dispatch(claim)
+        assert executor.store.get(context.caller, claim["id"])["phase"] == "dispatched"
+        if refusal == "withdrawal":
+            overlay.store.put(
+                identities["producer"].sign(
+                    Revocation(
+                        issuer="producer", subject=binding.subject, reason="boundary withdrawal"
+                    )
+                )
+            )
+        else:
+            overlay.observed_sources["verifier"] = now() - timedelta(hours=2)
+
+    qualify = overlay.qualify
+    decisions_seen = []
+
+    async def observe_qualification(*args, **kwargs):
+        decision = await qualify(*args, **kwargs)
+        decisions_seen.append(decision.outcome)
+        return decision
+
+    monkeypatch.setattr(overlay, "qualify", observe_qualification)
+    monkeypatch.setattr(executor.store, "dispatched", change_after_dispatch)
+    identifier = "inner-denied-" + refusal
+    result = await executor.invoke(identifier, binding.id, binding.digest, {"value": 1}, context)
+    assert decisions_seen == ["ACCEPT", "REJECT" if refusal == "withdrawal" else "UNKNOWN"]
+    assert effects == []
+    assert result["phase"] == "dispatched"  # Preserve the original durable observation.
+    assert result["state"] == "cancelled"
+    assert result["reservation_state"] == "released"
+    assert result["reason"] == "pre_actuation_admission_denied"
+    reference = overlay.store.reference("event", "receiver", result["receipt_id"])
+    receipt = overlay.store.resolve_reference(reference)
+    assert receipt.execution.state == "cancelled" and receipt.outcome == "UNKNOWN"
+    assert all(cost.category == "overhead" for cost in receipt.costs)
+    observed = [
+        event.invocation_observation.phase
+        for event in overlay.store.events()
+        if event.invocation_observation is not None
+    ]
+    assert observed == ["accepted", "dispatched"]
+    with overlay.store.engine.connect() as conn:
+        lease = conn.execute(select(leases)).mappings().one()
+        assert lease["state"] == "cancelled" and lease["actual"] is None
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 10
+        saved = conn.execute(select(invocations)).mappings().one()
+        assert lease["fence"] > saved["fence"]
+    before = tuple(overlay.store.events())
+    restarted = Executor(executor.registry, identities["receiver"], executor.allowance)
+    assert (
+        await restarted.invoke(identifier, binding.id, binding.digest, {"value": 1}, context)
+        == result
+    )
+    assert restarted.store.cancel(context.caller, identifier) == result
+    assert tuple(overlay.store.events()) == before and effects == []
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 10
+
+
+@pytest.mark.parametrize("interference", ["replacement", "caller_cancel", "expired"])
+async def test_pre_actuation_denial_cannot_refund_lost_ownership(
+    overlay, identities, records, monkeypatch, interference
+):
+    effects = []
+
+    async def operation(arguments):
+        effects.append(arguments)
+        return arguments["value"]
+
+    executor, binding, context = registered(overlay, identities, records, operation)
+    dispatch = executor.store.dispatched
+
+    def lose_ownership(claim):
+        dispatch(claim)
+        overlay.store.put(
+            identities["producer"].sign(
+                Revocation(issuer="producer", subject=binding.subject, reason="boundary withdrawal")
+            )
+        )
+        if interference == "caller_cancel":
+            executor.store.cancel(context.caller, claim["id"])
+        else:
+            values = (
+                {
+                    "worker": "replacement-worker",
+                    "fence": claim["fence"] + 1,
+                    "actual": Decimal("0.25"),
+                }
+                if interference == "replacement"
+                else {"expires_at": now() - timedelta(seconds=1)}
+            )
+            with overlay.store.engine.begin() as conn:
+                conn.execute(
+                    update(leases).where(leases.c.task_id == claim["lease_id"]).values(**values)
+                )
+
+    monkeypatch.setattr(executor.store, "dispatched", lose_ownership)
+    result = await executor.invoke(
+        "lost-owner-" + interference, binding.id, binding.digest, {"value": 1}, context
+    )
+    assert effects == [] and result["state"] == "unknown"
+    assert result["reservation_state"] == "held" and result["phase"] == "dispatched"
+    terminal = [event for event in overlay.store.events() if event.execution is not None]
+    assert len(terminal) == 1 and terminal[0].execution.state == "unknown"
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 9
+        if interference == "replacement":
+            lease = conn.execute(select(leases)).mappings().one()
+            assert lease["worker"] == "replacement-worker" and lease["state"] == "active"
+            assert lease["actual"] == Decimal("0.25")
+
+
+async def test_pre_actuation_refund_and_signed_receipt_rollback_together(
+    overlay, identities, records, monkeypatch
+):
+    effects = []
+
+    async def operation(arguments):
+        effects.append(arguments)
+        return arguments["value"]
+
+    executor, binding, context = registered(overlay, identities, records, operation)
+    dispatch, insert_record = executor.store.dispatched, overlay.store._insert
+
+    def withdrawing(claim):
+        dispatch(claim)
+        overlay.store.put(
+            identities["producer"].sign(
+                Revocation(issuer="producer", subject=binding.subject, reason="boundary withdrawal")
+            )
+        )
+
+    def interrupt_cancelled_receipt(conn, event, envelope):
+        insert_record(conn, event, envelope)
+        if (
+            isinstance(event, Event)
+            and event.execution is not None
+            and event.execution.state == "cancelled"
+        ):
+            raise RuntimeError("pre-actuation transaction interrupted")
+
+    monkeypatch.setattr(executor.store, "dispatched", withdrawing)
+    monkeypatch.setattr(overlay.store, "_insert", interrupt_cancelled_receipt)
+    with pytest.raises(RuntimeError, match="pre-actuation transaction interrupted"):
+        await executor.invoke(
+            "rollback-pre-actuation", binding.id, binding.digest, {"value": 1}, context
+        )
+    result = executor.store.get(context.caller, "rollback-pre-actuation")
+    assert effects == [] and result["state"] == "running"
+    assert result["phase"] == "dispatched" and result["reservation_state"] == "held"
+    assert result["receipt_id"] is None
+    assert not [event for event in overlay.store.events() if event.execution is not None]
+    with overlay.store.engine.connect() as conn:
+        assert conn.execute(select(budgets.c.remaining)).scalar_one() == 9
+        assert conn.execute(select(leases.c.state)).scalar_one() == "active"
 
 
 @pytest.mark.parametrize("effect_happened", [False, True])

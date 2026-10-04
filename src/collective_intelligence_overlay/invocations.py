@@ -30,6 +30,7 @@ from sqlalchemy import (
 from .bindings import (
     ExecutionContext,
     Registry,
+    _PreActuationDenied,
     active_invocation,
     fingerprint,
     formation_receipts,
@@ -162,12 +163,21 @@ def invocation_request(
 
 
 def released_before_dispatch(row: Any, lease: Any) -> bool:
-    """Positive persisted proof; absence, timeout and cancellation alone prove nothing."""
+    """Positive fenced release proof; preserve the original dispatch history."""
     return bool(
         row is not None
         and lease is not None
         and row["state"] in {"cancelled", "rejected", "unknown"}
-        and row["phase"] == "reserved"
+        and (
+            row["phase"] == "reserved"
+            or (
+                row["phase"] == "dispatched"
+                and row["state"] == "cancelled"
+                and row["reason"] == "pre_actuation_admission_denied"
+                and row["release_reason"] == "pre_actuation_admission_denied"
+                and row["receipt_id"] is not None
+            )
+        )
         and row["reservation_state"] == "released"
         and lease["state"] == "cancelled"
         and lease["worker"] == row["worker"]
@@ -737,6 +747,134 @@ class InvocationStore:
                     .values(state="cancelled" if reason else "complete", actual=None)
                 )
 
+    def _finish_pre_actuation_denial(
+        self, claim: dict[str, Any], identity: Identity, event: Event
+    ) -> None:
+        """Settle only the Executor's confirmed inner-gate refusal, atomically."""
+        if (
+            self.registry is None
+            or self.identity is not identity
+            or identity.name != self.store.owner
+            or self.registry.overlay.store is not self.store
+            or active_invocation.get()
+            != fingerprint([self.store.owner, claim.get("caller"), claim.get("id")])
+        ):
+            raise Conflict("pre-actuation settlement requires its original executor")
+        with self.store.engine.begin() as conn:
+            row, lease = self._locked(conn, claim["caller"], claim["id"])
+            if (
+                row is None
+                or lease is None
+                or any(
+                    row[key] != claim.get(key)
+                    for key in (
+                        "caller",
+                        "id",
+                        "owner",
+                        "fingerprint",
+                        "binding_id",
+                        "binding_digest",
+                        "request",
+                        "lease_id",
+                        "worker",
+                        "fence",
+                    )
+                )
+                or row["owner"] != self.store.owner
+                or row["state"] != "running"
+                or row["phase"] != "dispatched"
+                or row["reservation_state"] != "held"
+                or row["receipt_id"] is not None
+                or lease["worker"] != row["worker"]
+                or lease["fence"] != row["fence"]
+                or lease["state"] != "active"
+                or lease["actual"] is not None
+                or lease["expires_at"] <= conn.execute(select(func.clock_timestamp())).scalar_one()
+            ):
+                raise Conflict("pre-actuation settlement lost original ownership")
+            request = row["request"]
+            try:
+                binding = self.registry.inspect(
+                    row["binding_id"], expected_digest=row["binding_digest"]
+                )
+            except ValueError as exc:
+                raise Conflict("pre-actuation settlement binding changed") from exc
+            execution = event.execution
+            if (
+                fingerprint(request) != row["fingerprint"]
+                or request["owner"] != self.store.owner
+                or request["caller"] != row["caller"]
+                or request["binding"] != row["binding_id"]
+                or request["binding_digest"] != row["binding_digest"]
+                or event.schema_version != "2"
+                or event.issuer != self.store.owner
+                or event.id != row["lease_id"]
+                or event.subject != binding.subject
+                or event.action != "failure"
+                or event.task_id != row["id"]
+                or event.attempt_id != row["lease_id"]
+                or event.correlation_id != row["id"]
+                or event.outcome != Verdict.UNKNOWN
+                or any(
+                    item is not None
+                    for item in (
+                        event.formation,
+                        event.work,
+                        event.reconciliation,
+                        event.resolution,
+                        event.invocation_observation,
+                    )
+                )
+                or execution is None
+                or execution.state != "unknown"
+                or execution.result_digest is not None
+                or execution.purpose != request["purpose"]
+                or execution.invocation_id != row["id"]
+                or execution.caller != row["caller"]
+                or execution.resource_owner != self.store.owner
+                or execution.capability_issuer != binding.issuer
+                or execution.binding_digest != row["binding_digest"]
+                or execution.arguments_digest != fingerprint(request["arguments"])
+                or execution.scope != binding.scope
+                or execution.scope.environment != request["environment"]
+                or execution.policy_digest != self.registry.overlay.policy.digest
+                or execution.transport != binding.target.kind
+            ):
+                raise Conflict("pre-actuation settlement receipt coordinates changed")
+            cancelled = event.model_copy(
+                update={
+                    "execution": execution.model_copy(update={"state": "cancelled"}),
+                    "costs": tuple(
+                        cost.model_copy(update={"category": "overhead"}) for cost in event.costs
+                    ),
+                }
+            )
+            # All locks are held. Fence this worker before refunding, and commit
+            # the signed receipt and disposition in the same transaction.
+            conn.execute(
+                update(leases)
+                .where(leases.c.task_id == row["lease_id"])
+                .values(state="cancelled", fence=leases.c.fence + 1, actual=None)
+            )
+            conn.execute(
+                update(budgets)
+                .where(budgets.c.unit == lease["unit"])
+                .values(remaining=budgets.c.remaining + lease["reservation"])
+            )
+            self.store._insert(conn, cancelled, identity.sign(cancelled))
+            conn.execute(
+                update(invocations)
+                .where(_selector(row["caller"], row["id"]))
+                .values(
+                    state="cancelled",
+                    reservation_state="released",
+                    reason="pre_actuation_admission_denied",
+                    release_reason="pre_actuation_admission_denied",
+                    receipt_id=cancelled.id,
+                    updated_at=now(),
+                )
+            )
+
     def cancel(self, caller: str, invocation_id: str) -> dict[str, Any] | None:
         with self.store.engine.begin() as conn:
             selector = _selector(caller, invocation_id)
@@ -945,17 +1083,38 @@ class Executor:
                 reason = "execution_cancelled"
             else:
                 reason = "execution_unknown"
-            with contextlib.suppress(Conflict):
-                await asyncio.shield(
-                    run_blocking(
-                        self.store.finish,
-                        claim,
-                        None,
-                        self.identity,
-                        event(claim, True),
-                        reason=reason,
+            settled = False
+            if (
+                isinstance(exc, _PreActuationDenied)
+                and exc.boundary is boundary
+                and exc.decision.request == prepared.request
+            ):
+                try:
+                    await asyncio.shield(
+                        run_blocking(
+                            self.store._finish_pre_actuation_denial,
+                            claim,
+                            self.identity,
+                            event(claim, True),
+                        )
                     )
-                )
+                    settled = True
+                except Conflict:
+                    # Lost ownership/expiry never turns this local proof into
+                    # authority to refund or cancel a different physical worker.
+                    pass
+            if not settled:
+                with contextlib.suppress(Conflict):
+                    await asyncio.shield(
+                        run_blocking(
+                            self.store.finish,
+                            claim,
+                            None,
+                            self.identity,
+                            event(claim, True),
+                            reason=reason,
+                        )
+                    )
             if not isinstance(exc, Exception):
                 raise
         finally:

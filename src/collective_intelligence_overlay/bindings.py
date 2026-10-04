@@ -31,7 +31,7 @@ from .models import (
     Subject,
     UseRequest,
 )
-from .overlay import Overlay
+from .overlay import AdmissionDenied, Overlay
 from .security import Identity, allowed_url, digest, verify
 
 if TYPE_CHECKING:
@@ -193,6 +193,14 @@ Assessment = Callable[[dict[str, Any]], bool]
 
 class InvalidArguments(ValueError):
     """An input violates a host-installed argument bound or resource allowlist."""
+
+
+class _PreActuationDenied(AdmissionDenied):
+    """Registry-local proof bound to the one successfully returned dispatch callback."""
+
+    def __init__(self, decision: Decision, boundary: Callable[[], Awaitable[None]]) -> None:
+        super().__init__(decision)
+        self.boundary = boundary
 
 
 @dataclass(frozen=True)
@@ -771,8 +779,11 @@ class Registry:
                 "A2A calls require call_id and persisted call_scope, or a stable Executor parent"
             )
         prepared = self.prepare(binding_id, expected_digest, arguments, context)
+        actuator_entered = False
 
         async def actuator() -> Any:
+            nonlocal actuator_entered
+            actuator_entered = True
             if frame is not None and frame.invocation_context is not None:
                 from sqlalchemy import select
 
@@ -818,12 +829,19 @@ class Registry:
                 await before_call()
                 # Durable dispatch can yield to another task: recheck admission
                 # and the exact registration after that await, before the actuator.
-                return await self.overlay.execute(
-                    prepared.request,
-                    actuator,
-                    deadline_seconds=deadline_seconds,
-                    verification_granted=context.purpose == "verification",
-                )
+                try:
+                    return await self.overlay.execute(
+                        prepared.request,
+                        actuator,
+                        deadline_seconds=deadline_seconds,
+                        verification_granted=context.purpose == "verification",
+                    )
+                except AdmissionDenied as exc:
+                    # A child refusal after actuator entry proves nothing about
+                    # this call's effects. Only this inner gate owns this proof.
+                    if not actuator_entered:
+                        raise _PreActuationDenied(exc.decision, before_call) from exc
+                    raise
             return await actuator()
 
         return await self.overlay.execute(

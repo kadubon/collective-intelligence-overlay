@@ -288,7 +288,16 @@ class Steps:
                 ).outerjoin(leases, leases.c.task_id == invocations.c.lease_id)
                 released = and_(
                     invocations.c.state.in_(("cancelled", "rejected", "unknown")),
-                    invocations.c.phase == "reserved",
+                    or_(
+                        invocations.c.phase == "reserved",
+                        and_(
+                            invocations.c.phase == "dispatched",
+                            invocations.c.state == "cancelled",
+                            invocations.c.reason == "pre_actuation_admission_denied",
+                            invocations.c.release_reason == "pre_actuation_admission_denied",
+                            invocations.c.receipt_id.is_not(None),
+                        ),
+                    ),
                     invocations.c.reservation_state == "released",
                     leases.c.state == "cancelled",
                     leases.c.worker == invocations.c.worker,

@@ -362,6 +362,48 @@ async def test_actual_predispatch_refusal_can_resume_after_freshness_recovers(
     assert retained["state"] == "unknown" and retained["reservation_state"] == "released"
 
 
+async def test_inner_denial_release_can_resume_with_explicit_owner_new_attempt(
+    overlay, identities, records, clock, monkeypatch
+):
+    steps, original, envelopes = await configured_steps(overlay, identities, records)
+    dispatch = steps.executor.store.dispatched
+    first_dispatch = True
+
+    def stale_after_first_dispatch(claim):
+        nonlocal first_dispatch
+        dispatch(claim)
+        if first_dispatch:
+            first_dispatch = False
+            overlay.observed_sources["verifier"] = now() - timedelta(seconds=301)
+
+    monkeypatch.setattr(steps.executor.store, "dispatched", stale_after_first_dispatch)
+    refused = await steps.step(original.id, envelopes[:1])
+    assert refused.invocation["state"] == "cancelled"
+    assert refused.invocation["phase"] == "dispatched"
+    assert refused.invocation["reservation_state"] == "released" and budget(overlay.store) == 4
+    overlay.observed("verifier")
+    clock[0] = original.created_at + timedelta(seconds=61)
+    renewed = await steps.opportunities.reobserve(
+        original.id,
+        "retry-inner-refusal",
+        "freshness-restored",
+        caller="receiver",
+        new_attempt=True,
+    )
+    assert renewed.state == "issued" and renewed.opportunity.supersedes == original.id
+    result = await steps.step(
+        renewed.opportunity.id, proposals(steps.opportunities, renewed.opportunity, identities)
+    )
+    assert result.invocation["state"] == "completed" and result.invocation["result"] == {"value": 3}
+    assert (
+        result.selection.invocation_id != refused.selection.invocation_id
+        and budget(overlay.store) == 3
+    )
+    assert (
+        steps.executor.store.get("receiver", refused.selection.invocation_id) == refused.invocation
+    )
+
+
 async def test_proven_release_can_reissue_before_expiry_with_owner_intent(
     overlay, identities, records, clock
 ):
