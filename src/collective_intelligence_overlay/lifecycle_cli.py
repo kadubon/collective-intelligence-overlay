@@ -11,6 +11,7 @@ from typing import Any
 
 from securesystemslib.signer import Key  # type: ignore[attr-defined]
 
+from ._lifecycle_json import MAX_JSON_BYTES, load_json
 from .lifecycle import (
     CapabilityIdentity,
     CapabilityLifecycleView,
@@ -93,10 +94,8 @@ def _file(path: Path | None) -> Any:
     if path is None:
         raise ValueError("required explicit JSON file missing")
     with path.open("rb") as stream:
-        data = stream.read(1048577)
-    if len(data) > 1048576:
-        raise ValueError("lifecycle JSON byte bound exceeded")
-    return json.loads(data)
+        data = stream.read(MAX_JSON_BYTES + 1)
+    return load_json(data)
 
 
 def _pins(path: Path | None) -> dict[str, Principal]:
@@ -176,7 +175,7 @@ def _validate_mode(args: argparse.Namespace) -> None:
 def run(args: argparse.Namespace) -> Any:
     _validate_mode(args)
     result = _run(args)
-    if len(json.dumps(result).encode()) > 1048576:
+    if len(json.dumps(result).encode()) > MAX_JSON_BYTES:
         raise ValueError("lifecycle output byte bound exceeded")
     return result
 

@@ -1,5 +1,6 @@
 import json
 from datetime import timedelta
+from decimal import Decimal
 
 import pytest
 from sqlalchemy import event as sql_event
@@ -17,10 +18,101 @@ from collective_intelligence_overlay.overlay import Overlay
 from collective_intelligence_overlay.security import verify
 
 
+def persisted_state(store):
+    from sqlalchemy import select
+
+    from collective_intelligence_overlay.storage import metadata
+
+    with store.engine.connect() as conn:
+        return {
+            table.name: sorted(repr(dict(row)) for row in conn.execute(select(table)).mappings())
+            for table in metadata.sorted_tables
+        }
+
+
 def target(cap):
     return CapabilityIdentity(
         issuer=cap.issuer, subject=cap.subject, binding_digest=cap.binding_digest
     )
+
+
+def test_all_read_views_leave_actual_original_budget_invocation_admission_state_unchanged(
+    store, identities, records
+):
+    from collective_intelligence_overlay.invocations import InvocationStore, Reservation
+    from collective_intelligence_overlay.lifecycle import build_handoff, observe_contributions
+
+    cap, evidence = records
+    for record in records:
+        store.put(identities[record.issuer].sign(record))
+    store.set_budget("work", Decimal(7))
+    api = InvocationStore(store)
+    claim, fresh = api.claim(
+        "receiver", "read-only-held", "binding", "a" * 64, {"operation": "fixture"}, Reservation()
+    )
+    assert fresh
+    api.dispatched(claim)
+    api.cancel("receiver", "read-only-held")
+    held = api.get("receiver", "read-only-held")
+    assert held["reservation_state"] == "held"
+    decision = Decision(
+        id="read-only-admission",
+        request=UseRequest(
+            receiver="receiver", subject=cap.subject, scope=cap.scope, capability_issuer=cap.issuer
+        ),
+        outcome="UNKNOWN",
+        reasons=("unassessed",),
+        policy_digest="1" * 64,
+        valid_until=now() + timedelta(minutes=5),
+    )
+    store.save_decision(decision)
+    before = persisted_state(store)
+    page = read_lifecycle_page(store, target(cap), caller="receiver")
+    view = inspect_lifecycle(page, target(cap))
+    observe_contributions(page)
+    build_handoff(
+        view,
+        source_role="GENERATE",
+        target_role="VERIFY",
+        producer=cap.issuer,
+        receiver="receiver",
+        contract_identity="cio.lifecycle.view.v1",
+    )
+    export_originals(
+        store, tuple(item.source.reference for item in page.records), caller="receiver"
+    )
+    for operation in (
+        lambda: read_lifecycle_page(store, target(cap), caller="other"),
+        lambda: export_originals(store, (page.records[0].source.reference,), caller="other"),
+    ):
+        with pytest.raises(PermissionError):
+            operation()
+    assert persisted_state(store) == before
+    assert api.get("receiver", "read-only-held") == held
+
+
+async def test_invalid_assessment_targets_reject_before_actual_qualification_writes(
+    store, policy, identities, records
+):
+    cap = records[0]
+    for record in records:
+        store.put(identities[record.issuer].sign(record))
+    overlay = Overlay(store, policy)
+    overlay.observed("producer")
+    overlay.observed("verifier")
+    request = UseRequest(
+        receiver="receiver",
+        subject=cap.subject,
+        scope=cap.scope,
+        semantic_fit="confirmed",
+        capability_issuer=cap.issuer,
+    )
+    before = persisted_state(store)
+    with pytest.raises(ValueError, match="duplicate stock target"):
+        await assess_stock(
+            overlay, (request, request.model_copy(update={"arguments_digest": "2" * 64}))
+        )
+    assert persisted_state(store) == before
 
 
 def test_store_inspection_is_owner_read_only_original_payload_bound(store, identities, records):

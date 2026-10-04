@@ -4,7 +4,7 @@ from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
-from hypothesis import given
+from hypothesis import given, seed, settings
 from hypothesis import strategies as st
 from pydantic import ValidationError
 
@@ -480,6 +480,8 @@ def test_late_record_and_overlimit_material_fail_before_projection():
         snapshot(*([cap] * 257))
 
 
+@seed(510)
+@settings(max_examples=32, deadline=None)
 @given(st.sets(st.integers(0, 4)), st.sets(st.integers(0, 4)))
 def test_independent_endpoint_sets_reconcile_with_fixed_identity_universe(before, after):
     caps = tuple(capability(str(i)) for i in range(5))
@@ -915,3 +917,387 @@ def test_duration_aliases_do_not_add_parent_and_child_wall_observations(unit):
     assert all(item.duration_basis == "inclusive_or_unspecified" for item in view.costs)
     assert all(item.cost.unit == unit for item in view.costs)
     assert any(r.kind == ResidualKind.INCOMPATIBLE_UNIT for r in view.residuals)
+
+
+@pytest.mark.parametrize("missing_index", [0, 1])
+def test_same_clock_partially_sequenced_decisions_keep_gross_unknown(missing_index):
+    cap = capability()
+    opening = stock((cap,), set(), cutoff=START + timedelta(seconds=10))
+    closing = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
+    base = closing.entries[0].decision
+    history = period(
+        opening,
+        closing,
+        period_decision(base, "REJECT", 15, "same-clock-reject"),
+        period_decision(base, "ACCEPT", 15, "same-clock-accept"),
+        base,
+    )
+    data = history.model_dump(mode="python")
+    data["records"][missing_index]["source"]["sequence"] = None
+    from collective_intelligence_overlay.lifecycle import LifecycleSnapshot
+
+    history = LifecycleSnapshot.model_validate(data)
+    growth = observe_growth(opening, closing, history=history)
+    assert growth.reconciled is True and len(growth.entries_added_net) == 1
+    assert growth.gross_additions is growth.gross_losses is growth.re_admissions is None
+    assert any("gross_churn" in r.prevents for r in growth.residuals)
+
+
+@pytest.mark.parametrize("field", ["caller", "policy_digest"])
+def test_growth_service_counts_only_fixed_receiver_and_policy_receipts(field):
+    cap = capability()
+    opening = stock((cap,), {0}, cutoff=START + timedelta(seconds=10))
+    closing = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
+    event = use(cap).model_copy(update={"occurred_at": START + timedelta(seconds=15)})
+    execution = event.execution.model_dump(mode="json")
+    execution[field] = "another-receiver" if field == "caller" else digest(b"another-policy")
+    event = Event.model_validate({**event.model_dump(mode="json"), "execution": execution})
+    growth = observe_growth(opening, closing, history=period(opening, closing, event))
+    assert growth.service_use_count == 0
+    assert growth.costs == growth.cost_subtotals == ()
+
+
+@pytest.mark.parametrize(
+    "field", ["binding_digest", "capability_issuer", "policy_digest", "scope", "purpose"]
+)
+def test_same_invocation_conflicting_receipt_identity_is_never_silently_deduplicated(field):
+    cap = capability()
+    first = use(cap)
+    second = use(cap, "different-report", invocation=first.execution.invocation_id)
+    execution = second.execution.model_dump(mode="json")
+    execution[field] = (
+        {**execution["scope"], "task": "another-task"}
+        if field == "scope"
+        else digest(b"another")
+        if field in {"binding_digest", "policy_digest"}
+        else "verification"
+        if field == "purpose"
+        else "another"
+    )
+    second = Event.model_validate({**second.model_dump(mode="json"), "execution": execution})
+    with pytest.raises(Conflict, match="invocation receipt content conflict"):
+        observe_contributions(snapshot(first, second))
+
+
+def test_same_invocation_id_for_distinct_callers_remains_two_uses():
+    cap = capability()
+    first = use(cap)
+    second = use(cap, "another-callers-report", invocation=first.execution.invocation_id)
+    execution = second.execution.model_copy(update={"caller": "another-caller"})
+    second = Event.model_validate({**second.model_dump(mode="python"), "execution": execution})
+    observed = observe_contributions(snapshot(first, second))
+    assert len(observed) == 2
+    assert {c.receiver for c in observed} == {"receiver", "another-caller"}
+
+
+def test_missing_nested_execution_purpose_is_not_observed_reuse(identities, principals):
+    from securesystemslib.dsse import Envelope
+
+    cap = capability()
+    event = use(cap).model_copy(update={"occurred_at": START + timedelta(seconds=15)})
+    body = event.model_dump(mode="json")
+    body["execution"].pop("purpose")
+    template = identities["receiver"].sign(event)
+    envelope = Envelope(json.dumps(body).encode(), template["payloadType"], {})
+    envelope.sign(identities["receiver"].signer)
+    document = envelope.to_dict()
+    observed = snapshot(document, signed=True, principals=principals)
+    source = observed.records[0].source
+    assert source.signature == "historical_verified"
+    assert source.reference.payload_digest == digest(envelope.payload)
+    assert "execution.purpose" in source.decoder_default_fields
+    contributions = observe_contributions(observed)
+    assert all(c.strength != "observed" for c in contributions)
+    view = inspect_lifecycle(observed, target(cap))
+    assert len(view.executions) == 1
+    assert any(r.kind == ResidualKind.UNKNOWN_RELATION for r in view.residuals)
+    with pytest.raises(ValueError, match="actual reuse receipt"):
+        build_handoff(
+            view,
+            source_role=HandoffRole.REUSE,
+            target_role=HandoffRole.ACCOUNT,
+            producer="producer",
+            receiver="receiver",
+            contract_identity="view.v1",
+        )
+    opening = stock((cap,), {0}, cutoff=START + timedelta(seconds=10))
+    closing = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
+    material = {
+        "view_schema_version": "1",
+        "context": period(opening, closing).context.model_dump(mode="json"),
+        "records": [
+            {"format": "dsse", "document": document, "received_at": None, "sequence": None}
+        ],
+    }
+    history = snapshot_from_material(
+        material, owner="receiver", caller="receiver", principals=principals
+    )
+    growth = observe_growth(opening, closing, history=history)
+    assert growth.service_use_count is None
+    assert (
+        document == envelope.to_dict()
+        and "purpose" not in json.loads(envelope.payload)["execution"]
+    )
+
+
+def test_assessed_handoff_requires_basis_owner_to_be_receiver():
+    cap = capability()
+    observed = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
+    decision = observed.entries[0].decision
+    material = {
+        "view_schema_version": "1",
+        "context": observed.context.model_dump(mode="json"),
+        "records": [
+            {
+                "format": "unsigned",
+                "document": decision.model_dump(mode="json"),
+                "received_at": None,
+                "sequence": None,
+                "reference": observed.entries[0]
+                .reference.model_copy(update={"issuer": "foreign-owner"})
+                .model_dump(mode="json"),
+            }
+        ],
+    }
+    supplied = snapshot_from_material(material, owner="receiver", caller="receiver")
+    view = inspect_lifecycle(supplied, target(cap))
+    with pytest.raises(ValueError, match="receiver's actual Decision"):
+        build_handoff(
+            view,
+            source_role=HandoffRole.GENERATE,
+            target_role=HandoffRole.VERIFY,
+            producer="producer",
+            receiver="receiver",
+            contract_identity="view.v1",
+            state="assessed",
+            state_basis=supplied.records[0].source.reference,
+        )
+
+
+@pytest.mark.parametrize("field", ["scope", "policy_digest"])
+def test_reuse_account_handoff_does_not_use_incompatible_receipt(field):
+    cap = capability()
+    event = use(cap)
+    execution = event.execution.model_dump(mode="json")
+    execution[field] = (
+        {**execution["scope"], "task": "another-task"}
+        if field == "scope"
+        else digest(b"another-policy")
+    )
+    event = Event.model_validate({**event.model_dump(mode="json"), "execution": execution})
+    view = inspect_lifecycle(snapshot(event), target(cap))
+    with pytest.raises(ValueError, match="actual reuse receipt"):
+        build_handoff(
+            view,
+            source_role=HandoffRole.REUSE,
+            target_role=HandoffRole.ACCOUNT,
+            producer="producer",
+            receiver="receiver",
+            contract_identity="view.v1",
+        )
+
+
+async def test_assessment_duplicate_stock_targets_fail_before_any_delegation(monkeypatch):
+    from collective_intelligence_overlay.lifecycle import assess_stock
+
+    cap = capability()
+    request = UseRequest(
+        receiver="receiver",
+        subject=cap.subject,
+        scope=SCOPE,
+        capability_issuer=cap.issuer,
+        binding_digest=cap.binding_digest,
+    )
+    calls = []
+
+    async def prohibited(*args):
+        calls.append(args)
+        raise AssertionError("qualification must not begin for duplicate stock targets")
+
+    monkeypatch.setattr("collective_intelligence_overlay.accounting.capability_metrics", prohibited)
+    with pytest.raises(ValueError, match="duplicate stock target"):
+        await assess_stock(
+            None,
+            (request, request.model_copy(update={"arguments_digest": digest(b"another-input")})),
+        )
+    assert calls == []
+
+
+async def test_assessment_excessive_targets_fail_before_any_delegation(monkeypatch):
+    from collective_intelligence_overlay.lifecycle import assess_stock
+
+    calls = []
+
+    async def prohibited(*args):
+        calls.append(args)
+        raise AssertionError("qualification must not begin for excessive stock targets")
+
+    monkeypatch.setattr("collective_intelligence_overlay.accounting.capability_metrics", prohibited)
+    requests = tuple(
+        UseRequest(
+            receiver="receiver",
+            subject=cap.subject,
+            scope=SCOPE,
+            capability_issuer=cap.issuer,
+            binding_digest=cap.binding_digest,
+        )
+        for cap in (capability(str(index)) for index in range(33))
+    )
+    with pytest.raises(ValueError, match="1 to 32"):
+        await assess_stock(None, requests)
+    assert calls == []
+
+
+def test_missing_decision_validity_is_not_reported_as_observed_expiry():
+    cap = capability()
+    cutoff = now() + timedelta(minutes=1)
+    observed = stock((cap,), {0}, cutoff=cutoff)
+    body = observed.entries[0].decision.model_dump(mode="json")
+    body.pop("valid_until")
+    material = {
+        "view_schema_version": "1",
+        "context": observed.context.model_dump(mode="json"),
+        "records": [
+            {"format": "unsigned", "document": body, "received_at": None, "sequence": None}
+        ],
+    }
+    supplied = snapshot_from_material(material, owner="receiver", caller="receiver")
+    view = inspect_lifecycle(supplied, target(cap))
+    assert "valid_until" in view.sources[0].decoder_default_fields
+    assert not any(r.kind == ResidualKind.STALE_SOURCE for r in view.residuals)
+    assert any(r.kind == ResidualKind.MISSING_HISTORY for r in view.residuals)
+
+
+def test_missing_period_decision_validity_cannot_supply_gross_churn():
+    cap = capability()
+    end = now() - timedelta(minutes=1)
+    opening = stock((cap,), set(), cutoff=end - timedelta(minutes=1))
+    closing = stock((cap,), {0}, cutoff=end)
+    decision = closing.entries[0].decision
+    body = decision.model_dump(mode="json")
+    body.pop("valid_until")
+    material = {
+        "view_schema_version": "1",
+        "context": period(opening, closing).context.model_dump(mode="json"),
+        "records": [{"format": "unsigned", "document": body, "received_at": None, "sequence": 1}],
+    }
+    history = snapshot_from_material(material, owner="receiver", caller="receiver")
+    growth = observe_growth(opening, closing, history=history)
+    assert growth.gross_additions is growth.gross_losses is growth.re_admissions is None
+
+
+@pytest.mark.parametrize("field", ["scope", "policy_digest"])
+def test_growth_formation_costs_require_matching_nested_coordinates(field):
+    cap = capability()
+    opening = stock((cap,), {0}, cutoff=START + timedelta(seconds=10))
+    closing = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
+    formation = FormationReceipt(
+        receipts=(ReceiptRef(issuer="receiver", id="outside-page"),),
+        scope=SCOPE,
+        binding_digest=cap.binding_digest,
+        policy_digest=POLICY,
+        relationship="declared",
+    ).model_dump(mode="json")
+    formation[field] = (
+        {**formation["scope"], "task": "another-task"}
+        if field == "scope"
+        else digest(b"another-policy")
+    )
+    event = Event(
+        schema_version="2",
+        id="foreign-formation",
+        issuer=cap.issuer,
+        subject=cap.subject,
+        action="formation",
+        task_id="foreign",
+        attempt_id="foreign",
+        correlation_id="foreign",
+        occurred_at=START + timedelta(seconds=15),
+        formation=FormationReceipt.model_validate(formation),
+        costs=(Cost(category="formation", unit="tokens", status="measured", quantity=7),),
+    )
+    growth = observe_growth(opening, closing, history=period(opening, closing, event))
+    assert growth.costs == growth.cost_subtotals == ()
+
+
+def test_assessed_handoff_does_not_match_another_owners_colliding_decision_id():
+    cap = capability()
+    observed = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
+    right = observed.entries[0].decision
+    wrong = right.model_copy(
+        update={"request": right.request.model_copy(update={"receiver": "another"})}
+    )
+    docs = [(wrong, "receiver"), (right, "foreign-owner")]
+    material = {
+        "view_schema_version": "1",
+        "context": observed.context.model_dump(mode="json"),
+        "records": [
+            {
+                "format": "unsigned",
+                "document": d.model_dump(mode="json"),
+                "received_at": None,
+                "sequence": None,
+                "reference": {
+                    "kind": "decision",
+                    "issuer": owner,
+                    "id": d.id,
+                    "payload_digest": projection_digest(d.model_dump(mode="json")),
+                },
+            }
+            for d, owner in docs
+        ],
+    }
+    supplied = snapshot_from_material(material, owner="receiver", caller="receiver")
+    view = inspect_lifecycle(supplied, target(cap))
+    assert len(view.decisions) == 2
+    with pytest.raises(ValueError, match="receiver's actual Decision"):
+        build_handoff(
+            view,
+            source_role=HandoffRole.GENERATE,
+            target_role=HandoffRole.VERIFY,
+            producer="producer",
+            receiver="receiver",
+            contract_identity="view.v1",
+            state="assessed",
+            state_basis=supplied.records[0].source.reference,
+        )
+
+
+@pytest.mark.parametrize("field", ["scope", "policy_digest", "receiver"])
+def test_growth_work_costs_require_matching_nested_coordinates(field):
+    from collective_intelligence_overlay.models import WorkObservation
+
+    cap = capability()
+    opening = stock((cap,), {0}, cutoff=START + timedelta(seconds=10))
+    closing = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
+    work = WorkObservation(
+        receiver="receiver",
+        scope=SCOPE,
+        policy_digest=POLICY,
+        goal_id="goal",
+        goal_digest=digest(b"goal"),
+        stage="discovery",
+        result="discovered",
+    ).model_dump(mode="json")
+    work[field] = (
+        {**work["scope"], "task": "another-task"}
+        if field == "scope"
+        else digest(b"another-policy")
+        if field == "policy_digest"
+        else "another"
+    )
+    event = Event(
+        schema_version="3",
+        id="foreign-work",
+        issuer=work["receiver"],
+        subject=cap.subject,
+        action="recommendation",
+        task_id="foreign",
+        attempt_id="foreign",
+        correlation_id="foreign",
+        occurred_at=START + timedelta(seconds=15),
+        work=WorkObservation.model_validate(work),
+        costs=(Cost(category="observation", unit="tokens", status="measured", quantity=7),),
+    )
+    growth = observe_growth(opening, closing, history=period(opening, closing, event))
+    assert growth.costs == growth.cost_subtotals == ()

@@ -9,6 +9,7 @@ from typing import Any
 
 from sqlalchemy import and_, or_, select
 
+from ._lifecycle_json import check_json_bytes, load_json
 from .lifecycle import (
     CapabilityIdentity,
     Coverage,
@@ -149,9 +150,10 @@ def read_lifecycle_page(
         else:
             row = by_key[ref.kind, ref.issuer, ref.id]
             envelope = row["envelope"]
-            verified = verify(envelope, store.principals, require_authority=False)
             payload = base64.b64decode(envelope["payload"], validate=True)
-            original_body = json.loads(payload)
+            check_json_bytes(payload)
+            verified = verify(envelope, store.principals, require_authority=False)
+            original_body = load_json(payload)
             if (
                 record_identity(verified, store.owner) != (ref.kind, ref.issuer, ref.id)
                 or digest(payload) != ref.payload_digest
