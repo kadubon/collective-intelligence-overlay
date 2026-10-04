@@ -1,5 +1,10 @@
 # Compatibility and licensing
 
+0.5.0 is an unpublished feature candidate with no new runtime dependency or DB migration.
+Its new layer preserves old wire records and uses a separate unchanged-numerics native
+fault profile. See [migration](migration-050.md) and [pending/actual validation](lifecycle-050-implementation.md).
+Historical acceptance below belongs to its stated versions.
+
 0.4.2 is published; [actual results](release-042-results.json) bind the unchanged
 study/native candidate, standard tag/OIDC publication and all public asset
 downloads. All twelve native candidate profiles, four cross readers and mixed

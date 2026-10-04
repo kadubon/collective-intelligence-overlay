@@ -1,7 +1,19 @@
 ---
 name: collective-intelligence-overlay
-description: Use Collective Intelligence Overlay for configured-peer evidence, qualified capability reuse, bounded owner goals and formation, durable result recovery and withdrawal. Applies to this package's SDK and registered applications, not generic multi-agent orchestration.
+description: Use Collective Intelligence Overlay to inspect evidence-preserving capability lifecycle, contributions, residuals, fixed-coordinate stock and typed handoffs, and to operate configured-peer qualified reuse, bounded formation and recovery. Applies to this package's SDK and registered applications, not generic multi-agent orchestration.
 ---
+
+For 0.5.0 read [lifecycle reference](../../../docs/lifecycle-reference.md).
+Start with `lifecycle inspect --fixture` for explicitly synthetic offline material,
+or use bounded owner reads with an exact target and both saved context cursors.
+Keep references, coverage, clocks, units and Residuals. Only explicit `lifecycle assess`
+creates current Decisions; an old ACCEPT/report/handoff grants no execution.
+Copy/import and completed remote use do not prove functional novelty or installation.
+Compare independently retained stock endpoints with identical coordinates; without
+matching complete period history, churn and re-admissions remain null. Handoff JSON
+is proposed material, not transport, verification, allocation or budget authority.
+Use explicit owner original export; never follow references into unshared material.
+No inference or new research comparison is part of the lifecycle tutorial/release.
 
 Use the supplied owner's identity, policy and budget. Evidence is shared; admission
 is local. Read [API/CLI](../../../docs/api.md) for call signatures and exit codes;

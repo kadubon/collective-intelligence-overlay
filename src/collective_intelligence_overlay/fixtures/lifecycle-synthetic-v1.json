@@ -1,0 +1,445 @@
+{
+  "fixture_kind": "explicit_synthetic",
+  "description": "All records, decisions, receipts and costs are explicitly synthetic public example material; no real qualification, model, service or growth experiment.",
+  "license": "Apache-2.0",
+  "target": {
+    "issuer": "producer",
+    "subject": {
+      "schema_version": "1",
+      "id": "sum",
+      "version": "1",
+      "digest": "09f5ffef28309853265c4a98d0e56e1be522b6b402d8193594fd05103064fc6a"
+    },
+    "binding_digest": "9717f7dba256f2f3588b0bb3a4e3a9742770d86f8b53fdb63ba98b5944def4f8"
+  },
+  "material": {
+    "view_schema_version": "1",
+    "context": {
+      "owner": "receiver",
+      "receiver": "receiver",
+      "scope": {
+        "schema_version": "1",
+        "task": "sum",
+        "input_contract": "rows.v1",
+        "output_contract": "sum.v1",
+        "environment": {
+          "tool": "1"
+        },
+        "permissions": []
+      },
+      "policy_digest": "823412d1eacb67956220e532959f0104603057c88704863ca38e7cd188fda812",
+      "cutoff": "2026-10-04T00:01:00Z",
+      "observed_at": "2026-10-04T00:01:00Z",
+      "feed_generation": "test-generation",
+      "prefix": 100,
+      "revisions": {},
+      "coverage": "complete",
+      "coverage_basis": "Explicit finite synthetic test material only.",
+      "query": null,
+      "record_cursor": null,
+      "decision_cursor": null,
+      "record_limit": 256,
+      "byte_limit": 1048576,
+      "period_start": null,
+      "period_end": null
+    },
+    "records": [
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "2",
+          "binding_digest": "9717f7dba256f2f3588b0bb3a4e3a9742770d86f8b53fdb63ba98b5944def4f8",
+          "kind": "capability",
+          "subject": {
+            "schema_version": "1",
+            "id": "sum",
+            "version": "1",
+            "digest": "09f5ffef28309853265c4a98d0e56e1be522b6b402d8193594fd05103064fc6a"
+          },
+          "issuer": "producer",
+          "scope": {
+            "schema_version": "1",
+            "task": "sum",
+            "input_contract": "rows.v1",
+            "output_contract": "sum.v1",
+            "environment": {
+              "tool": "1"
+            },
+            "permissions": []
+          },
+          "entrypoint": "sum",
+          "claim": "sum-contract",
+          "dependencies": [],
+          "dependency_issuers": [],
+          "formation_inputs": [],
+          "evidence": [],
+          "license": null,
+          "provenance": "explicit synthetic unit fixture",
+          "classification": "declared-new",
+          "created_at": "2026-10-04T00:00:00Z",
+          "expires_at": "2026-10-05T00:00:00Z",
+          "obligations": []
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 1
+      },
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "2",
+          "binding_digest": "9717f7dba256f2f3588b0bb3a4e3a9742770d86f8b53fdb63ba98b5944def4f8",
+          "kind": "evidence",
+          "id": "synthetic-check",
+          "issuer": "verifier",
+          "subject": {
+            "schema_version": "1",
+            "id": "sum",
+            "version": "1",
+            "digest": "09f5ffef28309853265c4a98d0e56e1be522b6b402d8193594fd05103064fc6a"
+          },
+          "claim": "sum-contract",
+          "scope": {
+            "schema_version": "1",
+            "task": "sum",
+            "input_contract": "rows.v1",
+            "output_contract": "sum.v1",
+            "environment": {
+              "tool": "1"
+            },
+            "permissions": []
+          },
+          "receivers": [
+            "receiver"
+          ],
+          "verdict": "PASS",
+          "method": "csv-check",
+          "verifier_version": "synthetic-v1",
+          "artifact_digest": "7777777777777777777777777777777777777777777777777777777777777777",
+          "sources": [],
+          "evidence_dependencies": [],
+          "objections": [],
+          "obligations": [
+            "Synthetic example; no actual runtime authority."
+          ],
+          "declared_origin": {},
+          "created_at": "2026-10-04T00:00:00Z",
+          "expires_at": "2026-10-05T00:00:00Z"
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 2
+      },
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "1",
+          "id": "synthetic-decision-receiver",
+          "request": {
+            "schema_version": "1",
+            "purpose": "reuse",
+            "receiver": "receiver",
+            "subject": {
+              "schema_version": "1",
+              "id": "sum",
+              "version": "1",
+              "digest": "09f5ffef28309853265c4a98d0e56e1be522b6b402d8193594fd05103064fc6a"
+            },
+            "scope": {
+              "schema_version": "1",
+              "task": "sum",
+              "input_contract": "rows.v1",
+              "output_contract": "sum.v1",
+              "environment": {
+                "tool": "1"
+              },
+              "permissions": []
+            },
+            "semantic_fit": "unknown",
+            "capability_issuer": "producer",
+            "binding_digest": "9717f7dba256f2f3588b0bb3a4e3a9742770d86f8b53fdb63ba98b5944def4f8",
+            "arguments_digest": null
+          },
+          "outcome": "ACCEPT",
+          "reasons": [
+            "synthetic-receiver-policy"
+          ],
+          "policy_digest": "823412d1eacb67956220e532959f0104603057c88704863ca38e7cd188fda812",
+          "evaluated_at": "2026-10-04T00:00:01Z",
+          "evidence_ids": [],
+          "record_count": 0,
+          "revisions": {},
+          "source_observations": {},
+          "valid_until": "2026-10-05T00:00:00Z"
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 3
+      },
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "1",
+          "id": "synthetic-decision-other",
+          "request": {
+            "schema_version": "1",
+            "purpose": "reuse",
+            "receiver": "other",
+            "subject": {
+              "schema_version": "1",
+              "id": "sum",
+              "version": "1",
+              "digest": "09f5ffef28309853265c4a98d0e56e1be522b6b402d8193594fd05103064fc6a"
+            },
+            "scope": {
+              "schema_version": "1",
+              "task": "sum",
+              "input_contract": "rows.v1",
+              "output_contract": "sum.v1",
+              "environment": {
+                "tool": "1"
+              },
+              "permissions": []
+            },
+            "semantic_fit": "unknown",
+            "capability_issuer": "producer",
+            "binding_digest": "9717f7dba256f2f3588b0bb3a4e3a9742770d86f8b53fdb63ba98b5944def4f8",
+            "arguments_digest": null
+          },
+          "outcome": "REJECT",
+          "reasons": [
+            "synthetic-receiver-policy"
+          ],
+          "policy_digest": "823412d1eacb67956220e532959f0104603057c88704863ca38e7cd188fda812",
+          "evaluated_at": "2026-10-04T00:00:01Z",
+          "evidence_ids": [],
+          "record_count": 0,
+          "revisions": {},
+          "source_observations": {},
+          "valid_until": "2026-10-05T00:00:00Z"
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 4,
+        "reference": {
+          "schema_version": "1",
+          "kind": "decision",
+          "issuer": "other",
+          "id": "synthetic-decision-other",
+          "payload_digest": "a1e5e3b81f621275edce2cc8a3445eaa98e14125a7e4067dbb2d51eb20218a9e"
+        }
+      },
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "2",
+          "execution": {
+            "schema_version": "1",
+            "purpose": "reuse",
+            "invocation_id": "use-1",
+            "caller": "receiver",
+            "resource_owner": "receiver",
+            "capability_issuer": "producer",
+            "binding_digest": "9717f7dba256f2f3588b0bb3a4e3a9742770d86f8b53fdb63ba98b5944def4f8",
+            "arguments_digest": "c96c6d5be8d08a12e7b5cdc1b207fa6b2430974c86803d8891675e76fd992c20",
+            "result_digest": "f6a214f7a5fcda0c2cee9660b7fc29f5649e3c68aad48e20e950137c98913a68",
+            "scope": {
+              "schema_version": "1",
+              "task": "sum",
+              "input_contract": "rows.v1",
+              "output_contract": "sum.v1",
+              "environment": {
+                "tool": "1"
+              },
+              "permissions": []
+            },
+            "policy_digest": "823412d1eacb67956220e532959f0104603057c88704863ca38e7cd188fda812",
+            "state": "completed",
+            "transport": "local",
+            "parent_invocation": null
+          },
+          "formation": null,
+          "work": null,
+          "reconciliation": null,
+          "resolution": null,
+          "kind": "event",
+          "id": "use-1",
+          "issuer": "receiver",
+          "subject": {
+            "schema_version": "1",
+            "id": "sum",
+            "version": "1",
+            "digest": "09f5ffef28309853265c4a98d0e56e1be522b6b402d8193594fd05103064fc6a"
+          },
+          "action": "reuse",
+          "task_id": "use-1",
+          "attempt_id": "use-1",
+          "correlation_id": "fixture",
+          "causation_id": null,
+          "occurred_at": "2026-10-04T00:00:00Z",
+          "costs": [
+            {
+              "schema_version": "1",
+              "category": "use",
+              "status": "measured",
+              "quantity": "3",
+              "unit": "tokens"
+            },
+            {
+              "schema_version": "1",
+              "category": "maintenance",
+              "status": "unavailable",
+              "quantity": null,
+              "unit": "joules"
+            }
+          ],
+          "outcome": null,
+          "duration_seconds": null
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 5
+      },
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "1",
+          "execution": null,
+          "formation": null,
+          "work": null,
+          "reconciliation": null,
+          "resolution": null,
+          "kind": "event",
+          "id": "synthetic-copy",
+          "issuer": "receiver",
+          "subject": {
+            "schema_version": "1",
+            "id": "sum",
+            "version": "1",
+            "digest": "09f5ffef28309853265c4a98d0e56e1be522b6b402d8193594fd05103064fc6a"
+          },
+          "action": "replication",
+          "task_id": "synthetic",
+          "attempt_id": "synthetic-copy",
+          "correlation_id": "synthetic",
+          "causation_id": null,
+          "occurred_at": "2026-10-04T00:00:00Z",
+          "costs": [],
+          "outcome": null,
+          "duration_seconds": null
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 6
+      },
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "1",
+          "kind": "revocation",
+          "id": "synthetic-withdrawal",
+          "issuer": "producer",
+          "subject": {
+            "schema_version": "1",
+            "id": "sum",
+            "version": "1",
+            "digest": "09f5ffef28309853265c4a98d0e56e1be522b6b402d8193594fd05103064fc6a"
+          },
+          "evidence_id": null,
+          "reason": "Explicit synthetic withdrawal; original PASS remains visible.",
+          "created_at": "2026-10-04T00:00:30Z"
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 7
+      },
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "2",
+          "binding_digest": "0747fad8dd473f37d44279a03c17fb3bad94a136ae356c8de8179587507f0d65",
+          "kind": "capability",
+          "subject": {
+            "schema_version": "1",
+            "id": "formed",
+            "version": "1",
+            "digest": "90c0d99050e146cffec10182537344ebfca264570d55cde2cafb3a03fd517b26"
+          },
+          "issuer": "producer",
+          "scope": {
+            "schema_version": "1",
+            "task": "sum",
+            "input_contract": "rows.v1",
+            "output_contract": "sum.v1",
+            "environment": {
+              "tool": "1"
+            },
+            "permissions": []
+          },
+          "entrypoint": "formed",
+          "claim": "sum-contract",
+          "dependencies": [],
+          "dependency_issuers": [],
+          "formation_inputs": [],
+          "evidence": [],
+          "license": null,
+          "provenance": "explicit synthetic unit fixture",
+          "classification": "declared-new",
+          "created_at": "2026-10-04T00:00:00Z",
+          "expires_at": "2026-10-05T00:00:00Z",
+          "obligations": []
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 8
+      },
+      {
+        "format": "unsigned",
+        "document": {
+          "schema_version": "2",
+          "execution": null,
+          "formation": {
+            "schema_version": "1",
+            "receipts": [
+              {
+                "schema_version": "1",
+                "issuer": "receiver",
+                "id": "use-1"
+              }
+            ],
+            "scope": {
+              "schema_version": "1",
+              "task": "sum",
+              "input_contract": "rows.v1",
+              "output_contract": "sum.v1",
+              "environment": {
+                "tool": "1"
+              },
+              "permissions": []
+            },
+            "binding_digest": "0747fad8dd473f37d44279a03c17fb3bad94a136ae356c8de8179587507f0d65",
+            "policy_digest": "823412d1eacb67956220e532959f0104603057c88704863ca38e7cd188fda812",
+            "relationship": "observed-use",
+            "functional_novelty": "unknown",
+            "verification": "candidate"
+          },
+          "work": null,
+          "reconciliation": null,
+          "resolution": null,
+          "kind": "event",
+          "id": "synthetic-formation",
+          "issuer": "producer",
+          "subject": {
+            "schema_version": "1",
+            "id": "formed",
+            "version": "1",
+            "digest": "90c0d99050e146cffec10182537344ebfca264570d55cde2cafb3a03fd517b26"
+          },
+          "action": "formation",
+          "task_id": "synthetic",
+          "attempt_id": "synthetic-formation",
+          "correlation_id": "synthetic",
+          "causation_id": null,
+          "occurred_at": "2026-10-04T00:00:00Z",
+          "costs": [],
+          "outcome": null,
+          "duration_seconds": null
+        },
+        "received_at": "2026-10-04T00:00:00+00:00",
+        "sequence": 9
+      }
+    ]
+  }
+}

@@ -47,6 +47,12 @@ def main() -> int:
         "verify-backup", help="verify backup structure, digests and archive format; no restore"
     )
     backup_check.add_argument("--directory", type=Path, required=True)
+    lifecycle_cmd = commands.add_parser(
+        "lifecycle", help="read-only lifecycle views; current assessment is explicit"
+    )
+    from .lifecycle_cli import configure as configure_lifecycle
+
+    configure_lifecycle(lifecycle_cmd)
     for name in (
         "check-config",
         "migrate",
@@ -207,7 +213,11 @@ def main() -> int:
     overlay = None
     try:
         result: Any
-        if args.command == "opa-install":
+        if args.command == "lifecycle":
+            from .lifecycle_cli import run as run_lifecycle
+
+            result = run_lifecycle(args)
+        elif args.command == "opa-install":
             from .opa_install import VERSION, install_opa
 
             result = {"path": str(install_opa(args.target)), "version": VERSION}
@@ -591,6 +601,10 @@ def main() -> int:
             and result.get("next_cursor")
         ):
             return 3
+        if args.command == "lifecycle" and isinstance(result, dict):
+            context = result.get("context", {})
+            if context.get("record_cursor") or context.get("decision_cursor"):
+                return 3
         return 0
     except Exception as exc:
         from .synchronization import ResnapshotRequired

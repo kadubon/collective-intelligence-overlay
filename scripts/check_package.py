@@ -94,6 +94,17 @@ with zipfile.ZipFile(wheel) as archive:
         "schemas/proposal.json",
         "schemas/binding.json",
         "schemas/artifactspec.json",
+        "lifecycle.py",
+        "lifecycle_store.py",
+        "lifecycle_cli.py",
+        "lifecycle_tutorial.py",
+        "fixtures/lifecycle-synthetic-v1.json",
+        "schemas/capabilitylifecycleview.json",
+        "schemas/contributionobservation.json",
+        "schemas/residual.json",
+        "schemas/growthobservation.json",
+        "schemas/handoffobservation.json",
+        "schemas/stockobservation.json",
     ):
         assert any(n.endswith(ending) for n in members), ending
 with tarfile.open(sdist) as archive:
@@ -352,6 +363,35 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
         )
         assert version in output
         result = {"runtime": actual, "installed": installed, "cli": output.strip()}
+        if version == "0.5.0":
+            offline = json.loads(
+                subprocess.check_output(
+                    [str(cli), "lifecycle", "inspect", "--fixture"],
+                    cwd=temp,
+                    env=environment,
+                    text=True,
+                )
+            )
+            assert offline["current_admission"] == "unassessed"
+            assert offline["execution_authority"] == "not_granted" and offline["residuals"]
+            result["offline_lifecycle"] = {
+                "view_schema_version": offline["view_schema_version"],
+                "sources": len(offline["sources"]),
+                "residuals": len(offline["residuals"]),
+            }
+            for command in (
+                ["contributions", "--fixture"],
+                ["handoff", "--fixture", "--source-role", "REUSE", "--target-role", "ACCOUNT"],
+                ["schema", "--type", "GrowthObservation"],
+            ):
+                json.loads(
+                    subprocess.check_output(
+                        [str(cli), "lifecycle", *command],
+                        cwd=temp,
+                        env=environment,
+                        text=True,
+                    )
+                )
         result["distribution_resolved"] = json.loads(
             subprocess.check_output(
                 ["uv", "pip", "list", "--python", str(python), "--format=json"], cwd=temp, text=True
@@ -366,8 +406,9 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
                 [
                     str(python),
                     "-c",
-                    "import collective_intelligence_overlay,sys; "
-                    "assert 'agent_framework' not in sys.modules; assert 'mcp' not in sys.modules",
+                    "import collective_intelligence_overlay.lifecycle,sys; "
+                    "assert not any(n.split('.')[0] in {'agent_framework','mcp','a2a','ollama'} "
+                    "for n in sys.modules)",
                 ],
                 cwd=temp,
                 environment=environment,
@@ -470,7 +511,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
         if (
             full
             and name == "agents"
-            and version in {"0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4"}
+            and version in {"0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4", "0.5.0"}
             and platform.system() == "Linux"
             and requested["minor"] == [3, 12]
         ):
@@ -519,6 +560,32 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
                 environment=environment,
             )
             result["installed_tutorial"] = json.loads(tutorial_output.read_text())
+        if full and name == "agents" and version == "0.5.0":
+            tutorial = json.loads(
+                subprocess.check_output(
+                    [
+                        str(cli),
+                        "lifecycle",
+                        "tutorial",
+                        "--directory",
+                        str(temp / "lifecycle-demo"),
+                        "--database-url",
+                        os.environ["CIO_TEST_DATABASE_URL"],
+                        "--opa",
+                        os.environ["CIO_OPA"],
+                    ],
+                    cwd=temp,
+                    env=environment,
+                    text=True,
+                )
+            )
+            assert tutorial["new_model_generation_requests"] == 0
+            assert tutorial["receiver_A"] == "ACCEPT" and tutorial["receiver_B"] != "ACCEPT"
+            assert tutorial["after_withdrawal"] == "REJECT"
+            assert tutorial["actual_result"] == {"rows": 2, "total": "5.00"}
+            assert tutorial["handoff"]["authority"] == "not_granted"
+            assert tutorial["growth"]["functional_growth"] == "not_estimated"
+            result["installed_tutorial"] = tutorial
         result["child_runtimes"] = [
             json.loads(p.read_text(encoding="utf-8")) for p in sorted(records.glob("*.json"))
         ]

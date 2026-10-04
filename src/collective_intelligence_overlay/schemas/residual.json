@@ -1,0 +1,336 @@
+{
+  "$defs": {
+    "CapabilityIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/$defs/Subject"
+        },
+        "binding_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Binding Digest"
+        }
+      },
+      "required": [
+        "issuer",
+        "subject",
+        "binding_digest"
+      ],
+      "title": "CapabilityIdentity",
+      "type": "object"
+    },
+    "RecordRef": {
+      "additionalProperties": false,
+      "description": "Exact observation identity; a reference is not execution or checking authority.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "capability",
+            "evidence",
+            "revocation",
+            "event",
+            "decision",
+            "opportunity",
+            "proposal"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 330,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:@/-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "payload_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Payload Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "issuer",
+        "id",
+        "payload_digest"
+      ],
+      "title": "RecordRef",
+      "type": "object"
+    },
+    "ResidualKind": {
+      "enum": [
+        "missing_evidence",
+        "unresolved_effect",
+        "unknown_cost",
+        "unknown_causality",
+        "incompatible_unit",
+        "stale_source",
+        "authority_missing",
+        "missing_history",
+        "ambiguous_identity",
+        "unknown_relation",
+        "attribution_unresolved",
+        "partial_snapshot",
+        "policy_mismatch",
+        "unmapped_reason",
+        "recorded_obligation"
+      ],
+      "title": "ResidualKind",
+      "type": "string"
+    },
+    "Scope": {
+      "additionalProperties": false,
+      "description": "Exact operational applicability; schema equality does not prove semantic fit.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Task",
+          "type": "string"
+        },
+        "input_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Input Contract",
+          "type": "string"
+        },
+        "output_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Output Contract",
+          "type": "string"
+        },
+        "environment": {
+          "maxProperties": 64,
+          "patternProperties": {
+            "^[a-zA-Z0-9_.:/-]+$": {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 160,
+            "minLength": 1
+          },
+          "title": "Environment",
+          "type": "object"
+        },
+        "permissions": {
+          "default": [],
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.:/-]+$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "title": "Permissions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task",
+        "input_contract",
+        "output_contract",
+        "environment"
+      ],
+      "title": "Scope",
+      "type": "object"
+    },
+    "Subject": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "title": "Subject",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Id",
+      "type": "string"
+    },
+    "kind": {
+      "$ref": "#/$defs/ResidualKind"
+    },
+    "target": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CapabilityIdentity"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/RecordRef"
+      },
+      "maxItems": 256,
+      "title": "Sources",
+      "type": "array"
+    },
+    "prevents": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Prevents",
+      "type": "array"
+    },
+    "observed_at": {
+      "format": "date-time",
+      "title": "Observed At",
+      "type": "string"
+    },
+    "scope": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/Scope"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "explanation": {
+      "title": "Explanation",
+      "type": "string"
+    },
+    "next_check": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Next Check"
+    },
+    "responsible_owner": {
+      "anyOf": [
+        {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Responsible Owner"
+    },
+    "due_at": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Due At"
+    },
+    "resolved_by": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/RecordRef"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "id",
+    "kind",
+    "target",
+    "sources",
+    "prevents",
+    "observed_at",
+    "scope",
+    "explanation"
+  ],
+  "title": "Residual",
+  "type": "object"
+}

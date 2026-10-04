@@ -1,5 +1,18 @@
 # Collective Intelligence Overlay development
 
+For 0.5.0 follow `docs/lifecycle-050-implementation.md` and the lifecycle reference.
+Scope is five bounded read projections: Lifecycle, Contribution, Residual, Growth,
+Handoff. Reuse Store/Overlay/Executor/OPA authority; add no event store, planner,
+transport, ledger DB, runtime dependency or DB migration without demonstrated need.
+Inspect/export never write or qualify; explicit assessment delegates existing APIs.
+Preserve original DSSE, unsigned Decisions, UNKNOWN, reservations and withdrawals.
+Core imports no optional SDK. Fixed stock coordinates, period history and independent
+endpoints are required; entry counts never imply novelty or intelligence growth.
+No new inference, model pull, pilot, scientific comparison, benchmark or long soak
+is authorized in this release. Mock SDK, ordinary property/service/package regressions
+remain required. Use local target checks, one final exact-candidate native gate, then
+standard OIDC publication. Historical studies and failures below remain immutable.
+
 Build a thin overlay for evidence sharing and receiver-local capability admission.
 Do not build an agent runtime, workflow engine, protocol implementation or global manager.
 Use neutral reasoning and distinguish observations from claims.

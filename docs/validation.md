@@ -1,5 +1,11 @@
 # Validation status
 
+0.5.0 is an unpublished lifecycle feature candidate. Its
+[implementation register](lifecycle-050-implementation.md) records actual local
+checks and outstanding exact-pair native/publication gates. Existing results below
+attest only their stated immutable versions. No new scientific experiment or long
+soak is required or run; ordinary service/fault and package regressions remain required.
+
 0.4.0 is published and the predeclared permissioned single-owner profile passes.
 [Immutable tag CI / PyPA OIDC](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36911991678) and
 [cache-disabled actual-PyPI CI](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36922605705) are whole-workflow successful at `f3f6ae30de6f088c160e0c69f49796e4f52d2546`.

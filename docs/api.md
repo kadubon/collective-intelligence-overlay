@@ -1,5 +1,8 @@
 # Python API and CLI
 
+New lifecycle projections are documented in the [lifecycle reference](lifecycle-reference.md).
+Existing execution, admission, budget and recovery signatures below retain authority.
+
 [Generated command help](cli-help.txt) lists every CLI command and option. Use
 `collective-intelligence-overlay COMMAND --help` for your installed version.
 

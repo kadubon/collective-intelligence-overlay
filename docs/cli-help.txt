@@ -1,11 +1,11 @@
 Generated CLI help; exact help comes from your installed version.
 
 usage: collective-intelligence-overlay [-h] [--version]
-                                       {demo,binding-check,opa-install,setup,starter,verify-backup,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review,resolve-invocation}
+                                       {demo,binding-check,opa-install,setup,starter,verify-backup,lifecycle,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review,resolve-invocation}
                                        ...
 
 positional arguments:
-  {demo,binding-check,opa-install,setup,starter,verify-backup,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review,resolve-invocation}
+  {demo,binding-check,opa-install,setup,starter,verify-backup,lifecycle,check-config,migrate,peer,inspect,metrics,doctor,sync,restore-state,invoke,invocation,cancel-invocation,invocation-cleanup,reobserve,status,drain,resume,goals,opportunities,step,run,database-bootstrap,remote-calls,reconcile,backup,key-rotate,recovery-state,recovery-review,resolve-invocation}
     demo                run the API-key-free three-peer demonstration
     binding-check       validate a manifest; does not register it
     opa-install         explicitly install reviewed native OPA
@@ -13,6 +13,8 @@ positional arguments:
     starter             generate installed application and TLS assets
     verify-backup       verify backup structure, digests and archive format;
                         no restore
+    lifecycle           read-only lifecycle views; current assessment is
+                        explicit
 
 options:
   -h, --help            show this help message and exit
@@ -69,6 +71,57 @@ usage: collective-intelligence-overlay verify-backup [-h] --directory
 options:
   -h, --help            show this help message and exit
   --directory DIRECTORY
+
+usage: collective-intelligence-overlay lifecycle [-h]
+                                                 [--fixture | --input INPUT | --config CONFIG]
+                                                 [--owner OWNER]
+                                                 [--target TARGET]
+                                                 [--principals-file PRINCIPALS_FILE]
+                                                 [--page-size PAGE_SIZE]
+                                                 [--cursor-file CURSOR_FILE]
+                                                 [--opening OPENING]
+                                                 [--closing CLOSING]
+                                                 [--requests-file REQUESTS_FILE]
+                                                 [--references-file REFERENCES_FILE]
+                                                 [--source-role {GENERATE,VERIFY,REUSE,ACCOUNT,REALLOCATE}]
+                                                 [--target-role {GENERATE,VERIFY,REUSE,ACCOUNT,REALLOCATE}]
+                                                 [--producer PRODUCER]
+                                                 [--receiver RECEIVER]
+                                                 [--contract CONTRACT]
+                                                 [--type {CapabilityLifecycleView,ContributionObservation,Residual,GrowthObservation,HandoffObservation,StockObservation}]
+                                                 [--directory DIRECTORY]
+                                                 [--database-url DATABASE_URL]
+                                                 [--opa OPA]
+                                                 {inspect,contributions,handoff,growth,assess,export-originals,schema,tutorial}
+
+positional arguments:
+  {inspect,contributions,handoff,growth,assess,export-originals,schema,tutorial}
+
+options:
+  -h, --help            show this help message and exit
+  --fixture             bundled explicitly synthetic offline material
+  --input INPUT         explicit finite material JSON; no URL/path traversal
+  --config CONFIG       owner configuration for explicit Store access
+  --owner OWNER         host-selected owner for file material
+  --target TARGET       exact CapabilityIdentity JSON
+  --principals-file PRINCIPALS_FILE
+                        host-pinned public verification keys for DSSE input
+  --page-size PAGE_SIZE
+  --cursor-file CURSOR_FILE
+                        prior ObservationContext JSON with both cursors
+  --opening OPENING
+  --closing CLOSING
+  --requests-file REQUESTS_FILE
+  --references-file REFERENCES_FILE
+  --source-role {GENERATE,VERIFY,REUSE,ACCOUNT,REALLOCATE}
+  --target-role {GENERATE,VERIFY,REUSE,ACCOUNT,REALLOCATE}
+  --producer PRODUCER
+  --receiver RECEIVER
+  --contract CONTRACT
+  --type {CapabilityLifecycleView,ContributionObservation,Residual,GrowthObservation,HandoffObservation,StockObservation}
+  --directory DIRECTORY
+  --database-url DATABASE_URL
+  --opa OPA
 
 usage: collective-intelligence-overlay check-config [-h] --config CONFIG
 

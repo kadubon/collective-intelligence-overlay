@@ -3,9 +3,11 @@
 import csv
 import hashlib
 import json
+import subprocess
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
+HISTORICAL_SOURCE = "5425daa397d8f4876d094ed1c5aea08008bb69cb"
 
 
 def check(root=ROOT):
@@ -16,7 +18,11 @@ def check(root=ROOT):
             path = (root / name).resolve()
             assert path.is_relative_to(root.resolve()) and path.is_file() and not path.is_symlink()
             assert path.stat().st_size <= 4 * 1024 * 1024
-            raw = path.read_bytes()
+            raw = (
+                subprocess.check_output(["git", "show", HISTORICAL_SOURCE + ":" + name], cwd=root)
+                if section == "final_source_hashes"
+                else path.read_bytes()
+            )
             if section == "final_source_hashes":
                 raw = raw.replace(b"\r\n", b"\n")
             assert hashlib.sha256(raw).hexdigest() == expected, name
@@ -63,7 +69,13 @@ def check(root=ROOT):
     assert result["break_even"] is None and result["energy_joules"] is None
     assert result["full_compute"] is None and result["future_maintenance"] is None
     assert result["normal_cleanup_inclusive_charge_seconds"] <= 14400
-    return {"status": result["status"], "offered": len(rows), "generation_performed": False}
+    return {
+        "status": result["status"],
+        "offered": len(rows),
+        "generation_performed": False,
+        "historical_source_commit": HISTORICAL_SOURCE,
+        "current_source_attested": False,
+    }
 
 
 if __name__ == "__main__":
