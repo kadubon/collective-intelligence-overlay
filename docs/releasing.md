@@ -1,20 +1,69 @@
 # Release procedure and current state
 
-## 0.5.1 revised candidate: publication pending
+## 0.5.1 native gate verified; publication pending
 
-The README English/Japanese installation steps and stabilization description
-target 0.5.1 before publication. The [audit ledger](audit-051.md) records the
-additional pre-actuation allowance correction and bounded verification.
+The English/Japanese README commands target 0.5.1; actual-index installation
+remains unverified until publication. The [audit ledger](audit-051.md),
+[native results](release-051-native-results.json) and [manifest](release-051.json)
+record the fixed source `77db860ad5cfb5c0fc67befd8c5a267916527979`, tree
+`a08d7facea20827024e59e9348e772946d184e2a`.
+
+[Native run 37209296412](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37209296412)
+passed all twelve OS/CPU/Python profiles, mixed Python and four cross readers.
+Each final profile passed 969 source, 957 installed agents, one model SDK mock,
+eleven Ollama SDK mocks and 513 rebuilt-sdist cases, with zero failures/errors/skips.
+The nineteen required fault groups and numerical bounds passed in source and
+installed scopes; this is not formal production soak approval. Counts overlap
+focused evidence and are not added into a new total.
+
+Its initial attempt had eleven native successes. The failed Intel/Python 3.13
+job had 968 of 969 source cases pass and one fail, with zero errors/skips;
+that job did not reach installed validation. Verifier startup readiness timed
+out before application invocation. Cause remains undetermined and is not classified
+as an infrastructure flake. All 3,790 initial originals and failure records remain.
+One explicitly authorized targeted request was accepted at 2026-10-04
+17:04:50.044071 UTC. Six actual target/dependent jobs succeeded: Intel313,
+four cross readers and ready. No full-run rerun, source/pair change, cancellation
+or automatic second request was requested; the later pass does not diagnose the
+initial cause or the separate historical Darwin314 failure.
+
+The fourteen initial successful executions (eleven native, quick, candidate and
+mixed) have distinct original identities and latest API bookkeeping aliases.
+Latest IDs and attempt labels changed; fifteen execution fields, 249 steps,
+original execution timestamps and original artifact IDs/digests/bytes matched.
+The retained mapping SHA-256 is
+`5f367598129bca1c38526f42f7bb7847839725fd4a1964aa4de10d908ad8382e`.
+This is bounded API/artifact evidence, not proof of GitHub's internal copying
+mechanism or absolute absence of hidden execution.
+
+The original complete gate SHA-256 is
+`0d5691a7507ada4cfa375e91ab70b2205b06e5b1370ef9008470dfc1b07cf4b6`.
+It authenticates successful reports and this unchanged pair:
+
+| Distribution | SHA-256 |
+| --- | --- |
+| `collective_intelligence_overlay-0.5.1-py3-none-any.whl` | `35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9` |
+| `collective_intelligence_overlay-0.5.1.tar.gz` | `86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703` |
+
+All 3,842 canonical original files were retained under manifest SHA-256
+`b83e89a46459c9243b2ca51015d32d56c71b41c6582d3b382a519d4f002c52d2`.
+The gate JSON alone does not carry the failed attempt or authorization history;
+separate retained provenance binds those records and the bookkeeping mapping.
+Their public derivatives will be linked in the single software-evidence archive,
+with original/public hashes distinguished and no private authorization transcript.
 
 Initial source `eda15996c8451f06d88399d13d3ddb3cfe972b90` and
-[native run 37200404588](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37200404588)
-are retained as superseded evidence: eleven native profiles succeeded; the
-remaining Intel/Python 3.12 job failed while downloading a dependency before
-product tests. All 3,482 original files, initial workflow logs and original fixed
-pair were retained. The run was not cancelled or retried. The user's subsequent
-review requires a confirmed accounting fix before release, so this pair will not
-be published. The revised source needs a newly fixed pair and complete native
-gate. Tag, OIDC, actual PyPI installation and Release download checks are pending.
+[run 37200404588](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37200404588)
+remain superseded: eleven native successes and one dependency-transfer failure
+before product tests; all 3,482 originals remain retained. That run was not
+cancelled or retried, and its pair will not be published. Local-dist-v4 installed
+eight-case proof is separate preflight evidence, not the native or actual-PyPI pair.
+
+Tag/OIDC through workflow.yml / pypi, actual PyPI downloads and fresh normal
+no-cache installs, Release assets and owned-service cleanup remain pending.
+Publication must reuse this authenticated pair without rebuilding. Packaged
+README/source remain frozen; the release-manifest integration changes Docs only.
+No inference, model pull, new scientific comparison, benchmark or long soak ran.
 
 ## 0.5.0 published and verified on 2026-10-04
 

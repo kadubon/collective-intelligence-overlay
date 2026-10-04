@@ -40,8 +40,9 @@ completed with eleven successful native profiles and one dependency-transfer
 failure before product tests. Its original attempt, reports and fixed distributions
 are retained. No release gate or publication passed. The user then supplied an
 additional review requiring a pre-actuation accounting correction; this source
-candidate is excluded from publication. It was not cancelled or rerun. The revised
-source and its complete native release gate still need validation.
+candidate is excluded from publication. It was not cancelled or rerun; all 3,482
+original files remain retained separately. The revised source's native gate is
+verified below; publication and postpublication verification remain pending.
 
 Findings below are confirmed reproductions unless explicitly marked otherwise.
 Private diagnostic inputs and raw logs are retained under `.local/audit-051*`;
@@ -60,7 +61,7 @@ the final software evidence archive will contain sanitized, bounded evidence.
 | E051-02 | P2 bug / accounting | `Registry.execute` / `Executor.invoke`: inner admission denies after durable dispatch but before actuator entry | The live process knows the actuator was not entered, but UNKNOWN/held strands allowance; narrow private origin proof and fenced atomic release | fixed in `958e1e7`; public-wheel first failure and real PostgreSQL/OPA regression verified |
 | D051-01 | P3 documentation | `SECURITY.md`: support targets latest 0.1.x | Stale support description; latest published 0.5.x maintenance without SLA | fixed; Docs review |
 | D051-02 | P3 documentation | Security/configuration/API/release description: execution binding scope and concurrency/resource limits | Clarify authenticated peer inspection, concurrency versus rate quotas, source identity and unmeasured availability; record superseded candidate without claiming publication | fixed; static Docs/configuration review, not a dynamic DoS or penetration test |
-| R051-01 | P2 operability | Release selectors/package checks/profile stop at 0.5.0 | 051 could not reuse pair/load profile; inherit unchanged gates | implemented; focused regression passed |
+| R051-01 | P2 operability | Release selectors/package checks/profile stop at 0.5.0 | 051 could not reuse pair/load profile; inherit unchanged gates | fixed; focused regression passed |
 
 Nested mutable models and `model_copy(update=...)` remain a **deferred trusted-host
 consistency limitation**, not evidence of an unauthenticated remote attack.
@@ -98,6 +99,15 @@ Report `generated_at` (twelve explicitly recorded JSON paths). No original clock
 digest or source field is excluded. Canonical comparison SHA256 is
 `138a0a9f81d403bb1acd8b6c5c5ae50571e56e41bf9466b7dc071dc05c5d389e`.
 
+The static boundary was rebound to source `77db860` without rerunning that fixture.
+The retained manifest SHA256 is
+`6cd4b70077d281bb75ccb9d07697971d57cc945507e9270b98e917310edad5e4`:
+nineteen public signatures, fourteen packaged schemas and unchanged migrations/
+runtime dependencies were compared. Ninety of the old ninety-seven package files
+are byte-identical; seven intentional changes, one new private JSON helper and
+zero removed files are distinguished. Static comparison is separate from native
+and actual-index evidence.
+
 ## Executed focused evidence
 
 Windows CPython 3.12.14, uv 0.12.19, dedicated PostgreSQL 16.15 loopback and OPA:
@@ -131,13 +141,53 @@ tool prefix was omitted. Both setup/environment corrections and raw results are
 retained; they are not product fixes. The completed 119-case run sets the WSL PG
 tool prefix and has no failures, errors or skips.
 
-## Evidence still required
+## Final native provenance and remaining publication evidence
 
 The revised local preflight wheel/sdist passed normal clean installations and
 dependency/license/SBOM checks; these bytes are not the final CI candidate.
-Final native provenance/gate, exact pair reuse, OIDC publication and actual PyPI/Release
-download/install remain pending at this prepublication source snapshot. Full/native
-and postpublication results will be separately recorded in versioned release Docs.
+Frozen source `77db860ad5cfb5c0fc67befd8c5a267916527979` / tree
+`a08d7facea20827024e59e9348e772946d184e2a` passed the complete
+[native gate](release-051-native-results.json), bound by the [manifest](release-051.json).
+All twelve native profiles, mixed Python, four actual cross readers and mandatory
+checks passed. Each final profile has source969/installed agents957/model mock1/
+Ollama mock11/rebuilt-sdist513 passes, no failures/errors/skips, and nineteen
+required source/installed fault groups with unchanged numerical bounds.
+These overlapping scopes are not additive; this is not formal soak approval.
+
+The original gate SHA256
+`0d5691a7507ada4cfa375e91ab70b2205b06e5b1370ef9008470dfc1b07cf4b6`
+authenticates successful reports and wheel
+`35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9` /
+sdist `86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703`.
+The canonical 3,842-file original manifest SHA256 is
+`b83e89a46459c9243b2ca51015d32d56c71b41c6582d3b382a519d4f002c52d2`.
+Gate JSON alone does not carry failed-attempt/authorization history; separately
+retained provenance binds those records and will accompany the public archive.
+
+The initial attempt's 3,790 originals remain. Intel313 had source968 pass/one
+fail/zero error/skip in 969 cases, with its installed phase unreached; its eight
+new pre-actuation cases passed within that failed suite. Startup readiness failed
+before application invocation, and cause remains undetermined. One explicitly
+authorized targeted request was accepted at 2026-10-04 17:04:50.044071 UTC;
+six actual target/dependent jobs succeeded: Intel313, four cross readers and ready.
+No full-run rerun or second request was requested. A pass does not diagnose the
+initial cause or historical Darwin314; no timeout/assertion was relaxed.
+
+Fourteen initial successful jobs (eleven native, quick/candidate/mixed) retain
+distinct original execution IDs and latest API bookkeeping IDs/attempt labels.
+Their fifteen execution fields, 249 steps and original execution timestamps
+match; original artifact IDs, digests and bytes remain bound separately. The
+retained mapping SHA256 is
+`5f367598129bca1c38526f42f7bb7847839725fd4a1964aa4de10d908ad8382e`.
+This finite API/artifact proof does not establish GitHub internal copy mechanics
+or absolute absence of hidden execution. The old eda run and its 3,482 originals
+remain superseded, without retry.
+
+OIDC publication, actual PyPI/Release downloads/install, final software archive
+and owned-service cleanup remain pending. The compact per-finding evidence below
+supplements this existing ledger; full JSON belongs only in the single software-
+evidence archive with original/public hashes distinguished. Local-v4 installed
+proof and focused/static fixed states do not establish publication success.
 
 ## User-supplied prepublication review supplement
 
@@ -175,3 +225,42 @@ TCB and absent external pentest, multi-organization key-management assurance and
 long-running availability proof remain explicit. No authentication/signature bypass
 or concrete PyPI metadata defect was reproduced by that static review. The current
 README identifies unpublished 0.5.1 and links actual publication records separately.
+
+## Per-finding preserved evidence (bounded appendix)
+
+This supplements the existing finding table; it is not a second audit ledger. Original ten findings' confirmation baseline is `d39ac26a342dc0e040e2368e5e364f534c08328c` (public 0.5.0 tag commit `1c7e3527dc48580f92e70f2a3752d54e970808d4`); fixed source is `77db860ad5cfb5c0fc67befd8c5a267916527979`. Class, priority, conditions, trust boundary, correction and state remain in the table above.
+
+`L` = `src/collective_intelligence_overlay/lifecycle.py`. Test identifiers below use exact pytest NodeID syntax. One or two cases are representative; counts cover the full selected case set in the preserved mapping, not only the displayed representatives. Counts are pass/fail/error/skip and are not additive across overlapping runs.
+
+| ID | Fixed file/symbol; correction commit | Representative preserved NodeIDs | Original → fixed selected counts |
+| --- | --- | --- | --- |
+| L051-01 | `L:_gross_stock_changes`; `aa68e32` | `tests/unit/test_lifecycle.py::test_same_clock_partially_sequenced_decisions_keep_gross_unknown[0]`; `tests/unit/test_lifecycle.py::test_same_clock_partially_sequenced_decisions_keep_gross_unknown[1]` | 0/2/0/0 → 2/0/0/0 |
+| L051-02 | `L:observe_growth`; `aa68e32` | `tests/unit/test_lifecycle.py::test_growth_service_counts_only_fixed_receiver_and_policy_receipts[caller]`; `tests/unit/test_lifecycle.py::test_growth_work_costs_require_matching_nested_coordinates[scope]` | 0/7/0/0 → 7/0/0/0 |
+| L051-03 | `L:original_record_metadata`, `observe_contributions`, expiry/gross projections; `aa68e32` | `tests/unit/test_lifecycle.py::test_missing_nested_execution_purpose_is_not_observed_reuse`; `tests/unit/test_lifecycle.py::test_missing_decision_validity_is_not_reported_as_observed_expiry` | 0/3/0/0 → 3/0/0/0 |
+| L051-04 | `L:observe_contributions`; `aa68e32` | `tests/unit/test_lifecycle.py::test_same_invocation_id_for_distinct_callers_remains_two_uses`; `tests/unit/test_lifecycle.py::test_same_invocation_conflicting_receipt_identity_is_never_silently_deduplicated[policy_digest]` | 0/6/0/0 → 6/0/0/0 |
+| L051-05 | `L:build_handoff`; `aa68e32`, `3e67606` | `tests/unit/test_lifecycle.py::test_assessed_handoff_requires_basis_owner_to_be_receiver`; `tests/unit/test_lifecycle.py::test_reuse_account_handoff_does_not_use_incompatible_receipt[scope]` | 0/4/0/0 → 5/0/0/0; collision expanded from 1 to 2 cases, final 8-way collision run: 8/0/0/0 |
+| L051-06 | `L:assess_stock`; `aa68e32` | `tests/unit/test_lifecycle.py::test_assessment_duplicate_stock_targets_fail_before_any_delegation`; `tests/integration/test_lifecycle_store.py::test_invalid_assessment_targets_reject_before_actual_qualification_writes` | unit 0/2/0/0 → 2/0/0/0; actual Store invalid-input case fixed-only: 1/0/0/0 |
+| J051-01 | `_lifecycle_json.py:check_json_bytes/load_json/validate_json_tree`, `lifecycle_cli.py:_file`, material/Store ingestion; `aa68e32`, `3e67606` | `tests/unit/test_lifecycle_json.py::test_json_duplicate_keys_are_rejected`; `tests/unit/test_lifecycle_json.py::test_valid_json_byte_encodings_keep_existing_decode_contract[utf-16]` | initial JSON 0/5/0/0 → 5/0/0/0; encoding patch regression 1/4/0/0 → 5/0/0/0 |
+| E051-01 | `adapters/a2a_service.py:invoke`; `8b3ce38` | `tests/integration/test_a2a_service_lifetime.py::test_standard_sdk_exchange_owns_request_and_client_until_return[data]`; `tests/integration/test_a2a_service_lifetime.py::test_standard_sdk_exchange_owns_request_and_client_until_return[null]` | 0/5/0/0 → 5/0/0/0; added client cases fixed-only: 3/0/0/0 |
+| D051-01 | `SECURITY.md`, maintenance paragraph; `a858a4f` | Static Git blobs: baseline “latest 0.1.x” → fixed “latest published 0.5.x”; no SLA | Static before/after only; no failing/fixed JUnit executed |
+| R051-01 | `scripts/release_candidate.py:select`, `release_gate.py:check_reuse`, `native_fault_profile.py:load`, package metadata; `d49066e` | `tests/unit/test_release_candidate.py::test_standard_tag_reuses_its_own_trusted_complete_candidate[0.5.1]`; `tests/unit/test_native_fault_profile.py::test_version_profiles_retain_identical_short_fault_requirements[0.5.1]` | 0/19/0/0 → 19/0/0/0; finite selector/profile checks, not publication |
+| E051-02 | `bindings.py:_PreActuationDenied/Registry.execute`, `invocations.py:InvocationStore._finish_pre_actuation_denial/Executor.invoke`, `steps.py:Steps._choice`; `958e1e7` | `tests/integration/test_invocations.py::test_inner_admission_denial_before_actuator_releases_once[withdrawal]`; `tests/integration/test_invocations.py::test_child_inner_gate_proof_cannot_refund_entered_parent` | primary 0/2/0/0 → 2/0/0/0; six other cases fixed-only: 6/0/0/0 |
+| D051-02 | `docs/security.md`, `docs/configuration.md`; existing `config.py:Config`, `peer.py:PeerService.handle`; `5212d7b` | Static Git/Config/source: registered binding execution versus authenticated submit; existing owner/caller concurrency defaults 16/4 | Static before/after only; no failing/fixed JUnit executed |
+
+Original Lifecycle first-fail selections are from `all-public050-before-v1.xml` (normally installed public 0.5.0 outside checkout; 43 pass, 24 fail, no errors/skips), fixed selections from `second-review-fixed-v1.xml`. L051-05 additionally uses `handoff-correlation-fixed-v2.xml`; L051-06 uses `store-expanded-v1.xml`. J051-01 uses `json-firstfail-v1.xml`, `json-fixed-v3.xml` and `second-review-firstfail-v1.xml`; E051-01 uses `runtime-a2a-lifetime-firstfail-v1.xml`/`fixed-v1.xml`; R051-01 uses `release-gates-before-integration-v1.xml`/`after-integration-v1.xml`.
+
+The full `audit-finding-evidence-appendix-v2.json` belongs in the single Release software-evidence archive, linked here after actual publication. It contains full commits, file/symbol lines and source hashes, exact selected NodeIDs, original XML hashes/counts, trust scopes and limits. Original JSON SHA-256: `4d19a889b42f634b6ea1865e83970d72c11f47ec7305b078353906190aebc6c8`; archive-relative path, verified Release URL and separately hashed public derivative: **pending**. No second full public Markdown ledger is planned.
+
+Evidence limits: D051-01 is directly verified text, with no implementation-mirroring test. Missing `request.purpose`, material-depth/signed-duplicate JSON subcases, the actual Store preflight case, three added A2A client cases and package/upgrade additions have fixed-only/supporting evidence, not separately archived pre-fix failures. Their parent defects have the first-fail evidence listed above; absent failures are not manufactured.
+
+Oracle limits: the original distinct-caller test incorrectly expected Conflict; DB identity includes caller. Its raw failure is retained and excluded from product-defect proof; the corrected two-use public-wheel case fails. The property `test_same_source_changed_content_is_rejected` originally expected unwrapped Conflict although Pydantic already wrapped it; its oracle correction is not a product exception change. Both original failed XMLs and correction explanations remain in the mapping.
+
+Deferred/not-reproduced limits remain separate: mutable nested models/`model_copy` and manually reordered views require trusted-host consistency; old Mac Intel/3.14 receiptless failure cause is unestablished, and one current Windows/3.12 service pass is only `not_reproduced` there. Focused/static `fixed` status does not attest final native gates, actual OIDC publication, fresh PyPI installs or an independent external audit.
+
+E051-02 and D051-02 confirmation is `eda15996c8451f06d88399d13d3ddb3cfe972b90`; current source tree is `a08d7facea20827024e59e9348e772946d184e2a`. The explicit runtime fix and actual documentation correction commits are in their rows and the mapping. Current source/test hash rebinding is not a test rerun or native/publication proof.
+
+E051-02 focused17 contains seven new cases and ten supporting cases; the eighth actual child-proof case was added later. Its explicit completed runtime XML/log contains all eight new cases within the bounded 119-pass seven-suite run. Primary two archived failures establish the defect; six other new cases are fixed-only safety/positive evidence. The original seven-suite 117-pass/1-failure/1-skip run remains separate: duplicate budget initialization and missing explicit PG tools were test/setup corrections, not further product fixes or a diagnosis of historical Darwin failure.
+
+Additional outside-checkout Windows Python3.12.14 comparison records two exact primary failures in the normally installed public050 package and eight exact passes in a fresh local-dist-v4 wheel[agents] installation, with all98 package files verified. These retained XML/log/runtime records are supporting local preflight evidence, not the final native pair or actual-PyPI051 publication proof; overlapping runs are not additive.
+
+E051-02 refund requires private exact callback/request proof, current owner/worker/fence and active unexpired lease; host/DB administrator remain trusted. General denial, entered/child effects, cancellation, uncertain late work and lost ownership provide no refund authority. D051-02 is static text correction only; cumulative DoS severity and throughput were not measured. Original v1 JSON/compact bytes remain retained; the full v2 JSON belongs only in the single Release evidence archive.

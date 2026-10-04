@@ -1,0 +1,10 @@
+{
+  "candidate_run_id": "37209296412",
+  "source_commit": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+  "source_tree": "a08d7facea20827024e59e9348e772946d184e2a",
+  "artifacts": {
+    "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+    "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+  },
+  "gate_sha256": "0d5691a7507ada4cfa375e91ab70b2205b06e5b1370ef9008470dfc1b07cf4b6"
+}

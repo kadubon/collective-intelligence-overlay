@@ -1,0 +1,1962 @@
+{
+  "schema_version": "1",
+  "version": "0.5.1",
+  "status": "native_gate_passed",
+  "new_model_generation_requests": 0,
+  "new_scientific_comparison_performed": false,
+  "long_soak_performed": false,
+  "native_candidate": {
+    "candidate_run_id": "37209296412",
+    "source_commit": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+    "source_tree": "a08d7facea20827024e59e9348e772946d184e2a",
+    "artifacts": {
+      "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+      "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+    },
+    "gate_sha256": "0d5691a7507ada4cfa375e91ab70b2205b06e5b1370ef9008470dfc1b07cf4b6"
+  },
+  "superseded_candidate_runs": [
+    "37200404588"
+  ],
+  "superseded_reason": "Additional confirmed pre-actuation bug required a new source and candidate; old originals retained separately.",
+  "native_profiles": [
+    {
+      "profile": "reports-Darwin-amd64-3.12.14-full",
+      "os": "Darwin",
+      "architecture": "amd64",
+      "python": "3.12.14",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 414.7298546500001,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 279.7900013939998,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-amd64-3.13.15-full",
+      "os": "Darwin",
+      "architecture": "amd64",
+      "python": "3.13.15",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 204.08680126600007,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 182.9146701929999,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-amd64-3.14.7-full",
+      "os": "Darwin",
+      "architecture": "amd64",
+      "python": "3.14.7",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 236.06214076699985,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 224.770715785,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-arm64-3.12.14-full",
+      "os": "Darwin",
+      "architecture": "arm64",
+      "python": "3.12.14",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 177.48844287500003,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 120.6147887080001,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-arm64-3.13.15-full",
+      "os": "Darwin",
+      "architecture": "arm64",
+      "python": "3.13.15",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 120.83424495899999,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 121.52140437499997,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-arm64-3.14.7-full",
+      "os": "Darwin",
+      "architecture": "arm64",
+      "python": "3.14.7",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 160.738778792,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 121.788737417,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Linux-amd64-3.12.14-full",
+      "os": "Linux",
+      "architecture": "amd64",
+      "python": "3.12.14",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 132.54821661200003,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 120.49892228399995,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Linux-amd64-3.13.15-full",
+      "os": "Linux",
+      "architecture": "amd64",
+      "python": "3.13.15",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 130.52459621100002,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 121.02822726199997,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Linux-amd64-3.14.7-full",
+      "os": "Linux",
+      "architecture": "amd64",
+      "python": "3.14.7",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 127.58097653200002,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 120.50473868899985,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Windows-amd64-3.12.14-full",
+      "os": "Windows",
+      "architecture": "amd64",
+      "python": "3.12.14",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 207.04600000000005,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 149.40599999999995,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Windows-amd64-3.13.15-full",
+      "os": "Windows",
+      "architecture": "amd64",
+      "python": "3.13.15",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 207.5472337,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 158.17799859999968,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    },
+    {
+      "profile": "reports-Windows-amd64-3.14.7-full",
+      "os": "Windows",
+      "architecture": "amd64",
+      "python": "3.14.7",
+      "tests": {
+        "source": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 957,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 513,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      },
+      "actual_service_tutorial": {
+        "A": "ACCEPT",
+        "B": "REJECT",
+        "after_withdrawal": "REJECT",
+        "result": {
+          "rows": 2,
+          "total": "5.00"
+        },
+        "model_generation": 0
+      },
+      "faults": {
+        "source": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 179.94420409999998,
+          "formal_soak_or_release_approval": false
+        },
+        "installed": {
+          "required_injection_groups": 19,
+          "observed_labels": 24,
+          "elapsed_seconds": 148.6694877,
+          "formal_soak_or_release_approval": false
+        }
+      }
+    }
+  ],
+  "mixed_python": {
+    "artifacts": {
+      "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+      "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+    },
+    "patches": [
+      "3.12.14",
+      "3.14.7"
+    ],
+    "directions": [
+      {
+        "writer": "3.12.14",
+        "reader": "3.14.7",
+        "seed": {
+          "runtime": {
+            "version": "3.12.14 (main, Sep 24 2026, 17:57:43) [Clang 22.1.3 ]",
+            "patch": "3.12.14",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.12.14/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.12.14/lib/python3.12/site-packages/collective_intelligence_overlay/__init__.py"
+          },
+          "binding": "cd618f0361800f7b273de0848549351ab64cb39edac5526fad86fc8d32147120",
+          "manifest": "a0e189b884865e21c0ef605df0634719bf8b561d6f80f1e288142639340737db"
+        },
+        "peers": {
+          "producer": {
+            "version": "3.12.14 (main, Sep 24 2026, 17:57:43) [Clang 22.1.3 ]",
+            "patch": "3.12.14",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.12.14/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.12.14/lib/python3.12/site-packages/collective_intelligence_overlay/__init__.py"
+          },
+          "verifier": {
+            "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+            "patch": "3.14.7",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.14.7/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.14.7/lib/python3.14/site-packages/collective_intelligence_overlay/__init__.py"
+          },
+          "receiver": {
+            "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+            "patch": "3.14.7",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.14.7/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.14.7/lib/python3.14/site-packages/collective_intelligence_overlay/__init__.py"
+          }
+        },
+        "exchange": {
+          "runtime": {
+            "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+            "patch": "3.14.7",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.14.7/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.14.7/lib/python3.14/site-packages/collective_intelligence_overlay/__init__.py"
+          },
+          "results": [
+            1,
+            2,
+            1
+          ],
+          "remote_ids": [
+            "call-de8b17d0b692468f693412678a95e8891564f1631d1fc8c3d6ea40a52fec0a85",
+            "call-e8a9283788b62645bd8070fe98b1ac5bb40cff24840b6aa9b211701d8a81904d"
+          ],
+          "queries": 2,
+          "revocation": "admission_denied"
+        },
+        "verification": [
+          {
+            "runtime": {
+              "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+              "patch": "3.14.7",
+              "executable": "/tmp/cio-python-interop-cfl10265/python-3.14.7/bin/python",
+              "os": "Linux",
+              "import": "/tmp/cio-python-interop-cfl10265/python-3.14.7/lib/python3.14/site-packages/collective_intelligence_overlay/__init__.py"
+            },
+            "fixed": {
+              "binding": "6f4c87e7d6d452792e739c28292a0f33972749eaa793e928da44bbefc45d3cd5",
+              "request": "363d5dc6f626e83f4d62b2208c31b5af46dcff10dc036a7cde1b19bb575c8c4a",
+              "call": "5c6bce68456d10e50c89aae51a098188e35a494507b95bb51ac04ee04a1e63d1",
+              "manifest": "a0e189b884865e21c0ef605df0634719bf8b561d6f80f1e288142639340737db",
+              "json": "d235a2c5c9057ce03a189e715e67eb7e8eeeaadc063de7afe468219eb519adef",
+              "raw_decimal": "rejected"
+            },
+            "legacy_payloads": [
+              "9dbaec2d212ba3cf58b6dfe853c8f36cb6c76cf5342cfe3b5f7cd50ce9adb644",
+              "63374e6da7752751fcaecf00a997d2b74361b1d27f08afbfcaf484d0a6161153",
+              "7858b0bc6540327d6caa344fbc02734dcc6f9756bdd140d068e0b7dc56e3d61b",
+              "107f5fcafd02dace4c5a6e48ace8a49c79e820296903ec7c9c92f1c61eb71e38",
+              "7f57568428aaef43ae67d6ee55a83789b0835804308c4db953e70c55428da36f",
+              "794d9e3cce263fea9045ef716cdf6d51ea35ea8a52558f653a3f54a832c9577e",
+              "b8b412fa725ce4ed9c9ee5a08db543628c4f64707dd74705cdbea0155e9251b2",
+              "a99bcbfce825207226cfb7850a78962cfd64c38a24fa2840307517d32430062d",
+              "b209eb3f4ad637d76ea55ae6d8eae22840419d5faaa00c1419af1e153c8d8bff",
+              "c65963a0ae17d41ba0ccaa9c21b15e5cb31be6a65ac3930bd99b05377d1677af",
+              "f03e3d1b41d58e5124ae54f0369296ff974afd071b88a5b5e6db08546c730c06",
+              "aff1b1ca7cb451a4efa0b5e48f71a209bf812c45f66f89ea2d9c42071ccf3e90",
+              "86f3a31f6a6f3a389e9736f093679d9bc485f0ecc94c85c92e0429b2c46aa3f5",
+              "d55b5ff6b83afb9a99bdf42f75331b8ffcaa7b56af11dbdeb63d1a780fa21d71",
+              "7596c3890476adefdf83c1c02a347d8f77b667b806c819ace5fc01b10cd06086",
+              "cf80ebb975d2565eb4c617427f2191a456792b5d10617bb72d9a5cd8645a6653",
+              "7d892b5bc3d4cbfc5a8707f7256b04bcbdce9be415daf0c7292bb4802b8f2424",
+              "b4f287376345f73218fac6dc0fa081fd3f91447978f49e7d2432657886658833",
+              "b333439359bbbae1589f049ec7df141d92222a3eb0b9d8c25e401657dbd7a7cd"
+            ],
+            "signed_records": 19,
+            "artifact_result": {
+              "value": 27
+            },
+            "database": "passed"
+          },
+          {
+            "runtime": {
+              "version": "3.12.14 (main, Sep 24 2026, 17:57:43) [Clang 22.1.3 ]",
+              "patch": "3.12.14",
+              "executable": "/tmp/cio-python-interop-cfl10265/python-3.12.14/bin/python",
+              "os": "Linux",
+              "import": "/tmp/cio-python-interop-cfl10265/python-3.12.14/lib/python3.12/site-packages/collective_intelligence_overlay/__init__.py"
+            },
+            "fixed": {
+              "binding": "6f4c87e7d6d452792e739c28292a0f33972749eaa793e928da44bbefc45d3cd5",
+              "request": "363d5dc6f626e83f4d62b2208c31b5af46dcff10dc036a7cde1b19bb575c8c4a",
+              "call": "5c6bce68456d10e50c89aae51a098188e35a494507b95bb51ac04ee04a1e63d1",
+              "manifest": "a0e189b884865e21c0ef605df0634719bf8b561d6f80f1e288142639340737db",
+              "json": "d235a2c5c9057ce03a189e715e67eb7e8eeeaadc063de7afe468219eb519adef",
+              "raw_decimal": "rejected"
+            },
+            "legacy_payloads": [
+              "9dbaec2d212ba3cf58b6dfe853c8f36cb6c76cf5342cfe3b5f7cd50ce9adb644",
+              "63374e6da7752751fcaecf00a997d2b74361b1d27f08afbfcaf484d0a6161153",
+              "7858b0bc6540327d6caa344fbc02734dcc6f9756bdd140d068e0b7dc56e3d61b",
+              "107f5fcafd02dace4c5a6e48ace8a49c79e820296903ec7c9c92f1c61eb71e38",
+              "7f57568428aaef43ae67d6ee55a83789b0835804308c4db953e70c55428da36f",
+              "794d9e3cce263fea9045ef716cdf6d51ea35ea8a52558f653a3f54a832c9577e",
+              "b8b412fa725ce4ed9c9ee5a08db543628c4f64707dd74705cdbea0155e9251b2",
+              "a99bcbfce825207226cfb7850a78962cfd64c38a24fa2840307517d32430062d",
+              "b209eb3f4ad637d76ea55ae6d8eae22840419d5faaa00c1419af1e153c8d8bff",
+              "c65963a0ae17d41ba0ccaa9c21b15e5cb31be6a65ac3930bd99b05377d1677af",
+              "f03e3d1b41d58e5124ae54f0369296ff974afd071b88a5b5e6db08546c730c06",
+              "aff1b1ca7cb451a4efa0b5e48f71a209bf812c45f66f89ea2d9c42071ccf3e90",
+              "86f3a31f6a6f3a389e9736f093679d9bc485f0ecc94c85c92e0429b2c46aa3f5",
+              "d55b5ff6b83afb9a99bdf42f75331b8ffcaa7b56af11dbdeb63d1a780fa21d71",
+              "7596c3890476adefdf83c1c02a347d8f77b667b806c819ace5fc01b10cd06086",
+              "cf80ebb975d2565eb4c617427f2191a456792b5d10617bb72d9a5cd8645a6653",
+              "7d892b5bc3d4cbfc5a8707f7256b04bcbdce9be415daf0c7292bb4802b8f2424",
+              "b4f287376345f73218fac6dc0fa081fd3f91447978f49e7d2432657886658833",
+              "b333439359bbbae1589f049ec7df141d92222a3eb0b9d8c25e401657dbd7a7cd"
+            ],
+            "signed_records": 19,
+            "artifact_result": {
+              "value": 27
+            },
+            "database": "passed"
+          }
+        ]
+      },
+      {
+        "writer": "3.14.7",
+        "reader": "3.12.14",
+        "seed": {
+          "runtime": {
+            "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+            "patch": "3.14.7",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.14.7/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.14.7/lib/python3.14/site-packages/collective_intelligence_overlay/__init__.py"
+          },
+          "binding": "cd618f0361800f7b273de0848549351ab64cb39edac5526fad86fc8d32147120",
+          "manifest": "a0e189b884865e21c0ef605df0634719bf8b561d6f80f1e288142639340737db"
+        },
+        "peers": {
+          "producer": {
+            "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+            "patch": "3.14.7",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.14.7/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.14.7/lib/python3.14/site-packages/collective_intelligence_overlay/__init__.py"
+          },
+          "verifier": {
+            "version": "3.12.14 (main, Sep 24 2026, 17:57:43) [Clang 22.1.3 ]",
+            "patch": "3.12.14",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.12.14/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.12.14/lib/python3.12/site-packages/collective_intelligence_overlay/__init__.py"
+          },
+          "receiver": {
+            "version": "3.12.14 (main, Sep 24 2026, 17:57:43) [Clang 22.1.3 ]",
+            "patch": "3.12.14",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.12.14/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.12.14/lib/python3.12/site-packages/collective_intelligence_overlay/__init__.py"
+          }
+        },
+        "exchange": {
+          "runtime": {
+            "version": "3.12.14 (main, Sep 24 2026, 17:57:43) [Clang 22.1.3 ]",
+            "patch": "3.12.14",
+            "executable": "/tmp/cio-python-interop-cfl10265/python-3.12.14/bin/python",
+            "os": "Linux",
+            "import": "/tmp/cio-python-interop-cfl10265/python-3.12.14/lib/python3.12/site-packages/collective_intelligence_overlay/__init__.py"
+          },
+          "results": [
+            1,
+            2,
+            1
+          ],
+          "remote_ids": [
+            "call-de8b17d0b692468f693412678a95e8891564f1631d1fc8c3d6ea40a52fec0a85",
+            "call-e8a9283788b62645bd8070fe98b1ac5bb40cff24840b6aa9b211701d8a81904d"
+          ],
+          "queries": 2,
+          "revocation": "admission_denied"
+        },
+        "verification": [
+          {
+            "runtime": {
+              "version": "3.12.14 (main, Sep 24 2026, 17:57:43) [Clang 22.1.3 ]",
+              "patch": "3.12.14",
+              "executable": "/tmp/cio-python-interop-cfl10265/python-3.12.14/bin/python",
+              "os": "Linux",
+              "import": "/tmp/cio-python-interop-cfl10265/python-3.12.14/lib/python3.12/site-packages/collective_intelligence_overlay/__init__.py"
+            },
+            "fixed": {
+              "binding": "6f4c87e7d6d452792e739c28292a0f33972749eaa793e928da44bbefc45d3cd5",
+              "request": "363d5dc6f626e83f4d62b2208c31b5af46dcff10dc036a7cde1b19bb575c8c4a",
+              "call": "5c6bce68456d10e50c89aae51a098188e35a494507b95bb51ac04ee04a1e63d1",
+              "manifest": "a0e189b884865e21c0ef605df0634719bf8b561d6f80f1e288142639340737db",
+              "json": "d235a2c5c9057ce03a189e715e67eb7e8eeeaadc063de7afe468219eb519adef",
+              "raw_decimal": "rejected"
+            },
+            "legacy_payloads": [
+              "9dbaec2d212ba3cf58b6dfe853c8f36cb6c76cf5342cfe3b5f7cd50ce9adb644",
+              "63374e6da7752751fcaecf00a997d2b74361b1d27f08afbfcaf484d0a6161153",
+              "7858b0bc6540327d6caa344fbc02734dcc6f9756bdd140d068e0b7dc56e3d61b",
+              "107f5fcafd02dace4c5a6e48ace8a49c79e820296903ec7c9c92f1c61eb71e38",
+              "7f57568428aaef43ae67d6ee55a83789b0835804308c4db953e70c55428da36f",
+              "794d9e3cce263fea9045ef716cdf6d51ea35ea8a52558f653a3f54a832c9577e",
+              "b8b412fa725ce4ed9c9ee5a08db543628c4f64707dd74705cdbea0155e9251b2",
+              "a99bcbfce825207226cfb7850a78962cfd64c38a24fa2840307517d32430062d",
+              "b209eb3f4ad637d76ea55ae6d8eae22840419d5faaa00c1419af1e153c8d8bff",
+              "c65963a0ae17d41ba0ccaa9c21b15e5cb31be6a65ac3930bd99b05377d1677af",
+              "f03e3d1b41d58e5124ae54f0369296ff974afd071b88a5b5e6db08546c730c06",
+              "aff1b1ca7cb451a4efa0b5e48f71a209bf812c45f66f89ea2d9c42071ccf3e90",
+              "86f3a31f6a6f3a389e9736f093679d9bc485f0ecc94c85c92e0429b2c46aa3f5",
+              "d55b5ff6b83afb9a99bdf42f75331b8ffcaa7b56af11dbdeb63d1a780fa21d71",
+              "7596c3890476adefdf83c1c02a347d8f77b667b806c819ace5fc01b10cd06086",
+              "cf80ebb975d2565eb4c617427f2191a456792b5d10617bb72d9a5cd8645a6653",
+              "7d892b5bc3d4cbfc5a8707f7256b04bcbdce9be415daf0c7292bb4802b8f2424",
+              "b4f287376345f73218fac6dc0fa081fd3f91447978f49e7d2432657886658833",
+              "b333439359bbbae1589f049ec7df141d92222a3eb0b9d8c25e401657dbd7a7cd"
+            ],
+            "signed_records": 19,
+            "artifact_result": {
+              "value": 27
+            },
+            "database": "passed"
+          },
+          {
+            "runtime": {
+              "version": "3.14.7 (main, Sep 24 2026, 17:58:18) [Clang 22.1.3 ]",
+              "patch": "3.14.7",
+              "executable": "/tmp/cio-python-interop-cfl10265/python-3.14.7/bin/python",
+              "os": "Linux",
+              "import": "/tmp/cio-python-interop-cfl10265/python-3.14.7/lib/python3.14/site-packages/collective_intelligence_overlay/__init__.py"
+            },
+            "fixed": {
+              "binding": "6f4c87e7d6d452792e739c28292a0f33972749eaa793e928da44bbefc45d3cd5",
+              "request": "363d5dc6f626e83f4d62b2208c31b5af46dcff10dc036a7cde1b19bb575c8c4a",
+              "call": "5c6bce68456d10e50c89aae51a098188e35a494507b95bb51ac04ee04a1e63d1",
+              "manifest": "a0e189b884865e21c0ef605df0634719bf8b561d6f80f1e288142639340737db",
+              "json": "d235a2c5c9057ce03a189e715e67eb7e8eeeaadc063de7afe468219eb519adef",
+              "raw_decimal": "rejected"
+            },
+            "legacy_payloads": [
+              "9dbaec2d212ba3cf58b6dfe853c8f36cb6c76cf5342cfe3b5f7cd50ce9adb644",
+              "63374e6da7752751fcaecf00a997d2b74361b1d27f08afbfcaf484d0a6161153",
+              "7858b0bc6540327d6caa344fbc02734dcc6f9756bdd140d068e0b7dc56e3d61b",
+              "107f5fcafd02dace4c5a6e48ace8a49c79e820296903ec7c9c92f1c61eb71e38",
+              "7f57568428aaef43ae67d6ee55a83789b0835804308c4db953e70c55428da36f",
+              "794d9e3cce263fea9045ef716cdf6d51ea35ea8a52558f653a3f54a832c9577e",
+              "b8b412fa725ce4ed9c9ee5a08db543628c4f64707dd74705cdbea0155e9251b2",
+              "a99bcbfce825207226cfb7850a78962cfd64c38a24fa2840307517d32430062d",
+              "b209eb3f4ad637d76ea55ae6d8eae22840419d5faaa00c1419af1e153c8d8bff",
+              "c65963a0ae17d41ba0ccaa9c21b15e5cb31be6a65ac3930bd99b05377d1677af",
+              "f03e3d1b41d58e5124ae54f0369296ff974afd071b88a5b5e6db08546c730c06",
+              "aff1b1ca7cb451a4efa0b5e48f71a209bf812c45f66f89ea2d9c42071ccf3e90",
+              "86f3a31f6a6f3a389e9736f093679d9bc485f0ecc94c85c92e0429b2c46aa3f5",
+              "d55b5ff6b83afb9a99bdf42f75331b8ffcaa7b56af11dbdeb63d1a780fa21d71",
+              "7596c3890476adefdf83c1c02a347d8f77b667b806c819ace5fc01b10cd06086",
+              "cf80ebb975d2565eb4c617427f2191a456792b5d10617bb72d9a5cd8645a6653",
+              "7d892b5bc3d4cbfc5a8707f7256b04bcbdce9be415daf0c7292bb4802b8f2424",
+              "b4f287376345f73218fac6dc0fa081fd3f91447978f49e7d2432657886658833",
+              "b333439359bbbae1589f049ec7df141d92222a3eb0b9d8c25e401657dbd7a7cd"
+            ],
+            "signed_records": 19,
+            "artifact_result": {
+              "value": 27
+            },
+            "database": "passed"
+          }
+        ]
+      }
+    ],
+    "resolved_dependencies": {
+      "3.12.14": [
+        {
+          "name": "a2a-sdk",
+          "version": "1.1.5"
+        },
+        {
+          "name": "agent-framework-core",
+          "version": "1.19.0"
+        },
+        {
+          "name": "aiologic",
+          "version": "0.17.1"
+        },
+        {
+          "name": "alembic",
+          "version": "1.20.0"
+        },
+        {
+          "name": "annotated-types",
+          "version": "0.8.0"
+        },
+        {
+          "name": "anyio",
+          "version": "4.15.1"
+        },
+        {
+          "name": "asn1crypto",
+          "version": "1.5.1"
+        },
+        {
+          "name": "attrs",
+          "version": "26.1.0"
+        },
+        {
+          "name": "certifi",
+          "version": "2026.7.22"
+        },
+        {
+          "name": "cffi",
+          "version": "2.1.1"
+        },
+        {
+          "name": "charset-normalizer",
+          "version": "3.5.2"
+        },
+        {
+          "name": "click",
+          "version": "8.5.0"
+        },
+        {
+          "name": "collective-intelligence-overlay",
+          "version": "0.5.1"
+        },
+        {
+          "name": "cryptography",
+          "version": "50.0.2"
+        },
+        {
+          "name": "culsans",
+          "version": "0.11.0"
+        },
+        {
+          "name": "google-api-core",
+          "version": "2.40.0"
+        },
+        {
+          "name": "google-auth",
+          "version": "2.59.1"
+        },
+        {
+          "name": "googleapis-common-protos",
+          "version": "1.75.5"
+        },
+        {
+          "name": "h11",
+          "version": "0.16.0"
+        },
+        {
+          "name": "httpcore",
+          "version": "1.0.9"
+        },
+        {
+          "name": "httpcore2",
+          "version": "2.13.1"
+        },
+        {
+          "name": "httpx",
+          "version": "0.28.1"
+        },
+        {
+          "name": "httpx2",
+          "version": "2.13.1"
+        },
+        {
+          "name": "idna",
+          "version": "3.20"
+        },
+        {
+          "name": "iniconfig",
+          "version": "2.3.0"
+        },
+        {
+          "name": "json-rpc",
+          "version": "1.15.0"
+        },
+        {
+          "name": "jsonschema",
+          "version": "4.26.0"
+        },
+        {
+          "name": "jsonschema-specifications",
+          "version": "2025.9.1"
+        },
+        {
+          "name": "mako",
+          "version": "1.4.3"
+        },
+        {
+          "name": "markupsafe",
+          "version": "3.0.4"
+        },
+        {
+          "name": "mcp",
+          "version": "2.2.0"
+        },
+        {
+          "name": "mcp-types",
+          "version": "2.2.0"
+        },
+        {
+          "name": "msgspec",
+          "version": "0.21.1"
+        },
+        {
+          "name": "opentelemetry-api",
+          "version": "1.45.0"
+        },
+        {
+          "name": "packaging",
+          "version": "26.3"
+        },
+        {
+          "name": "pg8000",
+          "version": "1.31.5"
+        },
+        {
+          "name": "pluggy",
+          "version": "1.6.0"
+        },
+        {
+          "name": "proto-plus",
+          "version": "1.29.0"
+        },
+        {
+          "name": "protobuf",
+          "version": "7.36.2"
+        },
+        {
+          "name": "pyasn1",
+          "version": "0.6.4"
+        },
+        {
+          "name": "pyasn1-modules",
+          "version": "0.4.2"
+        },
+        {
+          "name": "pycparser",
+          "version": "3.0"
+        },
+        {
+          "name": "pydantic",
+          "version": "2.13.5"
+        },
+        {
+          "name": "pydantic-core",
+          "version": "2.46.5"
+        },
+        {
+          "name": "pygments",
+          "version": "2.21.0"
+        },
+        {
+          "name": "pyjwt",
+          "version": "2.15.1"
+        },
+        {
+          "name": "pytest",
+          "version": "9.1.1"
+        },
+        {
+          "name": "pytest-asyncio",
+          "version": "1.4.0"
+        },
+        {
+          "name": "python-dateutil",
+          "version": "2.9.0.post0"
+        },
+        {
+          "name": "python-dotenv",
+          "version": "1.2.4"
+        },
+        {
+          "name": "python-multipart",
+          "version": "0.0.32"
+        },
+        {
+          "name": "pyyaml",
+          "version": "6.0.3"
+        },
+        {
+          "name": "referencing",
+          "version": "0.37.0"
+        },
+        {
+          "name": "requests",
+          "version": "2.34.2"
+        },
+        {
+          "name": "rpds-py",
+          "version": "2026.6.3"
+        },
+        {
+          "name": "scramp",
+          "version": "1.4.17"
+        },
+        {
+          "name": "securesystemslib",
+          "version": "1.5.1"
+        },
+        {
+          "name": "six",
+          "version": "1.17.0"
+        },
+        {
+          "name": "sniffio",
+          "version": "1.3.1"
+        },
+        {
+          "name": "sqlalchemy",
+          "version": "2.1.3"
+        },
+        {
+          "name": "sse-starlette",
+          "version": "3.5.0"
+        },
+        {
+          "name": "starlette",
+          "version": "1.7.0"
+        },
+        {
+          "name": "truststore",
+          "version": "0.10.4"
+        },
+        {
+          "name": "typing-extensions",
+          "version": "4.16.0"
+        },
+        {
+          "name": "typing-inspection",
+          "version": "0.4.4"
+        },
+        {
+          "name": "urllib3",
+          "version": "2.8.0"
+        },
+        {
+          "name": "uvicorn",
+          "version": "0.54.0"
+        },
+        {
+          "name": "wrapt",
+          "version": "2.5.0"
+        }
+      ],
+      "3.14.7": [
+        {
+          "name": "a2a-sdk",
+          "version": "1.1.5"
+        },
+        {
+          "name": "agent-framework-core",
+          "version": "1.19.0"
+        },
+        {
+          "name": "alembic",
+          "version": "1.20.0"
+        },
+        {
+          "name": "annotated-types",
+          "version": "0.8.0"
+        },
+        {
+          "name": "anyio",
+          "version": "4.15.1"
+        },
+        {
+          "name": "asn1crypto",
+          "version": "1.5.1"
+        },
+        {
+          "name": "attrs",
+          "version": "26.1.0"
+        },
+        {
+          "name": "certifi",
+          "version": "2026.7.22"
+        },
+        {
+          "name": "cffi",
+          "version": "2.1.1"
+        },
+        {
+          "name": "charset-normalizer",
+          "version": "3.5.2"
+        },
+        {
+          "name": "click",
+          "version": "8.5.0"
+        },
+        {
+          "name": "collective-intelligence-overlay",
+          "version": "0.5.1"
+        },
+        {
+          "name": "cryptography",
+          "version": "50.0.2"
+        },
+        {
+          "name": "google-api-core",
+          "version": "2.40.0"
+        },
+        {
+          "name": "google-auth",
+          "version": "2.59.1"
+        },
+        {
+          "name": "googleapis-common-protos",
+          "version": "1.75.5"
+        },
+        {
+          "name": "h11",
+          "version": "0.16.0"
+        },
+        {
+          "name": "httpcore",
+          "version": "1.0.9"
+        },
+        {
+          "name": "httpcore2",
+          "version": "2.13.1"
+        },
+        {
+          "name": "httpx",
+          "version": "0.28.1"
+        },
+        {
+          "name": "httpx2",
+          "version": "2.13.1"
+        },
+        {
+          "name": "idna",
+          "version": "3.20"
+        },
+        {
+          "name": "iniconfig",
+          "version": "2.3.0"
+        },
+        {
+          "name": "json-rpc",
+          "version": "1.15.0"
+        },
+        {
+          "name": "jsonschema",
+          "version": "4.26.0"
+        },
+        {
+          "name": "jsonschema-specifications",
+          "version": "2025.9.1"
+        },
+        {
+          "name": "mako",
+          "version": "1.4.3"
+        },
+        {
+          "name": "markupsafe",
+          "version": "3.0.4"
+        },
+        {
+          "name": "mcp",
+          "version": "2.2.0"
+        },
+        {
+          "name": "mcp-types",
+          "version": "2.2.0"
+        },
+        {
+          "name": "msgspec",
+          "version": "0.21.1"
+        },
+        {
+          "name": "opentelemetry-api",
+          "version": "1.45.0"
+        },
+        {
+          "name": "packaging",
+          "version": "26.3"
+        },
+        {
+          "name": "pg8000",
+          "version": "1.31.5"
+        },
+        {
+          "name": "pluggy",
+          "version": "1.6.0"
+        },
+        {
+          "name": "proto-plus",
+          "version": "1.29.0"
+        },
+        {
+          "name": "protobuf",
+          "version": "7.36.2"
+        },
+        {
+          "name": "pyasn1",
+          "version": "0.6.4"
+        },
+        {
+          "name": "pyasn1-modules",
+          "version": "0.4.2"
+        },
+        {
+          "name": "pycparser",
+          "version": "3.0"
+        },
+        {
+          "name": "pydantic",
+          "version": "2.13.5"
+        },
+        {
+          "name": "pydantic-core",
+          "version": "2.46.5"
+        },
+        {
+          "name": "pygments",
+          "version": "2.21.0"
+        },
+        {
+          "name": "pyjwt",
+          "version": "2.15.1"
+        },
+        {
+          "name": "pytest",
+          "version": "9.1.1"
+        },
+        {
+          "name": "pytest-asyncio",
+          "version": "1.4.0"
+        },
+        {
+          "name": "python-dateutil",
+          "version": "2.9.0.post0"
+        },
+        {
+          "name": "python-dotenv",
+          "version": "1.2.4"
+        },
+        {
+          "name": "python-multipart",
+          "version": "0.0.32"
+        },
+        {
+          "name": "pyyaml",
+          "version": "6.0.3"
+        },
+        {
+          "name": "referencing",
+          "version": "0.37.0"
+        },
+        {
+          "name": "requests",
+          "version": "2.34.2"
+        },
+        {
+          "name": "rpds-py",
+          "version": "2026.6.3"
+        },
+        {
+          "name": "scramp",
+          "version": "1.4.17"
+        },
+        {
+          "name": "securesystemslib",
+          "version": "1.5.1"
+        },
+        {
+          "name": "six",
+          "version": "1.17.0"
+        },
+        {
+          "name": "sqlalchemy",
+          "version": "2.1.3"
+        },
+        {
+          "name": "sse-starlette",
+          "version": "3.5.0"
+        },
+        {
+          "name": "starlette",
+          "version": "1.7.0"
+        },
+        {
+          "name": "truststore",
+          "version": "0.10.4"
+        },
+        {
+          "name": "typing-extensions",
+          "version": "4.16.0"
+        },
+        {
+          "name": "typing-inspection",
+          "version": "0.4.4"
+        },
+        {
+          "name": "urllib3",
+          "version": "2.8.0"
+        },
+        {
+          "name": "uvicorn",
+          "version": "0.54.0"
+        }
+      ]
+    },
+    "passed": true
+  },
+  "cross_readers": [
+    {
+      "artifacts": {
+        "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+        "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+      },
+      "origins": [
+        [
+          "Darwin",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Darwin",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Darwin",
+          "amd64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.14.7",
+          "full"
+        ]
+      ],
+      "receiver": [
+        "Darwin",
+        "amd64",
+        "3.12.14",
+        "full"
+      ],
+      "verified_new_signatures": 228,
+      "passed": true
+    },
+    {
+      "artifacts": {
+        "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+        "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+      },
+      "origins": [
+        [
+          "Darwin",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Darwin",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Darwin",
+          "amd64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.14.7",
+          "full"
+        ]
+      ],
+      "receiver": [
+        "Darwin",
+        "arm64",
+        "3.12.14",
+        "full"
+      ],
+      "verified_new_signatures": 228,
+      "passed": true
+    },
+    {
+      "artifacts": {
+        "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+        "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+      },
+      "origins": [
+        [
+          "Darwin",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Darwin",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Darwin",
+          "amd64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.14.7",
+          "full"
+        ]
+      ],
+      "receiver": [
+        "Linux",
+        "amd64",
+        "3.12.14",
+        "full"
+      ],
+      "verified_new_signatures": 228,
+      "passed": true
+    },
+    {
+      "artifacts": {
+        "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+        "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+      },
+      "origins": [
+        [
+          "Darwin",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Darwin",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Darwin",
+          "amd64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Darwin",
+          "arm64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Linux",
+          "amd64",
+          "3.14.7",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.12.14",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.13.15",
+          "full"
+        ],
+        [
+          "Windows",
+          "amd64",
+          "3.14.7",
+          "full"
+        ]
+      ],
+      "receiver": [
+        "Windows",
+        "amd64",
+        "3.12.14",
+        "full"
+      ],
+      "verified_new_signatures": 228,
+      "passed": true
+    }
+  ],
+  "original_native_evidence": "GitHub run artifacts retained locally; hash-bound gate unchanged"
+}
