@@ -339,9 +339,16 @@
           "$ref": "#/$defs/Cost"
         },
         "occurred_at": {
-          "format": "date-time",
-          "title": "Occurred At",
-          "type": "string"
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Occurred At"
         },
         "duration_basis": {
           "enum": [
@@ -1482,6 +1489,22 @@
             }
           ],
           "title": "Sequence"
+        },
+        "decoder_default_fields": {
+          "anyOf": [
+            {
+              "items": {
+                "type": "string"
+              },
+              "maxItems": 64,
+              "type": "array"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decoder Default Fields"
         }
       },
       "required": [

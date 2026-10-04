@@ -58,6 +58,18 @@ The packaged `fixtures/lifecycle-synthetic-v1.json` is a complete example with a
 explicit synthetic provenance wrapper. `lifecycle schema --type TYPE` exposes the
 five public schemas plus StockObservation and their nested definitions.
 
+Source `occurred_at` is null when the original JSON has no creation/occurrence/
+evaluation clock. `decoder_default_fields` lists top-level fields absent from the
+original but supplied by the unchanged legacy typed decoder; those values in a
+decoded record are projection defaults, not observed source facts. An empty list
+means all top-level fields were present; null means original presence was not
+attested by a directly constructed report. Evidence and cost clocks also remain
+null, and matching history with an absent clock cannot establish period counts or
+gross churn. Store reception clocks remain distinct. Original hashes, signatures
+and explicit exports cover the original bytes, never these decoder defaults.
+An original without the required record ID cannot supply an exact source reference;
+inspection rejects it instead of referring to a newly generated decoder ID.
+
 ## Owner reads, assessment and pagination
 
 Use `lifecycle inspect --config owner.toml --target target.json`. To continue, save

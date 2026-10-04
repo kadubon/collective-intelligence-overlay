@@ -87,6 +87,29 @@ class SourceObservation(ViewModel):
     occurred_at: AwareDatetime | None
     received_at: AwareDatetime | None
     sequence: int | None = Field(ge=0)
+    decoder_default_fields: tuple[str, ...] | None = Field(default=None, max_length=64)
+
+
+def original_record_metadata(
+    record: Record | Decision, body: dict[str, Any]
+) -> tuple[datetime | None, tuple[str, ...]]:
+    """Separate legacy decoder defaults from fields present in original JSON.
+
+    The typed record keeps its existing wire-decoder contract. These top-level
+    default markers describe that projection; they are not additional source facts.
+    """
+    if not isinstance(record, Capability) and "id" not in body:
+        raise ValueError("original record identity missing; decoder ID is not a source identity")
+    clock = (
+        "evaluated_at"
+        if isinstance(record, Decision)
+        else "occurred_at"
+        if isinstance(record, Event)
+        else "created_at"
+    )
+    occurred = getattr(record, clock) if clock in body else None
+    defaults = tuple(sorted(set(type(record).model_fields) - body.keys()))
+    return occurred, defaults
 
 
 class ObservationContext(ViewModel):
@@ -220,7 +243,7 @@ class CostObservation(ViewModel):
     reference: CostReference
     owner: Identifier
     cost: Cost
-    occurred_at: AwareDatetime
+    occurred_at: AwareDatetime | None
     duration_basis: Literal["inclusive_or_unspecified", "recorded_quantity"]
     physical_cost_correspondence: Literal["unresolved"] = "unresolved"
 
@@ -569,7 +592,9 @@ def snapshot_from_material(
         basis: Literal["original_dsse_payload", "unsigned_json_projection"]
         if entry["format"] == "dsse":
             record = verify(document, principals or {}, require_authority=False)
-            payload_hash = digest(base64.b64decode(document["payload"], validate=True))
+            payload = base64.b64decode(document["payload"], validate=True)
+            original_body = json.loads(payload)
+            payload_hash = digest(payload)
             signature = "historical_verified"
             principal = (principals or {})[record.issuer]
             compromised = any(
@@ -578,6 +603,7 @@ def snapshot_from_material(
             authority = "compromised_key_observed" if compromised else "unassessed"
             basis = "original_dsse_payload"
         elif entry["format"] == "unsigned":
+            original_body = document
             record = (
                 Decision.model_validate(document)
                 if "request" in document
@@ -597,11 +623,7 @@ def snapshot_from_material(
         ref = RecordRef(kind=kind, issuer=issuer, id=rid, payload_digest=payload_hash)
         if supplied_ref is not None and supplied_ref != ref:
             raise ValueError("supplied original reference mismatch")
-        occurred = (
-            record.evaluated_at
-            if isinstance(record, Decision)
-            else getattr(record, "occurred_at", getattr(record, "created_at", None))
-        )
+        occurred, defaults = original_record_metadata(record, original_body)
         observed.append(
             ObservedRecord(
                 record=record,
@@ -613,6 +635,7 @@ def snapshot_from_material(
                     occurred_at=occurred,
                     received_at=entry["received_at"],
                     sequence=entry["sequence"],
+                    decoder_default_fields=defaults,
                 ),
             )
         )
@@ -662,7 +685,7 @@ def _costs(
                 reference=ref,
                 owner=item.record.issuer,
                 cost=cost,
-                occurred_at=item.record.occurred_at,
+                occurred_at=item.source.occurred_at,
                 duration_basis="inclusive_or_unspecified" if wall else "recorded_quantity",
             )
             if ref.key in costs:
@@ -961,6 +984,20 @@ def inspect_lifecycle(
     support: list[tuple[str, str]] = []
     for item in items:
         record, ref = item.record, item.source.reference
+        if item.source.occurred_at is None:
+            residuals.append(
+                _residual(
+                    snapshot.context,
+                    ResidualKind.MISSING_HISTORY,
+                    (
+                        "Original occurrence/creation clock is absent; decoder defaults are "
+                        "not observations."
+                    ),
+                    target=target,
+                    sources=(ref,),
+                    prevents=("source_time_order", "period_membership"),
+                )
+            )
         if item.source.current_key_authority == "compromised_key_observed":
             residuals.append(
                 _residual(
@@ -984,7 +1021,9 @@ def inspect_lifecycle(
                     "verifier_version": record.verifier_version,
                     "scope": record.scope.model_dump(mode="json"),
                     "receivers": record.receivers,
-                    "created_at": record.created_at.isoformat(),
+                    "created_at": item.source.occurred_at.isoformat()
+                    if item.source.occurred_at is not None
+                    else None,
                     "expires_at": record.expires_at.isoformat(),
                     "expired_at_cutoff": record.expires_at <= snapshot.context.cutoff,
                     "binding_digest": record.binding_digest,
@@ -1240,6 +1279,7 @@ async def assess_stock(overlay: Overlay, requests: tuple[UseRequest, ...]) -> St
                 occurred_at=decision.evaluated_at,
                 received_at=None,
                 sequence=None,
+                decoder_default_fields=original_record_metadata(decision, item["decision"])[1],
             )
         )
         if availability == "unknown":
@@ -1333,12 +1373,10 @@ def observe_growth(
         and history.context.period_end == history.context.cutoff == context.cutoff
     )
     all_items = _unique(history) if history else ()
-    items = tuple(
+    relevant_items = tuple(
         item
         for item in all_items
         if history_matches
-        and item.source.occurred_at is not None
-        and opening.context.cutoff <= item.source.occurred_at < context.cutoff
         and any(
             _target_matches(item.record, target) for target in closing.coordinates.target_universe
         )
@@ -1353,6 +1391,27 @@ def observe_growth(
             or item.record.execution.scope == closing.coordinates.scope
         )
     )
+    period_clocks_complete = all(item.source.occurred_at is not None for item in relevant_items)
+    items = tuple(
+        item
+        for item in relevant_items
+        if item.source.occurred_at is not None
+        and opening.context.cutoff <= item.source.occurred_at < context.cutoff
+    )
+    if not period_clocks_complete:
+        residuals.append(
+            _residual(
+                context,
+                ResidualKind.MISSING_HISTORY,
+                "Relevant original clocks are absent; period membership and totals are unknown.",
+                sources=tuple(
+                    item.source.reference
+                    for item in relevant_items
+                    if item.source.occurred_at is None
+                ),
+                prevents=("period_service_count", "period_costs", "gross_churn"),
+            )
+        )
     period_snapshot = LifecycleSnapshot(context=history.context, records=items) if history else None
     contributions = (
         observe_contributions(period_snapshot) if history_matches and period_snapshot else ()
@@ -1389,6 +1448,7 @@ def observe_growth(
         history
         and comparable
         and history_matches
+        and period_clocks_complete
         and history.context.coverage == Coverage.COMPLETE
         and history.context.owner == context.owner
         and history.context.receiver == closing.coordinates.receiver
@@ -1453,17 +1513,17 @@ def observe_growth(
             re_admissions=readmissions,
             source_observation_count=len(all_items),
             service_use_count=sum(ContributionRelation.REUSE in c.relations for c in contributions)
-            if history_matches
+            if history_matches and period_clocks_complete
             else None,
             copy_observation_count=sum(
                 ContributionRelation.COPY in c.relations for c in contributions
             )
-            if history_matches
+            if history_matches and period_clocks_complete
             else None,
             import_observation_count=sum(
                 ContributionRelation.IMPORT in c.relations for c in contributions
             )
-            if history_matches
+            if history_matches and period_clocks_complete
             else None,
             costs=costs,
             cost_subtotals=subtotals,

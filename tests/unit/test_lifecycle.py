@@ -771,3 +771,127 @@ def test_same_clock_unsequenced_decisions_do_not_invent_gross_order():
     assert growth.reconciled is True and growth.entries_added_net == ()
     assert growth.gross_additions is None and growth.gross_losses is None
     assert any(r.kind == ResidualKind.MISSING_HISTORY for r in growth.residuals)
+
+
+def test_missing_original_creation_clock_is_not_a_decoder_default_observation():
+    cap = capability()
+    body = cap.model_dump(mode="json")
+    body.pop("created_at")
+    ctx = context()
+    material = {
+        "view_schema_version": "1",
+        "context": ctx.model_dump(mode="json"),
+        "records": [
+            {"format": "unsigned", "document": body, "received_at": None, "sequence": None}
+        ],
+    }
+    observed = snapshot_from_material(material, owner="receiver", caller="receiver")
+    assert observed.records[0].source.occurred_at is None
+    assert observed.records[0].source.decoder_default_fields == ("created_at",)
+    assert observed.records[0].source.reference.payload_digest == projection_digest(body)
+    assert "created_at" not in body
+
+
+@pytest.mark.parametrize("kind", ["capability", "evidence", "event", "revocation", "decision"])
+def test_missing_original_clocks_remain_missing_in_unsigned_views(kind, records):
+    cap, evidence = records
+    event = Event(
+        issuer="receiver",
+        subject=cap.subject,
+        action="reuse",
+        task_id="clock",
+        attempt_id="clock",
+        correlation_id="clock",
+        costs=(Cost(category="use", unit="tokens", quantity=2, status="measured"),),
+    )
+    original = {
+        "capability": cap,
+        "evidence": evidence,
+        "event": event,
+        "revocation": Revocation(issuer=cap.issuer, subject=cap.subject, reason="withdrawn"),
+        "decision": stock((cap,), {0}, cutoff=START + timedelta(seconds=20)).entries[0].decision,
+    }[kind]
+    clock = (
+        "occurred_at" if kind == "event" else "evaluated_at" if kind == "decision" else "created_at"
+    )
+    body = original.model_dump(mode="json")
+    body.pop(clock)
+    material = {
+        "view_schema_version": "1",
+        "context": context().model_dump(mode="json"),
+        "records": [
+            {"format": "unsigned", "document": body, "received_at": None, "sequence": None}
+        ],
+    }
+    observed = snapshot_from_material(material, owner="receiver", caller="receiver")
+    source = observed.records[0].source
+    assert source.occurred_at is None and clock in source.decoder_default_fields
+    view = inspect_lifecycle(observed, target(cap))
+    assert any(r.kind == ResidualKind.MISSING_HISTORY for r in view.residuals)
+    if kind == "evidence":
+        assert view.evidence[0]["created_at"] is None
+    if kind == "event":
+        assert view.costs[0].occurred_at is None and view.cost_subtotals[0].quantity == 2
+
+
+def test_signed_original_without_creation_clock_verifies_without_inventing_clock(
+    records, identities, principals
+):
+    from securesystemslib.dsse import Envelope
+
+    cap = records[0]
+    signed = identities[cap.issuer].sign(cap)
+    body = cap.model_dump(mode="json")
+    body.pop("created_at")
+    envelope = Envelope(json.dumps(body).encode(), signed["payloadType"], {})
+    envelope.sign(identities[cap.issuer].signer)
+    document = envelope.to_dict()
+    observed = snapshot(document, signed=True, principals=principals)
+    source = observed.records[0].source
+    assert source.signature == "historical_verified"
+    assert source.occurred_at is None and source.decoder_default_fields == ("created_at",)
+    assert source.reference.payload_digest == digest(envelope.payload)
+    assert document == envelope.to_dict()
+    assert "created_at" not in json.loads(envelope.payload)
+
+
+def test_missing_period_clock_cannot_be_reported_as_zero_service_or_churn():
+    cap = capability()
+    opening = stock((cap,), {0}, cutoff=START + timedelta(seconds=10))
+    closing = stock((cap,), {0}, cutoff=START + timedelta(seconds=20))
+    history = period(opening, closing, use(cap))
+    item = history.records[0]
+    history = history.model_copy(
+        update={
+            "records": (
+                item.model_copy(
+                    update={"source": item.source.model_copy(update={"occurred_at": None})}
+                ),
+            )
+        }
+    )
+    growth = observe_growth(opening, closing, history=history)
+    assert growth.reconciled is True and growth.entries_added_net == ()
+    assert (
+        growth.service_use_count
+        is growth.copy_observation_count
+        is growth.import_observation_count
+        is None
+    )
+    assert growth.gross_additions is growth.gross_losses is growth.re_admissions is None
+    assert any("period_service_count" in r.prevents for r in growth.residuals)
+
+
+def test_missing_original_id_cannot_become_a_generated_source_reference():
+    cap = capability()
+    body = use(cap).model_dump(mode="json")
+    body.pop("id")
+    material = {
+        "view_schema_version": "1",
+        "context": context().model_dump(mode="json"),
+        "records": [
+            {"format": "unsigned", "document": body, "received_at": None, "sequence": None}
+        ],
+    }
+    with pytest.raises(ValueError, match="original record identity missing"):
+        snapshot_from_material(material, owner="receiver", caller="receiver")

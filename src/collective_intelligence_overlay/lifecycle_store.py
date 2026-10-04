@@ -16,6 +16,7 @@ from .lifecycle import (
     ObservationContext,
     ObservedRecord,
     SourceObservation,
+    original_record_metadata,
     record_identity,
 )
 from .models import Decision, now
@@ -133,25 +134,34 @@ def read_lifecycle_page(
             row = drows[ref.id]
             if projection_digest(row["body"]) != ref.payload_digest:
                 raise ValueError("decision projection changed")
+            item = Decision.model_validate(row["body"])
+            occurred, defaults = original_record_metadata(item, row["body"])
             source = SourceObservation(
                 reference=ref,
                 payload_basis="unsigned_json_projection",
                 signature="unsigned",
                 current_key_authority="unsigned",
-                occurred_at=item.evaluated_at,
+                occurred_at=occurred,
                 received_at=None,
                 sequence=row["sequence"],
+                decoder_default_fields=defaults,
             )
         else:
             row = by_key[ref.kind, ref.issuer, ref.id]
             envelope = row["envelope"]
             verified = verify(envelope, store.principals, require_authority=False)
+            payload = base64.b64decode(envelope["payload"], validate=True)
+            original_body = json.loads(payload)
             if (
-                verified != item
-                or digest(base64.b64decode(envelope["payload"], validate=True))
-                != ref.payload_digest
+                record_identity(verified, store.owner) != (ref.kind, ref.issuer, ref.id)
+                or digest(payload) != ref.payload_digest
+                or original_body != row["body"]
             ):
                 raise ValueError("original payload mismatch")
+            # Separate decodes can generate different legacy defaults. Use the
+            # verified original, rather than comparing or adopting those defaults.
+            item = verified
+            occurred, defaults = original_record_metadata(item, original_body)
             principal = store.principals[item.issuer]
             compromised = any(
                 s["keyid"] in principal.compromised_keyids for s in envelope["signatures"]
@@ -161,9 +171,10 @@ def read_lifecycle_page(
                 payload_basis="original_dsse_payload",
                 signature="historical_verified",
                 current_key_authority="compromised_key_observed" if compromised else "unassessed",
-                occurred_at=row["occurred_at"],
+                occurred_at=occurred,
                 received_at=row["received_at"],
                 sequence=row["sequence"],
+                decoder_default_fields=defaults,
             )
         observations.append(ObservedRecord(record=item, source=source))
     after = store.revisions(keys)
