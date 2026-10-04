@@ -53,3 +53,31 @@ def test_json_brackets_and_escaped_quotes_in_strings_are_not_nesting(tmp_path):
     path = tmp_path / "strings.json"
     path.write_text(json.dumps(value), encoding="utf-8")
     assert _file(path) == value
+
+
+def test_signed_duplicate_fields_are_rejected_after_exact_signature_check(
+    identities, principals, records
+):
+    from securesystemslib.dsse import Envelope
+    from test_lifecycle import context
+
+    from collective_intelligence_overlay.lifecycle import snapshot_from_material
+    from collective_intelligence_overlay.security import verify
+
+    cap = records[0]
+    signed = identities[cap.issuer].sign(cap)
+    payload = b'{"issuer":"other",' + cap.model_dump_json().encode()[1:]
+    envelope = Envelope(payload, signed["payloadType"], {})
+    envelope.sign(identities[cap.issuer].signer)
+    document = envelope.to_dict()
+    assert verify(document, principals, require_authority=False).issuer == cap.issuer
+    material = {
+        "view_schema_version": "1",
+        "context": context().model_dump(mode="json"),
+        "records": [
+            {"format": "dsse", "document": document, "received_at": None, "sequence": None}
+        ],
+    }
+    with pytest.raises(ValueError, match="duplicate JSON key"):
+        snapshot_from_material(material, owner="receiver", caller="receiver", principals=principals)
+    assert Envelope.from_dict(document).payload == payload
