@@ -14,33 +14,32 @@ toolや手順の検証、受け手の判断、利用、費用、未解決事項�
 
 ## インストールと必要なサービス
 
-**0.5.0候補はまだ未公開です。** 検査したwheelを使います。公開状態と正確なhashは
-[release記録](docs/releasing.md)へ記載します。このREADMEの導入対象は0.5.0です。
+**0.5.0は[PyPIで公開済み](https://pypi.org/project/collective-intelligence-overlay/0.5.0/)です。**
+このREADMEの導入対象はその版です。正確なhashと検証は[release記録](docs/releasing.md)にあります。
 公開済0.4.4の記録は[archive](docs/research-archive.md)に保持します。
 
 coreのrecord型・offline viewにはサービスやモデルの起動が不要です。
-ownerのDB inspectionと明示的な受入評価にはPostgreSQL／OPAを使います。
+ownerのDB inspectionにはPostgreSQL、明示的な受入評価には加えてOPAを使います。
 optional `[agents]`はMicrosoft Agent Framework（MAF）、A2A、MCPの接続です。
 `[model]`／`[ollama]`は別のoptionalモデル接続で、credentialsの存在だけでは推論しません。
 
 ## First run from the installed package
 
-repository外の新しいディレクトリから実行します。検査した配布物を
-`../candidate/dist`へ置きます。Linux／macOS:
+repository外の新しいディレクトリから実行します。Linux／macOS:
 
 ```sh
-uv venv .venv --python 3.12
+uv venv .venv --python 3.12.14
 source .venv/bin/activate
-uv pip install ../candidate/dist/collective_intelligence_overlay-0.5.0-py3-none-any.whl
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.0
 collective-intelligence-overlay lifecycle inspect --fixture
 ```
 
 Windows PowerShell:
 
 ```powershell
-uv venv .venv --python 3.12
+uv venv .venv --python 3.12.14
 . .venv/Scripts/Activate.ps1
-uv pip install ../candidate/dist/collective_intelligence_overlay-0.5.0-py3-none-any.whl
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.0
 collective-intelligence-overlay lifecycle inspect --fixture
 ```
 
@@ -94,8 +93,9 @@ pagination・expiry・削除で不確かな副作用を解決したことには�
 ## 互換性と検証
 
 Python >=3.12。Linux／Windows／macOS Intel／Apple Siliconの宣言profileは
-[runtime matrix](docs/validation.md)にあります。候補の検証と未完了native／公開gateは
-[実装register](docs/lifecycle-050-implementation.md)で追跡します。
+[runtime matrix](docs/validation.md)にあります。実際の公開pairに対してnative 12件、mixed Python、
+cross reader 4件が通っています。実PyPI bytesとclean installの検査は
+[実装register](docs/lifecycle-050-implementation.md)に記録します。
 lifecycle層によるDB migrationやwire record変更はありません。
 [移行](docs/migration-050.md)では旧binding・時計の欠落を説明します。
 

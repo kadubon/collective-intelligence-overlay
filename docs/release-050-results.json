@@ -1,0 +1,415 @@
+{
+  "schema_version": "1",
+  "version": "0.5.0",
+  "status": "published_and_declared_verification_complete",
+  "new_model_generation_requests": 0,
+  "new_model_pull": false,
+  "new_pilot_or_scientific_comparison_or_benchmark": false,
+  "long_soak_performed": false,
+  "native_candidate": {
+    "candidate_run_id": "37186786810",
+    "source_commit": "e830a6a54a22ba8190a64e0b184d461103287ee3",
+    "source_tree": "6deddfed44f14acdb2088f2bb932c31d2755c3b3",
+    "artifacts": {
+      "collective_intelligence_overlay-0.5.0.tar.gz": "916b0d16440b7888341a59ca452eb587030964da6d8de56f61cd59d8ff0ce752",
+      "collective_intelligence_overlay-0.5.0-py3-none-any.whl": "ffa714868281925c500803cbf6762bb130c28e832ab68c70c8aa0f38e917690e"
+    },
+    "gate_sha256": "8fb4ef5e4039ccc1883218d2b192a68536465c6c8ddf6222dd69192296864c10"
+  },
+  "native_results": "docs/release-050-native-results.json",
+  "native_profile_count": 12,
+  "native_gate_status": "passed",
+  "publication": {
+    "workflow_run_id": "37194242517",
+    "workflow_url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37194242517",
+    "status": "success",
+    "commit": "1c7e3527dc48580f92e70f2a3752d54e970808d4",
+    "tag": "v0.5.0",
+    "annotated_tag_object": "d84e3133b833d844e22e54ed7d8927fbfd14b3bb",
+    "workflow": ".github/workflows/workflow.yml",
+    "environment": "pypi",
+    "method": "official PyPA GitHub Trusted Publishing OIDC",
+    "exact_pretested_pair_and_gate_reused": true,
+    "distributions_rebuilt_for_publication": false,
+    "native_workload_repeated_at_tag": false
+  },
+  "actual_pypi": {
+    "url": "https://pypi.org/project/collective-intelligence-overlay/0.5.0/",
+    "metadata_and_downloaded_bytes_match_candidate": true,
+    "artifacts": {
+      "collective_intelligence_overlay-0.5.0.tar.gz": "916b0d16440b7888341a59ca452eb587030964da6d8de56f61cd59d8ff0ce752",
+      "collective_intelligence_overlay-0.5.0-py3-none-any.whl": "ffa714868281925c500803cbf6762bb130c28e832ab68c70c8aa0f38e917690e"
+    },
+    "normal_cache_disabled_index_profiles": [
+      {
+        "os": "Windows",
+        "architecture": "AMD64",
+        "python": "3.12.14",
+        "test_scope": "unit_and_sdk_mocks",
+        "environments": {
+          "core": {
+            "installed_version": "0.5.0",
+            "tests": null,
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 31,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 444,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 64,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents-model": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 1,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": {
+              "tests": 445,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "audited_runtime_distributions_including_root": 67,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents-ollama": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 11,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 66,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          }
+        },
+        "original_report_sha256": "75be080040ab72ede451ed0ed1ba053f32e1824d98f7230abd85d49ef81e07de",
+        "public_metadata_derivative_sha256": "c0abd40c4c3b86ba89c817eb5561b9c0974220f0665e4366f838c44a1368e047"
+      },
+      {
+        "os": "Windows",
+        "architecture": "AMD64",
+        "python": "3.13.15",
+        "test_scope": "unit_and_sdk_mocks",
+        "environments": {
+          "core": {
+            "installed_version": "0.5.0",
+            "tests": null,
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 31,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 444,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 60,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents-model": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 1,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": {
+              "tests": 445,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "audited_runtime_distributions_including_root": 64,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents-ollama": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 11,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 62,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          }
+        },
+        "original_report_sha256": "ad27cce7f9f846204d6ae9b905195aa11bcae5bd2a7a049d7ec1883bf4e4f053",
+        "public_metadata_derivative_sha256": "730c0c4d9212a501ac6257cf554127fc6bb88866763accbb5486be9cfbee1970"
+      },
+      {
+        "os": "Windows",
+        "architecture": "AMD64",
+        "python": "3.14.7",
+        "test_scope": "unit_and_sdk_mocks",
+        "environments": {
+          "core": {
+            "installed_version": "0.5.0",
+            "tests": null,
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 31,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 444,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 60,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents-model": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 1,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": {
+              "tests": 445,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "audited_runtime_distributions_including_root": 64,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          },
+          "agents-ollama": {
+            "installed_version": "0.5.0",
+            "tests": {
+              "tests": 11,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 62,
+            "known_advisory_findings": 0,
+            "audit_skips": 0,
+            "license_review": "passed_existing_allowlist",
+            "sbom": "generated",
+            "child_and_backend_runtime_guards": "passed"
+          }
+        },
+        "original_report_sha256": "b16902402c376b4d8b2b4893c00784bf02d420cfa7fb79782fa4b64b8b8cf61a",
+        "public_metadata_derivative_sha256": "ec8461b66389f92a62f731bc4318239efd704cfcc846bf6351cf1741c803896b"
+      }
+    ],
+    "outside_checkout": true,
+    "other_os_actual_index_matrix_repeated": false,
+    "scope_note": "The identical published pair passed all 12 native candidate gates; postpublication actual-index installs here are Windows on all three declared CPython patches."
+  },
+  "fresh_core_smoke": {
+    "status": "passed",
+    "python": "3.12.14",
+    "os": "Windows",
+    "optional_sdk_imports_blocked": true,
+    "json_cli_modes": 4,
+    "installed_package_files_equal_downloaded_wheel": 97,
+    "tests": {
+      "tests": 43,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "pytest_config_warnings": 1,
+    "warning_reason": "asyncio_mode configured without optional pytest-asyncio in the core-only test environment"
+  },
+  "actual_service_tutorial": {
+    "scenario": "deterministic actual-service tutorial; not a growth experiment",
+    "receiver_A": "ACCEPT",
+    "receiver_B": "REJECT",
+    "actual_result": {
+      "rows": 2,
+      "total": "5.00"
+    },
+    "formation_functional_novelty": "unknown",
+    "after_withdrawal": "REJECT",
+    "new_model_generation_requests": 0
+  },
+  "tutorial_boundaries": {
+    "handoff_authority": "not_granted",
+    "functional_growth": "not_estimated",
+    "atomic_cross_owner_snapshot": false,
+    "missing_energy_is_zero": false
+  },
+  "github_release_and_downloads": {
+    "status": "verified",
+    "release_id": 402960832,
+    "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.5.0",
+    "published_at": "2026-10-04T10:15:49Z",
+    "tag": "v0.5.0",
+    "files": [
+      {
+        "file": "cio-050-asset-manifest.json",
+        "size": 935,
+        "sha256": "d15ff12a676a1b95aacc506d251351b0b2d5aef9ebfe57fc3b0c5f8b87b364ea",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.0/cio-050-asset-manifest.json",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "cio-050-native-gate.json",
+        "size": 674466,
+        "sha256": "8fb4ef5e4039ccc1883218d2b192a68536465c6c8ddf6222dd69192296864c10",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.0/cio-050-native-gate.json",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "collective-intelligence-overlay-0.5.0-evidence.zip",
+        "size": 30956543,
+        "sha256": "af414d0b9920aea64da59609f986c6001361a6cbde143313e9cb297762a5763c",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.0/collective-intelligence-overlay-0.5.0-evidence.zip",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "collective_intelligence_overlay-0.5.0-py3-none-any.whl",
+        "size": 306327,
+        "sha256": "ffa714868281925c500803cbf6762bb130c28e832ab68c70c8aa0f38e917690e",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.0/collective_intelligence_overlay-0.5.0-py3-none-any.whl",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "collective_intelligence_overlay-0.5.0.tar.gz",
+        "size": 246032,
+        "sha256": "916b0d16440b7888341a59ca452eb587030964da6d8de56f61cd59d8ff0ce752",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.0/collective_intelligence_overlay-0.5.0.tar.gz",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "SHA256SUMS.txt",
+        "size": 534,
+        "sha256": "b751a975c88f86a13e5196e976905fae07e2fa5f79a62ad4040614612975ab7c",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.0/SHA256SUMS.txt",
+        "downloaded_bytes_equal_original": true
+      }
+    ],
+    "archive_members": 3864,
+    "all_member_sha256_passed": true,
+    "archive_recompressed": false,
+    "new_model_generation_requests": 0
+  },
+  "owned_service_cleanup": {
+    "status": "stopped",
+    "scope": "exact marked cio-lifecycle-050-v1 PostgreSQL 16.15 cluster",
+    "port": 55446,
+    "ownership_marker_checked": true,
+    "resolved_paths_checked": true,
+    "exact_postmaster_options_checked": true,
+    "observed_pid": 374,
+    "other_services_changed": false,
+    "data_logs_and_tutorial_private_keys_retained": true,
+    "new_model_generation_requests": 0
+  },
+  "compatibility": {
+    "requires_python": ">=3.12",
+    "license": "Apache-2.0",
+    "new_or_updated_runtime_dependencies": 0,
+    "db_migrations_added": 0,
+    "old_wire_record_union_and_signed_payloads_changed": false,
+    "old_unknown_reservations_withdrawals_retained": true,
+    "static_unchanged_previous_package_files": 85,
+    "previous_files_changed": [
+      "src/collective_intelligence_overlay/cli.py"
+    ]
+  },
+  "historical_044": {
+    "scope": "byte-verified published archive; each of three frozen raw-revision offline readers executed once, network blocked, exact published analysis objects reproduced",
+    "sql_L1_L2": [
+      8,
+      8
+    ],
+    "composition_L1_L2": [
+      6,
+      7
+    ],
+    "tasks_each": 8,
+    "public_nonlearning_rule_per_level": "96/96",
+    "G2_and_confirmation": "unperformed_assay_not_ready",
+    "successful_original_candidates": 2,
+    "copied_histories": 4,
+    "mechanism_diagnostics": 8,
+    "historical_model_generation_requests": 40,
+    "historical_measured_and_charged_tokens": 28178,
+    "historical_missing_usage": 0,
+    "CIO_accumulation_benefit": "not_estimated"
+  },
+  "preserved_failures_and_limits": [
+    "Two superseded defective candidates do not attest corrected bytes; only unfinished jobs were cancelled with explicit owner approval; original logs/distributions/reports retained.",
+    "Original Mac Intel/3.14.7 receiptless-recovery failure cause remains unestablished; current full candidate passed without runtime/deadline/authority changes.",
+    "Initial local fixture/reader/timing diagnostics and the private collector label-count assumption failure remain retained; no gate was weakened.",
+    "Targeted public PEM/home/operational-DSN scan is not a complete external privacy/security audit.",
+    "No functional novelty, causal credit, intelligence growth or general CIO advantage is established.",
+    "Global complete history, rolling mixed-version deployment and untested external production scope are not asserted."
+  ],
+  "external_approval_or_connection_blockers": [],
+  "documentation_scope": "Main postpublication documentation is separate from immutable tagged package metadata; tag, pair, gate and archive are not changed."
+}

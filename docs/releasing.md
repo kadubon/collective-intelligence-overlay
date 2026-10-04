@@ -1,17 +1,57 @@
 # Release procedure and current state
 
-## 0.5.0 feature candidate (not yet published)
+## 0.5.0 published and verified on 2026-10-04
 
-The evidence-preserving lifecycle layer is under local verification in
-[the implementation register](lifecycle-050-implementation.md). No model generation,
-new scientific comparison, benchmark or long soak is performed or required.
-The [version-specific native profile](profiles/native-fault-050.json) retains all
-nineteen software fault injections and numerical bounds. Historical scientific
-gates remain scoped to their immutable sources; none is reclassified as successful
-confirmation. Freeze one candidate pair, pass all twelve declared native profiles,
-mixed Python, cross readers, package/license/security gates and authenticated reuse,
-then publish that exact pair through workflow.yml / pypi / OIDC. Actual-index bytes
-and fresh installs are required before reporting publication complete.
+[PyPI 0.5.0](https://pypi.org/project/collective-intelligence-overlay/0.5.0/),
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.5.0),
+[actual results](release-050-results.json), [native results](release-050-native-results.json)
+and [Japanese nine-part report](release-050-report.ja.md) record completed publication
+and the declared verification. The immutable annotated tag points to commit
+`1c7e3527dc48580f92e70f2a3752d54e970808d4`, tag object
+`d84e3133b833d844e22e54ed7d8927fbfd14b3bb`.
+
+[Native run 37186786810](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37186786810)
+on source `e830a6a` passed all twelve OS/CPU/Python profiles, mixed Python and four
+cross readers. Each passed 886 source, 874 installed agents, one model SDK mock,
+eleven Ollama SDK mocks and 445 rebuilt-sdist tests, with failures/errors/skips zero.
+The [0.5.0 short fault profile](profiles/native-fault-050.json) retains all nineteen
+required groups and numerical bounds; it is not formal production soak approval.
+Superseded defects, approved cancellation and original native failure provenance
+remain in [the implementation register](lifecycle-050-implementation.md).
+
+[Tag/OIDC run 37194242517](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37194242517)
+restored and authenticated the exact tested pair, original gate and complete reports;
+candidate, ready and publish passed through workflow.yml / pypi. It rebuilt no
+distributions and repeated no native workload. Actual PyPI metadata/downloads match:
+
+| Distribution | SHA-256 |
+|---|---|
+| `collective_intelligence_overlay-0.5.0-py3-none-any.whl` | `ffa714868281925c500803cbf6762bb130c28e832ab68c70c8aa0f38e917690e` |
+| `collective_intelligence_overlay-0.5.0.tar.gz` | `916b0d16440b7888341a59ca452eb587030964da6d8de56f61cd59d8ff0ce752` |
+
+Fresh Windows CPython 3.12.14/3.13.15/3.14.7 actual-index core/agents/model-mock/
+Ollama-mock installations passed normal no-cache/no-config resolution, 444 agents
+unit cases, 1/11 SDK mocks and 445 rebuilt-sdist cases per patch. All twelve profiles
+passed published-root-inclusive advisory/license/SBOM checks with zero findings or
+audit skips. No actual-index full native matrix was repeated; those other native
+environments already verified the identical published bytes. A separate fresh core
+check matched all 97 package files, blocked optional SDK imports, passed four JSON
+CLI modes and 43 lifecycle cases. Its actual PostgreSQL/OPA tutorial passed A ACCEPT,
+B REJECT, two rows/`5.00`, formation links, missing joules and post-withdrawal REJECT.
+Only the marked local tutorial PostgreSQL cluster was stopped; data/keys/logs remain.
+
+All six Release assets were downloaded and matched by bytes, size and SHA-256.
+The single software-only evidence ZIP has 3,864 verified members, 30,956,543 bytes
+and SHA-256 `af414d0b9920aea64da59609f986c6001361a6cbde143313e9cb297762a5763c`.
+The original gate authenticates original reports; public unsigned metadata copies
+have separate original/public mappings and unchanged signed envelopes. The targeted
+PEM/home/operational-DSN scan is not a complete external privacy audit. Old scientific
+raw and model weights were not repacked. New real model generation is zero; no
+pilot, comparison, benchmark or long soak was performed. Historical scientific
+gates remain scoped to their sources and are not reclassified as confirmation.
+
+Main now documents actual-index installation. Tagged package metadata keeps its
+prepublication README snapshot; the tag, distributions, gate and archive are immutable.
 
 ## 0.4.4 published and verified on 2026-10-04 JST; pilot only
 

@@ -11,10 +11,10 @@ databases, keys and input files; its database administrator needs role/database
 creation permission. Never substitute a production owner config. The demo directory
 must not already exist. Service passwords and private keys remain private there.
 
-Install the reviewed 0.5.0 wheel with `[agents]` in the existing activated environment:
+Install published 0.5.0 with `[agents]` in the existing activated environment:
 
 ```console
-uv pip install "../candidate/dist/collective_intelligence_overlay-0.5.0-py3-none-any.whl[agents]"
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple "collective-intelligence-overlay[agents]==0.5.0"
 ```
 
 Set `CIO_TEST_DATABASE_URL` to the dedicated administrator connection and `CIO_OPA`

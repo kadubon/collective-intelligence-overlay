@@ -1,10 +1,20 @@
 # Validation status
 
-0.5.0 is an unpublished lifecycle feature candidate. Its
-[implementation register](lifecycle-050-implementation.md) records actual local
-checks and outstanding exact-pair native/publication gates. Existing results below
-attest only their stated immutable versions. No new scientific experiment or long
-soak is required or run; ordinary service/fault and package regressions remain required.
+0.5.0 is published and its declared feature-release validation is complete. Its
+[native results](release-050-native-results.json) bind all twelve Linux/Windows/macOS
+Intel/Apple Silicon × CPython 3.12.14/3.13.15/3.14.7 profiles, mixed Python and four
+cross readers to the exact published pair. Each native profile passed 886 source,
+874 installed agents, 1 model SDK mock, 11 Ollama SDK mocks and 445 rebuilt-sdist cases,
+with failures/errors/skips zero. Both source and installed short software fault
+protocols retain the nineteen required groups, three owners and unchanged 120–600
+second bounds; this is not a long soak or formal production approval.
+[Actual publication/index/download checks](release-050-results.json) separately record
+Windows normal-index installs on all three patches, twelve published-root-inclusive
+audit/license/SBOM profiles, the additional core and actual-service tutorial, and
+all six public asset downloads. [The implementation register](lifecycle-050-implementation.md)
+retains local checks and earlier failures. Existing results below attest only their
+stated immutable versions. No new real model request, scientific experiment,
+benchmark or long soak was run.
 
 0.4.0 is published and the predeclared permissioned single-owner profile passes.
 [Immutable tag CI / PyPA OIDC](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/36911991678) and

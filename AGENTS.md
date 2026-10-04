@@ -12,6 +12,11 @@ No new inference, model pull, pilot, scientific comparison, benchmark or long so
 is authorized in this release. Mock SDK, ordinary property/service/package regressions
 remain required. Use local target checks, one final exact-candidate native gate, then
 standard OIDC publication. Historical studies and failures below remain immutable.
+0.5.0 is published; actual native, OIDC, index/install and downloaded-asset checks
+are in `docs/release-050-results.json` and the Japanese nine-part report. Preserve
+the immutable tag, exact pair, original gate and single software evidence archive.
+Main publication documentation does not reattest changed package metadata or
+authorize new research/model requests.
 
 Build a thin overlay for evidence sharing and receiver-local capability admission.
 Do not build an agent runtime, workflow engine, protocol implementation or global manager.

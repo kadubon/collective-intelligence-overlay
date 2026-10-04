@@ -5,7 +5,9 @@ layer. It introduces no model experiment, inference, benchmark or long soak.
 The baseline is `733edaa78c93156d005528c50a3fd280538b964d`; implementation and fixes
 are merged into `main` at `e830a6a`. Original tags, distributions, research sources
 and raw remain immutable. Completed gates below have separate exact-byte evidence;
-publication is not implied by a passing native gate.
+publication is not implied by a passing native gate. Actual completed publication,
+normal-index installs and downloaded Release asset checks are separately recorded
+in [release results](release-050-results.json) and [the Japanese report](release-050-report.ja.md).
 
 ## Responsibility mapping
 
@@ -115,7 +117,8 @@ GitHub log ZIPs, candidate distributions and available report files are retained
 locally with separate SHA-256 manifests (3,716 and 2,724 retained files respectively).
 No 0.4.x run was changed. Corrected source `e830a6a` has its own fixed pair and
 [run 37186786810](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37186786810);
-its native gate is now complete/success. Publication remains pending. Cancellation
+its native gate is complete/success. The exact pair was subsequently published by
+tag/OIDC run 37194242517 and verified against actual PyPI downloads. Cancellation
 is not a passing gate.
 
 | Requirement | Behavioral evidence; also included in the final native gate |
@@ -139,7 +142,7 @@ is not a passing gate.
 | 17 Denial/tampering/cycle/limits/version | Fail closed before disclosure/unsafe work |
 | 18 Handoff reception | No verification/execution/allocation promotion |
 | 19 Wire/hash compatibility | Original DSSE fixtures and projection digest distinction |
-| 20 Clean-wheel CLI/docs | Final preliminary wheel: offline four-mode CLI, blocked optional imports, 27 core cases, actual PostgreSQL/OPA tutorial; generated schema/help/bilingual blocks checked |
+| 20 Clean-wheel CLI/docs | All twelve final native installed packages; actual-index fresh core 43 cases/97 identical package files, four JSON modes, blocked optional imports and actual PostgreSQL/OPA tutorial; generated schema/help/bilingual blocks checked |
 
 The initial preliminary wheel/sdist passed clean normal-resolution core, agents,
 model-mock and Ollama-mock profiles, sdist rebuild, advisory/license/SBOM checks.
@@ -185,7 +188,21 @@ collector's incorrect 19-label assumption was corrected to delegate the existing
 protocol validator; the original collector and diagnostic remain retained, and
 no test, protocol or gate was weakened.
 
-Real model connections and production experiments/soak remain unrun. Tag
-publication must reuse that exact pair through workflow.yml,
-environment pypi/OIDC. Actual PyPI hashes, ordinary clean install and smoke are
-separate final evidence. No completion claim is made before those checks pass.
+Real model connections and production experiments/soak remain unrun. Tag publication
+reused that exact pair and full gate through workflow.yml / pypi / OIDC; candidate,
+ready and publish all passed. Actual PyPI metadata and downloaded bytes match the
+candidate. Fresh Windows normal-index checks on all three declared CPython patches
+passed core/agents/model-mock/Ollama-mock profiles, 444 agents unit cases, 1/11 SDK
+mocks and 445 rebuilt-sdist cases per patch, with failures/errors/skips zero. All
+twelve runtime advisory/license/SBOM profiles include the published root and have
+zero findings/skips. The separate fresh core check passed 43 cases with the one
+documented optional-test-plugin config warning, matched 97 package files, blocked
+optional SDK imports and completed the actual-service tutorial. The marked local
+PostgreSQL cluster alone was stopped with all private data/keys/logs retained.
+
+The six GitHub Release assets were downloaded and matched byte-for-byte. The single
+software-only ZIP's 3,864 members matched its manifest. No historical scientific raw
+or model weights were repacked. Public metadata redactions have separate original/
+public hashes; signed envelopes and original native reports remain unchanged.
+Postpublication README/Docs changes belong to main and do not move the tag,
+rebuild the pair, recompress the archive or extend the old native source scope.

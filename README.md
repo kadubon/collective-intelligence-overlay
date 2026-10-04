@@ -15,33 +15,32 @@ effects remain unknown. Each participant retains its own policy, keys and budget
 
 ## Install and services
 
-The **0.5.0 candidate is not yet published**. Use its reviewed wheel; publication and
-exact hashes will be recorded in [release status](docs/releasing.md). These examples
-target 0.5.0. The published 0.4.4 record remains in the [archive](docs/research-archive.md).
+**0.5.0 is published on [PyPI](https://pypi.org/project/collective-intelligence-overlay/0.5.0/).**
+These examples target that version. Exact hashes and verification are recorded in
+[release status](docs/releasing.md); prior releases remain in the [archive](docs/research-archive.md).
 
 Core record models and offline views need no running service or model. Owner database
-inspection and explicit qualification use PostgreSQL and OPA. Optional `[agents]`
+inspection uses PostgreSQL; explicit qualification additionally uses OPA. Optional `[agents]`
 integrates Microsoft Agent Framework (MAF), A2A and MCP; `[model]` and `[ollama]`
 are separate optional model integrations. Finding credentials does not enable inference.
 
 ## First run from the installed package
 
-Run from a fresh directory outside the repository, with the reviewed pair in
-`../candidate/dist`. On Linux/macOS:
+Run from a fresh directory outside the repository. On Linux/macOS:
 
 ```sh
-uv venv .venv --python 3.12
+uv venv .venv --python 3.12.14
 source .venv/bin/activate
-uv pip install ../candidate/dist/collective_intelligence_overlay-0.5.0-py3-none-any.whl
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.0
 collective-intelligence-overlay lifecycle inspect --fixture
 ```
 
 On Windows PowerShell:
 
 ```powershell
-uv venv .venv --python 3.12
+uv venv .venv --python 3.12.14
 . .venv/Scripts/Activate.ps1
-uv pip install ../candidate/dist/collective_intelligence_overlay-0.5.0-py3-none-any.whl
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.0
 collective-intelligence-overlay lifecycle inspect --fixture
 ```
 
@@ -99,8 +98,9 @@ See [concepts](docs/lifecycle-concepts.md), [security](SECURITY.md) and
 ## Compatibility and verification
 
 Python >=3.12; declared Linux, Windows, macOS Intel and Apple Silicon profiles remain
-in the [runtime matrix](docs/validation.md). Candidate verification and pending native
-and publication gates are tracked in [the implementation register](docs/lifecycle-050-implementation.md).
+in the [runtime matrix](docs/validation.md). All twelve native profiles, mixed Python
+and four cross readers passed for the exact published pair; actual PyPI bytes and
+clean-install checks are in [the implementation register](docs/lifecycle-050-implementation.md).
 No DB migration or wire record change is introduced by the lifecycle layer.
 [Migration](docs/migration-050.md) explains legacy missing bindings and clocks.
 

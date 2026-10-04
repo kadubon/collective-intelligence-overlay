@@ -1,8 +1,12 @@
 # Compatibility and licensing
 
-0.5.0 is an unpublished feature candidate with no new runtime dependency or DB migration.
+0.5.0 is published with no new runtime dependency, dependency update or DB migration.
 Its new layer preserves old wire records and uses a separate unchanged-numerics native
-fault profile. See [migration](migration-050.md) and [pending/actual validation](lifecycle-050-implementation.md).
+fault profile. All twelve native profiles, mixed Python and four cross readers passed
+for the exact published pair. Actual-index Windows installs on all three declared
+CPython patches passed twelve core/agents/model-mock/Ollama-mock advisory/license/SBOM
+profiles, including the published root. See [migration](migration-050.md),
+[actual validation](release-050-results.json) and [native scopes](release-050-native-results.json).
 Historical acceptance below belongs to its stated versions.
 
 0.4.2 is published; [actual results](release-042-results.json) bind the unchanged

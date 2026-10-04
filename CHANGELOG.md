@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.0 (candidate)
+## 0.5.0 (2026-10-04)
 
 - Add bounded evidence-preserving Lifecycle, Contribution, Residual, Growth and
   Handoff read models, owner Store inspection/export and offline synthetic CLI input.
@@ -12,7 +12,13 @@
 - Add a deterministic actual-service lifecycle tutorial and beginner documentation.
   Historical negative/limited research and failed revisions remain unchanged.
 - Retain all native software fault bounds and exact tested-pair OIDC publication.
-  Candidate/native/publication status is in the implementation and release records.
+  All twelve native profiles, mixed Python and four cross readers passed. Actual
+  PyPI bytes, twelve ordinary installed supply-chain profiles, the model-free
+  service tutorial and all six downloaded Release assets match the retained evidence.
+- Keep absent original clocks null and mark decoder defaults in lifecycle projections;
+  preserve recognized duration quantities without adding inclusive wall observations.
+  The old wire decoder/runtime are unchanged. Superseded defects and native failure
+  provenance remain in the implementation register and release records.
 
 ## 0.4.4 (2026-10-04)
 
