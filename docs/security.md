@@ -49,7 +49,7 @@ The reference service is a trusted host process; importing middleware into an ar
 compromised Python process does not isolate it. Use existing OS/container isolation
 for user code. Never execute received code in the host.
 
-All operations are denied unless registered. The host checks permission scope at use;
+Binding execution is denied unless registered. The host checks permission scope at use;
 tool descriptions cannot add permissions. A2A enforces an input byte limit before SDK
 parsing, bounded execution time and concurrency. Graph and model collections are bounded.
 
@@ -79,6 +79,27 @@ await. Authenticated callers authorized for a binding can still consume inspecti
 resources with rejected requests. Execution allowance release does not make OPA,
 DB or authentication free. Existing message/argument bounds, request deadlines and
 configured A2A concurrency limits remain in force; no new rate-limit service is added.
+These simultaneous-request limits do not bound cumulative requests, authentication
+or inspection CPU/DB work, or retained history over time. An authenticated permitted
+peer can sustain resource use within them. Overlay `qualify` is owner-only; this
+does not prevent allowed submit/feed/execution requests from consuming resources.
+Use operator-enforced, authenticated-identity rate limits and host/storage limits
+for deployments that need that boundary; see [configuration](configuration.md).
+The resource-exhaustion severity and owner-lock throughput under adversarial or
+high-load traffic have not been measured in this finite release review.
+
+In 0.5.1, the narrowly proved inner-admission refusal before actuator entry can
+release a dispatched reservation. The Registry creates a private origin proof
+bound to the exact dispatch callback only after that callback has completed and
+before the actuator has been entered. Current DB owner/worker/fence/lease checks,
+fencing, allowance release and a signed cancelled receipt commit together.
+The original dispatch observation remains. This is not release authority from an
+exception name: denial from inside an entered operation or child call, cancellation,
+crash, a lost/expired lease and failed proof checks gain no release authority.
+Uncertain effects retain UNKNOWN/held semantics; a replacement worker's active
+ownership is not overwritten.
+Inspection still has overhead cost; release is not refund of money or an external
+side effect. Public phase/state schemas and old uncertain reservations are unchanged.
 
 Tests cover tampering, identity/audience/expiry, unknown schemas, stale evidence,
 permission denial, bounded input, revocation, cancellation and stale worker fencing.

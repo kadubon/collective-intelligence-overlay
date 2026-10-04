@@ -640,6 +640,10 @@ installed code and its global dependencies; this is not code attestation. Candid
 registration never supplies PASS evidence. Binding v1 keeps its original digest
 calculation; its new optional artifact field is excluded from that calculation.
 
+Function-source identity does not comprehensively bind globals, closure values,
+environment variables, imported dependencies, native libraries or runtime settings.
+Those remain operator-controlled inputs within the trusted host boundary.
+
 For 0.2.0 registered execution, an operator creates a `Registry(overlay)`, then
 uses `register_local`, `register_mcp` or `register_a2a` with an explicit `Binding`
 and an input applicability checker. `Executor(registry, identity, Reservation())`
@@ -682,9 +686,19 @@ A2A Messages and do not expose protocol Tasks or promise automatic worker resume
 retries return the existing result or running state; another request with the same
 caller/ID conflicts. A lost/expired worker or a cancellation after dispatch becomes
 `unknown` and is not automatically rerun. In 0.2.1, a provably undispatched new
-reservation is released in the same transaction that fences its worker. Dispatched,
-mismatched or legacy reservations remain held; they are not measured resource
-consumption. This is allowance release, not automatic monetary settlement.
+reservation is released in the same transaction that fences its worker. Without a
+proved pre-actuation refusal, dispatched, mismatched or legacy reservations remain
+held; they are not measured resource consumption. This is allowance release, not
+automatic monetary settlement.
+In 0.5.1, an inner admission denial after durable dispatch but before actuator
+entry can produce `cancelled` / `released` with reason
+`pre_actuation_admission_denied`. Its original phase and signed dispatch anchor
+remain `dispatched`. A private origin proof and matching live worker/lease permit
+fencing, release and the cancelled receipt in one transaction. Exact-ID replay
+returns that terminal record; another attempt still needs explicit owner intent
+and current admission. Denial from an entered operation or child call, crash,
+timeout/cancellation after dispatch and uncertain or lost ownership do not gain
+release authority. Recorded inspection costs remain overhead observations.
 Existing v0.1 historical `actual` values are retained
 by migration; new work does not infer actual consumption from reservation quantity.
 The low-level `Overlay.execute(request, operation)` remains a trusted-host API;

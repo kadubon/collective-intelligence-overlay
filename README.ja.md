@@ -16,7 +16,9 @@ toolや手順の検証、受け手の判断、利用、費用、未解決事項�
 
 **この手順の対象は最新の安定化candidate、0.5.1です。**
 観測identity、purpose・validity欠測、期間の座標、handoffの根拠、bounded JSON入力、
-標準A2A clientの終了処理を修正します。有限レビューと互換性の範囲は
+標準A2A clientの終了処理を修正します。dispatch後の再admission拒否では、actuatorへ
+入らなかった事実とDB上の所有権を確認し、workerをfenceして実行allowanceを一度だけ返却します。
+有限レビューと互換性の範囲は
 [監査台帳](docs/audit-051.md)に記録します。このsource時点ではnative gateと公開は未完了で、
 以下のindex導入コマンドは0.5.1公開後に利用できます。正確なhashと実検証は
 [release記録](docs/releasing.md)を確認してください。公開済0.5.0と旧版は

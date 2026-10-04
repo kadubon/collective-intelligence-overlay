@@ -1,5 +1,21 @@
 # Release procedure and current state
 
+## 0.5.1 revised candidate: publication pending
+
+The README English/Japanese installation steps and stabilization description
+target 0.5.1 before publication. The [audit ledger](audit-051.md) records the
+additional pre-actuation allowance correction and bounded verification.
+
+Initial source `eda15996c8451f06d88399d13d3ddb3cfe972b90` and
+[native run 37200404588](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37200404588)
+are retained as superseded evidence: eleven native profiles succeeded; the
+remaining Intel/Python 3.12 job failed while downloading a dependency before
+product tests. All 3,482 original files, initial workflow logs and original fixed
+pair were retained. The run was not cancelled or retried. The user's subsequent
+review requires a confirmed accounting fix before release, so this pair will not
+be published. The revised source needs a newly fixed pair and complete native
+gate. Tag, OIDC, actual PyPI installation and Release download checks are pending.
+
 ## 0.5.0 published and verified on 2026-10-04
 
 [PyPI 0.5.0](https://pypi.org/project/collective-intelligence-overlay/0.5.0/),

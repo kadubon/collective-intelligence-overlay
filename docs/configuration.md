@@ -19,10 +19,21 @@ by that command; generated files must be protected with OS ownership/ACLs.
 | share_records | Default false; explicitly expose own signed records to configured peers |
 | policy | License allowlist, permissions, evidence/source freshness limits |
 | max_concurrency | A2A work concurrency, default 4 |
+| max_owner_requests | Concurrent authenticated overlay requests per owner, default 16, range 1..256 |
+| max_caller_requests | Concurrent authenticated overlay requests per caller, default 4, range 1..64 |
 | max_steps / max_children | Demo per-peer application requests / child-process bound |
 | max_rechecks / max_seconds | Demo requalification allowance / overall deadline |
 | database_warning_bytes | Owner database size warning, default 8 GiB; no automatic deletion or hard database quota |
 | history_warning_days | Warn about retained records received locally more than this many days ago, default 365; no authority or evidence expiry |
+
+Concurrency limits bound simultaneous work, not requests or CPU/DB use over time.
+Execution allowance is separate from authentication, inspection and retained
+history costs. Database/history warning settings are observations, not hard quotas.
+An operator exposing the service to peers with different trust levels must provide
+and verify admission-rate limits and storage/resource limits at the trusted
+gateway or host. Authenticate identity before using it as a rate-limit key; an IP
+limit alone does not identify a peer. This package provides no token-bucket or
+separate inspection/execution capacity-pool service.
 
 In published 0.4.0, a nonempty `operator_callers` replaces the
 owner's drain/resume grant. The owner can still inspect status and run the

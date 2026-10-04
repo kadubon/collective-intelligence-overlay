@@ -30,7 +30,12 @@ Preserve original DSSE bytes, unsigned Decisions, missing fields/clocks, typed c
 dissent, withdrawal and legacy identity ambiguity. Historical PASS/ACCEPT and handoff
 grant no current execution. UNKNOWN/held, logical recovery and physical termination
 remain distinct. Keep budget → invocation → lease lock order, stable original caller/
-provider mappings, dispatch fences and once-only positive undispatched release.
+provider mappings, dispatch fences and once-only positive no-actuation release.
+An inner-admission refusal after durable dispatch can release only through its
+private exact-callback origin proof and matching live DB ownership, with fencing
+and a cancelled receipt in the same transaction. Keep original dispatch history;
+generic AdmissionDenied, entered operations, crashes and cancellation after
+dispatch gain no release authority.
 Restore intake stays closed until existing verification/sync/reconciliation/resume.
 DDL is explicit operator work; runtime uses DML and retains owner session locks
 until blocking physical work ends. Do not move/reformat source-hashed registered
