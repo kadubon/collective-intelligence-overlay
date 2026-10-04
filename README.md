@@ -18,8 +18,8 @@ effects remain unknown. Each participant retains its own policy, keys and budget
 **These instructions target 0.5.1, the latest stabilization candidate.**
 It corrects observation identity, missing purpose/validity, period coordinates,
 handoff basis matching, bounded JSON input and standard A2A client cleanup.
-It also releases execution allowance once when a fenced, still-owned invocation
-is denied at the inner admission check before its actuator is entered.
+It also releases execution allowance once for a proved inner-admission refusal
+before actuator entry, fencing the still-owned worker in the same transaction.
 The finite review and compatibility boundaries are in [the audit ledger](docs/audit-051.md).
 At this source snapshot, native gates and publication are pending; the index
 commands below become available when 0.5.1 is published. Check [release status](docs/releasing.md)
