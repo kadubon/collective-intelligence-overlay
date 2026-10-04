@@ -2,12 +2,19 @@
 
 This is a finite maintainer review, not an independent security audit or a claim
 of complete safety. The five 0.5.0 projections and existing execution authority
-remain the scope. No inference, model pull or scientific rerun is authorized.
+remain the scope. No inference, model pull or scientific rerun was performed.
+
+Publication and declared verification are complete. See [PyPI 0.5.1](https://pypi.org/project/collective-intelligence-overlay/0.5.1/),
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.5.1),
+[actual results](release-051-results.json), [native results](release-051-native-results.json)
+and [Japanese report](release-051-report.ja.md). The Release publication time was
+2026-10-04 19:24:57 UTC (2026-10-05 04:24:57 JST). These results do not turn the
+finite review into an external audit or establish complete safety.
 
 Baseline: clean `main` at `d39ac26a342dc0e040e2368e5e364f534c08328c`;
 published 0.5.0 tag commit `1c7e3527dc48580f92e70f2a3752d54e970808d4`.
 The source/package/test/workflow trees match that tag; later publication Docs are
-separate from its immutable metadata. Work starts on `stabilization/051-audit`.
+separate from its immutable metadata. Work began on `stabilization/051-audit`.
 The published wheel SHA256 is
 `ffa714868281925c500803cbf6762bb130c28e832ab68c70c8aa0f38e917690e`,
 and sdist SHA256 is
@@ -42,11 +49,11 @@ are retained. No release gate or publication passed. The user then supplied an
 additional review requiring a pre-actuation accounting correction; this source
 candidate is excluded from publication. It was not cancelled or rerun; all 3,482
 original files remain retained separately. The revised source's native gate is
-verified below; publication and postpublication verification remain pending.
+verified below; publication and postpublication verification are complete.
 
 Findings below are confirmed reproductions unless explicitly marked otherwise.
 Private diagnostic inputs and raw logs are retained under `.local/audit-051*`;
-the final software evidence archive will contain sanitized, bounded evidence.
+the published software evidence archive contains sanitized, bounded evidence.
 
 | ID | Priority / class | Location and condition | Observed impact / expected correction | State |
 | --- | --- | --- | --- | --- |
@@ -106,7 +113,12 @@ nineteen public signatures, fourteen packaged schemas and unchanged migrations/
 runtime dependencies were compared. Ninety of the old ninety-seven package files
 are byte-identical; seven intentional changes, one new private JSON helper and
 zero removed files are distinguished. Static comparison is separate from native
-and actual-index evidence.
+and actual-index evidence. The [verified software-evidence ZIP](https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/collective-intelligence-overlay-0.5.1-evidence.zip)
+contains this static boundary at
+`release-evidence/finite-audit/compatibility-boundary-v2.json`. Its original and
+public SHA256 are both
+`6cd4b70077d281bb75ccb9d07697971d57cc945507e9270b98e917310edad5e4`;
+the original/public mappings remain explicit even when these bytes are unchanged.
 
 ## Executed focused evidence
 
@@ -141,7 +153,7 @@ tool prefix was omitted. Both setup/environment corrections and raw results are
 retained; they are not product fixes. The completed 119-case run sets the WSL PG
 tool prefix and has no failures, errors or skips.
 
-## Final native provenance and remaining publication evidence
+## Final native and publication provenance
 
 The revised local preflight wheel/sdist passed normal clean installations and
 dependency/license/SBOM checks; these bytes are not the final CI candidate.
@@ -162,7 +174,7 @@ sdist `86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703`.
 The canonical 3,842-file original manifest SHA256 is
 `b83e89a46459c9243b2ca51015d32d56c71b41c6582d3b382a519d4f002c52d2`.
 Gate JSON alone does not carry failed-attempt/authorization history; separately
-retained provenance binds those records and will accompany the public archive.
+retained provenance binds those records in the published software archive.
 
 The initial attempt's 3,790 originals remain. Intel313 had source968 pass/one
 fail/zero error/skip in 969 cases, with its installed phase unreached; its eight
@@ -183,11 +195,47 @@ This finite API/artifact proof does not establish GitHub internal copy mechanics
 or absolute absence of hidden execution. The old eda run and its 3,482 originals
 remain superseded, without retry.
 
-OIDC publication, actual PyPI/Release downloads/install, final software archive
-and owned-service cleanup remain pending. The compact per-finding evidence below
-supplements this existing ledger; full JSON belongs only in the single software-
-evidence archive with original/public hashes distinguished. Local-v4 installed
-proof and focused/static fixed states do not establish publication success.
+[OIDC publication run 37226613301](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37226613301)
+passed candidate, ready and publish through the existing protected workflow.yml /
+pypi path, restoring the pair and original gate without rebuilding or repeating
+native work. The immutable annotated tag has object
+`53f1e7bb47f6c5668bf029611e59554c0eb88477` and peeled publication commit
+`7540ae5bd6150e95038d27b39b4f1c17ac808456`. Tag quick was skipped with no execution
+steps; separate [main quick run 37226417161](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37226417161)
+passed at that publication commit. Actual PyPI metadata and downloaded bytes
+match the frozen candidate.
+
+Completed outside-checkout actual-index verification used one Windows AMD64 /
+CPython 3.12.14 patch with four profiles: core installation checks, agents 512
+unit cases, agents-model 1 SDK mock plus 513 rebuilt-sdist cases and agents-ollama
+11 SDK mocks. Reported tests had zero failures, errors and skips. Published-root-
+inclusive advisory/license/SBOM checks completed for 31/64/67/66 distributions
+respectively, with zero known advisory findings. The original global Python 3.13
+orchestrator failure on missing piplicenses occurred before profile pytest;
+its log and two partial core supply-chain files are retained separately from the
+completed execution using existing locked development tools.
+
+Fresh actual-package core 92, A2A lifetime 8, Store 12 and direct pre-actuation 8
+cases passed separately, with zero failures, errors and skips. Four read-only
+JSON CLI examples and the actual PostgreSQL/OPA service tutorial passed A ACCEPT,
+B REJECT, two rows/`5.00` and post-withdrawal REJECT. All 98 installed files matched
+the downloaded wheel; core optional SDK imports were blocked. No other-OS
+actual-index full matrix was repeated, and overlapping counts are not additive.
+
+All six Release assets were downloaded and verified against their original bytes,
+sizes and SHA256. The [single software-evidence ZIP](https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/collective-intelligence-overlay-0.5.1-evidence.zip)
+contains 4,073 verified members, is 31,969,754 bytes and has SHA256
+`e4b39b061a152cd165a18c5dbbc883bfcfaba0725afb8e1e7a27d0fed1cd4443`.
+Bounded failed native XML/runtime/log copies and original/public hash mappings
+are included; original failed ZIPs and private human authorization transcripts
+remain private. Signed envelopes are unchanged. Only the dedicated tutorial
+PostgreSQL cluster was stopped, retaining data/logs and leaving other services
+unchanged. No model inference/pull, research comparison, benchmark or long soak ran.
+
+The compact per-finding evidence below supplements this existing ledger; full
+JSON is in the single software-evidence archive with original/public hashes
+distinguished. Local-v4 installed proof and focused/static fixed states are
+separate from this actual publication and installation evidence.
 
 ## User-supplied prepublication review supplement
 
@@ -224,7 +272,8 @@ has no measured high-load throughput guarantee. The existing host/DB/OPA/key/clo
 TCB and absent external pentest, multi-organization key-management assurance and
 long-running availability proof remain explicit. No authentication/signature bypass
 or concrete PyPI metadata defect was reproduced by that static review. The current
-README identifies unpublished 0.5.1 and links actual publication records separately.
+packaged/tagged README retains the prepublication snapshot; the current main
+README identifies published 0.5.1 and links actual publication records separately.
 
 ## Per-finding preserved evidence (bounded appendix)
 
@@ -249,7 +298,7 @@ This supplements the existing finding table; it is not a second audit ledger. Or
 
 Original Lifecycle first-fail selections are from `all-public050-before-v1.xml` (normally installed public 0.5.0 outside checkout; 43 pass, 24 fail, no errors/skips), fixed selections from `second-review-fixed-v1.xml`. L051-05 additionally uses `handoff-correlation-fixed-v2.xml`; L051-06 uses `store-expanded-v1.xml`. J051-01 uses `json-firstfail-v1.xml`, `json-fixed-v3.xml` and `second-review-firstfail-v1.xml`; E051-01 uses `runtime-a2a-lifetime-firstfail-v1.xml`/`fixed-v1.xml`; R051-01 uses `release-gates-before-integration-v1.xml`/`after-integration-v1.xml`.
 
-The full `audit-finding-evidence-appendix-v2.json` belongs in the single Release software-evidence archive, linked here after actual publication. It contains full commits, file/symbol lines and source hashes, exact selected NodeIDs, original XML hashes/counts, trust scopes and limits. Original JSON SHA-256: `4d19a889b42f634b6ea1865e83970d72c11f47ec7305b078353906190aebc6c8`; archive-relative path, verified Release URL and separately hashed public derivative: **pending**. No second full public Markdown ledger is planned.
+The full `audit-finding-evidence-appendix-v2.json` is in the [single verified Release software-evidence ZIP](https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/collective-intelligence-overlay-0.5.1-evidence.zip) at `release-evidence/finite-audit/finding-evidence-mapping-v2.json`. It contains full commits, file/symbol lines and source hashes, exact selected NodeIDs, original XML hashes/counts, trust scopes and limits. Original JSON SHA-256: `4d19a889b42f634b6ea1865e83970d72c11f47ec7305b078353906190aebc6c8`; separately recorded public derivative SHA-256: `4d19a889b42f634b6ea1865e83970d72c11f47ec7305b078353906190aebc6c8`. These particular bytes are unchanged; original/public labels remain separate. No second full public Markdown ledger is added.
 
 Evidence limits: D051-01 is directly verified text, with no implementation-mirroring test. Missing `request.purpose`, material-depth/signed-duplicate JSON subcases, the actual Store preflight case, three added A2A client cases and package/upgrade additions have fixed-only/supporting evidence, not separately archived pre-fix failures. Their parent defects have the first-fail evidence listed above; absent failures are not manufactured.
 

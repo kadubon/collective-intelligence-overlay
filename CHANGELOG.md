@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.1 (stabilization candidate)
+## 0.5.1 (2026-10-05 JST)
 
 - Correct finite lifecycle projections: same-clock partially ordered Decisions
   keep gross churn unknown; period receipts/costs match available receiver/scope/
@@ -28,8 +28,11 @@
   signed/wire records, source-bound callables, DB schema and dependencies remain.
 - Reorganize development instructions with a byte-exact historical archive and
   update maintenance/private-reporting guidance. Inherit the existing native,
-  package and exact-pair OIDC gates for 0.5.1. Publication remains pending at this
-  candidate snapshot; no model inference or scientific rerun was performed.
+  package and exact-pair OIDC gates for 0.5.1. Publish the pretested pair on PyPI
+  and GitHub Release, verify actual downloads and fresh PyPI installations, and
+  retain the initial failures separately. See the [release results](docs/release-051-results.json)
+  and [Japanese final report](docs/release-051-report.ja.md). No model inference,
+  model pull, scientific rerun, benchmark or long soak was performed.
 
 ## 0.5.0 (2026-10-04)
 

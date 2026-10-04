@@ -1,9 +1,17 @@
 # Release procedure and current state
 
-## 0.5.1 native gate verified; publication pending
+## 0.5.1 published and verified on 2026-10-05 JST
 
-The English/Japanese README commands target 0.5.1; actual-index installation
-remains unverified until publication. The [audit ledger](audit-051.md),
+[PyPI 0.5.1](https://pypi.org/project/collective-intelligence-overlay/0.5.1/),
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.5.1),
+[actual results](release-051-results.json), [native results](release-051-native-results.json)
+and [Japanese report](release-051-report.ja.md) record completed publication and
+verification. The GitHub Release was published at 2026-10-04 19:24:57 UTC
+(2026-10-05 04:24:57 JST). The immutable annotated tag points to publication commit
+`7540ae5bd6150e95038d27b39b4f1c17ac808456`, object
+`53f1e7bb47f6c5668bf029611e59554c0eb88477`. Packaged sources and README retain the
+prepublication snapshot; final publication documentation is recorded on main.
+The [audit ledger](audit-051.md),
 [native results](release-051-native-results.json) and [manifest](release-051.json)
 record the fixed source `77db860ad5cfb5c0fc67befd8c5a267916527979`, tree
 `a08d7facea20827024e59e9348e772946d184e2a`.
@@ -49,20 +57,58 @@ All 3,842 canonical original files were retained under manifest SHA-256
 `b83e89a46459c9243b2ca51015d32d56c71b41c6582d3b382a519d4f002c52d2`.
 The gate JSON alone does not carry the failed attempt or authorization history;
 separate retained provenance binds those records and the bookkeeping mapping.
-Their public derivatives will be linked in the single software-evidence archive,
+Their public derivatives are linked in the single software-evidence archive,
 with original/public hashes distinguished and no private authorization transcript.
 
 Initial source `eda15996c8451f06d88399d13d3ddb3cfe972b90` and
 [run 37200404588](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37200404588)
 remain superseded: eleven native successes and one dependency-transfer failure
 before product tests; all 3,482 originals remain retained. That run was not
-cancelled or retried, and its pair will not be published. Local-dist-v4 installed
+cancelled or retried, and its pair is excluded from publication. Local-dist-v4 installed
 eight-case proof is separate preflight evidence, not the native or actual-PyPI pair.
 
-Tag/OIDC through workflow.yml / pypi, actual PyPI downloads and fresh normal
-no-cache installs, Release assets and owned-service cleanup remain pending.
-Publication must reuse this authenticated pair without rebuilding. Packaged
-README/source remain frozen; the release-manifest integration changes Docs only.
+[Tag/OIDC run 37226613301](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37226613301)
+passed candidate, ready and publish through workflow.yml / pypi using the official
+PyPA Trusted Publishing OIDC action. Tag quick was **skipped**, with no execution
+steps; the separate [main quick run 37226417161](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37226417161)
+passed at the exact publication commit. Publication restored the authenticated
+pair and gate without rebuilding distributions or repeating the native workload.
+Actual PyPI metadata and downloaded wheel/sdist bytes match the hashes above.
+
+Fresh normal cache-disabled PyPI installations outside the checkout used one
+Windows AMD64 / CPython 3.12.14 patch with four installation profiles:
+
+| Profile | Actual checks | Root-inclusive audited distributions |
+| --- | --- | --- |
+| core | Installed version/import checks | 31 |
+| agents | 512 unit cases | 64 |
+| agents-model | 1 SDK mock; 513 rebuilt-sdist cases | 67 |
+| agents-ollama | 11 SDK mocks | 66 |
+
+Every reported test set had zero failures, errors and skips. All four profiles
+completed known-advisory, license and SBOM checks, including the published root,
+with zero known advisory findings. The first local orchestrator stopped before
+profile pytest because its global Python 3.13 lacked piplicenses. Its original
+log and two partial core supply-chain files are retained separately; the completed
+profiles came from one separate execution using existing locked development tools.
+No source, lock or test change was made for that repair.
+
+Separate fresh actual-package checks passed 92 core cases, 8 A2A lifetime cases,
+12 Store cases and 8 direct pre-actuation regressions with real PostgreSQL/OPA;
+each had zero failures, errors and skips. Optional SDK imports were blocked in
+the core check, and all 98 installed package files matched the downloaded wheel.
+Four read-only JSON CLI examples and the service tutorial passed A ACCEPT,
+B REJECT, two rows/`5.00` and post-withdrawal REJECT. These overlapping scopes
+are not additive, and no other-OS actual-index full matrix was repeated.
+
+All six Release assets were downloaded and matched by bytes, size and SHA-256.
+The [single software-evidence ZIP](https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/collective-intelligence-overlay-0.5.1-evidence.zip)
+has 4,073 verified members, 31,969,754 bytes and SHA-256
+`e4b39b061a152cd165a18c5dbbc883bfcfaba0725afb8e1e7a27d0fed1cd4443`.
+Original and public derivative hashes remain distinct; signed envelopes are
+unchanged. Historical research data, model weights and private authorization
+transcripts are excluded. Only the dedicated tutorial PostgreSQL cluster was
+stopped, with data/logs retained and other services unchanged.
 No inference, model pull, new scientific comparison, benchmark or long soak ran.
 
 ## 0.5.0 published and verified on 2026-10-04

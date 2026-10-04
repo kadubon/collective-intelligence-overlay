@@ -15,16 +15,19 @@ effects remain unknown. Each participant retains its own policy, keys and budget
 
 ## Install and services
 
-**These instructions target 0.5.1, the latest stabilization candidate.**
+**These instructions target 0.5.1, the latest published stabilization release.**
 It corrects observation identity, missing purpose/validity, period coordinates,
 handoff basis matching, bounded JSON input and standard A2A client cleanup.
 It also releases execution allowance once for a proved inner-admission refusal
 before actuator entry, fencing the still-owned worker in the same transaction.
 The finite review and compatibility boundaries are in [the audit ledger](docs/audit-051.md).
-At this source snapshot, native gates and publication are pending; the index
-commands below become available when 0.5.1 is published. Check [release status](docs/releasing.md)
-for actual hashes and verification. Published 0.5.0 and earlier versions remain
-in the [archive](docs/research-archive.md).
+0.5.1 is available on [PyPI](https://pypi.org/project/collective-intelligence-overlay/0.5.1/)
+and [GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.5.1).
+Native gates, actual PyPI bytes, fresh installations and published assets were
+verified; [release records](docs/releasing.md) give the exact scope and hashes.
+This main README records publication; tagged documentation retains its
+prepublication snapshot. Published 0.5.0 and earlier versions remain in the
+[archive](docs/research-archive.md).
 
 Core record models and offline views need no running service or model. Owner database
 inspection uses PostgreSQL; explicit qualification additionally uses OPA. Optional `[agents]`

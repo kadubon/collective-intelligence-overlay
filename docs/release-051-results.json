@@ -1,0 +1,874 @@
+{
+  "schema_version": "1",
+  "version": "0.5.1",
+  "status": "published_and_declared_verification_complete",
+  "new_model_generation_requests": 0,
+  "new_model_pull": false,
+  "new_pilot_or_scientific_comparison_or_benchmark": false,
+  "long_soak_performed": false,
+  "native_candidate": {
+    "candidate_run_id": "37209296412",
+    "source_commit": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+    "source_tree": "a08d7facea20827024e59e9348e772946d184e2a",
+    "artifacts": {
+      "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+      "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+    },
+    "gate_sha256": "0d5691a7507ada4cfa375e91ab70b2205b06e5b1370ef9008470dfc1b07cf4b6"
+  },
+  "native_results": "docs/release-051-native-results.json",
+  "native_profile_count": 12,
+  "native_gate_status": "passed",
+  "publication": {
+    "workflow_run_id": "37226613301",
+    "workflow_url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37226613301",
+    "status": "success",
+    "commit": "7540ae5bd6150e95038d27b39b4f1c17ac808456",
+    "tag": "v0.5.1",
+    "annotated_tag_object": "53f1e7bb47f6c5668bf029611e59554c0eb88477",
+    "workflow": ".github/workflows/workflow.yml",
+    "environment": "pypi",
+    "method": "official PyPA GitHub Trusted Publishing OIDC",
+    "exact_pretested_pair_and_gate_reused": true,
+    "distributions_rebuilt_for_publication": false,
+    "native_workload_repeated_at_tag": false,
+    "tag_quick": {
+      "job_id": "111507457635",
+      "status": "skipped",
+      "executed_steps": 0,
+      "scope": "The frozen workflow skips quick on a tag push."
+    },
+    "pretag_main_quick": {
+      "workflow_run_id": "37226417161",
+      "workflow_url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37226417161",
+      "commit": "7540ae5bd6150e95038d27b39b4f1c17ac808456",
+      "status": "success",
+      "scope": "Separate main push at the exact publication commit.",
+      "original_capture_archive": {
+        "archive_path": "release-evidence/publication/tag-and-main-quick/capture-provenance-v1.json",
+        "original_sha256": "fd58884d2f113fc47610f1caebbdf023b43b84de2e4d396c0dddca4f39ba9d4f",
+        "public_sha256": "fd58884d2f113fc47610f1caebbdf023b43b84de2e4d396c0dddca4f39ba9d4f"
+      },
+      "original_main_quick_archive_files": {
+        "main-quick-run-api-original.json": {
+          "archive_path": "release-evidence/publication/tag-and-main-quick/main-quick-run-api-original.json",
+          "original_sha256": "257f31750b2fa9cc62198bfd800afca941284ad0d3c6ddba0fd05087932c1eba",
+          "public_sha256": "257f31750b2fa9cc62198bfd800afca941284ad0d3c6ddba0fd05087932c1eba"
+        },
+        "main-quick-jobs-api-original.json": {
+          "archive_path": "release-evidence/publication/tag-and-main-quick/main-quick-jobs-api-original.json",
+          "original_sha256": "1032d00ac0ef94e158fdb9ef227225e880de20827cfef99bbd86ba338dead6a5",
+          "public_sha256": "1032d00ac0ef94e158fdb9ef227225e880de20827cfef99bbd86ba338dead6a5"
+        }
+      }
+    },
+    "source_run_quick": {
+      "scope": "retained_source_run_quick_attempt1_bound_to_authorized_successful_workflow_attempt2",
+      "candidate_run_id": "37209296412",
+      "source_commit": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+      "source_tree": "a08d7facea20827024e59e9348e772946d184e2a",
+      "run_attempt": 1,
+      "job_run_attempt": 1,
+      "workflow_run_attempt": 2,
+      "job_id": "111457005745",
+      "preserved_from_original_attempt": true,
+      "latest_api_job_id": "111485780699",
+      "latest_api_run_attempt": 2,
+      "live_original_attempt1_jobs": {
+        "path": ".local/native-051-final-v2/original-attempt1-jobs.json",
+        "sha256": "a05434836a03c2677e812faecf09445bb76ab4273a1c975a8304d0217b86a16e"
+      },
+      "retained_bookkeeping_map": {
+        "path": ".local/native-051-final-v2/retained-bookkeeping-map-v2.json",
+        "sha256": "5f367598129bca1c38526f42f7bb7847839725fd4a1964aa4de10d908ad8382e"
+      },
+      "counts": {
+        "tests": 440,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0,
+        "passed": 440
+      },
+      "original_xml_sha256": "f979a7e8107fd50068d172d8ef3390d9918b4515482e52e8bcb0d27bffbd83f8",
+      "initial_original_xml_sha256": "f979a7e8107fd50068d172d8ef3390d9918b4515482e52e8bcb0d27bffbd83f8",
+      "initial_original_file_manifest_sha256": "744d9f1a7c32fe4e58cb44243e94bd10394db082ad19656f13549fdd54e64dae",
+      "initial_original_workflow_state_sha256": "9fdd954f1e782d695de2d38797cd561cfff0ea4670405bb4ac4767c715bdaef5",
+      "initial_original_jobs_sha256": "a05434836a03c2677e812faecf09445bb76ab4273a1c975a8304d0217b86a16e",
+      "original_file_manifest_sha256": "b83e89a46459c9243b2ca51015d32d56c71b41c6582d3b382a519d4f002c52d2",
+      "original_workflow_state_sha256": "6e3d9100fe8d3ffb4babc2b162f5cb1f0f483138010cc6988a1c28cdff98f9be",
+      "original_jobs_sha256": "84b735087fb288f8765622d812385cf239d54ed67dde0cdc3045003253c2e5a4",
+      "authorized_retry_action_sha256": "1fcc571c6d3d7c932de30bb73068522616aaafe8b4b4fd6a54991eec94928a7d",
+      "archive_reference": {
+        "archive_path": "release-evidence/final-source-native-quick-tests.xml",
+        "original_sha256": "f979a7e8107fd50068d172d8ef3390d9918b4515482e52e8bcb0d27bffbd83f8",
+        "public_sha256": "f979a7e8107fd50068d172d8ef3390d9918b4515482e52e8bcb0d27bffbd83f8"
+      }
+    },
+    "authorized_single_targeted_retry": {
+      "candidate_run_id": "37209296412",
+      "source_commit": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+      "source_tree": "a08d7facea20827024e59e9348e772946d184e2a",
+      "workflow_run_attempt": 2,
+      "authorization": {
+        "path": ".local/audit-051/native-Intel313-retry-authorization-v1.json",
+        "sha256": "81a1f97072943ed942cbc611d7091992f2d06e5bee4ed6bcf4dd9d48251a075e"
+      },
+      "action": {
+        "path": ".local/audit-051/native-Intel313-retry-action-v1.json",
+        "sha256": "1fcc571c6d3d7c932de30bb73068522616aaafe8b4b4fd6a54991eec94928a7d"
+      },
+      "accepted_request": {
+        "path": ".local/audit-051/native-Intel313-retry-request-result-v1.json",
+        "sha256": "f78bab03745699f535aabb7f10e23f300268be231e8e9c6d5e8df95aa2599ccf"
+      },
+      "initial_original_file_manifest": {
+        "path": ".local/native-051-attempt1-originals-v2/original-file-manifest.json",
+        "sha256": "744d9f1a7c32fe4e58cb44243e94bd10394db082ad19656f13549fdd54e64dae"
+      },
+      "initial_workflow_state": {
+        "path": ".local/native-051-attempt1-originals-v2/original-workflow-state.json",
+        "sha256": "9fdd954f1e782d695de2d38797cd561cfff0ea4670405bb4ac4767c715bdaef5"
+      },
+      "initial_jobs": {
+        "path": ".local/native-051-attempt1-originals-v2/original-jobs.json",
+        "sha256": "a05434836a03c2677e812faecf09445bb76ab4273a1c975a8304d0217b86a16e"
+      },
+      "initial_artifacts": {
+        "path": ".local/native-051-attempt1-originals-v2/original-artifacts.json",
+        "sha256": "c420dc76515eb4529d6e79d2ee0a79571884790c9f115a342c2384c639e2ab0a"
+      },
+      "retained_successful_job_ids": [
+        111457005566,
+        111457005745,
+        111457046763,
+        111457046783,
+        111457046794,
+        111457046801,
+        111457046814,
+        111457046820,
+        111457046825,
+        111457046832,
+        111457046840,
+        111457046873,
+        111457046881,
+        111457046914
+      ],
+      "retained_latest_api_bookkeeping_aliases": [
+        {
+          "name": "candidate",
+          "original_job_id": 111457005566,
+          "latest_api_job_id": 111485761522,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "b8855a6eb8acad44e9dc0c2187ca720c9e7f83b3da6e3f97afdb5a94cb989a27",
+          "original_full_metadata_sha256": "ca46de406697bdc7a13d43d339417cce897c0c941905400a3230b70e5976e5bf",
+          "latest_full_metadata_sha256": "df072843ade41761b61718af211d36ebfd3fa43b04bca7cff09310c4b7e1a8d6"
+        },
+        {
+          "name": "quick",
+          "original_job_id": 111457005745,
+          "latest_api_job_id": 111485780699,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "72b27f7962abddb39602dd408d0328dddd4c14713cab9e251ccce394dd97152d",
+          "original_full_metadata_sha256": "a877d816e173bee58fc8aee81756e4960f1d44052573cd61dc42c8adfde03e46",
+          "latest_full_metadata_sha256": "3d7c9bfa7702b7192a932ee3210d19af3dca4c52783350681317fbbbd2ccca09"
+        },
+        {
+          "name": "linux (Linux, amd64, ubuntu-latest, 3.12.14, full)",
+          "original_job_id": 111457046763,
+          "latest_api_job_id": 111485781772,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "e3ffee447ef101e7c6140846b8f3d6679fc8beaf029242bfc980ee785298cacd",
+          "original_full_metadata_sha256": "5a4885cee87848a27536a96a5b64242403602cfb2f33de413ee4382b5d0d18d7",
+          "latest_full_metadata_sha256": "23d8e4242cd01233be79eef069f149bf1df8c2773a5b4cf3b2ab4176b784c968"
+        },
+        {
+          "name": "windows (Windows, amd64, windows-latest, 3.13.15, full)",
+          "original_job_id": 111457046783,
+          "latest_api_job_id": 111485761965,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "e4f48de2e45ee2fea1abd68c2cd26cf9482ce88a455331cd8be9454a62c987e2",
+          "original_full_metadata_sha256": "7689398afac1471322a8bca669c600da7344e7b22fc014d44eb204f50b8a466a",
+          "latest_full_metadata_sha256": "b67e09fb60b8d7d1fa88c0ddd3e50c585f2e7c0a2566188f5cdef83d3669cd94"
+        },
+        {
+          "name": "mixed",
+          "original_job_id": 111457046794,
+          "latest_api_job_id": 111485762038,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "7939a2e7b2d5b652f81f075ae16a8b0b18f9ee8341c3c1a73496f5bb80cd62d5",
+          "original_full_metadata_sha256": "b33351b19e62a6ed8fcab20f95350a19de843ed32791f6947194b66f084bc884",
+          "latest_full_metadata_sha256": "7e2ef6f8550f96a1910d1e9ffe71a5131750b7fa3c5c543c90731abb6eabc8d0"
+        },
+        {
+          "name": "linux (Linux, amd64, ubuntu-latest, 3.14.7, full)",
+          "original_job_id": 111457046801,
+          "latest_api_job_id": 111485762416,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "2307df229c55c850728ebcaece5ed6973b453cc1e37e54676c163bbeed604ef1",
+          "original_full_metadata_sha256": "e9fc0c78594f80f4a69d1b12972eda6d9ea08bf6010f09bccacc79f616774c5d",
+          "latest_full_metadata_sha256": "20f005ba97760b04863add727ab454a33fc507d66c229d78b3ba9a51e202220d"
+        },
+        {
+          "name": "windows (Windows, amd64, windows-latest, 3.12.14, full)",
+          "original_job_id": 111457046814,
+          "latest_api_job_id": 111485790598,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "85cfc4b7178bc828d9752051e4aa878a2345ab75798e9e3fdd6babf9a7ff3110",
+          "original_full_metadata_sha256": "1b696e8db459aead44ba3029a72dc66ce8cc41644cade9033b302c754faf7c3b",
+          "latest_full_metadata_sha256": "0b93e6a5fa390347dca080f7a3d8069d8c00bf0452f7d7f96be8cc333e00ede4"
+        },
+        {
+          "name": "macos (Darwin, amd64, macos-15-intel, 3.12.14, full)",
+          "original_job_id": 111457046820,
+          "latest_api_job_id": 111485762387,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "db8008e16216e94c953937885d7765e8ea98c8852810953b9d4cf04da20d4207",
+          "original_full_metadata_sha256": "e1abc9fc7996a3df1e0873b7f5321c0bedb52b98eebd929c25ff26041ee38b00",
+          "latest_full_metadata_sha256": "828a25db90ffac4a2eabab2e7c8aab2036751da3930b0a3937d2f2e1901c14f9"
+        },
+        {
+          "name": "windows (Windows, amd64, windows-latest, 3.14.7, full)",
+          "original_job_id": 111457046825,
+          "latest_api_job_id": 111485790062,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "15f9f28621ccd0b1834613fce84ff51b810c93c36b919abc9eac02d34d155261",
+          "original_full_metadata_sha256": "a4b60ffc6495eb5a35af20563bc1e92ebc28325cb5d7738028950d86ffec723f",
+          "latest_full_metadata_sha256": "ca30cebadcf140eefda9c89ec48eddd0851735de2eaa88e7c6f667fd450ac05d"
+        },
+        {
+          "name": "macos (Darwin, arm64, macos-15, 3.12.14, full)",
+          "original_job_id": 111457046832,
+          "latest_api_job_id": 111485761903,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "78424de155ab43333ab6a6180df48dea3cdf36d54edd8d74dca53e8711fd54e7",
+          "original_full_metadata_sha256": "080305d7b80dddfc572bdb93946f6619bf7143dec978f7b08e536225350b9cb7",
+          "latest_full_metadata_sha256": "9ab07bc3433a498b1f717b364fb7e08bdbd42c60e2a3b9d1c5ddbae36045621b"
+        },
+        {
+          "name": "macos (Darwin, arm64, macos-15, 3.13.15, full)",
+          "original_job_id": 111457046840,
+          "latest_api_job_id": 111485762212,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "2c738d41248aea54c71153164c030ec477be2286c30aca22f63df1d95305ce88",
+          "original_full_metadata_sha256": "bbec246fe1ee74ae46639222d0fbed6d1b66ffc55094821e91c5ac0d2b297327",
+          "latest_full_metadata_sha256": "0de3ee4358e2f2860c1a79f123969d6d48d898fc44b541f0d765181b5335a8b5"
+        },
+        {
+          "name": "linux (Linux, amd64, ubuntu-latest, 3.13.15, full)",
+          "original_job_id": 111457046873,
+          "latest_api_job_id": 111485790294,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "91ac2f55aed9e8b27add621df983bb186f1eba2f29022c9fe8f4bd3055560bd8",
+          "original_full_metadata_sha256": "d6487c5d9cc207a0a9dd88469172b8a6485d66e1cd2a68d3da35bb4911da1948",
+          "latest_full_metadata_sha256": "2c721db52ca1ebb6ca08aadfe404c4ff99a57b55e7c3110b3712535fb21ffb53"
+        },
+        {
+          "name": "macos (Darwin, arm64, macos-15, 3.14.7, full)",
+          "original_job_id": 111457046881,
+          "latest_api_job_id": 111485762322,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "e454a9c123a41b050e3e2b152f1c045a73a86b9f276f7e703900a88de3bdcf71",
+          "original_full_metadata_sha256": "53ad05dd9633064c173038424711b9b45ec5dfc95b381b53ca86ed80b37fa94c",
+          "latest_full_metadata_sha256": "d42f7dc245f26b581280ffa77c6df025fe872f5bd8f214698aeed7387c70c352"
+        },
+        {
+          "name": "macos (Darwin, amd64, macos-15-intel, 3.14.7, full)",
+          "original_job_id": 111457046914,
+          "latest_api_job_id": 111485761957,
+          "original_run_attempt": 1,
+          "latest_api_run_attempt": 2,
+          "execution_fields_sha256": "3ff6c433e28ad9c02f4a4189fb802208176c26529120d967ad7fbf5c64e74a6f",
+          "original_full_metadata_sha256": "bf3bf9651981a240b3a7633514495bf5b36d30ea5b971089cba09e4b43f8c399",
+          "latest_full_metadata_sha256": "72d6dcb4becaf614b0b558319be367367145e47749ae33fe2212f7649110c545"
+        }
+      ],
+      "retained_execution_metadata": {
+        "unchanged_fields": [
+          "completed_at",
+          "conclusion",
+          "head_branch",
+          "head_sha",
+          "labels",
+          "name",
+          "run_id",
+          "run_url",
+          "runner_group_name",
+          "runner_id",
+          "runner_name",
+          "started_at",
+          "status",
+          "steps",
+          "workflow_name"
+        ],
+        "unchanged_steps": 249,
+        "execution_completed_before_request": true,
+        "observed_changed_bookkeeping_fields": [
+          "check_run_url",
+          "created_at",
+          "html_url",
+          "id",
+          "node_id",
+          "run_attempt",
+          "runner_group_id",
+          "url"
+        ],
+        "original_artifact_ids_digests_and_zip_bytes_preserved": true,
+        "scope": "Observed original execution metadata, historical endpoints, exact bookkeeping aliases and artifact bytes; no claim about unobservable GitHub internal copy mechanics or absolute absence of hidden reexecution"
+      },
+      "bookkeeping_evidence": {
+        "retained-bookkeeping-map-v2.json": {
+          "path": ".local/native-051-final-v2/retained-bookkeeping-map-v2.json",
+          "sha256": "5f367598129bca1c38526f42f7bb7847839725fd4a1964aa4de10d908ad8382e"
+        },
+        "retained-bookkeeping-map-v1.json": {
+          "path": ".local/native-051-final-v2/retained-bookkeeping-map-v1.json",
+          "sha256": "763648e9b721b7a332c0902ac09cde656ed94711fc1cb960f34afdc3c2e56323"
+        },
+        "retained-snapshot-workflow-state.json": {
+          "path": ".local/native-051-final-v2/retained-snapshot-workflow-state.json",
+          "sha256": "6e3d9100fe8d3ffb4babc2b162f5cb1f0f483138010cc6988a1c28cdff98f9be"
+        },
+        "retained-snapshot-latest-jobs.json": {
+          "path": ".local/native-051-final-v2/retained-snapshot-latest-jobs.json",
+          "sha256": "84b735087fb288f8765622d812385cf239d54ed67dde0cdc3045003253c2e5a4"
+        },
+        "retained-snapshot-attempt1-jobs.json": {
+          "path": ".local/native-051-final-v2/retained-snapshot-attempt1-jobs.json",
+          "sha256": "a05434836a03c2677e812faecf09445bb76ab4273a1c975a8304d0217b86a16e"
+        },
+        "retained-original-candidate-job-api.json": {
+          "path": ".local/native-051-final-v2/retained-original-candidate-job-api.json",
+          "sha256": "833a7d60118f59688a0a0edae52260cc15c31f4d1816a7d8f9f0c9bdb6b96142"
+        },
+        "canonical-preflight-denial-v1.json": {
+          "path": ".local/native-051-final-v2/canonical-preflight-denial-v1.json",
+          "sha256": "2a9c275bc9f03fb79863f5932c7e87695f2d61540e3a198978514ac3bd44a386"
+        },
+        "retained-exact-job-fields-diff-v1.json": {
+          "path": ".local/native-051-final-v2/retained-exact-job-fields-diff-v1.json",
+          "sha256": "80fbff1c9df2803e53f00257106f4cc76c242a597fdde858543a570e0b2904b1"
+        },
+        "canonical-preflight-helper-original.py": {
+          "path": ".local/native-051-final-v2/canonical-preflight-helper-original.py",
+          "sha256": "da9040883890107f1025707704edde6ae1f9b0ac6c56019fb0b06aa4bf03c7de"
+        },
+        "live_original_attempt1_jobs": {
+          "path": ".local/native-051-final-v2/original-attempt1-jobs.json",
+          "sha256": "a05434836a03c2677e812faecf09445bb76ab4273a1c975a8304d0217b86a16e"
+        },
+        "canonical_current_workflow": {
+          "path": ".local/native-051-final-v2/original-workflow-state.json",
+          "sha256": "6e3d9100fe8d3ffb4babc2b162f5cb1f0f483138010cc6988a1c28cdff98f9be"
+        },
+        "canonical_latest_jobs": {
+          "path": ".local/native-051-final-v2/original-jobs.json",
+          "sha256": "84b735087fb288f8765622d812385cf239d54ed67dde0cdc3045003253c2e5a4"
+        }
+      },
+      "original_skipped_cross_placeholder_id": 111483451449,
+      "inert_skipped_production_api": {
+        "original_job_id": 111457047560,
+        "latest_api_job_id": 111485762165,
+        "original_JOB_FIELDS": {
+          "id": 111457047560,
+          "run_id": 37209296412,
+          "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+          "run_attempt": 1,
+          "name": "production",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-04T14:27:14Z",
+          "completed_at": "2026-10-04T14:27:14Z",
+          "steps": []
+        },
+        "latest_JOB_FIELDS": {
+          "id": 111485762165,
+          "run_id": 37209296412,
+          "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+          "run_attempt": 2,
+          "name": "production",
+          "status": "completed",
+          "conclusion": "skipped",
+          "started_at": "2026-10-04T17:04:53Z",
+          "completed_at": "2026-10-04T14:27:14Z",
+          "steps": []
+        },
+        "latest_runner_id": null,
+        "time_scope": "API skipped-placeholder timestamps only; no chronological execution or elapsed-time claim"
+      },
+      "inert_skipped_publish_api": {
+        "id": 111500781163,
+        "run_id": 37209296412,
+        "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+        "run_attempt": 2,
+        "name": "publish",
+        "status": "completed",
+        "conclusion": "skipped",
+        "started_at": "2026-10-04T18:24:49Z",
+        "completed_at": "2026-10-04T18:24:49Z"
+      },
+      "retried_successful_jobs": [
+        {
+          "id": 111485761497,
+          "run_id": 37209296412,
+          "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+          "run_attempt": 2,
+          "name": "macos (Darwin, amd64, macos-15-intel, 3.13.15, full)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-04T17:04:58Z",
+          "completed_at": "2026-10-04T18:22:50Z"
+        },
+        {
+          "id": 111500569279,
+          "run_id": 37209296412,
+          "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+          "run_attempt": 2,
+          "name": "ready",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-04T18:23:44Z",
+          "completed_at": "2026-10-04T18:24:48Z"
+        },
+        {
+          "id": 111500408222,
+          "run_id": 37209296412,
+          "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+          "run_attempt": 2,
+          "name": "cross (Linux, amd64, ubuntu-latest, 3.12.14)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-04T18:22:53Z",
+          "completed_at": "2026-10-04T18:23:09Z"
+        },
+        {
+          "id": 111500408201,
+          "run_id": 37209296412,
+          "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+          "run_attempt": 2,
+          "name": "cross (Windows, amd64, windows-latest, 3.12.14)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-04T18:22:57Z",
+          "completed_at": "2026-10-04T18:23:36Z"
+        },
+        {
+          "id": 111500408196,
+          "run_id": 37209296412,
+          "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+          "run_attempt": 2,
+          "name": "cross (Darwin, arm64, macos-15, 3.12.14)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-04T18:23:01Z",
+          "completed_at": "2026-10-04T18:23:28Z"
+        },
+        {
+          "id": 111500408267,
+          "run_id": 37209296412,
+          "head_sha": "77db860ad5cfb5c0fc67befd8c5a267916527979",
+          "run_attempt": 2,
+          "name": "cross (Darwin, amd64, macos-15-intel, 3.12.14)",
+          "status": "completed",
+          "conclusion": "success",
+          "started_at": "2026-10-04T18:22:54Z",
+          "completed_at": "2026-10-04T18:23:41Z"
+        }
+      ],
+      "first_failure": {
+        "source_counts": {
+          "errors": 0,
+          "failures": 1,
+          "passed": 968,
+          "skipped": 0,
+          "tests": 969
+        },
+        "installed_validation": "not reached",
+        "root_cause": "undetermined",
+        "nodeid": "tests/e2e/test_adaptive_documents.py::test_peer_selected_document_formation_restart_and_withdrawal[calibration vocabulary-50-static-run-False-False]"
+      },
+      "retried_native_source": {
+        "counts": {
+          "tests": 969,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0,
+          "passed": 969
+        },
+        "original_startup_case_status": "passed",
+        "original_startup_case_seconds": 47.326,
+        "xml_sha256": "6988ddfe85115e2bd11a6d138cea38161bb83bf8ae525b51715f24951195129f"
+      },
+      "candidate_artifacts": {
+        "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+        "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+      },
+      "authorized_request_scope": "one failed Intel313 job and four cross plus ready dependents",
+      "whole_run_rerun_requested": false,
+      "retry_job_count": 6,
+      "latest_bookkeeping_aliases_are_retry_counts": false,
+      "original_initial_manifest_archive": {
+        "archive_path": "release-evidence/authorized-native-rerun/attempt1/original-file-manifest.json",
+        "original_sha256": "744d9f1a7c32fe4e58cb44243e94bd10394db082ad19656f13549fdd54e64dae",
+        "public_sha256": "744d9f1a7c32fe4e58cb44243e94bd10394db082ad19656f13549fdd54e64dae"
+      },
+      "first_failure_subset_manifest_archive": {
+        "archive_path": "release-evidence/authorized-native-rerun/first-failure/subset-manifest.json",
+        "original_sha256": "14d7fc1863d1e805cb88bd43f47b6426e5d243ab7219ebca6b6399b09e1f2de0",
+        "public_sha256": "14d7fc1863d1e805cb88bd43f47b6426e5d243ab7219ebca6b6399b09e1f2de0"
+      },
+      "first_failure_archive_files": {
+        "source-tests.xml": {
+          "archive_path": "release-evidence/authorized-native-rerun/first-failure/source-tests.xml",
+          "original_sha256": "926b3d3f0fd6aecbcf9e653fa2d1553da0d0100b6d70dfa53d9adfab404d1443",
+          "public_sha256": "926b3d3f0fd6aecbcf9e653fa2d1553da0d0100b6d70dfa53d9adfab404d1443"
+        },
+        "source-runtime.json": {
+          "archive_path": "release-evidence/authorized-native-rerun/first-failure/source-runtime.json",
+          "original_sha256": "83df1d04a6f8d8defd166f067b7ff4f97c85b06d0f3e9bd3d2b1465f5b88284f",
+          "public_sha256": "d8978adf479c852f775c166789ae49f576260e9d74afbdfc54969e665ab8191c"
+        },
+        "job-original.log": {
+          "archive_path": "release-evidence/authorized-native-rerun/first-failure/job-original.log",
+          "original_sha256": "fff597bc282e4f4392eed6fe6657482487570f6c8f7697ac1480d813fef874ef",
+          "public_sha256": "416880138de7a24c4588735f048fed0c99d100ba29871da2f102215e2f208a6b"
+        }
+      },
+      "operation_archive_files": {
+        "native-Intel313-retry-authorization-v1.json": {
+          "archive_path": "release-evidence/authorized-native-rerun/operation/native-Intel313-retry-authorization-v1.json",
+          "original_sha256": "81a1f97072943ed942cbc611d7091992f2d06e5bee4ed6bcf4dd9d48251a075e",
+          "public_sha256": "f2b91401952562464aad42e29d1297a27a34a5ea3a7be091a80c9b309d48fac9"
+        },
+        "native-Intel313-retry-action-v1.json": {
+          "archive_path": "release-evidence/authorized-native-rerun/operation/native-Intel313-retry-action-v1.json",
+          "original_sha256": "1fcc571c6d3d7c932de30bb73068522616aaafe8b4b4fd6a54991eec94928a7d",
+          "public_sha256": "1fcc571c6d3d7c932de30bb73068522616aaafe8b4b4fd6a54991eec94928a7d"
+        },
+        "native-Intel313-retry-request-result-v1.json": {
+          "archive_path": "release-evidence/authorized-native-rerun/operation/native-Intel313-retry-request-result-v1.json",
+          "original_sha256": "f78bab03745699f535aabb7f10e23f300268be231e8e9c6d5e8df95aa2599ccf",
+          "public_sha256": "f78bab03745699f535aabb7f10e23f300268be231e8e9c6d5e8df95aa2599ccf"
+        }
+      },
+      "original_failure_source_eight_regressions": {
+        "status": "eight_direct_source_JUnit_cases_passed",
+        "nodeids": [
+          "tests/integration/test_invocations.py::test_child_inner_gate_proof_cannot_refund_entered_parent",
+          "tests/integration/test_invocations.py::test_inner_admission_denial_before_actuator_releases_once[stale_source]",
+          "tests/integration/test_invocations.py::test_inner_admission_denial_before_actuator_releases_once[withdrawal]",
+          "tests/integration/test_invocations.py::test_pre_actuation_denial_cannot_refund_lost_ownership[caller_cancel]",
+          "tests/integration/test_invocations.py::test_pre_actuation_denial_cannot_refund_lost_ownership[expired]",
+          "tests/integration/test_invocations.py::test_pre_actuation_denial_cannot_refund_lost_ownership[replacement]",
+          "tests/integration/test_invocations.py::test_pre_actuation_refund_and_signed_receipt_rollback_together",
+          "tests/integration/test_reobservation.py::test_inner_denial_release_can_resume_with_explicit_owner_new_attempt"
+        ],
+        "scope": "Original failed job source tests only; installed phase was not reached and no installed eight-case proof is implied."
+      }
+    }
+  },
+  "actual_pypi": {
+    "url": "https://pypi.org/project/collective-intelligence-overlay/0.5.1/",
+    "metadata_and_downloaded_bytes_match_candidate": true,
+    "artifacts": {
+      "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+      "collective_intelligence_overlay-0.5.1.tar.gz": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703"
+    },
+    "retained_first_local_orchestrator_failure": {
+      "classification": "missing_local_development_tool_in_global_python313_orchestrator",
+      "completed_profiles": 0,
+      "product_pytest_reached": false,
+      "record_archive": {
+        "archive_path": "release-evidence/actual-index/first-orchestrator-failure.json",
+        "original_sha256": "24f1258eb0704c8967906d5a8106936faaefd38fecfd37e6a1d1126b5a80d3ef",
+        "public_sha256": "8acf331dcf85c4f81516c1166314b94dfb389939431f33d0c8aebf8b2c1109b9"
+      },
+      "log_archive": {
+        "archive_path": "release-evidence/actual-index/first-orchestrator-failure.log",
+        "original_sha256": "4c8751fd0dd93ba65be095079f31defc48dfdd51289323bf77477abc8455a83b",
+        "public_sha256": "4e6be801016dc3a340e88a40dcf435e3a58f49bc8f271e575fa20ccc59708047"
+      },
+      "repair": "One separate execution using existing locked CPython 3.12.14 development tools; no source, lock or test change.",
+      "completed_validation_log_archive": {
+        "archive_path": "release-evidence/actual-index/repaired-orchestrator.log",
+        "original_sha256": "de5f36d547448eee6412117f3f8d70b95343d3f424233e937976ca0a3ce6a94f",
+        "public_sha256": "ade0f33d680a3b92c03ae0904204bfd45ba6e0529fdb74f1cde643a03c6d8fa2"
+      }
+    },
+    "normal_cache_disabled_index_profiles": [
+      {
+        "os": "Windows",
+        "architecture": "AMD64",
+        "python": "3.12.14",
+        "test_scope": "unit",
+        "environments": {
+          "agents": {
+            "installed_version": "0.5.1",
+            "tests": {
+              "tests": 512,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 64,
+            "known_advisory_findings": 0,
+            "license_review": "completed_by_existing_package_checker",
+            "sbom": "generated",
+            "child_runtime_observations": 18
+          },
+          "agents-model": {
+            "installed_version": "0.5.1",
+            "tests": {
+              "tests": 1,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": {
+              "tests": 513,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "audited_runtime_distributions_including_root": 67,
+            "known_advisory_findings": 0,
+            "license_review": "completed_by_existing_package_checker",
+            "sbom": "generated",
+            "child_runtime_observations": 23
+          },
+          "agents-ollama": {
+            "installed_version": "0.5.1",
+            "tests": {
+              "tests": 11,
+              "failures": 0,
+              "errors": 0,
+              "skipped": 0
+            },
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 66,
+            "known_advisory_findings": 0,
+            "license_review": "completed_by_existing_package_checker",
+            "sbom": "generated",
+            "child_runtime_observations": 7
+          },
+          "core": {
+            "installed_version": "0.5.1",
+            "tests": null,
+            "rebuilt_sdist_tests": null,
+            "audited_runtime_distributions_including_root": 31,
+            "known_advisory_findings": 0,
+            "license_review": "completed_by_existing_package_checker",
+            "sbom": "generated",
+            "child_runtime_observations": 7
+          }
+        },
+        "original_report_sha256": "b85e6cae6dfe121cd634bd69e47d472a35fd70296a3cdbe0094936aaa77c0425",
+        "public_metadata_derivative_sha256": "c1f7f834037d9e48cd6128f92dd3b892e6cdbfd29694d785ba4ef889694b8408"
+      }
+    ],
+    "targeted_actual_agents_preactuation_regressions": {
+      "counts": {
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "original_xml_sha256": "2453ab11f8a4e5b7cdb3f16cc3b071ad15925ebeee9d8fe702c9624dd761806e",
+      "test_and_bootstrap_source_sha256": {
+        "tests/integration/test_invocations.py": "ba05b8684f33742b114d38a0ba3c1fee073803f69def72582347ad635a686d1e",
+        "tests/integration/test_reobservation.py": "76145cecb5aa64f0356d856ec54d4b8afb5b0b32871c667b8a05ad31f7bcf141",
+        "tests/conftest.py": "7713e33e9bee9d12477c33240048f1f05b2a5bdab5c94015e23fd40dea92ef6a",
+        "tests/integration/conftest.py": "ad796d4739856b01ac10728fde56aebd4527bd286632cb23b5351b055dd9000d",
+        "tests/integration/test_opportunities.py": "264baafe043ab392eb0a796c1264ffae9b5f5a1553c3a94f617be6290e987277"
+      },
+      "selected_nodes": [
+        "tests/integration/test_invocations.py::test_inner_admission_denial_before_actuator_releases_once[withdrawal]",
+        "tests/integration/test_invocations.py::test_inner_admission_denial_before_actuator_releases_once[stale_source]",
+        "tests/integration/test_invocations.py::test_pre_actuation_denial_cannot_refund_lost_ownership[replacement]",
+        "tests/integration/test_invocations.py::test_pre_actuation_denial_cannot_refund_lost_ownership[caller_cancel]",
+        "tests/integration/test_invocations.py::test_pre_actuation_denial_cannot_refund_lost_ownership[expired]",
+        "tests/integration/test_invocations.py::test_pre_actuation_refund_and_signed_receipt_rollback_together",
+        "tests/integration/test_invocations.py::test_child_inner_gate_proof_cannot_refund_entered_parent",
+        "tests/integration/test_reobservation.py::test_inner_denial_release_can_resume_with_explicit_owner_new_attempt"
+      ]
+    },
+    "outside_checkout": true,
+    "other_os_actual_index_matrix_repeated": false,
+    "scope_note": "Actual-index verification here is one Windows AMD64 / CPython 3.12.14 patch with four installation profiles (core, agents, agents-model, agents-ollama); full native verification is separate."
+  },
+  "fresh_core_smoke": {
+    "status": "passed",
+    "python": "3.12.14",
+    "os": "Windows",
+    "optional_sdk_imports_blocked": true,
+    "json_cli_modes": 4,
+    "installed_package_files_equal_downloaded_wheel": 98,
+    "tests": {
+      "tests": 92,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "actual_service_tutorial": {
+    "scenario": "deterministic actual-service tutorial; not a growth experiment",
+    "receiver_A": "ACCEPT",
+    "receiver_B": "REJECT",
+    "actual_result": {
+      "rows": 2,
+      "total": "5.00"
+    },
+    "formation_functional_novelty": "unknown",
+    "after_withdrawal": "REJECT",
+    "new_model_generation_requests": 0
+  },
+  "tutorial_boundaries": {
+    "handoff_authority": "not_granted",
+    "functional_growth": "not_estimated",
+    "atomic_cross_owner_snapshot": false,
+    "missing_energy_is_zero": false
+  },
+  "github_release_and_downloads": {
+    "status": "verified",
+    "release_id": 403172457,
+    "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.5.1",
+    "published_at": "2026-10-04T19:24:57Z",
+    "tag": "v0.5.1",
+    "files": [
+      {
+        "file": "cio-051-asset-manifest.json",
+        "size": 935,
+        "sha256": "25f3c3437721d5eebdcfea1c4c7b3f54cbc53154f0ed5dee2f721a4ca20a48ea",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/cio-051-asset-manifest.json",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "cio-051-native-gate.json",
+        "size": 674931,
+        "sha256": "0d5691a7507ada4cfa375e91ab70b2205b06e5b1370ef9008470dfc1b07cf4b6",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/cio-051-native-gate.json",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "collective-intelligence-overlay-0.5.1-evidence.zip",
+        "size": 31969754,
+        "sha256": "e4b39b061a152cd165a18c5dbbc883bfcfaba0725afb8e1e7a27d0fed1cd4443",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/collective-intelligence-overlay-0.5.1-evidence.zip",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "collective_intelligence_overlay-0.5.1-py3-none-any.whl",
+        "size": 310366,
+        "sha256": "35da08b11de4fa7bd35fb517055f60edf8dd8b866de7a1b4005dcbc07a3c29e9",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/collective_intelligence_overlay-0.5.1-py3-none-any.whl",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "collective_intelligence_overlay-0.5.1.tar.gz",
+        "size": 249674,
+        "sha256": "86326198bb82a5c7ef0afc27a739cb1bc337a8cb93c89dd13a13fc7af3695703",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/collective_intelligence_overlay-0.5.1.tar.gz",
+        "downloaded_bytes_equal_original": true
+      },
+      {
+        "file": "SHA256SUMS.txt",
+        "size": 534,
+        "sha256": "bffd0e21483c28aca8672e625b514669b929d64776cfa07be810e17c9cc89c65",
+        "url": "https://github.com/kadubon/collective-intelligence-overlay/releases/download/v0.5.1/SHA256SUMS.txt",
+        "downloaded_bytes_equal_original": true
+      }
+    ],
+    "archive_members": 4073,
+    "all_member_sha256_passed": true,
+    "archive_recompressed": false,
+    "new_model_generation_requests": 0
+  },
+  "owned_service_cleanup": {
+    "status": "stopped",
+    "dedicated_task": "stabilization-051",
+    "private_cluster_port": 55451,
+    "data_retained": true,
+    "logs_retained": true,
+    "other_services_changed": false,
+    "new_model_generation_requests": 0
+  },
+  "compatibility": {
+    "requires_python": ">=3.12",
+    "license": "Apache-2.0",
+    "new_or_updated_runtime_dependencies": 0,
+    "db_migrations_added": 0,
+    "old_wire_record_union_and_signed_payloads_changed": false,
+    "old_unknown_reservations_withdrawals_retained": true,
+    "static_unchanged_previous_package_files": 90,
+    "previous_files_changed": [
+      "src/collective_intelligence_overlay/adapters/a2a_service.py",
+      "src/collective_intelligence_overlay/bindings.py",
+      "src/collective_intelligence_overlay/invocations.py",
+      "src/collective_intelligence_overlay/lifecycle.py",
+      "src/collective_intelligence_overlay/lifecycle_cli.py",
+      "src/collective_intelligence_overlay/lifecycle_store.py",
+      "src/collective_intelligence_overlay/steps.py"
+    ],
+    "static_manifest_evidence": {
+      "archive_path": "release-evidence/finite-audit/compatibility-boundary-v2.json",
+      "original_sha256": "6cd4b70077d281bb75ccb9d07697971d57cc945507e9270b98e917310edad5e4",
+      "public_sha256": "6cd4b70077d281bb75ccb9d07697971d57cc945507e9270b98e917310edad5e4"
+    },
+    "finite_finding_mapping": {
+      "archive_path": "release-evidence/finite-audit/finding-evidence-mapping-v2.json",
+      "original_sha256": "4d19a889b42f634b6ea1865e83970d72c11f47ec7305b078353906190aebc6c8",
+      "public_sha256": "4d19a889b42f634b6ea1865e83970d72c11f47ec7305b078353906190aebc6c8"
+    },
+    "local_installed_preactuation_comparison": {
+      "original_and_public_report": {
+        "archive_path": "release-evidence/finite-audit/installed-preactuation-fixed-v1-runtime.json",
+        "original_sha256": "79797871a095c35906b131bd91a46737e05248d26e5384e96f5842cc6364ce0c",
+        "public_sha256": "56a832ca2a942bf1d3d1e8e2b5e312e4cafc203e5d50f35fb2b8209b6c8d091f"
+      },
+      "baseline_version": "0.5.0",
+      "expected_baseline_failures": 2,
+      "fixed_version": "0.5.1",
+      "fixed_tests": 8,
+      "original_local_preflight_pair": {
+        "collective_intelligence_overlay-0.5.1-py3-none-any.whl": "151e48893dd2f83e524bdd17708786d05e85ff4e68f30151d10b4c11ed44521a",
+        "collective_intelligence_overlay-0.5.1.tar.gz": "de8da906738cadd9aa3e7590e20f21c1f173dd460bfb04a9cd180f4ac7c12b41"
+      },
+      "pair_scope": "Local preflight v4 distributions; not a final release/native pair or actual-PyPI 0.5.1 publication proof.",
+      "execution_source_commit": "958e1e781b590c8f5957d375e3b65194d6c473e9",
+      "installed_package_files_equal_local_wheel": 98
+    },
+    "scope_note": "Static compatibility plus bounded regressions; intentional bug differences and trusted-host consistency limits are recorded in the single audit ledger and evidence mapping."
+  },
+  "historical_044": {
+    "scope": "Preserved historical evidence only; no 0.5.1 scientific rerun.",
+    "reference": "docs/release-050-results.json#/historical_044",
+    "rerun_in_051": false
+  },
+  "preserved_failures_and_limits": [
+    "Original first failures, fixed-only cases and bad caller/property oracles remain distinct in the hash-bound finding mapping; overlapping counts are not summed.",
+    "The superseded eda candidate and its initial dependency-transfer failure are not the authority for this manifest if a later candidate was required; original evidence is retained.",
+    "Superseded run37200404588 completed with 11 native successes and one pre-test dependency-transfer failure. All3482 original files are hash-bound; its targeted retry/tag/publication were not performed, and its pair is excluded from publication.",
+    "Current source77db/run37209296412 attempt1 Intel313 source suite had969 tests/968 passes/one initial verifier Agent Card TCP readiness deadline failure; installed validation was not reached. Its root cause remains undetermined even after the separately authorized single successful target/dependent rerun.",
+    "Current workflow attempt2 reuses exact attempt1 quick440/job111457005745 and other eleven successful native jobs/candidate/mixed; preserved original IDs, times, bytes and API hashes are bound explicitly rather than presenting every job as reexecuted.",
+    "The first local actual-index orchestrator stopped before profile pytest because global Python3.13 lacked piplicenses. Its log and two partial core supply-chain files remain preserved; the completed four profiles came from one separate execution using existing locked development tools.",
+    "Old Mac Intel/Python 3.14 receiptless positive-case cause remains unestablished; current Windows/3.12 service not_reproduced does not diagnose Darwin.",
+    "Frozen SDK nested mappings/model_copy and manually reordered views remain trusted-host consistency limits, not proved unauthenticated remote permission bypass.",
+    "Finite maintainer review is not an external audit, complete safety guarantee or causal intelligence-growth experiment."
+  ],
+  "external_approval_or_connection_blockers": [],
+  "documentation_scope": "Final main documentation is separate from immutable tagged package metadata; the tested pair, tag and published archive are not rebuilt for this report."
+}

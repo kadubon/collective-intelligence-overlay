@@ -14,14 +14,17 @@ toolや手順の検証、受け手の判断、利用、費用、未解決事項�
 
 ## インストールと必要なサービス
 
-**この手順の対象は最新の安定化candidate、0.5.1です。**
+**この手順の対象は最新の公開済み安定化release、0.5.1です。**
 観測identity、purpose・validity欠測、期間の座標、handoffの根拠、bounded JSON入力、
 標準A2A clientの終了処理を修正します。dispatch後の再admission拒否では、actuatorへ
 入らなかった事実とDB上の所有権を確認し、workerをfenceして実行allowanceを一度だけ返却します。
 有限レビューと互換性の範囲は
-[監査台帳](docs/audit-051.md)に記録します。このsource時点ではnative gateと公開は未完了で、
-以下のindex導入コマンドは0.5.1公開後に利用できます。正確なhashと実検証は
-[release記録](docs/releasing.md)を確認してください。公開済0.5.0と旧版は
+[監査台帳](docs/audit-051.md)に記録します。0.5.1は
+[PyPI](https://pypi.org/project/collective-intelligence-overlay/0.5.1/)と
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.5.1)で公開済みです。
+native gate、実PyPI bytes、新規環境への導入、公開資産を確認しました。
+正確な検証範囲とhashは[release記録](docs/releasing.md)を確認してください。
+mainのREADMEは公開状態を記録し、tag内の文書は公開前snapshotを保持します。公開済0.5.0と旧版は
 [archive](docs/research-archive.md)に保持します。
 
 coreのrecord型・offline viewにはサービスやモデルの起動が不要です。
