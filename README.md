@@ -15,9 +15,14 @@ effects remain unknown. Each participant retains its own policy, keys and budget
 
 ## Install and services
 
-**0.5.0 is published on [PyPI](https://pypi.org/project/collective-intelligence-overlay/0.5.0/).**
-These examples target that version. Exact hashes and verification are recorded in
-[release status](docs/releasing.md); prior releases remain in the [archive](docs/research-archive.md).
+**These instructions target 0.5.1, the latest stabilization candidate.**
+It corrects observation identity, missing purpose/validity, period coordinates,
+handoff basis matching, bounded JSON input and standard A2A client cleanup.
+The finite review and compatibility boundaries are in [the audit ledger](docs/audit-051.md).
+At this source snapshot, native gates and publication are pending; the index
+commands below become available when 0.5.1 is published. Check [release status](docs/releasing.md)
+for actual hashes and verification. Published 0.5.0 and earlier versions remain
+in the [archive](docs/research-archive.md).
 
 Core record models and offline views need no running service or model. Owner database
 inspection uses PostgreSQL; explicit qualification additionally uses OPA. Optional `[agents]`
@@ -31,7 +36,7 @@ Run from a fresh directory outside the repository. On Linux/macOS:
 ```sh
 uv venv .venv --python 3.12.14
 source .venv/bin/activate
-uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.0
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.1
 collective-intelligence-overlay lifecycle inspect --fixture
 ```
 
@@ -40,7 +45,7 @@ On Windows PowerShell:
 ```powershell
 uv venv .venv --python 3.12.14
 . .venv/Scripts/Activate.ps1
-uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.0
+uv pip install --no-cache --no-config --default-index https://pypi.org/simple collective-intelligence-overlay==0.5.1
 collective-intelligence-overlay lifecycle inspect --fixture
 ```
 
@@ -99,7 +104,7 @@ See [concepts](docs/lifecycle-concepts.md), [security](SECURITY.md) and
 
 Python >=3.12; declared Linux, Windows, macOS Intel and Apple Silicon profiles remain
 in the [runtime matrix](docs/validation.md). All twelve native profiles, mixed Python
-and four cross readers passed for the exact published pair; actual PyPI bytes and
+and four cross readers passed for the exact published **0.5.0** pair; actual PyPI bytes and
 clean-install checks are in [the implementation register](docs/lifecycle-050-implementation.md).
 No DB migration or wire record change is introduced by the lifecycle layer.
 [Migration](docs/migration-050.md) explains legacy missing bindings and clocks.
@@ -111,4 +116,4 @@ dependency conditions are in [compatibility](docs/compatibility.md).
 
 Historical negative and limited results remain in the [research archive](docs/research-archive.md).
 CIO-specific accumulation benefit is unproven. No new model generation, research
-comparison, benchmark or long soak is part of this feature release.
+comparison, benchmark or long soak is part of this stabilization release.

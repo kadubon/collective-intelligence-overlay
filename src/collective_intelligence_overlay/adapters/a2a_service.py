@@ -50,27 +50,39 @@ async def invoke(
                 supported_protocol_bindings=["JSONRPC"],
             ),
         )
-        wire_arguments = struct(arguments)
-        if MessageToDict(wire_arguments) != arguments:
-            raise ValueError("standard A2A data part cannot preserve these numeric values")
-        call = active_call.get()
-        request = SendMessageRequest(
-            message=Message(
-                message_id=call.key if call is not None else uid(),
-                role=Role.ROLE_USER,
-                parts=[Part(data=wire_arguments)],
+        try:
+            wire_arguments = struct(arguments)
+            if MessageToDict(wire_arguments) != arguments:
+                raise ValueError("standard A2A data part cannot preserve these numeric values")
+            call = active_call.get()
+            request = SendMessageRequest(
+                message=Message(
+                    message_id=call.key if call is not None else uid(),
+                    role=Role.ROLE_USER,
+                    parts=[Part(data=wire_arguments)],
+                )
             )
-        )
-        async for response in client.send_message(request):
-            if not response.HasField("message"):
-                raise ValueError("A2A service returned a Task; result requires reconciliation")
-            reply = response.message
-            if (
-                reply.role != Role.ROLE_AGENT
-                or reply.extensions
-                or len(reply.parts) != 1
-                or reply.parts[0].WhichOneof("content") != "data"
-            ):
-                raise ValueError("A2A service did not return the registered JSON result shape")
-            return MessageToDict(reply.parts[0].data)
-        raise ValueError("A2A service completed without a result")
+            result: Any = None
+            received = False
+            # Finish the nonstreaming SDK request before its HTTP context exits.
+            # A JSON null is a result, so receipt presence is tracked separately.
+            async for response in client.send_message(request):
+                if received:
+                    raise ValueError("A2A service requires one nonstreaming message result")
+                if not response.HasField("message"):
+                    raise ValueError("A2A service returned a Task; result requires reconciliation")
+                reply = response.message
+                if (
+                    reply.role != Role.ROLE_AGENT
+                    or reply.extensions
+                    or len(reply.parts) != 1
+                    or reply.parts[0].WhichOneof("content") != "data"
+                ):
+                    raise ValueError("A2A service did not return the registered JSON result shape")
+                result = MessageToDict(reply.parts[0].data)
+                received = True
+            if not received:
+                raise ValueError("A2A service completed without a result")
+            return result
+        finally:
+            await client.close()

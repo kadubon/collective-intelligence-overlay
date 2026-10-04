@@ -97,7 +97,7 @@ def test_pretested_pair_requires_original_packaged_content(candidate_repository,
             module.check(candidate, hashes)
 
 
-@pytest.mark.parametrize("version", ["0.4.1", "0.4.2", "0.4.3", "0.4.4", "0.5.0"])
+@pytest.mark.parametrize("version", ["0.4.1", "0.4.2", "0.4.3", "0.4.4", "0.5.0", "0.5.1"])
 def test_standard_tag_reuses_its_own_trusted_complete_candidate(
     candidate_repository, monkeypatch, version
 ):
@@ -125,7 +125,7 @@ def test_standard_tag_reuses_its_own_trusted_complete_candidate(
 
 
 @pytest.mark.parametrize("failure", ["manifest", "tag-version", "trusted-run"])
-@pytest.mark.parametrize("version", ["0.4.2", "0.4.3", "0.4.4", "0.5.0"])
+@pytest.mark.parametrize("version", ["0.4.2", "0.4.3", "0.4.4", "0.5.0", "0.5.1"])
 def test_042_tag_cannot_fall_back_to_a_rebuild_after_missing_or_rejected_proof(
     candidate_repository, monkeypatch, failure, version
 ):

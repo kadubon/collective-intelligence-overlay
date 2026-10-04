@@ -16,7 +16,7 @@ def validator(monkeypatch):
     return importlib.import_module("validate_short_protocol")
 
 
-@pytest.mark.parametrize("version", ["0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4", "0.5.0"])
+@pytest.mark.parametrize("version", ["0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4", "0.5.0", "0.5.1"])
 def test_version_profiles_retain_identical_short_fault_requirements(validator, version):
     profile, protocol = validator.load_profile(ROOT, version)
     original, _ = validator.load_profile(ROOT, "0.4.0")
@@ -48,8 +48,13 @@ def test_version_profiles_retain_identical_short_fault_requirements(validator, v
         "changed-proof",
     ],
 )
-def test_candidate_version_and_complete_original_proof_required(validator, tmp_path, change):
-    profile, protocol = validator.load_profile(ROOT, "0.4.1")
+@pytest.mark.parametrize("version", ["0.4.1", "0.5.1"])
+def test_candidate_version_and_complete_original_proof_required(
+    validator, tmp_path, change, version
+):
+    profile, protocol = validator.load_profile(ROOT, version)
+    historical = "0.5.0" if version == "0.5.1" else "0.4.0"
+    historical_profile, historical_protocol = validator.load_profile(ROOT, historical)
     hashes = {}
     for index in range(10):
         name = f"proof-{index}.json"
@@ -65,16 +70,16 @@ def test_candidate_version_and_complete_original_proof_required(validator, tmp_p
         "owners": 3,
         "assertions_passed": True,
         "formal_soak_or_release_approval": False,
-        "runtime": {"distribution_version": "0.4.1"},
+        "runtime": {"distribution_version": version},
         "proof_sha256": hashes,
     }
-    expected = "0.4.1"
+    expected = version
     if change == "historical-identity":
-        report["profile_id"] = "permissioned-single-owner-040-v1"
+        report["profile_id"] = historical_profile["profile_id"]
     elif change == "historical-protocol":
-        report["protocol"] = "production-short-040-v1"
+        report["protocol"] = historical_protocol
     elif change == "historical-runtime":
-        report["runtime"]["distribution_version"] = "0.4.0"
+        report["runtime"]["distribution_version"] = historical
     elif change == "wrong-candidate":
         expected = "0.4.0"
     elif change == "unknown-version":

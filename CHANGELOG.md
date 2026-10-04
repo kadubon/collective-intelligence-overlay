@@ -1,5 +1,30 @@
 # Changelog
 
+## 0.5.1 (stabilization candidate)
+
+- Correct finite lifecycle projections: same-clock partially ordered Decisions
+  keep gross churn unknown; period receipts/costs match available receiver/scope/
+  policy coordinates. Missing nested purpose and Decision validity remain missing
+  original facts instead of observed reuse or expiry.
+- Keep distinct `(resource owner, caller, invocation ID)` uses independent and
+  reject contradictory receipts for the same operation. Handoff correlates the
+  exact owner-scoped Decision basis and actual completed reuse receipt; foreign
+  owner ID collisions do not supply or invalidate another owner's assessment.
+- Reject duplicate/excessive stock targets before qualification writes. Bound
+  explicit lifecycle JSON depth before decoding, reject duplicate keys/nonfinite
+  constants, and preserve previously supported UTF-8/16/32 JSON byte encodings.
+  These corrections intentionally change the malformed, missing or misattributed
+  cases; they are not described as wholly invariant behavior.
+- Finish and close standard A2A SDK requests on success and failure; preserve
+  JSON null results and reject multiple nonstreaming responses.
+- Separately share duplicated exact-byte DSSE decoding/key-state semantics between
+  material and Store reads. Public schemas/signatures, derivation contract 0.5.0,
+  signed/wire records, source-bound callables, DB schema and dependencies remain.
+- Reorganize development instructions with a byte-exact historical archive and
+  update maintenance/private-reporting guidance. Inherit the existing native,
+  package and exact-pair OIDC gates for 0.5.1. Publication remains pending at this
+  candidate snapshot; no model inference or scientific rerun was performed.
+
 ## 0.5.0 (2026-10-04)
 
 - Add bounded evidence-preserving Lifecycle, Contribution, Residual, Growth and

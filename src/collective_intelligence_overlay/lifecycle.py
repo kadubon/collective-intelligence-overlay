@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING, Any, Literal, Self
 
 from pydantic import AwareDatetime, BaseModel, ConfigDict, Field, model_validator
 
+from ._lifecycle_json import check_json_bytes, load_json, validate_json_tree
 from .models import (
     Capability,
     Cost,
@@ -123,8 +124,9 @@ def original_record_metadata(
 ) -> tuple[datetime | None, tuple[str, ...]]:
     """Separate legacy decoder defaults from fields present in original JSON.
 
-    The typed record keeps its existing wire-decoder contract. These top-level
-    default markers describe that projection; they are not additional source facts.
+    The typed record keeps its existing wire-decoder contract. Default markers
+    describe the projection, not additional source facts. Nested purpose markers
+    matter because a decoder's reuse default is not an observed reuse purpose.
     """
     if not isinstance(record, Capability) and "id" not in body:
         raise ValueError("original record identity missing; decoder ID is not a source identity")
@@ -136,8 +138,31 @@ def original_record_metadata(
         else "created_at"
     )
     occurred = getattr(record, clock) if clock in body else None
-    defaults = tuple(sorted(set(type(record).model_fields) - body.keys()))
-    return occurred, defaults
+    defaults = set(type(record).model_fields) - body.keys()
+    if isinstance(record, Event) and record.execution and "purpose" not in body["execution"]:
+        defaults.add("execution.purpose")
+    if isinstance(record, Decision) and "purpose" not in body["request"]:
+        defaults.add("request.purpose")
+    return occurred, tuple(sorted(defaults))
+
+
+def _decode_original(
+    document: dict[str, Any], principals: dict[str, Principal]
+) -> tuple[Record, dict[str, Any], str]:
+    """One exact-byte DSSE read shared by explicit material and Store projections."""
+    payload = base64.b64decode(document["payload"], validate=True)
+    check_json_bytes(payload)
+    record = verify(document, principals, require_authority=False)
+    return record, load_json(payload), digest(payload)
+
+
+def _historical_key_authority(
+    document: dict[str, Any], principal: Principal
+) -> Literal["unassessed", "compromised_key_observed"]:
+    compromised = any(
+        signature["keyid"] in principal.compromised_keyids for signature in document["signatures"]
+    )
+    return "compromised_key_observed" if compromised else "unassessed"
 
 
 class ObservationContext(ViewModel):
@@ -600,6 +625,7 @@ def snapshot_from_material(
         or material["view_schema_version"] != "1"
     ):
         raise ValueError("unknown material schema or fields")
+    validate_json_tree(material)
     if len(json.dumps(material).encode()) > MAX_VIEW_BYTES:
         raise ValueError("material byte bound exceeded")
     context = ObservationContext.model_validate(material["context"])
@@ -619,16 +645,10 @@ def snapshot_from_material(
         authority: Literal["unassessed", "compromised_key_observed", "unsigned"]
         basis: Literal["original_dsse_payload", "unsigned_json_projection"]
         if entry["format"] == "dsse":
-            record = verify(document, principals or {}, require_authority=False)
-            payload = base64.b64decode(document["payload"], validate=True)
-            original_body = json.loads(payload)
-            payload_hash = digest(payload)
+            record, original_body, payload_hash = _decode_original(document, principals or {})
             signature = "historical_verified"
             principal = (principals or {})[record.issuer]
-            compromised = any(
-                s["keyid"] in principal.compromised_keyids for s in document["signatures"]
-            )
-            authority = "compromised_key_observed" if compromised else "unassessed"
+            authority = _historical_key_authority(document, principal)
             basis = "original_dsse_payload"
         elif entry["format"] == "unsigned":
             original_body = document
@@ -751,7 +771,7 @@ def observe_contributions(snapshot: LifecycleSnapshot) -> tuple[ContributionObse
         for i in unique
         if isinstance(i.record, Event)
     }
-    invocations: dict[tuple[str, str], tuple[str, str | None]] = {}
+    invocations: dict[tuple[str, str, str], str] = {}
     for item in unique:
         record, source = item.record, item.source
         refs = (
@@ -803,16 +823,30 @@ def observe_contributions(snapshot: LifecycleSnapshot) -> tuple[ContributionObse
                 )
                 receiver, transport, invocation = e.caller, e.transport, e.invocation_id
                 outcome = e.state
-                if e.purpose == "reuse" and e.state == "completed":
-                    key = (e.resource_owner, e.invocation_id)
-                    identity = (e.arguments_digest, e.result_digest)
+                purpose_observed = (
+                    source.decoder_default_fields is not None
+                    and "execution.purpose" not in source.decoder_default_fields
+                )
+                if e.state == "completed" and purpose_observed:
+                    key = (e.resource_owner, e.caller, e.invocation_id)
+                    identity = projection_digest(
+                        [record.subject.model_dump(mode="json"), e.model_dump(mode="json")]
+                    )
                     if key in invocations:
                         if invocations[key] != identity:
                             raise Conflict("invocation receipt content conflict")
                         continue
                     invocations[key] = identity
+                if e.purpose == "reuse" and e.state == "completed":
                     relations = (ContributionRelation.REUSE,)
-                    basis = "Completed reuse receipt; no quality or installation inferred."
+                    if purpose_observed:
+                        basis = "Completed reuse receipt; no quality or installation inferred."
+                    else:
+                        strength = "unresolved"
+                        basis = (
+                            "Decoder reuse purpose is not observed in the original receipt; "
+                            "reuse versus verification remains unresolved."
+                        )
             elif record.action in {"replication", "import"}:
                 relations = (
                     ContributionRelation.COPY
@@ -841,7 +875,12 @@ def observe_contributions(snapshot: LifecycleSnapshot) -> tuple[ContributionObse
                         missing_links.append(link)
                         continue
                     execution = linked_record.execution
-                    if execution.state != "completed" or execution.purpose != "reuse":
+                    if (
+                        execution.state != "completed"
+                        or execution.purpose != "reuse"
+                        or linked.source.decoder_default_fields is None
+                        or "execution.purpose" in linked.source.decoder_default_fields
+                    ):
                         missing_links.append(link)
                         continue
                     receipt_links.append(linked.source.reference)
@@ -887,7 +926,14 @@ def observe_contributions(snapshot: LifecycleSnapshot) -> tuple[ContributionObse
                 _residual(
                     snapshot.context,
                     ResidualKind.UNKNOWN_RELATION,
-                    "Exact source identity is absent; declared copy/import is not resolved origin.",
+                    (
+                        "Original execution purpose is absent; decoder reuse is not observed reuse."
+                        if isinstance(record, Event) and record.execution
+                        else (
+                            "Exact source identity is absent; declared copy/import is not "
+                            "resolved origin."
+                        )
+                    ),
                     target=target,
                     sources=(source.reference,),
                 )
@@ -1086,6 +1132,22 @@ def inspect_lifecycle(
         if isinstance(record, Revocation):
             withdrawals.append(ref)
         expires = getattr(record, "expires_at", getattr(record, "valid_until", None))
+        if (
+            isinstance(record, Decision)
+            and item.source.decoder_default_fields is not None
+            and "valid_until" in item.source.decoder_default_fields
+        ):
+            expires = None
+            residuals.append(
+                _residual(
+                    snapshot.context,
+                    ResidualKind.MISSING_HISTORY,
+                    "Original Decision validity is absent; decoder expiry is not an observation.",
+                    target=target,
+                    sources=(ref,),
+                    prevents=("source_validity",),
+                )
+            )
         if expires and expires <= snapshot.context.cutoff:
             residuals.append(
                 _residual(
@@ -1252,8 +1314,13 @@ async def assess_stock(overlay: Overlay, requests: tuple[UseRequest, ...]) -> St
 
     if not requests or any(r.capability_issuer is None for r in requests):
         raise ValueError("stock assessment requires exact capability issuers")
+    if len(requests) > 32:
+        raise ValueError("stock assessment requires 1 to 32 explicit use requests")
     if any(r.scope != requests[0].scope or r.receiver != requests[0].receiver for r in requests):
         raise ValueError("stock assessment requires one receiver/scope coordinate")
+    target_keys = {(r.capability_issuer, r.subject, r.binding_digest) for r in requests}
+    if len(target_keys) != len(requests):
+        raise ValueError("duplicate stock target")
     result = await capability_metrics(overlay, requests)
     policy: str = result["historical_reuse_policy_digest"]
     started = datetime.fromisoformat(result["started_at"])
@@ -1411,12 +1478,38 @@ def observe_growth(
         and (
             getattr(item.record, "scope", closing.coordinates.scope) == closing.coordinates.scope
             if not isinstance(item.record, Decision)
-            else item.record.request.scope == closing.coordinates.scope
+            else (
+                item.record.request.scope == closing.coordinates.scope
+                and item.record.request.receiver == closing.coordinates.receiver
+                and item.record.policy_digest == closing.coordinates.policy_digest
+                and item.source.reference.issuer == closing.coordinates.receiver
+            )
+        )
+        and (
+            not isinstance(item.record, Event)
+            or item.record.formation is None
+            or (
+                item.record.formation.scope == closing.coordinates.scope
+                and item.record.formation.policy_digest == closing.coordinates.policy_digest
+            )
+        )
+        and (
+            not isinstance(item.record, Event)
+            or item.record.work is None
+            or (
+                item.record.work.scope == closing.coordinates.scope
+                and item.record.work.receiver == closing.coordinates.receiver
+                and item.record.work.policy_digest == closing.coordinates.policy_digest
+            )
         )
         and (
             not isinstance(item.record, Event)
             or item.record.execution is None
-            or item.record.execution.scope == closing.coordinates.scope
+            or (
+                item.record.execution.scope == closing.coordinates.scope
+                and item.record.execution.caller == closing.coordinates.receiver
+                and item.record.execution.policy_digest == closing.coordinates.policy_digest
+            )
         )
     )
     period_clocks_complete = all(item.source.occurred_at is not None for item in relevant_items)
@@ -1426,6 +1519,24 @@ def observe_growth(
         if item.source.occurred_at is not None
         and opening.context.cutoff <= item.source.occurred_at < context.cutoff
     )
+    period_purposes_complete = all(
+        not isinstance(item.record, Event)
+        or item.record.execution is None
+        or (
+            item.source.decoder_default_fields is not None
+            and "execution.purpose" not in item.source.decoder_default_fields
+        )
+        for item in items
+    )
+    if not period_purposes_complete:
+        residuals.append(
+            _residual(
+                context,
+                ResidualKind.UNKNOWN_RELATION,
+                "Original execution purposes are absent; reuse versus verification is unknown.",
+                prevents=("period_service_count",),
+            )
+        )
     if not period_clocks_complete:
         residuals.append(
             _residual(
@@ -1540,8 +1651,11 @@ def observe_growth(
             gross_losses=gross_losses,
             re_admissions=readmissions,
             source_observation_count=len(all_items),
-            service_use_count=sum(ContributionRelation.REUSE in c.relations for c in contributions)
-            if history_matches and period_clocks_complete
+            service_use_count=sum(
+                ContributionRelation.REUSE in c.relations and c.strength == "observed"
+                for c in contributions
+            )
+            if history_matches and period_clocks_complete and period_purposes_complete
             else None,
             copy_observation_count=sum(
                 ContributionRelation.COPY in c.relations for c in contributions
@@ -1575,7 +1689,7 @@ def _gross_stock_changes(
             timeline.append(
                 (entry.decision.valid_until, 0, 0, entry.target.key, entry.decision.id, "unknown")
             )
-    decision_times: set[tuple[str, datetime, int | None]] = set()
+    decision_times: dict[tuple[str, datetime], set[int | None]] = {}
     for item in items:
         d = item.record
         if not isinstance(d, Decision) or d.request.capability_issuer is None:
@@ -1594,10 +1708,19 @@ def _gross_stock_changes(
             or not start <= d.evaluated_at < end
         ):
             continue
-        clock = (t.key, d.evaluated_at, item.source.sequence)
-        if clock in decision_times:
+        if (
+            item.source.decoder_default_fields is None
+            or "valid_until" in item.source.decoder_default_fields
+            or "request.purpose" in item.source.decoder_default_fields
+        ):
+            return None  # No inferred expiry or assessment purpose from decoder defaults.
+        clock = (t.key, d.evaluated_at)
+        sequences = decision_times.setdefault(clock, set())
+        if sequences and (
+            item.source.sequence is None or None in sequences or item.source.sequence in sequences
+        ):
             return None  # No invented ordering of same-clock, unsequenced observations.
-        decision_times.add(clock)
+        sequences.add(item.source.sequence)
         value: Availability = (
             "accepted"
             if d.outcome == "ACCEPT" and d.valid_until > d.evaluated_at
@@ -1649,19 +1772,44 @@ def build_handoff(
         raise ValueError("received handoff requires an observed local reception clock")
     if state == "received" and receiver != view.context.owner:
         raise ValueError("local reception does not prove another receiver received it")
-    if state == "assessed" and not any(
-        source.reference == state_basis
-        and source.reference.kind == "decision"
-        and any(
-            d.id == source.reference.id and d.request.receiver == receiver for d in view.decisions
-        )
-        for source in view.sources
-    ):
-        raise ValueError("assessed handoff requires that receiver's actual Decision")
+    if state == "assessed":
+        decision_sources = tuple(s for s in view.sources if s.reference.kind == "decision")
+        if len(decision_sources) != len(view.decisions) or not any(
+            source.reference == state_basis
+            and source.reference.issuer == receiver
+            and decision.id == source.reference.id
+            and decision.request.receiver == receiver
+            # inspect_lifecycle retains these streams in original source order.
+            # Pairing avoids global-ID collisions and re-encoding original clocks.
+            for source, decision in zip(decision_sources, view.decisions, strict=True)
+        ):
+            raise ValueError("assessed handoff requires that receiver's actual Decision")
     if (
         source_role == HandoffRole.REUSE
         and target_role == HandoffRole.ACCOUNT
-        and not any(ContributionRelation.REUSE in c.relations for c in view.contributions)
+        and not any(
+            ContributionRelation.REUSE in contribution.relations
+            and contribution.strength == "observed"
+            and any(
+                execution.source in {source.reference for source in contribution.sources}
+                and execution.source.issuer == execution.receipt.resource_owner
+                and execution.receipt.purpose == "reuse"
+                and execution.receipt.state == "completed"
+                and execution.receipt.capability_issuer == view.target.issuer
+                and execution.receipt.binding_digest == view.target.binding_digest
+                and (view.context.scope is None or execution.receipt.scope == view.context.scope)
+                and (
+                    view.context.receiver is None
+                    or execution.receipt.caller == view.context.receiver
+                )
+                and (
+                    view.context.policy_digest is None
+                    or execution.receipt.policy_digest == view.context.policy_digest
+                )
+                for execution in view.executions
+            )
+            for contribution in view.contributions
+        )
     ):
         raise ValueError("REUSE to ACCOUNT requires an actual reuse receipt")
     return _bounded(
