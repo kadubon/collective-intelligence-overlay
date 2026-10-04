@@ -2,9 +2,10 @@
 
 This is a feature release of the existing evidence-preserving capability lifecycle
 layer. It introduces no model experiment, inference, benchmark or long soak.
-The baseline is `733edaa78c93156d005528c50a3fd280538b964d`; work is on
-`feature/050-lifecycle`. Original tags, distributions, research sources and raw
-remain immutable. This register is a work record, not evidence of completed gates.
+The baseline is `733edaa78c93156d005528c50a3fd280538b964d`; implementation and fixes
+are merged into `main` at `e830a6a`. Original tags, distributions, research sources
+and raw remain immutable. Completed gates below have separate exact-byte evidence;
+publication is not implied by a passing native gate.
 
 ## Responsibility mapping
 
@@ -20,6 +21,14 @@ Store remains the PostgreSQL record authority; DSSE digests cover original paylo
 bytes. Decisions remain unsigned owner projections. Existing Registry/Executor,
 use-time qualification, OPA, keys, reservations, resolution and recovery retain
 their responsibilities. No DB migration or new runtime dependency is planned.
+
+The corrected `e830a6a` source comparison against that baseline preserves 85 previous
+package files byte-for-byte; only the thin CLI dispatcher entry differs. Existing wire schemas,
+migrations and runtime implementations are byte-identical. Parsed project/build
+metadata differs only in the root version and description, and the parsed lock
+differs only in the root version; no dependency was added or updated. This static
+comparison complements the retained 53-case target result and does not replace
+native, installation or publication evidence.
 
 ## Baseline evidence
 
@@ -93,9 +102,23 @@ from that log. A result-only assertion diagnostic was added without changing run
 deadlines, authority, UNKNOWN or held allowance. The corresponding local Windows
 3.12.14 case first skipped for absent pg_dump/pg_restore, then passed with the real
 PostgreSQL 16.15 WSL tools (1 pass / 0 failures / 0 skips). This is narrow local
-evidence; all declared native environments still require the corrected final gate.
+evidence. The corrected final Mac Intel/Python 3.14.7 run passed all four receiptless
+cases, including that positive case, without runtime or authority changes. This
+does not establish the cause of the old failure.
 
-| Requirement | Local evidence; final native gate still pending |
+With explicit owner approval, unfinished jobs in superseded runs
+[37182803375](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37182803375)
+and [37184567824](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37184567824)
+were cancelled to release runners. Both runs are now terminal/cancelled; already
+completed successes and the first run's failure remain unchanged. Their original
+GitHub log ZIPs, candidate distributions and available report files are retained
+locally with separate SHA-256 manifests (3,716 and 2,724 retained files respectively).
+No 0.4.x run was changed. Corrected source `e830a6a` has its own fixed pair and
+[run 37186786810](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37186786810);
+its native gate is now complete/success. Publication remains pending. Cancellation
+is not a passing gate.
+
+| Requirement | Behavioral evidence; also included in the final native gate |
 | --- | --- |
 | 1 Candidate without evidence/decision/use | Missing observations remain missing |
 | 2 Different receiver judgments | Both exact scoped Decisions retained |
@@ -141,8 +164,28 @@ not a new research panel or measured benefit. No production comparison dispatch,
 long soak, actual model connection, additional pilot or parameter search is run.
 
 Unit/property and actual PostgreSQL/OPA regressions precede release packaging.
-After candidate freeze, the existing native compatibility matrix must pass for
-the actual candidate; real model connections and production experiments/soak
-remain unrun. Tag publication must reuse that exact pair through workflow.yml,
+The final frozen candidate passed all twelve OS/CPU/Python profiles: Linux amd64,
+Windows amd64, macOS Intel and Apple Silicon, each on CPython 3.12.14, 3.13.15 and
+3.14.7. Every profile passed 886 source tests, 874 installed agents tests, one
+model SDK mock, eleven Ollama SDK mocks and 445 rebuilt-sdist tests, with zero
+failures/errors/skips. Core import, CLI, resources and optional-import guards also
+passed. Every installed actual-service tutorial retained A ACCEPT/B REJECT,
+two rows/`5.00`, formation links, unavailable joules and post-withdrawal REJECT,
+with zero model requests. Source and installed short fault protocols both passed
+the unchanged nineteen required injection groups (24 observed labels), three
+owners and 120–600-second bounds; these are not formal production soak approval.
+Mixed Python and all four cross-platform signed artifact readers passed.
+
+[Native results](release-050-native-results.json) record those observed scopes;
+[the release manifest](release-050.json) binds run 37186786810, its source/tree,
+the exact wheel/sdist and original gate SHA-256. All original report files and
+the GitHub log ZIP are retained locally (3,803 files). Authenticated trusted-run,
+candidate-source and full report-hash reuse checks passed. A private report
+collector's incorrect 19-label assumption was corrected to delegate the existing
+protocol validator; the original collector and diagnostic remain retained, and
+no test, protocol or gate was weakened.
+
+Real model connections and production experiments/soak remain unrun. Tag
+publication must reuse that exact pair through workflow.yml,
 environment pypi/OIDC. Actual PyPI hashes, ordinary clean install and smoke are
 separate final evidence. No completion claim is made before those checks pass.
