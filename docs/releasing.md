@@ -1,5 +1,18 @@
 # Release procedure and current state
 
+## 0.5.0 feature candidate (not yet published)
+
+The evidence-preserving lifecycle layer is under local verification in
+[the implementation register](lifecycle-050-implementation.md). No model generation,
+new scientific comparison, benchmark or long soak is performed or required.
+The [version-specific native profile](profiles/native-fault-050.json) retains all
+nineteen software fault injections and numerical bounds. Historical scientific
+gates remain scoped to their immutable sources; none is reclassified as successful
+confirmation. Freeze one candidate pair, pass all twelve declared native profiles,
+mixed Python, cross readers, package/license/security gates and authenticated reuse,
+then publish that exact pair through workflow.yml / pypi / OIDC. Actual-index bytes
+and fresh installs are required before reporting publication complete.
+
 ## 0.4.4 published and verified on 2026-10-04 JST; pilot only
 
 [PyPI 0.4.4](https://pypi.org/project/collective-intelligence-overlay/0.4.4/),

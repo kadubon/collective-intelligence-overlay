@@ -1,0 +1,1112 @@
+{
+  "$defs": {
+    "CapabilityIdentity": {
+      "additionalProperties": false,
+      "properties": {
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "subject": {
+          "$ref": "#/$defs/Subject"
+        },
+        "binding_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Binding Digest"
+        }
+      },
+      "required": [
+        "issuer",
+        "subject",
+        "binding_digest"
+      ],
+      "title": "CapabilityIdentity",
+      "type": "object"
+    },
+    "ContributionRelation": {
+      "enum": [
+        "COPY",
+        "IMPORT",
+        "REUSE",
+        "FORMATION_INPUT",
+        "NEW_CANDIDATE"
+      ],
+      "title": "ContributionRelation",
+      "type": "string"
+    },
+    "CostReference": {
+      "additionalProperties": false,
+      "properties": {
+        "source": {
+          "$ref": "#/$defs/RecordRef"
+        },
+        "position": {
+          "maximum": 63,
+          "minimum": 0,
+          "title": "Position",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "source",
+        "position"
+      ],
+      "title": "CostReference",
+      "type": "object"
+    },
+    "Coverage": {
+      "enum": [
+        "complete",
+        "partial",
+        "unavailable",
+        "inconsistent"
+      ],
+      "title": "Coverage",
+      "type": "string"
+    },
+    "ObservationContext": {
+      "additionalProperties": false,
+      "properties": {
+        "owner": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Owner",
+          "type": "string"
+        },
+        "receiver": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Receiver"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Scope"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "policy_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Policy Digest"
+        },
+        "cutoff": {
+          "format": "date-time",
+          "title": "Cutoff",
+          "type": "string"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "feed_generation": {
+          "anyOf": [
+            {
+              "maxLength": 64,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Feed Generation"
+        },
+        "prefix": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Prefix"
+        },
+        "revisions": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "maxProperties": 2048,
+          "title": "Revisions",
+          "type": "object"
+        },
+        "coverage": {
+          "$ref": "#/$defs/Coverage"
+        },
+        "coverage_basis": {
+          "title": "Coverage Basis",
+          "type": "string"
+        },
+        "query": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RecordQuery"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "record_cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RecordCursor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "decision_cursor": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RecordCursor"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "record_limit": {
+          "default": 256,
+          "maximum": 256,
+          "minimum": 1,
+          "title": "Record Limit",
+          "type": "integer"
+        },
+        "byte_limit": {
+          "default": 1048576,
+          "maximum": 1048576,
+          "minimum": 1024,
+          "title": "Byte Limit",
+          "type": "integer"
+        },
+        "period_start": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period Start"
+        },
+        "period_end": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Period End"
+        }
+      },
+      "required": [
+        "owner",
+        "receiver",
+        "scope",
+        "policy_digest",
+        "cutoff",
+        "observed_at",
+        "feed_generation",
+        "prefix",
+        "coverage",
+        "coverage_basis"
+      ],
+      "title": "ObservationContext",
+      "type": "object"
+    },
+    "ReceiptRef": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Id",
+          "type": "string"
+        }
+      },
+      "required": [
+        "issuer",
+        "id"
+      ],
+      "title": "ReceiptRef",
+      "type": "object"
+    },
+    "RecordCursor": {
+      "additionalProperties": false,
+      "properties": {
+        "owner": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Owner",
+          "type": "string"
+        },
+        "generation": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Generation",
+          "type": "string"
+        },
+        "query_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Query Digest",
+          "type": "string"
+        },
+        "anchor": {
+          "format": "date-time",
+          "title": "Anchor",
+          "type": "string"
+        },
+        "after": {
+          "minimum": 0,
+          "title": "After",
+          "type": "integer"
+        },
+        "upper": {
+          "minimum": 0,
+          "title": "Upper",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "owner",
+        "generation",
+        "query_digest",
+        "anchor",
+        "after",
+        "upper"
+      ],
+      "title": "RecordCursor",
+      "type": "object"
+    },
+    "RecordQuery": {
+      "additionalProperties": false,
+      "properties": {
+        "kinds": {
+          "default": [
+            "capability",
+            "evidence",
+            "revocation",
+            "event"
+          ],
+          "items": {
+            "enum": [
+              "capability",
+              "evidence",
+              "revocation",
+              "event",
+              "decision",
+              "opportunity",
+              "proposal"
+            ],
+            "type": "string"
+          },
+          "maxItems": 4,
+          "minItems": 1,
+          "title": "Kinds",
+          "type": "array"
+        },
+        "issuer": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Issuer"
+        },
+        "record_id": {
+          "anyOf": [
+            {
+              "maxLength": 330,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:@/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Record Id"
+        },
+        "subject": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Subject"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "depends_on": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Subject"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "dependency_issuer": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dependency Issuer"
+        },
+        "include_legacy_dependencies": {
+          "default": false,
+          "title": "Include Legacy Dependencies",
+          "type": "boolean"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Scope"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "policy_digest": {
+          "anyOf": [
+            {
+              "pattern": "^[a-f0-9]{64}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Policy Digest"
+        },
+        "task_id": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Task Id"
+        },
+        "attempt_id": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Attempt Id"
+        },
+        "since": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Since"
+        },
+        "until": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Until"
+        }
+      },
+      "title": "RecordQuery",
+      "type": "object"
+    },
+    "RecordRef": {
+      "additionalProperties": false,
+      "description": "Exact observation identity; a reference is not execution or checking authority.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "capability",
+            "evidence",
+            "revocation",
+            "event",
+            "decision",
+            "opportunity",
+            "proposal"
+          ],
+          "title": "Kind",
+          "type": "string"
+        },
+        "issuer": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Issuer",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 330,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:@/-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "payload_digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Payload Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "kind",
+        "issuer",
+        "id",
+        "payload_digest"
+      ],
+      "title": "RecordRef",
+      "type": "object"
+    },
+    "Residual": {
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "kind": {
+          "$ref": "#/$defs/ResidualKind"
+        },
+        "target": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CapabilityIdentity"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "sources": {
+          "items": {
+            "$ref": "#/$defs/RecordRef"
+          },
+          "maxItems": 256,
+          "title": "Sources",
+          "type": "array"
+        },
+        "prevents": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Prevents",
+          "type": "array"
+        },
+        "observed_at": {
+          "format": "date-time",
+          "title": "Observed At",
+          "type": "string"
+        },
+        "scope": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Scope"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "explanation": {
+          "title": "Explanation",
+          "type": "string"
+        },
+        "next_check": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Next Check"
+        },
+        "responsible_owner": {
+          "anyOf": [
+            {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Responsible Owner"
+        },
+        "due_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Due At"
+        },
+        "resolved_by": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/RecordRef"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "target",
+        "sources",
+        "prevents",
+        "observed_at",
+        "scope",
+        "explanation"
+      ],
+      "title": "Residual",
+      "type": "object"
+    },
+    "ResidualKind": {
+      "enum": [
+        "missing_evidence",
+        "unresolved_effect",
+        "unknown_cost",
+        "unknown_causality",
+        "incompatible_unit",
+        "stale_source",
+        "authority_missing",
+        "missing_history",
+        "ambiguous_identity",
+        "unknown_relation",
+        "attribution_unresolved",
+        "partial_snapshot",
+        "policy_mismatch",
+        "unmapped_reason",
+        "recorded_obligation"
+      ],
+      "title": "ResidualKind",
+      "type": "string"
+    },
+    "Scope": {
+      "additionalProperties": false,
+      "description": "Exact operational applicability; schema equality does not prove semantic fit.",
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "task": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Task",
+          "type": "string"
+        },
+        "input_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Input Contract",
+          "type": "string"
+        },
+        "output_contract": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Output Contract",
+          "type": "string"
+        },
+        "environment": {
+          "maxProperties": 64,
+          "patternProperties": {
+            "^[a-zA-Z0-9_.:/-]+$": {
+              "maxLength": 160,
+              "minLength": 1,
+              "pattern": "^[a-zA-Z0-9_.:/-]+$",
+              "type": "string"
+            }
+          },
+          "propertyNames": {
+            "maxLength": 160,
+            "minLength": 1
+          },
+          "title": "Environment",
+          "type": "object"
+        },
+        "permissions": {
+          "default": [],
+          "items": {
+            "maxLength": 160,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_.:/-]+$",
+            "type": "string"
+          },
+          "maxItems": 64,
+          "title": "Permissions",
+          "type": "array"
+        }
+      },
+      "required": [
+        "task",
+        "input_contract",
+        "output_contract",
+        "environment"
+      ],
+      "title": "Scope",
+      "type": "object"
+    },
+    "SourceObservation": {
+      "additionalProperties": false,
+      "properties": {
+        "reference": {
+          "$ref": "#/$defs/RecordRef"
+        },
+        "payload_basis": {
+          "enum": [
+            "original_dsse_payload",
+            "unsigned_json_projection"
+          ],
+          "title": "Payload Basis",
+          "type": "string"
+        },
+        "signature": {
+          "enum": [
+            "historical_verified",
+            "unsigned"
+          ],
+          "title": "Signature",
+          "type": "string"
+        },
+        "current_key_authority": {
+          "enum": [
+            "unassessed",
+            "compromised_key_observed",
+            "unsigned"
+          ],
+          "title": "Current Key Authority",
+          "type": "string"
+        },
+        "occurred_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Occurred At"
+        },
+        "received_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Received At"
+        },
+        "sequence": {
+          "anyOf": [
+            {
+              "minimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Sequence"
+        }
+      },
+      "required": [
+        "reference",
+        "payload_basis",
+        "signature",
+        "current_key_authority",
+        "occurred_at",
+        "received_at",
+        "sequence"
+      ],
+      "title": "SourceObservation",
+      "type": "object"
+    },
+    "Subject": {
+      "additionalProperties": false,
+      "properties": {
+        "schema_version": {
+          "const": "1",
+          "default": "1",
+          "title": "Schema Version",
+          "type": "string"
+        },
+        "id": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Id",
+          "type": "string"
+        },
+        "version": {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "title": "Version",
+          "type": "string"
+        },
+        "digest": {
+          "pattern": "^[a-f0-9]{64}$",
+          "title": "Digest",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "version",
+        "digest"
+      ],
+      "title": "Subject",
+      "type": "object"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "view_schema_version": {
+      "const": "1",
+      "default": "1",
+      "title": "View Schema Version",
+      "type": "string"
+    },
+    "derivation_version": {
+      "const": "0.5.0",
+      "default": "0.5.0",
+      "title": "Derivation Version",
+      "type": "string"
+    },
+    "generated_at": {
+      "format": "date-time",
+      "title": "Generated At",
+      "type": "string"
+    },
+    "context": {
+      "$ref": "#/$defs/ObservationContext"
+    },
+    "sources": {
+      "items": {
+        "$ref": "#/$defs/SourceObservation"
+      },
+      "maxItems": 256,
+      "title": "Sources",
+      "type": "array"
+    },
+    "residuals": {
+      "items": {
+        "$ref": "#/$defs/Residual"
+      },
+      "maxItems": 1024,
+      "title": "Residuals",
+      "type": "array"
+    },
+    "non_claims": {
+      "default": [
+        "No semantic truth, functional novelty, causal contribution or intelligence growth claim.",
+        "Historical signature/PASS/ACCEPT, coverage and reception grant no current execution authority.",
+        "Local bounded observations are not complete world history; missing costs are not zero."
+      ],
+      "items": {
+        "type": "string"
+      },
+      "title": "Non Claims",
+      "type": "array"
+    },
+    "observation_id": {
+      "pattern": "^[a-f0-9]{64}$",
+      "title": "Observation Id",
+      "type": "string"
+    },
+    "resulting_capability": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CapabilityIdentity"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "source_capability": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/CapabilityIdentity"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "relations": {
+      "items": {
+        "$ref": "#/$defs/ContributionRelation"
+      },
+      "title": "Relations",
+      "type": "array"
+    },
+    "strength": {
+      "enum": [
+        "declared",
+        "observed",
+        "unresolved"
+      ],
+      "title": "Strength",
+      "type": "string"
+    },
+    "basis": {
+      "title": "Basis",
+      "type": "string"
+    },
+    "receiver": {
+      "anyOf": [
+        {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Receiver"
+    },
+    "transport": {
+      "anyOf": [
+        {
+          "enum": [
+            "local",
+            "mcp",
+            "a2a"
+          ],
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Transport"
+    },
+    "invocation_id": {
+      "anyOf": [
+        {
+          "maxLength": 160,
+          "minLength": 1,
+          "pattern": "^[a-zA-Z0-9_.:/-]+$",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Invocation Id"
+    },
+    "observed_outcome": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Observed Outcome"
+    },
+    "cost_refs": {
+      "items": {
+        "$ref": "#/$defs/CostReference"
+      },
+      "maxItems": 64,
+      "title": "Cost Refs",
+      "type": "array"
+    },
+    "receipt_links": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/RecordRef"
+      },
+      "maxItems": 64,
+      "title": "Receipt Links",
+      "type": "array"
+    },
+    "unavailable_receipt_links": {
+      "default": [],
+      "items": {
+        "$ref": "#/$defs/ReceiptRef"
+      },
+      "maxItems": 64,
+      "title": "Unavailable Receipt Links",
+      "type": "array"
+    },
+    "functional_novelty": {
+      "const": "unknown",
+      "default": "unknown",
+      "title": "Functional Novelty",
+      "type": "string"
+    },
+    "local_installation": {
+      "const": "unobserved",
+      "default": "unobserved",
+      "title": "Local Installation",
+      "type": "string"
+    }
+  },
+  "required": [
+    "context",
+    "sources",
+    "residuals",
+    "observation_id",
+    "resulting_capability",
+    "source_capability",
+    "relations",
+    "strength",
+    "basis",
+    "receiver",
+    "cost_refs"
+  ],
+  "title": "ContributionObservation",
+  "type": "object"
+}

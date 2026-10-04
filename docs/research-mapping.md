@@ -1,5 +1,19 @@
 # Research mapping and non-guarantees
 
+For 0.5.0, the index's definitions/non-claims, copy-versus-capability distinction
+and conceptual handoffs were inspected on 2026-10-04. The adopted operational
+mapping is below; no theorem or research runtime is imported and no new inference
+or research comparison is run.
+
+| Principle | Operational meaning | Implementation | Regression | Limits |
+|---|---|---|---|---|
+| Preserve lineage and residuals | Exact original DSSE/reference, scoped concurrent judgments and unresolved checks | lifecycle.py, lifecycle_store.py | test_lifecycle.py, test_lifecycle_store.py | Bounded authorized material; no truth or complete-world claim |
+| Copy is not functional capability growth | Multi-axis relation with declared/observed/unresolved basis; real invocation dedup | observe_contributions | copy/replay/two-use/formation-link cases | No novelty/equivalence or causal-credit inference |
+| Fixed stock coordinates | Independent endpoint set arithmetic; matching full period needed for gross churn | assess_stock, observe_growth | property/expiry/re-admission/partial/coordinate cases | Entry identities, not semantic abilities; missing costs remain unknown |
+| Handoff retains conditions | Typed roles, visible reception/assessment basis, unchanged Residuals | build_handoff | state-basis/roundtrip/authority cases | No transport, verification promotion, allocation or permission |
+
+Historical study results and source manifests below retain their own scope.
+
 Starting point: [author's research index](https://kadubon.github.io/github.io/collective-intelligence-index.html).
 Rechecked on 2026-10-01: the five local primary-source texts match the pinned
 archive members after CRLF/LF conversion only; original archive/member hashes

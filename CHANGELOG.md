@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.5.0 (candidate)
+
+- Add bounded evidence-preserving Lifecycle, Contribution, Residual, Growth and
+  Handoff read models, owner Store inspection/export and offline synthetic CLI input.
+- Explicit current stock assessment reuses qualification; independent snapshots
+  distinguish endpoint changes, unknown availability and complete-period churn.
+- Preserve original signed payload references, unsigned Decisions, typed costs,
+  reservations, withdrawal and existing use-time authority. No wire/DB migration,
+  runtime dependency, transport, planner or scientific inference is added.
+- Add a deterministic actual-service lifecycle tutorial and beginner documentation.
+  Historical negative/limited research and failed revisions remain unchanged.
+- Retain all native software fault bounds and exact tested-pair OIDC publication.
+  Candidate/native/publication status is in the implementation and release records.
+
 ## 0.4.4 (2026-10-04)
 
 - Add source-only strict one-to-three-enum SQL/MAF builders, independent Decimal

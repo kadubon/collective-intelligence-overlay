@@ -1,5 +1,8 @@
 # Architecture and boundaries
 
+For the read projection layer see [lifecycle concepts](lifecycle-concepts.md).
+Original storage and execution boundaries below remain unchanged.
+
 Each participant owns a `Store` (one PostgreSQL database/role), a pinned identity
 registry, OPA settings and an `Overlay`. The core has no LLM or protocol dependency.
 SQLAlchemy handles database operations and Alembic handles explicit migrations.

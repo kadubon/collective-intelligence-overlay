@@ -10,6 +10,7 @@ from pathlib import Path
 
 from collective_intelligence_overlay.bindings import ArtifactSpec, Binding
 from collective_intelligence_overlay.config import Config
+from collective_intelligence_overlay.lifecycle_cli import MODELS as LIFECYCLE_MODELS
 from collective_intelligence_overlay.models import (
     Capability,
     Event,
@@ -52,7 +53,17 @@ else:
     assert set(re.findall(r"collective-intelligence-overlay ([a-z-]+)", saved)) == set(
         re.findall(r"collective-intelligence-overlay ([a-z-]+)", cli_reference)
     )
-for model in (Capability, Evidence, Event, Opportunity, Proposal, Binding, ArtifactSpec, Config):
+for model in (
+    Capability,
+    Evidence,
+    Event,
+    Opportunity,
+    Proposal,
+    Binding,
+    ArtifactSpec,
+    Config,
+    *LIFECYCLE_MODELS.values(),
+):
     path = root / "src/collective_intelligence_overlay/schemas" / f"{model.__name__.lower()}.json"
     content = json.dumps(model.model_json_schema(), indent=2) + "\n"
     if args.write_schemas:
@@ -67,4 +78,34 @@ for path in [*root.glob("*.md"), *root.glob("docs/*.md"), *root.glob(".agents/sk
         target = (path.parent / link.split("#", 1)[0]).resolve()
         if not target.exists():
             raise SystemExit(f"broken local link: {path.name}: {link}")
+readme_blocks = [
+    re.findall(r"```(sh|powershell)\n(.*?)\n```", (root / name).read_text(encoding="utf-8"), re.S)
+    for name in ("README.md", "README.ja.md")
+]
+assert readme_blocks[0] == readme_blocks[1], "bilingual installation commands differ"
+for mode, options in (
+    ("inspect", ["--fixture"]),
+    ("contributions", ["--fixture"]),
+    ("handoff", ["--fixture", "--source-role", "REUSE", "--target-role", "ACCOUNT"]),
+):
+    output = json.loads(
+        subprocess.check_output(
+            [
+                sys.executable,
+                "-m",
+                "collective_intelligence_overlay.cli",
+                "lifecycle",
+                mode,
+                *options,
+            ],
+            text=True,
+            encoding="utf-8",
+            timeout=20,
+        )
+    )
+    assert output["context"]["owner"] == "receiver"
+    if mode == "inspect":
+        assert output["current_admission"] == "unassessed" and output["residuals"]
+    if mode == "handoff":
+        assert output["authority"] == "not_granted" and output["residuals"]
 print("documentation links and generated model schemas checked")

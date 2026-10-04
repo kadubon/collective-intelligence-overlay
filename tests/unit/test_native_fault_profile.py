@@ -16,7 +16,7 @@ def validator(monkeypatch):
     return importlib.import_module("validate_short_protocol")
 
 
-@pytest.mark.parametrize("version", ["0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4"])
+@pytest.mark.parametrize("version", ["0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4", "0.5.0"])
 def test_version_profiles_retain_identical_short_fault_requirements(validator, version):
     profile, protocol = validator.load_profile(ROOT, version)
     original, _ = validator.load_profile(ROOT, "0.4.0")
