@@ -1,0 +1,39 @@
+{
+  "profile_id": "permissioned-native-fault-051-v1",
+  "target_version": "0.5.1",
+  "protocol": "production-short-051-v1",
+  "declared_at": "2026-10-04T11:26:58Z",
+  "scope": "Evidence-preserving lifecycle stabilization patch; exact installed candidate, twelve native profiles and existing compatibility gates.",
+  "change_policy": "All nineteen injections and numeric bounds retained. No model inference, new research comparison, benchmark or long soak is run or required.",
+  "inherited_numeric_profile": "permissioned-single-owner-040-v1",
+  "fault_protocol": {
+    "required_injections": [
+      "owner process kill",
+      "database physical disconnect",
+      "provider stop",
+      "delayed response and timeout",
+      "duplicate response/request",
+      "owner Python clock offset plus DB clock checks",
+      "bad signature",
+      "evidence withdrawal",
+      "execution and unresolved capacity exhaustion",
+      "budget exhaustion",
+      "checker failure and checker unavailability",
+      "backup interruption",
+      "restored intake closed until verification/sync/reconciliation",
+      "new effect request during drain",
+      "duplicate owner boot",
+      "HTTP 429 and 503 with Retry-After",
+      "routine key rotation",
+      "compromised historical key",
+      "protected trial regression"
+    ],
+    "short_ci": {
+      "duration_seconds_min": 120,
+      "owners": 3,
+      "maximum_total_seconds": 600,
+      "runs_per_native_profile": 1
+    }
+  },
+  "reason": "Bind unchanged software fault requirements to 0.5.1; historical scientific results and all prior release evidence remain immutable."
+}

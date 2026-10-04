@@ -73,6 +73,7 @@ def select():
         "refs/tags/v0.4.3",
         "refs/tags/v0.4.4",
         "refs/tags/v0.5.0",
+        "refs/tags/v0.5.1",
     }:
         from release_gate import trusted_run
 
@@ -132,6 +133,7 @@ if __name__ == "__main__":
             "refs/tags/v0.4.3",
             "refs/tags/v0.4.4",
             "refs/tags/v0.5.0",
+            "refs/tags/v0.5.1",
         }:
             version = tomllib.loads((ROOT / "pyproject.toml").read_text())["project"]["version"]
             assert ref == "refs/tags/v" + version

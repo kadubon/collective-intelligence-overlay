@@ -363,7 +363,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
         )
         assert version in output
         result = {"runtime": actual, "installed": installed, "cli": output.strip()}
-        if version == "0.5.0":
+        if version in {"0.5.0", "0.5.1"}:
             offline = json.loads(
                 subprocess.check_output(
                     [str(cli), "lifecycle", "inspect", "--fixture"],
@@ -511,7 +511,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
         if (
             full
             and name == "agents"
-            and version in {"0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4", "0.5.0"}
+            and version in {"0.4.0", "0.4.1", "0.4.2", "0.4.3", "0.4.4", "0.5.0", "0.5.1"}
             and platform.system() == "Linux"
             and requested["minor"] == [3, 12]
         ):
@@ -560,7 +560,7 @@ with tempfile.TemporaryDirectory(prefix="cio-package-") as directory:
                 environment=environment,
             )
             result["installed_tutorial"] = json.loads(tutorial_output.read_text())
-        if full and name == "agents" and version == "0.5.0":
+        if full and name == "agents" and version in {"0.5.0", "0.5.1"}:
             tutorial = json.loads(
                 subprocess.check_output(
                     [
