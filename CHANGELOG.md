@@ -17,6 +17,12 @@
   cases; they are not described as wholly invariant behavior.
 - Finish and close standard A2A SDK requests on success and failure; preserve
   JSON null results and reject multiple nonstreaming responses.
+- Fix allowance retention after durable dispatch when inner admission denies
+  before actuator entry. A private origin proof plus current worker/lease checks
+  atomically fences and releases once with a cancelled receipt and overhead costs.
+  Preserve the dispatch history; actuator-entered errors, cancellation, crashes,
+  lost ownership and unknown external effects keep the existing held reservation.
+  Explicit owner new-attempt selection recognizes the persisted release proof.
 - Separately share duplicated exact-byte DSSE decoding/key-state semantics between
   material and Store reads. Public schemas/signatures, derivation contract 0.5.0,
   signed/wire records, source-bound callables, DB schema and dependencies remain.

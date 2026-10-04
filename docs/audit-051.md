@@ -34,7 +34,14 @@ UTF-16/32 input was unintentionally excluded, and a global Decision-ID uniquenes
 check rejected a valid owner's basis. Their first failures are retained; supported
 JSON encodings and source-order owner correlation now pass positive/negative cases.
 No further broad redesign or repeated audit loop is part of this patch.
-No release gate has yet been executed for 0.5.1.
+The first aggregate native run on `eda1599`,
+[37200404588](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37200404588),
+completed with eleven successful native profiles and one dependency-transfer
+failure before product tests. Its original attempt, reports and fixed distributions
+are retained. No release gate or publication passed. The user then supplied an
+additional review requiring a pre-actuation accounting correction; this source
+candidate is excluded from publication. It was not cancelled or rerun. The revised
+source and its complete native release gate still need validation.
 
 Findings below are confirmed reproductions unless explicitly marked otherwise.
 Private diagnostic inputs and raw logs are retained under `.local/audit-051*`;
@@ -50,7 +57,9 @@ the final software evidence archive will contain sanitized, bounded evidence.
 | L051-06 | P2 bug | `assess_stock`: duplicate exact targets/differing arguments or >32 requests | Qualification ran before rejection; entire bounded set is checked before effects | fixed; actual PostgreSQL state regression passed |
 | J051-01 | P2 operability | `lifecycle_cli._file`, `snapshot_from_material`: excessive nesting, duplicate keys/nonfinite constants | No depth preflight / ambiguous JSON accepted; bounded lexical/tree checks before decode/serialization | fixed; UTF-8/16/32 retained |
 | E051-01 | P2 operability | `adapters.a2a_service.invoke`: returns at first SDK yield | Iterator/client not closed; exhaust one response and close on all exits, retain JSON null | fixed; official SDK ASGI regression |
+| E051-02 | P2 bug / accounting | `Registry.execute` / `Executor.invoke`: inner admission denies after durable dispatch but before actuator entry | The live process knows the actuator was not entered, but UNKNOWN/held strands allowance; narrow private origin proof and fenced atomic release | fixed in `958e1e7`; public-wheel first failure and real PostgreSQL/OPA regression verified |
 | D051-01 | P3 documentation | `SECURITY.md`: support targets latest 0.1.x | Stale support description; latest published 0.5.x maintenance without SLA | fixed; Docs review |
+| D051-02 | P3 documentation | Security/configuration/API/release description: execution binding scope and concurrency/resource limits | Clarify authenticated peer inspection, concurrency versus rate quotas, source identity and unmeasured availability; record superseded candidate without claiming publication | fixed; static Docs/configuration review, not a dynamic DoS or penetration test |
 | R051-01 | P2 operability | Release selectors/package checks/profile stop at 0.5.0 | 051 could not reuse pair/load profile; inherit unchanged gates | implemented; focused regression passed |
 
 Nested mutable models and `model_copy(update=...)` remain a **deferred trusted-host
@@ -106,6 +115,9 @@ Windows CPython 3.12.14, uv 0.12.19, dedicated PostgreSQL 16.15 loopback and OPA
 | Second-review first/fixed | 5 fail/2 pass → 86 pass | Encoding/owner correlation corrections; final expanded collision cases 8 pass |
 | Runtime current actual services | 8 pass, 0 fail/error/skip | Receiptless, delayed commits/barrier, standard A2A; no Darwin diagnosis |
 | Actual read-only state | 12 Store cases pass | All registered Store tables unchanged: originals, budgets, held invocation/lease, admission/Decision and feed state |
+| Pre-actuation public 0.5.0 first failures | 2 fail, 0 error/skip | Normally installed public package outside checkout; outer ACCEPT, inner REJECT/UNKNOWN, zero actuator calls, old UNKNOWN/held result |
+| Pre-actuation corrected local installed wheel | 8 pass, 0 fail/error/skip | Fresh outside-checkout normal install; all 98 package files match wheel; real PG/OPA; preflight pair, not final native/PyPI bytes |
+| Revised execution/recovery suites | 119 pass, 0 fail/error/skip | Seven real PG/OPA suites on `958e1e7`, including eight new cases; no native Darwin claim |
 
 An initial caller regression incorrectly expected a conflict for a distinct caller.
 The first failure is retained with its oracle correction; the separate public-wheel
@@ -113,10 +125,53 @@ run proves the corrected independent-use expectation fails on 0.5.0. A property
 initially expected unwrapped Conflict, but Pydantic has always wrapped snapshot
 validator errors as ValueError/ValidationError; its original failure and correction
 are retained. Neither test correction is represented as a product fix.
+The first revised seven-suite run retained 117 pass, one test-setup failure from
+initializing the same owner's budget twice, and one skip because the local PG
+tool prefix was omitted. Both setup/environment corrections and raw results are
+retained; they are not product fixes. The completed 119-case run sets the WSL PG
+tool prefix and has no failures, errors or skips.
 
 ## Evidence still required
 
-Candidate normal clean installations/dependency/license/SBOM checks, final native
-provenance/gate, exact pair reuse, OIDC publication and actual PyPI/Release
+The revised local preflight wheel/sdist passed normal clean installations and
+dependency/license/SBOM checks; these bytes are not the final CI candidate.
+Final native provenance/gate, exact pair reuse, OIDC publication and actual PyPI/Release
 download/install remain pending at this prepublication source snapshot. Full/native
 and postpublication results will be separately recorded in versioned release Docs.
+
+## User-supplied prepublication review supplement
+
+The supplied static review did not execute a PoC and its severity ratings are
+review opinions. A finite maintainer reproduction on the frozen `eda1599` product
+confirmed E051-02 with real PostgreSQL/OPA: outer ACCEPT, durable dispatch, inner
+REJECT after withdrawal or UNKNOWN after source freshness loss, and operation
+call count zero. The stronger two-case first-failure report is retained as
+`preactuation-firstfail-v2.xml`; both fail because the result is UNKNOWN instead
+of cancelled/released. The first six-case report also retains four passing safety
+cases, including an entered parent's child denial and delayed dispatch DB threads.
+The two primary cases also fail on the normally installed public 0.5.0 wheel,
+independently of the frozen checkout. The correction commit is
+`958e1e781b590c8f5957d375e3b65194d6c473e9`; its focused and installed regression
+records remain separate from the later mandatory native and publication gate.
+
+The correction preserves double admission and original dispatch history. A
+private proof is produced only around inner admission after the exact dispatch
+callback returned and before the actuator's first statement. Live DB ownership,
+worker/fence, active unexpired lease, no prior receipt/actual and exact original
+request/receipt are checked before fencing, returning allowance and signing a
+cancelled overhead receipt in one transaction. Generic AdmissionDenied, entered
+operations, child denial, crashes, cancelled awaits and lost ownership gain no
+release authority. DB failure rolls back the disposition and receipt together.
+Explicit owner new-attempt selection requires the persisted fenced release proof,
+fresh observation and current admission; exact original-ID replay remains terminal.
+No new public phase/state, schema, DB migration or runtime dependency is added.
+
+The other observations are addressed by precise existing-boundary documentation:
+request concurrency is not a rate or cumulative resource quota; allowed peers can
+sustain inspection/authentication/storage work; function-source digests do not
+attest all dependencies/globals/environment; owner critical-section serialization
+has no measured high-load throughput guarantee. The existing host/DB/OPA/key/clock
+TCB and absent external pentest, multi-organization key-management assurance and
+long-running availability proof remain explicit. No authentication/signature bypass
+or concrete PyPI metadata defect was reproduced by that static review. The current
+README identifies unpublished 0.5.1 and links actual publication records separately.
