@@ -48,8 +48,8 @@ runtime is added. Historical results, protocols and signed raw are unchanged.
 
 ## Required regression evidence (local scope)
 
-The 28 focused unit/property cases are in [test_lifecycle.py](../tests/unit/test_lifecycle.py).
-Six actual PostgreSQL/OPA bridge cases are in
+The 37 focused unit/property cases are in [test_lifecycle.py](../tests/unit/test_lifecycle.py).
+Ten actual PostgreSQL/OPA bridge cases are in
 [test_lifecycle_store.py](../tests/integration/test_lifecycle_store.py).
 The representative pre-freeze source run passed 512 / failed 0 / skipped 0,
 including existing inspection, lineage, invocations/resolution and binding APIs.
@@ -57,6 +57,19 @@ The final feature/release focused run passed 82 / failed 0 / skipped 0; one
 subsequent same-clock ambiguity case also passed. These scopes are not a complete
 native matrix. Initial collection/fixture failures and the freshness guard rejection
 remain in private logs; corrected targeted checks passed without weakening the guards.
+
+After the first full candidate was frozen (run 37182803375, source `4a653a4`), an
+additional regression reproduced a missing-original-clock defect: the legacy
+decoder's current-time default was displayed as an observed source clock. That
+candidate is superseded and cannot be published or attest corrected bytes. The
+correction preserves the wire decoder and original payload; source, evidence and
+cost clocks are null when absent, and top-level decoder defaults are explicitly
+marked. Missing relevant period clocks also prevent exact period counts/churn.
+Four actual Store cases cover signed omitted clocks and unchanged exact exports.
+The corrected focused suite passed 47 / failed 0 / skipped 0, including the ten
+actual PostgreSQL/OPA cases; lint, format, typing and generated Docs checks passed.
+The initial reproduction and subsequent fixture failures remain retained. The
+corrected candidate requires its own frozen pair and native gate.
 
 | Requirement | Local evidence; final native gate still pending |
 | --- | --- |

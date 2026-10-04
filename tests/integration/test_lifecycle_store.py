@@ -242,3 +242,41 @@ def test_generation_change_requires_resnapshot_and_exact_export_digest(store, id
             record_cursor=first.context.record_cursor,
             decision_cursor=first.context.decision_cursor,
         )
+
+
+@pytest.mark.parametrize("kind", ["capability", "evidence", "event", "revocation"])
+def test_signed_original_missing_clock_survives_store_read_and_exact_export(
+    store, identities, records, kind
+):
+    from securesystemslib.dsse import Envelope
+
+    cap, evidence = records
+    original = {
+        "capability": cap,
+        "evidence": evidence,
+        "event": Event(
+            issuer="receiver",
+            subject=cap.subject,
+            action="reuse",
+            task_id="clock",
+            attempt_id="clock",
+            correlation_id="clock",
+        ),
+        "revocation": Revocation(issuer=cap.issuer, subject=cap.subject, reason="clock test"),
+    }[kind]
+    signed = identities[original.issuer].sign(original)
+    body = json.loads(Envelope.from_dict(signed).payload)
+    clock = "occurred_at" if kind == "event" else "created_at"
+    body.pop(clock)
+    envelope = Envelope(json.dumps(body).encode(), signed["payloadType"], {})
+    envelope.sign(identities[original.issuer].signer)
+    document = envelope.to_dict()
+    assert store.put(document) is True
+    observed = read_lifecycle_page(store, target(cap), caller="receiver")
+    source = observed.records[0].source
+    assert source.occurred_at is None and clock in source.decoder_default_fields
+    assert source.signature == "historical_verified" and source.received_at is not None
+    exported = export_originals(store, (source.reference,), caller="receiver")
+    assert exported["records"][0]["document"] == document
+    assert Envelope.from_dict(exported["records"][0]["document"]).payload == envelope.payload
+    assert clock not in json.loads(envelope.payload)
