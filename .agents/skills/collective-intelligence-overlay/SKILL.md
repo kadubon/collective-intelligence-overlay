@@ -257,3 +257,8 @@ Persisted bindings can be reconstructed after restart; different execution input
 still require distinct host logical IDs. Preserve exact original bytes and
 independent receiver checks. A limited successful transfer establishes no general
 intelligence, CIO advantage or equivalence.
+
+The published 0.4.4 native gate, actual PyPI/install and downloaded-archive checks
+are in [actual release results](../../../docs/release-044-results.json). Keep its
+immutable tag and single archive. Declared software validation does not turn the
+pilot into a completed comparison or establish scratch sensitivity.

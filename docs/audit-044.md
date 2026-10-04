@@ -72,8 +72,8 @@ immutable 0.4.3 release commit, while current derivatives remain checked. New
 quick runs 37159608263 and 37161003837 passed. No whole-workflow retry occurred.
 
 Final 0.4.4 native validation, exact-pair OIDC publication, actual PyPI installation
-and GitHub archive download verification are pending. This document will retain
-their actual outcome separately from the scientific pilot gate.
+and downloaded-archive offline verification completed. Their actual outcomes are
+recorded below, separately from the scientific pilot gate.
 
 Local candidate build passed. Its first clean `[agents]` unit check retained
 396 passes and six failures: the new SDK wire cases required optional
@@ -97,3 +97,52 @@ work files were restored to their existing Git blobs and the new unpublished
 manifest corrected; JSON values are identical. Every final source/derivative
 checksum now also verifies directly against Git bytes. No raw, model request,
 score or historical protocol changed, and no full native run had begun.
+
+
+## Completed native and publication verification
+
+[Actual release facts](release-044-results.json) and the
+[Japanese eight-part report](release-044-report.ja.md) record the successful
+12-profile fixed candidate, mixed Python, four cross-platform readers and ready.
+There was one full workflow dispatch and one targeted infrastructure retry:
+Mac Intel/Python 3.12 job 111320758462 failed before software tests when the Go
+module proxy timed out after cache restoration timed out. Original full logs,
+job metadata, the failed artifact and ten diagnostics were retained separately.
+The first targeted retry request was rejected while the original workflow still
+ran; its HTTP 403 record is retained. After original completion, only that job
+and dependent jobs were retried. Eleven native jobs retained their original
+success timestamps; source and candidate hashes were unchanged.
+
+The native gate authenticates the complete original report set. Successful retry
+and remaining support artifacts were selected by immutable IDs, with downloaded
+ZIP hashes checked against GitHub metadata. Public native copies have explicit
+original/public mappings; six Windows unsigned bundle.config paths were narrowly
+redacted without changing signed payloads. Original failed and successful reports
+remain unchanged.
+
+The normal tag selector restored the exact tested wheel/sdist and gate, and
+[OIDC run 37175366587](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37175366587) published
+through workflow.yml/environment pypi. Tag v0.4.4 is commit
+`5425daa397d8f4876d094ed1c5aea08008bb69cb` and was not moved. No publication rebuild, matrix
+duplication, long-lived PyPI token or recovery exception was used.
+
+Actual PyPI file bytes matched the candidate. A new no-cache/no-config ordinary
+index install outside the checkout verified all 86 runtime files, version/CLI and
+six optional SDK imports; resolved distributions and the actual pip-audit output
+are retained. Its real three-process PG/OPA/MCP/A2A/MAF demo passed ACCEPT/117.00,
+REQUALIFY after environment change and REJECT after dependency withdrawal.
+Owned PG and child processes stopped; data/logs remain and no new inference ran.
+
+One new research ZIP was compressed once. All eight published GitHub assets were
+downloaded again and matched exact bytes and sizes. The ZIP's
+5553 members
+matched the master manifest. Its corrected reader reproduced all three published
+revision analyses outside the checkout, with network blocked and no inference.
+The archive-only launcher's first missing-support-shim failure is retained as a
+derived failure record; its old launcher is preserved separately. An unchanged
+support shim and corrected path resolved that packaging issue before compression.
+Earlier raw/source/reader failures and unsuccessful results were not removed.
+Old raw was not repacked and model weights were not distributed. The targeted
+privacy scan is not a complete external audit; generation/usage/signed/CAS bytes
+remain exact and unsigned metadata changes have hash mappings. Publication
+completion does not change the scientific `assay_not_ready` result.

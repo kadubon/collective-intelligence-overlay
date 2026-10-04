@@ -14,6 +14,9 @@ new execution inputs require a distinct logical ID even when binding is reused.
 The actual pilot is `assay_not_ready`; see its generated reports and audit.
 Run one final hash-bound native gate on the fixed candidate and reuse that exact
 pair at tag publication. Scientific/document-only updates do not repeat inference.
+0.4.4 is published; actual native, PyPI/install and downloaded-archive checks are
+in `docs/release-044-results.json`. Preserve its immutable tag, pair and single
+archive. Publication does not establish sensitivity or comparative benefit.
 
 For v0.4.3 use the separate finite near-transfer protocol in
 `docs/near-transfer-043.md`. Preserve 0.4.2 raw/history. Select difficulty from

@@ -1,14 +1,57 @@
 # Release procedure and current state
 
-## 0.4.4 candidate: pilot complete, publication pending
+## 0.4.4 published and verified on 2026-10-04 JST; pilot only
 
-The source-only [bounded semantic procedure pilot](bounded-scratch-044.md) is
-`assay_not_ready`: both families reached the prescribed ceiling, so G2 and
-confirmation were not started. All four M/C transfer/restart paths passed as
-mechanism diagnostics. [Generated results](studies/bounded-scratch-044/results-v1/report.en.md)
-and [audit](audit-044.md) retain all 40 actual requests, 28178 tokens and failed
-revisions. Published 0.4.3 evidence remains unchanged. Final 0.4.4 full native
-validation and exact-pair tag/OIDC publication have not yet completed.
+[PyPI 0.4.4](https://pypi.org/project/collective-intelligence-overlay/0.4.4/),
+[GitHub Release](https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.4),
+[actual machine-readable results](release-044-results.json) and the
+[Japanese eight-part report](release-044-report.ja.md) record completed publication
+and the declared verification. The annotated tag remains commit
+`5425daa397d8f4876d094ed1c5aea08008bb69cb`, object `c8c30338a1c075c1700772d3e42209be79d4a70c`.
+
+The source-only [bounded procedure pilot](bounded-scratch-044.md) remains
+`assay_not_ready`: the preregistered G1 rule reached the L2 ceiling in both families,
+so no setting was selected, G2 offered zero tasks and confirmation was not started.
+All four same-candidate M/C transfer/restart paths passed as mechanism diagnostics,
+not effect comparisons. [Generated results](studies/bounded-scratch-044/results-v1/report.en.md)
+and [audit](audit-044.md) retain 44 offered rows, 40 actual generations, 28178 tokens
+and all failed revisions. Published 0.4.3 evidence remains unchanged.
+
+The single fixed [native run 37163191811](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37163191811)
+passed all 12 native profiles, mixed Python and four cross-platform readers.
+Its first Mac Intel/Python 3.12 attempt failed before software tests on a Go module
+download timeout after a cache restore timeout. The original full job log and ten
+diagnostic files remain retained; only the affected job and dependent aggregation
+jobs were retried. Other native jobs retained their original success timestamps.
+Source and candidate bytes did not change, and the whole matrix was not rerun.
+
+Standard hash-bound [OIDC run 37175366587](https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37175366587)
+passed candidate, ready and publish through workflow.yml and environment pypi by
+restoring the exact tested pair and gate. Publication rebuilt no distributions,
+repeated no native workload and used no existing-tag recovery exception.
+Actual PyPI wheel/sdist bytes match the candidate. A fresh Python 3.12.14
+no-cache/no-config ordinary index install outside the checkout matched all 86
+package files, CLI and six optional imports. A real PostgreSQL/OPA/MCP/A2A/MAF
+three-process demo passed ACCEPT, 117.00, REQUALIFY after environment change and
+REJECT after dependency withdrawal. Owned services and child processes were
+stopped, with data/logs retained and no additional model inference.
+
+All eight GitHub assets were downloaded and matched byte-for-byte and by size.
+The single research ZIP is 40,181,196 bytes, SHA256
+`2c0cec425616adec29adc5c28731c202c7402c91fb874a6b6e9ed102066b7aff`. Its 5,553
+members matched the master file manifest. An outside-checkout offline rerun from
+the downloaded archive, with reader network access blocked, reproduced all three
+published raw-revision analyses without inference or recompression. Prior-release
+raw and model weights were not included.
+
+Original native reports remain bound to their gate. Separate public copies retain
+original/public mappings for unsigned operational metadata, including six Windows
+key-observation bundle.config paths. Scientific generation requests/responses/usage,
+signed records and CAS retain their original bytes. The targeted PEM/home/operational
+DSN scan distinguishes frozen source example DSNs and the hash-verified scanner
+regex literal; it is not a complete external privacy audit. Checksums establish
+byte identity, not truth. Postpublication documentation advances main without
+moving the tag, changing the ZIP or rebuilding distributions.
 
 ## 0.4.3 published and verified on 2026-10-04 JST; pilot only
 

@@ -1,0 +1,684 @@
+{
+  "schema_version": "1",
+  "version": "0.4.4",
+  "status": "published_and_required_declared_verification_complete",
+  "scientific_status": "assay_not_ready",
+  "confirmation_performed": false,
+  "scientific_results": "studies/bounded-scratch-044/results-v1/results.json",
+  "repository": "https://github.com/kadubon/collective-intelligence-overlay",
+  "tag": "v0.4.4",
+  "tag_commit": "5425daa397d8f4876d094ed1c5aea08008bb69cb",
+  "tag_object": "c8c30338a1c075c1700772d3e42209be79d4a70c",
+  "tag_moved": false,
+  "publication_rebuild": false,
+  "native_candidate": {
+    "candidate_run_id": "37163191811",
+    "source_commit": "a5412eafc0bcacf4a520e023979c66878f6a1f7d",
+    "source_tree": "eab04ed689b6e50d0b65837f5cbddb9a40249adb",
+    "artifacts": {
+      "collective_intelligence_overlay-0.4.4-py3-none-any.whl": "ad873f99fb7d6e888faa06555c6f701c00ecd39122c1ee016251d40a88931e96",
+      "collective_intelligence_overlay-0.4.4.tar.gz": "0ee5bdbe22b4a0d6c36ea7ed697714d4c1d3afd0ede1cd113ff574c3ec46c362"
+    },
+    "gate_sha256": "970594adafc25c8e76d1713107d623e2293ebf51704e9432aa68c96ff8e83cb8"
+  },
+  "native_profiles": [
+    {
+      "profile": "reports-Darwin-amd64-3.12.14-full",
+      "python": "3.12.14",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-amd64-3.13.15-full",
+      "python": "3.13.15",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-amd64-3.14.7-full",
+      "python": "3.14.7",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-arm64-3.12.14-full",
+      "python": "3.12.14",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-arm64-3.13.15-full",
+      "python": "3.13.15",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Darwin-arm64-3.14.7-full",
+      "python": "3.14.7",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Linux-amd64-3.12.14-full",
+      "python": "3.12.14",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Linux-amd64-3.13.15-full",
+      "python": "3.13.15",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Linux-amd64-3.14.7-full",
+      "python": "3.14.7",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Windows-amd64-3.12.14-full",
+      "python": "3.12.14",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Windows-amd64-3.13.15-full",
+      "python": "3.13.15",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "profile": "reports-Windows-amd64-3.14.7-full",
+      "python": "3.14.7",
+      "tests": {
+        "source": {
+          "tests": 828,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents": {
+          "tests": 816,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-model": {
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "agents-ollama": {
+          "tests": 11,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "rebuilt_sdist": {
+          "tests": 397,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    }
+  ],
+  "cross_readers_passed": 4,
+  "mixed_python_passed": true,
+  "ready_passed": true,
+  "native_full_workflow_dispatches": 1,
+  "quick_runs_before_publication": 8,
+  "quick_run_count_scope": "Seven early PR/main runs plus the release-selector documentation push; the final documentation commit check is confirmed separately at delivery.",
+  "release_selector_quick_run_id": "37175194453",
+  "native_run_attempts": 2,
+  "targeted_infrastructure_retry": {
+    "original_job_id": "111320758462",
+    "cause": "Go module proxy read timeout after artifact cache restore timeout; software tests had not started.",
+    "original_failure_preserved": true,
+    "whole_workflow_rerun": false,
+    "source_or_candidate_changed": false
+  },
+  "publication_run_id": "37175366587",
+  "publication_run_url": "https://github.com/kadubon/collective-intelligence-overlay/actions/runs/37175366587",
+  "standard_hash_bound_selector_used": true,
+  "native_workload_repeated_at_tag": false,
+  "existing_tag_recovery_exception_used": false,
+  "runtime_package_files_identical_to_study_042": 86,
+  "pypi_url": "https://pypi.org/project/collective-intelligence-overlay/0.4.4/",
+  "pypi_files": [
+    {
+      "filename": "collective_intelligence_overlay-0.4.4-py3-none-any.whl",
+      "url": "https://files.pythonhosted.org/packages/d8/61/2cc70fe0a743bbaa9fa941ccc8dfcb35900d2133f69fbf4a9f884283e76a/collective_intelligence_overlay-0.4.4-py3-none-any.whl",
+      "size": 258681,
+      "sha256": "ad873f99fb7d6e888faa06555c6f701c00ecd39122c1ee016251d40a88931e96",
+      "upload_time_iso_8601": "2026-10-04T03:54:42.488317Z"
+    },
+    {
+      "filename": "collective_intelligence_overlay-0.4.4.tar.gz",
+      "url": "https://files.pythonhosted.org/packages/46/01/8a55413ead6c21ddd3d20faf6b95971c701e5275684a05c01ab8482c1dbc/collective_intelligence_overlay-0.4.4.tar.gz",
+      "size": 206389,
+      "sha256": "0ee5bdbe22b4a0d6c36ea7ed697714d4c1d3afd0ede1cd113ff574c3ec46c362",
+      "upload_time_iso_8601": "2026-10-04T03:54:44.200561Z"
+    }
+  ],
+  "actual_pypi_files_equal_candidate": true,
+  "clean_actual_index_install": {
+    "status": "passed",
+    "python": "3.12.14",
+    "version": "0.4.4",
+    "package_file_count": 86,
+    "checkout_external": true,
+    "index": "https://pypi.org/simple",
+    "cache_used": false,
+    "configuration_used": false,
+    "optional_imports": [
+      "mcp",
+      "a2a",
+      "agent_framework",
+      "agent_framework.openai",
+      "agent_framework.ollama",
+      "collective_intelligence_overlay.adapters.ollama"
+    ],
+    "resolved_distribution_count": 69,
+    "cli_help_passed": true,
+    "inference_performed": false
+  },
+  "representative_smoke": {
+    "processes": 3,
+    "admission": "ACCEPT",
+    "held_out_result": "<p>Rows: 3; total: 117.00</p>",
+    "execution_path": "registered-A2A",
+    "changed_environment": "REQUALIFY",
+    "after_dependency_revocation": "REJECT",
+    "claims": "deterministic interoperability demonstration; no intelligence-growth claim"
+  },
+  "owned_service_cleanup": {
+    "status": "passed",
+    "owned_actual_demo_python_processes": 0,
+    "owned_ports_listening": {
+      "11444": false,
+      "55444": false,
+      "55445": false
+    },
+    "postgres_owner_marker_verified": true,
+    "postgres_stopped": true,
+    "postgres_data_retained": true,
+    "study_cleanup_original_record": {
+      "owned_postgres_stopped": true,
+      "data_retained": true,
+      "port": 55444,
+      "owned_model_stopped": true,
+      "observer_stopped": true,
+      "confirmed_at": "2026-10-03T23:33:33.124535+00:00",
+      "inclusive_charge_seconds": 3325.185841,
+      "scope": "Conservative setup-through-confirmed-cleanup elapsed time; includes gaps, fixes and three revisions. Stop helper verified private owner marker and absent port. No unrelated service controlled."
+    },
+    "unrelated_services_controlled": false,
+    "model_inference_added": false
+  },
+  "github_release": {
+    "release_id": 402829813,
+    "release_url": "https://github.com/kadubon/collective-intelligence-overlay/releases/tag/v0.4.4",
+    "published_at": "2026-10-04T04:14:19Z",
+    "assets": [
+      {
+        "file": "cio-044-asset-manifest.json",
+        "size": 1119,
+        "sha256": "d462257914ebc958ab61ae5154522a5b0fcca87b68cb5c5bda08bb1e46b5eb4a"
+      },
+      {
+        "file": "cio-044-native-gate.json",
+        "size": 677300,
+        "sha256": "970594adafc25c8e76d1713107d623e2293ebf51704e9432aa68c96ff8e83cb8"
+      },
+      {
+        "file": "cio-044-report.en.md",
+        "size": 3913,
+        "sha256": "554f7f68af23ef8515107cd7d5a859959dbbc4ed1f2e8bc45cf97a05b361e102"
+      },
+      {
+        "file": "cio-044-report.ja.md",
+        "size": 4302,
+        "sha256": "8145fd186638c0db8069fa67d5b261457b21bdd85e2e9a6d705d2d7741b9a47c"
+      },
+      {
+        "file": "cio-044-research-v1.zip",
+        "size": 40181196,
+        "sha256": "2c0cec425616adec29adc5c28731c202c7402c91fb874a6b6e9ed102066b7aff"
+      },
+      {
+        "file": "collective_intelligence_overlay-0.4.4-py3-none-any.whl",
+        "size": 258681,
+        "sha256": "ad873f99fb7d6e888faa06555c6f701c00ecd39122c1ee016251d40a88931e96"
+      },
+      {
+        "file": "collective_intelligence_overlay-0.4.4.tar.gz",
+        "size": 206389,
+        "sha256": "0ee5bdbe22b4a0d6c36ea7ed697714d4c1d3afd0ede1cd113ff574c3ec46c362"
+      },
+      {
+        "file": "SHA256SUMS.txt",
+        "size": 688,
+        "sha256": "3a53f078e58a80c919e50cd05abfdf59dada4a502ee29fb6099f782b2eaf41c6"
+      }
+    ],
+    "all_downloaded_bytes_match": true
+  },
+  "delivered_archive_offline_verification": {
+    "status": "passed",
+    "assets": [
+      {
+        "file": "cio-044-asset-manifest.json",
+        "size": 1119,
+        "sha256": "d462257914ebc958ab61ae5154522a5b0fcca87b68cb5c5bda08bb1e46b5eb4a"
+      },
+      {
+        "file": "cio-044-native-gate.json",
+        "size": 677300,
+        "sha256": "970594adafc25c8e76d1713107d623e2293ebf51704e9432aa68c96ff8e83cb8"
+      },
+      {
+        "file": "cio-044-report.en.md",
+        "size": 3913,
+        "sha256": "554f7f68af23ef8515107cd7d5a859959dbbc4ed1f2e8bc45cf97a05b361e102"
+      },
+      {
+        "file": "cio-044-report.ja.md",
+        "size": 4302,
+        "sha256": "8145fd186638c0db8069fa67d5b261457b21bdd85e2e9a6d705d2d7741b9a47c"
+      },
+      {
+        "file": "cio-044-research-v1.zip",
+        "size": 40181196,
+        "sha256": "2c0cec425616adec29adc5c28731c202c7402c91fb874a6b6e9ed102066b7aff"
+      },
+      {
+        "file": "collective_intelligence_overlay-0.4.4-py3-none-any.whl",
+        "size": 258681,
+        "sha256": "ad873f99fb7d6e888faa06555c6f701c00ecd39122c1ee016251d40a88931e96"
+      },
+      {
+        "file": "collective_intelligence_overlay-0.4.4.tar.gz",
+        "size": 206389,
+        "sha256": "0ee5bdbe22b4a0d6c36ea7ed697714d4c1d3afd0ede1cd113ff574c3ec46c362"
+      },
+      {
+        "file": "SHA256SUMS.txt",
+        "size": 688,
+        "sha256": "3a53f078e58a80c919e50cd05abfdf59dada4a502ee29fb6099f782b2eaf41c6"
+      }
+    ],
+    "all_downloaded_bytes_match": true,
+    "archive_members_verified": 5553,
+    "master_manifest_files_verified": 5552,
+    "all_three_raw_revisions_equal_published": true,
+    "revisions": [
+      {
+        "run": "bounded-scratch-044-pilot-v1",
+        "equals_published_verification": true,
+        "offered": 36
+      },
+      {
+        "run": "bounded-scratch-044-G3-v2",
+        "equals_published_verification": true,
+        "offered": 0
+      },
+      {
+        "run": "bounded-scratch-044-G3-v3",
+        "equals_published_verification": true,
+        "offered": 8
+      }
+    ],
+    "network_blocked_by_reader": true,
+    "inference_performed": false,
+    "archive_recompressed": false,
+    "checkout_external_working_directory": true
+  },
+  "archive_compressed_once": true,
+  "old_raw_repacked": false,
+  "model_weights_published": false,
+  "publication_privacy_scope": "Targeted checks for PEM material, home paths and operational DSNs; frozen source example DSNs and the hash-verified scanner literal excluded. Not a complete external privacy audit. All unsigned transformations have original/public mappings; generation requests/responses/usage, signed records and CAS remain unchanged.",
+  "unestimated": [
+    "Full-Empty effects",
+    "C-M effects",
+    "H_ACC",
+    "H_CIO",
+    "H_FORM",
+    "break-even",
+    "future maintenance",
+    "energy",
+    "full compute"
+  ]
+}
